@@ -1,0 +1,46 @@
+Copyright (c) 2016 Adam Hartz <hartz@mit.edu>
+
+Redistribution and use of this software is permitted provided that the
+following conditions are met.  These conditions apply to any redistributions
+of this software, in whole or in part, with or without modification.
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions, and the following disclaimer.
+
+2. Redistributions in other forms must reproduce the above copyright notice,
+   this list of conditions, and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Redistributions in any form must include a copy of the complete corresponding
+   machine-readable source code of this software, as well as any accompanying
+   software that uses it, at no additional charge.  The source code must be
+   provided in the preferred form for making modifications to it and must be
+   licensed in its entirety at no charge to all third parties, either:
+      * under the terms of this license, or
+      * under the terms of the Free Software Foundation's GNU Affero General
+        Public License, either version 3 or, at your option, any later version.
+
+4. If a redistribution is made such that users interact with it remotely
+   through a computer network, it must prominently offer all users interacting
+   with it an opportunity to receive the complete corresponding
+   machine-readable source code of this software, as well as any accompanying
+   software that uses it, from a network server at no charge, under the terms
+   described in section 3.
+
+5. If a redistribution is combined with another separate and independent work,
+   the terms of this license apply to the other work, unless all of the
+   following conditions are met:
+      * the other work is not by its nature an extension of this software, and
+      * the other work is not combined with this software so as to form a
+        larger program, and
+      * the terms of the other work's license do not limit the access or
+        legal rights of the users of the combined work beyond what the
+        individual works permit.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
