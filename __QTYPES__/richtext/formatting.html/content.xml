@@ -1,0 +1,72 @@
+<python>
+cs_title = "CAT-SOOP Markdown Formatting Help"
+cs_content_header = "Markdown Formatting Help"
+</python>
+
+<center>
+<style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding:10px;
+}
+</style>
+
+<br/>
+
+<table style="">
+<tr>
+<th>Syntax</th>
+<th>Processed</th>
+</tr>
+
+<tr>
+<td><pre>This text is _emphasized_.</pre></td>
+<td><p>This text is <em>emphasized</em>.</p></td>
+</tr>
+
+<tr>
+<td><pre>This is **bold** text.</pre></td>
+<td><p>This is <strong>bold</strong> text.</p></td>
+</tr>
+
+<tr>
+<td><pre>math (LaTeX): $x^2$</pre></td>
+<td><p>math (LaTeX): <math>x^2</math></p></td>
+</tr>
+
+<tr>
+<td><pre>display math (LaTeX): $$\sum_{a=0}^\infty a^n$$</pre></td>
+<td><p>display math (LaTeX): <displaymath>\sum_{a=0}^\infty a^n</displaymath></p></td>
+</tr>
+
+<tr>
+<td><pre>* bulleted
+* list</pre></td>
+<td><ul>
+<li>bulleted</li>
+<li>list</li>
+</ul></td>
+</tr>
+
+<tr>
+<td><pre>1. numbered
+1. list</pre></td>
+<td><ol>
+<li>numbered</li>
+<li>list</li>
+</ol></td>
+</tr>
+
+<tr>
+<td><pre>[Link to Google](http://google.com)</pre></td>
+<td><p><a href="http://google.com">Link to Google</a></p></td>
+</tr>
+
+<tr>
+<td><pre>![Image](http://cat-soop.org/images/logo.png)</pre></td>
+<td><p><img alt="Image" src="BASE/images/logo.png" /></p></td>
+</tr>
+
+</table>
+</center>
