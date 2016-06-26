@@ -1,0 +1,137 @@
+/* CAT-SOOP Base Theme */
+
+.error {
+  color: #FF0000;
+}
+
+.equal {
+  width:100%;
+  display:table;
+  border-collapse:separate;
+}
+.row {
+  display:table-row;
+}
+.row div {
+  display:table-cell;
+}
+
+#logo{
+    display:none;
+}
+
+body {
+  background-color: #999999;
+  font-family: Arial, Geneva, Helvetica, sans-serif;
+  font-size: 16px;
+  color: #000000;
+  text-align: center;
+}
+
+#top_menu {
+  width: 100%;
+  height: 20px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+small {
+  font-size: 10pt;
+}
+
+h1, h2, h3 {color: #000000;}
+
+h1 {font-size: 16pt;}
+h2 {font-size: 14pt;}
+h3 {font-size: 12pt;}
+
+a {
+  font-weight: normal;
+  text-decoration: none;
+  color: #0000FF;
+}
+
+a:hover {
+  text-decoration: underline;
+  font-weight: normal;
+  color: #0000FF;
+}
+
+#page {
+  max-width: 1000px;
+  display: block;
+  margin: auto;
+  text-align: left;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #000000;
+}
+
+/* HEADER */
+
+#header_container {
+  width: calc(100%-20px);
+  display: block;
+  background-color: #FFFFFF;
+  text-align: center;
+  padding: 10px;
+}
+
+#navigation {
+    display: none;
+}
+
+#logo {
+
+}
+
+#header {
+  margin-top: 10px;
+  font-size: 18pt;
+  color: #000000;
+}
+
+#subheader {
+  margin-top: 5px;
+  font-size: 12pt;
+}
+
+/* MAIN DISPLAY BOX */
+
+#body {
+  width: 100%;
+  background-color: #FFFFFF;
+}
+
+
+#content_header {
+  font-size: 14pt;
+  font-weight: bold;
+}
+
+#content {
+  width: 100%;
+  margin: 0px;
+  padding: 10px;
+}
+
+#side_menu {
+    width:0px;
+}
+
+#bottom_menu {
+  background-color: #CCCCCC;
+  width: calc(100%-20px);
+  height: 20px;
+  vertical-align: middle;
+  padding-right: 10px;
+  padding-left: 10px;
+  text-align: right;
+}
+
+/* FOOTER */
+
+#footer {text-align: center;
+         color: #000000;
+         font-size: 10pt;
+        }
