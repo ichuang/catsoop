@@ -7,7 +7,7 @@
 Cross-platform file locking solution, mainly used for logging.
 
 Based on and modified from an implementation by Evan Fosmark:
-U{http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python/}
+http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python/
 """
 
 import os

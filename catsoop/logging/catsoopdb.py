@@ -46,11 +46,6 @@ def unprep(x):
 def get_log_filename(course, db_name, log_name):
     '''
     Returns the filename where a given log is stored on disk.
-
-    @param course: A string containing the name of the course (a subdirectory
-    in C{courses}), or C{None} to access a global log
-    @param log_name: A string containing the name of the log to be accessed
-
     '''
     base = os.path.join('__LOGS__', db_name, *(log_name.split('.')))
     if course is not None:
@@ -60,6 +55,9 @@ def get_log_filename(course, db_name, log_name):
 
 
 def update_log(course, db_name, log_name, new):
+    """
+    Adds a new entry to the specified log.
+    """
     fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before making changes
     # look up the separator and the data
@@ -90,6 +88,9 @@ def update_log(course, db_name, log_name, new):
 
 
 def overwrite_log(course, db_name, log_name, new):
+    """
+    Overwrites the most recent entry in the specified log.
+    """
     fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before making changes
     with FileLock(fname) as lock:
@@ -116,6 +117,9 @@ def _read_log(course, db_name, log_name):
 
 
 def read_log(course, db_name, log_name):
+    """
+    Reads all entries of a log.
+    """
     return list(_read_log(course, db_name, log_name))
 
 
@@ -124,7 +128,7 @@ def most_recent(course, db_name, log_name, default=None):
     Ignoring most of the log, grab the last entry
 
     Based on code by S.Lott and Pykler at:
-    U{http://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-with-python-similar-to-tail}
+    http://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-with-python-similar-to-tail
     '''
     fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before reading it
@@ -149,7 +153,7 @@ def most_recent(course, db_name, log_name, default=None):
                 else:
                     # otherwise, seek to the start of the file and read
                     # through to the end
-                    f.seek(offset,0)
+                    f.seek(offset, 0)
                     # need to split on this next line because some entries
                     # may be shorter than one "blocksize"
                     data = (f.read(numbytes) + data)[:-lsep].split(sep)[-1]
@@ -158,7 +162,8 @@ def most_recent(course, db_name, log_name, default=None):
                 # update our counters
                 block -= 1
                 numbytes -= blocksize
-                # if we found a break (or multiple breaks), we are done.  grab the data and return.
+                # if we found a break (or multiple breaks), we are done.  grab
+                # the data and return.
                 breaks = data[:-lsep].count(sep)
                 if breaks >= 1:
                     f.close()

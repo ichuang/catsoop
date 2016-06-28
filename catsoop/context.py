@@ -21,7 +21,7 @@ CAT-SOOP's version number
 
 cs_fs_root = '/home/cat-soop/cat-soop'
 """
-The directory where CAT-SOOP is located (the location of C{index.py}).
+The directory where CAT-SOOP is located (the location of index.py).
 """
 
 cs_data_root = r'/home/cat-soop/data'
@@ -37,8 +37,8 @@ to CAT-SOOP's information page.
 
 cs_auth_type = 'login'
 """
-Which authentication type to use (C{'login'} to use a form, C{'cert'} to read
-client certificates).
+Which authentication type to use ('login' to use a form, 'cert' to read client
+certificates).
 """
 
 
@@ -144,23 +144,20 @@ The course associated with a request
 
 cs_debug_log_location = '/tmp/catsoop.log'
 """
-The filename where the user debug log should be stored (via L{cs_debug})
+The filename where the user debug log should be stored (via cs_debug)
 """
 
 
-def cs_debug(value, tag=''):
+def cs_debug(*values, tag=''):
     """
-    Write L{value} to L{cs_debug_log_location}, with a timestamp and an
-    optional tag.  If L{cs_debug_log_location} is C{None}, do nothing.
-
-    @param value: The value to be logged
-    @param tag: An optional tag to include in the log entry
+    Write values to cs_debug_log_location, with a timestamp and an optional tag.
+    If cs_debug_log_location is None, do nothing.
     """
     if cs_debug_log_location is None:
         return
     from datetime import datetime
     with open(cs_debug_log_location, 'a') as myfile:
-        print(datetime.now().time(), tag, value, file=myfile)
+        print(datetime.now().time(), tag, *values, file=myfile)
 
 
 try:
