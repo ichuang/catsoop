@@ -108,6 +108,8 @@ _Next planned release.  Currently under development._
 * `cs_source_format` is now inferred (rather than specified explicitly).
 * In question type specifications, `handle_submission` now returns a dictionary
     instead of a tuple.
+* Restructured authentication types to make adding more types in the future
+    easier.
 
 **Fixed:**
 
@@ -145,6 +147,8 @@ _Next planned release.  Currently under development._
 * Prevent a crash if `<cs_data_root>/courses` does not exist.
 * Modified to always use the local `markdown` package, even if one is installed
     globally, to make sure Markdown extensions are loaded properly.
+* Buttons are now re-enabled on page load, to prevent an issue whereby buttons
+    would remain disabled after a refresh on Firefox.
 
 **Security:**
 
@@ -227,6 +231,7 @@ _Next planned release.  Currently under development._
 * Reorganization of sandboxing for Python code.
 * `gb.py` should no longer be changed; rather, global configuration values
     should be overwritten via `config.py` (which is loaded into `gb.py`)
+* Improved handling of footnotes.
 
 **Removed:**
 
@@ -248,25 +253,65 @@ _Next planned release.  Currently under development._
 
 **Added:**
 
+* Added `post_load` hook, which is executed after the `content` file is
+    executed.
+* Added support for XML as an additional source format, and set it to be the
+    default format.
+* Change names `EARLY_LOAD.py` -> `preload.py` and
+    `LATE_LOAD.py` -> `content.xml`
+* Added the `pythonliteral` question type, which behaves much like `pythonic`,
+    but requires that the submission be a literal value (rather than the result
+    of a more complicated expression).
+
 **Changed:**
 
-**Deprecated:**
+* Modified handling of footnotes.
+* File containing user information should now end in `.py` (e.g., `username.py`
+    instead of `username`).
+* Reorganized `python...` question types to properly inherit from one another to
+    avoid duplicate code.
 
 **Removed:**
 
+* The `problem` activity type was removed, in favor of `ajaxproblem`.
+
 **Fixed:**
 
+* Fixed an issue where `'last_submit'` was keeping information only about the
+    most recent submission overall, instead of the most recent submission for
+    each question.
+* The `__LOGS__` directory will now be created if it does not exist, rather than
+    crashing CAT-SOOP.
+
 **Security:**
+
+* Error messages now show less information, to avoid displaying sensitive
+    information.
 
 # Version 5.0.0
 
 **Added:**
 
+* Added support for footnotes via `<footnote>`
+* Added support for page organization via `<section>`, `<subsection>`, etc.
+* The ability to save and submit are now controllable via special variables in
+    the `problem` activity type.
+* Added a warning message upon clicking the 'view solution' button to indicate
+    that users will not be able to submit after doing so.  Also maintained the
+    ability to bypass this check, for things like automatically submitting at
+    the end of a timed exercise.
+* Added the `handout` activity type, which allows for showing a static file, but
+    with access controls (releasing after a particular date, only viewable by
+    particular role, etc).
+* Added support for displaying explanations in addition to answers in particular
+    question types.
+
 **Changed:**
 
 * Logs are now stored in [SQLite](https://www.sqlite.org/) databases.
-
-**Deprecated:**
+* The logo in the main page is now displayed as text, rather than as an image.
+* Buttons in `ajaxproblem` question types are now disabled before processing the
+    request, to avoid multiple identical submissions from mis-clicks.
 
 **Removed:**
 
@@ -274,56 +319,122 @@ _Next planned release.  Currently under development._
 
 **Fixed:**
 
+* Renamed `logging.py` to `cslog.py` to prevent accidentically importing
+    Python's built-in `logging` module.
+* Fixed rendering of math when viewing solution to an `expression` question.
+* Scores are now properly handled in the `ajaxproblem` activity type.
+* Fixed a bug with displaying the solution for `pythonic` question types whose
+    solutions are tuples.
+* Fixed a bug with displaying the solution for `pythonic` question types whose
+    solutions are strings.
+* Fixed a bug related to handling of dynamic pages in the `__BASE__` course.
+* Fixed numerous `ajaxproblem` bugs.
+* Improved detection of static files.
+
 **Security:**
+
+* Error messages no longer show information about the location of CAT-SOOP (or
+    the course in question) on disk
+
+# Version 4.0.1
+
+**Fixed:**
+
+* Fixed issue whereby a missing `EARLY_LOAD.py` would crash CAT-SOOP.
+* Fixed bug with caching of static files.
+* Fixed bug related to authenticating (in `login` mode) with 
+
+**Removed:**
+
+* Removed rendering time from default template.
 
 # Version 4.0.0
 
 **Added:**
 
+* Added the `ajaxproblem` activity type, which allows submitting individual
+    questions without reloading the entire page.  Made `ajaxproblem` the default
+    activity type.
+* Added support for skipping ahead or behind by weeks in relative timestrings,
+    using `+` or `-` (e.g., `M+:17:00` means _next_ Monday at 5pm).
+* Solutions for individual students are now displayed when impersonating them.
+* Source for pages is now cached in a `marshal`ed format, to prevent having to
+    re-parse the source of pages that have not changed.
+* Added support for authenticating via `login` (username and password) rather
+    than via client certificate.
+* Added support for per-user randomness (users see the same numbers upon
+    returning to a page, but different users may see different numbers).
+* Added documentation (via epydoc-compatible docstrings) throughout.
+* CAT-SOOP now asks the browser to use cached versions of static files where
+    appropriate.
+* Allowed question types and activity types to be specified in the course rather
+    than in the base system.
+
 **Changed:**
 
-**Deprecated:**
+* Changed internal nomenclature: `meta` -> `context` everywhere to represent the
+    context in which a page is rendered.
 
 **Removed:**
 
+* Removed several references to `sicp-s2.mit.edu` in the code.
+
 **Fixed:**
+
+* Fixed impersonation glitch whereby permissions were inherited from the
+    impersonatee.
+* Fixed glaring bug with static file handling.
+* Fixed inheritance bug in the `pythonic` question type.
 
 **Security:**
 
-# Version 3.0.1
+# Version 3.1.0
 
 **Added:**
 
-**Changed:**
-
-**Deprecated:**
-
-**Removed:**
-
-**Fixed:**
-
-**Security:**
+* Added WSGI interface (and moved main function elsewhere so WSGI and CGI can
+    share code).
+* Questions are automatically given names if they were not explicitly given a
+    name.
+* Question types and activity types are now pre-compiled to avoid having to
+    re-parse them on every load.
 
 # Version 3.0.0
 
-_Complete re-write.  First version used in 6.01 (spring 2013).  First version
-with any similarity to the current code._
-
 **Added:**
+
+* `problem` activities now store due dates, to account for changes in due date
+    after submitting.
+* Added support for the [ACE](https://ace.c9.io/#nav=about) code editor in
+    Python code questions.
 
 **Changed:**
 
-**Deprecated:**
-
-**Removed:**
+* Separated loading from `METADATA.py` into `EARLY_LOAD.py` and `LATE_LOAD.py`.
+    `EARLY_LOAD` files are executed all the way down the source tree (for the
+    sake of inheritance, as with `METADATA.py`), but only the `LATE_LOAD.py`
+    associated with the leaf node is executed (to allow some code execution to
+    be avoided when working down the tree).
+* Moved/improved impersonation code.
+* Refactored logging code.
+* Refactored main control loop.
 
 **Fixed:**
 
+* Better sandboxing of Python code.
+* Fixed an issue with `submitAs` control for questions with randomness.
+* Fixed handling of paths on Windows hosts.
+* Modified `expression` question type to be compatible with Python 2.6.
+* Several bug fixes in `pythoncode` question type.
+
 **Security:**
+
+* Prune out `..` and `.` from URLs to avoid escaping the CAT-SOOP tree.
 
 # Version 2.0.0
 
-_Lost to the ages._
+_Complete re-write.  First version used in 6.01 (spring 2013).  First version
+with any similarity to the current code._
 
 # Version 1.0.0
 
