@@ -30,6 +30,11 @@ def get_separator(data, new=None):
     return out
 
 
+def create_if_not_exists(directory):
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+
+
 def prep(x):
     return zlib.compress(pickle.dumps(x, -1), 9)
 
@@ -58,34 +63,37 @@ def update_log(course, db_name, log_name, new):
     fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before making changes
     # look up the separator and the data
-    try:
-        with open(fname, 'rb') as f:
-            sep = f.readline().strip()
-            data = f.read()
-        if sep == '':
-            raise Exception
-    except:
-        overwrite_log(course, db_name, log_name, new)
-        return
-    new = prep(new)
-    if good_separator(sep, new):
-        # if the separator is still okay, just add the new entry to the end
-        # of the file
-        with open(fname, 'ab') as f:
-            f.write(new + sep)
-    else:
-        # if not, rewrite the whole file with a new separator
-        entries = [i for i in data.split(sep) if i != b''] + [new]
-        sep = get_separator(data, new)
-        with open(fname, 'wb') as f:
-            f.write(sep + b'\n')
-            f.write(sep.join(entries) + sep)
+    with FileLock(fname) as lock:
+        try:
+            create_if_not_exists(os.path.dirname(fname))
+            with open(fname, 'rb') as f:
+                sep = f.readline().strip()
+                data = f.read()
+            if sep == '':
+                raise Exception
+        except:
+            overwrite_log(course, db_name, log_name, new)
+            return
+        new = prep(new)
+        if good_separator(sep, new):
+            # if the separator is still okay, just add the new entry to the end
+            # of the file
+            with open(fname, 'ab') as f:
+                f.write(new + sep)
+        else:
+            # if not, rewrite the whole file with a new separator
+            entries = [i for i in data.split(sep) if i != b''] + [new]
+            sep = get_separator(data, new)
+            with open(fname, 'wb') as f:
+                f.write(sep + b'\n')
+                f.write(sep.join(entries) + sep)
 
 
 def overwrite_log(course, db_name, log_name, new):
     fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before making changes
     with FileLock(fname) as lock:
+        create_if_not_exists(os.path.dirname(fname))
         sep = get_separator(new)
         with open(fname, 'wb') as f:
             f.write(sep + b'\n')
