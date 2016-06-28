@@ -15,6 +15,8 @@ _Next planned release.  Currently under development._
 * `.pycs` compiled CAT-SOOP source files' names now include the Python
     implementation's cache tag, so that the same course can be migrated to a
     CAT-SOOP instance running a different version of CAT-SOOP without issue.
+* Fixed a bug whereby an empty entry in a multiplechoice question (`--`) was
+    interpreted as being the last element in the `csq_options` list.
 
 **Security:**
 
@@ -59,7 +61,7 @@ _Next planned release.  Currently under development._
     "download source" link.
 * Added a module for sending e-mails, primarily for use in the `login`
     authentication type.
-* MathJax is now included directly, rather than loaded from their CDN.
+* [MathJax](https://www.mathjax.org/) is now included directly, rather than loaded from their CDN.
 
 **Changed:**
 
@@ -104,6 +106,8 @@ _Next planned release.  Currently under development._
     default handler to avoid duplicating code.
 * Removed logo image from main page.
 * `cs_source_format` is now inferred (rather than specified explicitly).
+* In question type specifications, `handle_submission` now returns a dictionary
+    instead of a tuple.
 
 **Fixed:**
 
@@ -170,6 +174,7 @@ _Next planned release.  Currently under development._
     CAT-SOOP-flavored Markdown.
 * Added the `fileupload` question type, which allows users to upload arbitrary
     files.
+* Added checks for valid configuration options.
 
 **Changed:**
 
@@ -181,23 +186,59 @@ _Next planned release.  Currently under development._
 
 **Fixed:**
 
-* Fixed a breaking syntax error in the `expression` question type.
+* Fixed a syntax error in the `expression` question type.
 
 # Version 7.0.0
 
 **Added:**
 
+* Included [KaTeX](https://khan.github.io/KaTeX/).
+* Added three new handlers: `passthrough`, which displays `cs_content` without
+    modification; `raw_response`, which allows sending a raw HTTP response; and
+    `redirect`, for redirecting to other resources easily.
+* Added support for [Markdown](https://daringfireball.net/projects/markdown/) as
+    an alternative source format, and included
+    [python-markdown](https://pypi.python.org/pypi/Markdown) in the
+    distribution.
+* Question type specifications can now include an arbitrary action (beyond
+    saving/submitting) that will be executed when a user presses a new button.
+* Added support for streaming content (via returning a generator instead of a
+    string), and for automatic streaming of large static files.
+* Added support for inline (runnable by users) test cases in `pythoncode`
+    question types.
+* Added `cs_util` resources: `time`, which yields the current time (according to
+    the server) for synchronization purposes; `source.zip`, which downloads a
+    zip archive containing the CAT-SOOP source code; and `license`, which
+    contains the text of CAT-SOOP's license.
+
 **Changed:**
 
-* Complete rewrite of sandboxing for Python code.
-
-**Deprecated:**
+* Math rendering now uses KaTeX (fast, but limited support) when possible, and
+    falls back to MathJax (slow, but more support) when necessary.
+* "Special" CAT-SOOP variables are now prefixed with `cs_` (for page-specific
+    values) or `csq_` (for question-specific values) to prevent accidental
+    shadowing
+* Changed nomenclature: "activity type" -> "handler"
+* Complete rewrite of default handler.
+* Reorganization of sandboxing for Python code.
+* `gb.py` should no longer be changed; rather, global configuration values
+    should be overwritten via `config.py` (which is loaded into `gb.py`)
 
 **Removed:**
 
+* Removed `jquery_typing` plugin, which is no longer needed for `expression`
+    questions.
+
 **Fixed:**
 
-**Security:**
+* Fixed bug with newline handling in CGI interface.
+* Fixed bugs related to static files when using the CGI interface running on
+    Windows hosts.
+* The default theme now handles resizing of the containing window more smoothly.
+
+**Style:**
+
+* Emabraced [PEP8](https://www.python.org/dev/peps/pep-0008/) style.
 
 # Version 6.0.0
 
@@ -219,9 +260,13 @@ _Next planned release.  Currently under development._
 
 **Changed:**
 
+* Logs are now stored in [SQLite](https://www.sqlite.org/) databases.
+
 **Deprecated:**
 
 **Removed:**
+
+* Removed `catsoopdb` format, in favor of SQLite.
 
 **Fixed:**
 
