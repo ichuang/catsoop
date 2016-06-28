@@ -14,7 +14,7 @@ _Next planned release.  Currently under development._
 
 * Renamed `gb.py` -> `base_context.py` to more accurately reflect its usage.
 * Moved `main.template` and `base.css` to `old.template` and `old.css`,
-    respectively, to make room for new (more modern) templates.
+    respectively, to make room for new (more modern) style.
 
 **Deprecated:**
 
@@ -164,7 +164,7 @@ _Next planned release.  Currently under development._
 
 * Smarter hashing (`PBKDF2`) is now used for the `login` authentication mode.
 * Closed a XSS vulnerability in the `pythoncode` question type.
-* Closed a security hold in session handling that allowed for arbitrary code
+* Closed a security hole in session handling that allowed for arbitrary code
     execution under certain circumstances by validating session ids and
     modifying the way session data are stored.
 * Logs can no longer be accessed/created outside of the appropriate `__LOGS__`
