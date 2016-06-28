@@ -4,7 +4,17 @@ _Next planned release.  Currently under development._
 
 **Added:**
 
+* Added back the `catsoopdb` format (last seen
+    [version 4.0.1](https://gitlab.com/adqm/cat-soop/blob/master/CHANGELOG.md#version-401)),
+    with improvements to prevent collisions and a few bugfixes.
+* Added pure-Python scrypt module from
+    [https://github.com/ricmoo/pyscrypt](https://github.com/ricmoo/pyscrypt).
+
 **Changed:**
+
+* Renamed `gb.py` -> `base_context.py` to more accurately reflect its usage.
+* Moved `main.template` and `base.css` to `old.template` and `old.css`,
+    respectively, to make room for new (more modern) templates.
 
 **Deprecated:**
 
@@ -12,7 +22,7 @@ _Next planned release.  Currently under development._
 
 **Fixed:**
 
-* `.pycs` compiled CAT-SOOP source files' names now include the Python
+* Pre-compiled CAT-SOOP (`.pycs`) files' names now include the Python
     implementation's cache tag, so that the same course can be migrated to a
     CAT-SOOP instance running a different version of CAT-SOOP without issue.
 * Fixed a bug whereby an empty entry in a multiplechoice question (`--`) was
