@@ -210,6 +210,10 @@ _Next planned release.  Currently under development._
     the server) for synchronization purposes; `source.zip`, which downloads a
     zip archive containing the CAT-SOOP source code; and `license`, which
     contains the text of CAT-SOOP's license.
+* Added a `string` mode to the `pythonic` question type, which allows the answer
+    to be specified as a string to be evaluated.  Also added the `csq_code_pre`
+    variable to this question type, for setting up the environment into which
+    `csq_soln` will be evaluated in string mode.
 
 **Changed:**
 
