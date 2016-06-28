@@ -238,7 +238,7 @@ _Next planned release.  Currently under development._
 
 **Style:**
 
-* Emabraced [PEP8](https://www.python.org/dev/peps/pep-0008/) style.
+* Embraced [PEP8](https://www.python.org/dev/peps/pep-0008/) style.
 
 # Version 6.0.0
 
