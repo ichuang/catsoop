@@ -4,15 +4,12 @@
 # file.  If you did not receive a copy of this file with CAT-SOOP, please see:
 # https://cat-soop.org/LICENSE
 """
-Global data
+Initial Context
 
 Many of the variables in this file are special variables that affect the way
 the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
-
-cs_all_pieces = ['api', 'auth', 'dispatch', 'context', 'language', 'loader',
-                 'logging', 'mail', 'time', 'tools', 'tutor']
 
 cs_version = '9.0.0+develop'
 """
