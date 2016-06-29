@@ -27,7 +27,7 @@ def get_logged_in_user(context):
     action = form.get('loginaction', '')
     message = form.get('message', '')
 
-    hash_iterations = context.get('cs_password_hash_iterations', 100000)
+    hash_iterations = context.get('cs_password_hash_iterations', 250000)
 
     # if the user is trying to log out, do that.
     if action == 'logout':
@@ -423,7 +423,7 @@ def clear_session_vars(context, *args):
             pass
 
 
-def check_password(provided, uname, iterations=100000):
+def check_password(provided, uname, iterations=250000):
     """
     Compare the provided password against a stored hash.
     """
@@ -439,11 +439,8 @@ def check_password(provided, uname, iterations=100000):
 
 def get_new_password_salt(length=128):
     """
-    Generate a new salt of length C{length}.  Tries to use C{os.urandom}, and
-    falls back on L{random} if that doesn't work for some reason.
-
-    @param length: The desired length of the salt
-    @return: A string of C{length} random bytes
+    Generate a new salt of length length.  Tries to use os.urandom, and
+    falls back on random if that doesn't work for some reason.
     """
     try:
         return os.urandom(length)
@@ -458,7 +455,7 @@ def _ensure_bytes(x):
         return x
 
 
-def compute_password_hash(password, salt=None, iterations=100000):
+def compute_password_hash(password, salt=None, iterations=250000):
     """
     Given a password, and (optionally) an associated salt, return a hash value.
     """
@@ -467,11 +464,6 @@ def compute_password_hash(password, salt=None, iterations=100000):
 
 
 def generate_confirmation_token(n=20):
-    """
-    @param n: The number of characters to include
-    @return: A random sequence of C{n} characters (default 20), to be used as a
-    confirmation token
-    """
     chars = string.ascii_uppercase + string.digits
     return ''.join(random.choice(chars) for i in range(n))
 
@@ -483,9 +475,6 @@ def _get_base_url(context):
 def generate_forgot_password_form(context):
     """
     Generate a "forgot password" form.
-
-    @param context: The context associated with this request
-    @return: A string containing the HTML for the form
     """
     base = _get_base_url(context)
     req_url = base + '?loginaction=forgot_password'
@@ -527,9 +516,6 @@ def generate_forgot_password_form(context):
 def generate_password_reset_form(context):
     """
     Generate a "reset password" form.
-
-    @param context: The context associated with this request
-    @return: A string containing the HTML for the form
     """
     base = _get_base_url(context)
     req_url = base + '?loginaction=reset_password'
@@ -566,9 +552,6 @@ def generate_password_reset_form(context):
 def generate_password_change_form(context):
     """
     Generate a "change password" form.
-
-    @param context: The context associated with this request
-    @return: A string containing the HTML for the form
     """
     base = _get_base_url(context)
     req_url = base + '?loginaction=change_password'
@@ -609,9 +592,6 @@ def generate_password_change_form(context):
 def generate_login_form(context):
     """
     Generate a login form.
-
-    @param context: The context associated with this request
-    @return: A string containing the HTML for the login form
     """
     base = _get_base_url(context)
     out = '<form method="POST" action="%s">' % (base + '?loginaction=login')
@@ -663,9 +643,6 @@ def generate_login_form(context):
 def generate_registration_form(context):
     """
     Generate a registration form.
-
-    @param context: The context associated with this request
-    @return: A string containing the HTML for the registration form
     """
     base = _get_base_url(context)
     qstring = '?loginaction=register'

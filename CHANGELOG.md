@@ -16,7 +16,9 @@ _Next planned release.  Currently under development._
 * Moved `main.template` and `base.css` to `old.template` and `old.css`,
     respectively, to make room for new (more modern) style.
 * Modified the `login` authentication type to use Python's built-in
-    implementation of PBKDF2
+    implementation of PBKDF2.  Also included the option to tune the number
+    of iterations used with PBKDF2, and increased the default number of
+    iterations from 50,000 to 250,000.
 
 **Deprecated:**
 

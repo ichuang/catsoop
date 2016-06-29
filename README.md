@@ -23,15 +23,20 @@ No animals were harmed in the making of this CAT-SOOP.
 
 ## CAN I USE IT FOR MY COURSE?
 
-Yes!  CAT-SOOP is free/libre software
+Yes\*!  CAT-SOOP is free/libre software
 (see [LICENSE](https://gitlab.com/adqm/cat-soop/blob/master/LICENSE)
 file for details).  Please note that the terms of this license apply only to the
 CAT-SOOP system itself and not to any third-party software included with
 CAT-SOOP, nor to any course material hosted on a CAT-SOOP instance, unless
 explicitly stated otherwise.
 
-Documentation is currently somewhat lacking (read: totally nonexistent), but
-we are working on it...
+The only requirements are [Python](https://www.python.org/) (v3.4+) and a web
+server that supports either CGI or WSGI (e.g., [Apache HTTP
+Server](https://httpd.apache.org/) or
+[NGINX](https://www.nginx.com/resources/wiki/)).
+
+\*Assuming you can make it work.  Documentation is currently somewhat lacking
+(read: totally nonexistent), but we are working on it...
 
 
 ## HOW DO I GET IT?
