@@ -126,7 +126,7 @@ _Next planned release.  Currently under development._
 **Fixed:**
 
 * Fixed a bug whereby `$` characters could not be escaped with `\`.
-* Fixed issues with certain tags' internals being parsed as Markdown 
+* Fixed issues with certain tags' internals being parsed as Markdown
     (`script`, `pre`, `question`, etc).
 * Trying to access a resource that doesn't exist on disk now gives a 404 error
     instead of crashing.
@@ -164,7 +164,8 @@ _Next planned release.  Currently under development._
 
 **Security:**
 
-* Smarter hashing (`PBKDF2`) is now used for the `login` authentication mode.
+* Smarter hashing ([PBKDF2](https://en.wikipedia.org/wiki/PBKDF2)) is now used
+    for the `login` authentication mode.
 * Closed a XSS vulnerability in the `pythoncode` question type.
 * Closed a security hole in session handling that allowed for arbitrary code
     execution under certain circumstances by validating session ids and
@@ -354,7 +355,7 @@ _Next planned release.  Currently under development._
 
 * Fixed issue whereby a missing `EARLY_LOAD.py` would crash CAT-SOOP.
 * Fixed bug with caching of static files.
-* Fixed bug related to authenticating (in `login` mode) with 
+* Fixed bug related to authenticating (in `login` mode) with
 
 **Removed:**
 
