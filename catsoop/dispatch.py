@@ -225,23 +225,6 @@ def get_real_url(context, url):
     return urllib.parse.urlunparse(u)
 
 
-def fix_single(context, text, matcher, gen):
-    """
-    For a single (regex, gen) pair, replace all instances.
-    Fixes hyperrefs with get_real_url.
-    """
-    out = ''
-    end = 0
-    for match in matcher.finditer(text):
-        d = match.groupdict()
-        if 'url' in d:
-            d['url'] = get_real_url(context, d.get('url', ''))
-        out += text[end:match.start()]
-        end = match.end()
-        out += gen.format(**d)
-    return out + text[end:]
-
-
 def dict_from_cgi_form(cgi_form):
     '''
     Dump CGI form info into a dictionary
