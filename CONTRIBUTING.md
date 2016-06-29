@@ -1,0 +1,1 @@
+![knight vs catsoop](https://cat-soop.org/images/knight-vs-catsoop.png)
