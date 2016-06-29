@@ -14,6 +14,7 @@ import pickle
 import random
 import string
 
+from .. import base_context
 from ..tools.filelock import FileLock
 
 SEP_CHARS = (string.ascii_letters + string.digits).encode()
@@ -26,7 +27,7 @@ def good_separator(sep, data, new=None):
 def get_separator(data, new=None):
     out = None
     while out is None or not good_separator(out, data, new=new):
-        out = sum((random.choice(SEP_CHARS) for i in range(20)))
+        out = bytes(random.choice(SEP_CHARS) for i in range(20))
     return out
 
 
@@ -49,9 +50,9 @@ def get_log_filename(course, db_name, log_name):
     '''
     base = os.path.join('__LOGS__', db_name, *(log_name.split('.')))
     if course is not None:
-        return os.path.join(gb.catsoop_data_root, 'courses', course, base)
+        return os.path.join(base_context.cs_data_root, 'courses', course, base)
     else:
-        return os.path.join(gb.catsoop_data_root, base)
+        return os.path.join(base_context.cs_data_root, base)
 
 
 def update_log(course, db_name, log_name, new):
@@ -95,6 +96,7 @@ def overwrite_log(course, db_name, log_name, new):
     #get an exclusive lock on this file before making changes
     with FileLock(fname) as lock:
         create_if_not_exists(os.path.dirname(fname))
+        new = prep(new)
         sep = get_separator(new)
         with open(fname, 'wb') as f:
             f.write(sep + b'\n')

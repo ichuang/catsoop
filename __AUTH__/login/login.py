@@ -18,7 +18,7 @@ from itertools import starmap
 def get_logged_in_user(context):
     # form-based login
     base_context = context['csm_base_context']
-    logging = context['csm_logging']
+    logging = context['csm_logging'].get_logger(context)
     loader = context['csm_loader']
     form = context.get('cs_form', {})
     mail = context['csm_mail']
@@ -59,7 +59,7 @@ def get_logged_in_user(context):
         if 'oldpasswd' in form:
             # the user has submitted the form.  check it.
             errors = []
-            if not check_password(form['oldpasswd'], uname, hash_iterations):
+            if not check_password(context, form['oldpasswd'], uname, hash_iterations):
                 errors.append('Incorrect password entered.')
             passwd = form['passwd']
             passwd2 = form['passwd2']
@@ -265,7 +265,7 @@ def get_logged_in_user(context):
             valid_uname = False
             lmsg = ('<font color="red">' + vmsg + '</font>')
             session.update({'login_message': lmsg, 'last_form': form})
-        valid_pwd = check_password(entered_password, uname, hash_iterations)
+        valid_pwd = check_password(context, entered_password, uname, hash_iterations)
         if valid_uname and valid_pwd:
             # successful login
             login_info = logging.most_recent(None, uname, 'logininfo', {})
@@ -423,10 +423,11 @@ def clear_session_vars(context, *args):
             pass
 
 
-def check_password(provided, uname, iterations=250000):
+def check_password(context, provided, uname, iterations=250000):
     """
     Compare the provided password against a stored hash.
     """
+    logging = context['csm_logging'].get_logger(context)
     user_login_info = logging.most_recent(None, uname, 'logininfo', {})
     pass_hash = user_login_info.get('password_hash', None)
     if pass_hash is not None:
