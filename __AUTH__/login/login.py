@@ -4,10 +4,6 @@
 # file.  If you did not receive a copy of this file with CAT-SOOP, please see:
 # https://cat-soop.org/LICENSE
 
-# The implementation of the pbkdf2 function is from python-pbkdf2,
-# which is Copyright (c) 2011 by Armin Ronacher
-# https://github.com/mitsuhiko/python-pbkdf2
-
 import os
 import re
 import random
@@ -16,7 +12,7 @@ import hashlib
 
 from operator import xor
 from struct import Struct
-from itertools import izip, starmap
+from itertools import starmap
 
 
 def get_logged_in_user(context):
@@ -30,6 +26,8 @@ def get_logged_in_user(context):
     session = context['cs_session_data']
     action = form.get('loginaction', '')
     message = form.get('message', '')
+
+    hash_iterations = context.get('cs_password_hash_iterations', 100000)
 
     # if the user is trying to log out, do that.
     if action == 'logout':
@@ -61,7 +59,7 @@ def get_logged_in_user(context):
         if 'oldpasswd' in form:
             # the user has submitted the form.  check it.
             errors = []
-            if not check_password(form['oldpasswd'], uname):
+            if not check_password(form['oldpasswd'], uname, hash_iterations):
                 errors.append('Incorrect password entered.')
             passwd = form['passwd']
             passwd2 = form['passwd2']
@@ -83,7 +81,7 @@ def get_logged_in_user(context):
                 clear_session_vars(context, 'login_message')
                 # store new password.
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt)
+                phash = compute_password_hash(passwd, salt, hash_iterations)
                 login_info['password_salt'] = salt
                 login_info['password_hash'] = phash
                 cslog.update_log(None, uname, 'logininfo', login_info)
@@ -216,7 +214,7 @@ def get_logged_in_user(context):
                 # store new password.
                 login_info = cslog.most_recent(None, u, 'logininfo', {})
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt)
+                phash = compute_password_hash(passwd, salt, hash_iterations)
                 login_info['password_salt'] = salt
                 login_info['password_hash'] = phash
                 cslog.update_log(None, u, 'logininfo', login_info)
@@ -267,8 +265,8 @@ def get_logged_in_user(context):
             valid_uname = False
             lmsg = ('<font color="red">' + vmsg + '</font>')
             session.update({'login_message': lmsg, 'last_form': form})
-
-        if valid_uname and check_password(entered_password, uname):
+        valid_pwd = check_password(entered_password, uname, hash_iterations)
+        if valid_uname and valid_pwd:
             # successful login
             login_info = cslog.most_recent(None, uname, 'logininfo', {})
             if not login_info.get('confirmed', False):
@@ -356,7 +354,7 @@ def get_logged_in_user(context):
                 clear_session_vars(context, 'login_message', 'last_form')
                 # generate new salt and password hash
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt)
+                phash = compute_password_hash(passwd, salt, hash_iterations)
                 # if necessary, send confirmation e-mail
                 # otherwise, treat like already confirmed
                 if (mail.can_send_email(context) and
@@ -425,19 +423,15 @@ def clear_session_vars(context, *args):
             pass
 
 
-def check_password(provided, uname):
+def check_password(provided, uname, iterations=100000):
     """
     Compare the provided password against a stored hash.
-
-    @param provided: The provided password, in plaintext
-    @param uname: The username whose password we should check
-    @return: C{True} if the passwords match, and C{False} otherwise
     """
     user_login_info = cslog.most_recent(None, uname, 'logininfo', {})
     pass_hash = user_login_info.get('password_hash', None)
     if pass_hash is not None:
         salt = user_login_info.get('password_salt', None)
-        hashed_pass = compute_password_hash(provided, salt)
+        hashed_pass = compute_password_hash(provided, salt, iterations)
         if hashed_pass == pass_hash:
             return True
     return False
@@ -454,18 +448,22 @@ def get_new_password_salt(length=128):
     try:
         return os.urandom(length)
     except:
-        return ''.join(chr(random.randint(0, 255)) for i in xrange(length))
+        return ''.join(chr(random.randint(0, 255)) for i in range(length))
 
 
-def compute_password_hash(password, salt=None):
+def _ensure_bytes(x):
+    try:
+        return x.encode()
+    except:
+        return x
+
+
+def compute_password_hash(password, salt=None, iterations=100000):
     """
     Given a password, and (optionally) an associated salt, return a hash value.
-
-    @param password: A string containing the user's password (plaintext)
-    @param salt: Optionally, a salt
-    @return: A SHA512 hash of the (salted) password
     """
-    return pbkdf2(password, salt, 50000, 100)
+    return hashlib.pbkdf2_hmac('sha512', _ensure_bytes(password),
+                               _ensure_bytes(salt), iterations)
 
 
 def generate_confirmation_token(n=20):
@@ -475,7 +473,7 @@ def generate_confirmation_token(n=20):
     confirmation token
     """
     chars = string.ascii_uppercase + string.digits
-    return ''.join(random.choice(chars) for i in xrange(n))
+    return ''.join(random.choice(chars) for i in range(n))
 
 
 def _get_base_url(context):
