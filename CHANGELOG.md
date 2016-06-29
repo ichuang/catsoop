@@ -4,11 +4,13 @@ _Next planned release.  Currently under development._
 
 **Added:**
 
-* Added back the `catsoopdb` format (last seen
+* Added back the `catsoopdb` format (last seen in
     [version 4.0.1](https://gitlab.com/adqm/cat-soop/blob/master/CHANGELOG.md#version-401)),
     with improvements to prevent collisions and a few bugfixes.
-* Added pure-Python scrypt module from
-    [https://github.com/ricmoo/pyscrypt](https://github.com/ricmoo/pyscrypt).
+* Added [pure-Python scrypt module](https://github.com/ricmoo/pyscrypt) to
+    the distribution.
+* Added [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/) to the
+    distribution.
 
 **Changed:**
 
