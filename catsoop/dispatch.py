@@ -8,9 +8,6 @@
 def redirect(location):
     '''
     Generate HTTP response that redirects the user to the specified location
-
-    @param location: The location to which the user should be redirected
-    @return: A 3-tuple, as expected by L{http_response}
     '''
     return ('302', 'Found'), {'Location': str(location)}, ''
 
@@ -18,11 +15,7 @@ def redirect(location):
 def static_file_location(context, path):
     '''
     Given an "intermediate" URL, return the path to that file on disk.
-    Used by L{serve_static_file}.
-
-    @param path: Intermediate representation of the path (as returned by
-    L{get_real_url})
-    @return: Path of the given file on disk
+    Used by serve_static_file.
     '''
     loc = ''
     rest = []
@@ -75,11 +68,8 @@ def static_file_location(context, path):
 
 def content_file_location(context, path):
     """
-    @return: The location (filename on disk) of the content file for the
-    resource given by C{path}.
-
-    @param context: The context associated with this request
-    @param path: The path to the resource
+    Returns the location (filename on disk) of the content file for the
+    resource given by path.
     """
     course = path[0]
     path = path[1:]
@@ -125,11 +115,6 @@ def serve_static_file(fname, environment=None, stream=False, streamchunk=4096):
     """
     Generate HTTP response to serve up a static file, or a 404 error if the
     file does not exist.  Makes use of the browser's cache when possible.
-
-    @param fname: The location (on disk) of the file to be served
-    @param environment: A dictionary containing the environment variables
-    associated with this request
-    @return: A 3-tuple, as expected by L{http_response}
     """
     environment = environment or {}
     try:
@@ -168,9 +153,7 @@ def serve_static_file(fname, environment=None, stream=False, streamchunk=4096):
 
 def is_static(meta, path):
     """
-    @param path: Intermediate representation of the path (as returned by
-    L{get_real_url})
-    @return: C{True} if the path represents a file on disk, C{False} otherwise
+    Returns True if the path represents a file on disk, False otherwise
     """
     return os.path.isfile(static_file_location(meta, path))
 
@@ -222,11 +205,6 @@ def get_real_url(context, url):
     '''
     Convert a URL from our internal representation to something that will
     actually point the web browser to the right place.
-
-    @param context: The context associated with this request
-    @param url: An internal URL (possibly referencing from C{BASE}, C{COURSE},
-    or C{CURRENT})
-    @return: An actual URL to the location in question
     '''
     u = urllib.parse.urlparse(url)
     original = urllib.parse.urlunparse(u[:3] + ('', '', ''))
@@ -239,14 +217,8 @@ def get_real_url(context, url):
 
 def fix_single(context, text, matcher, gen):
     """
-    For a single (C{regex}, C{gen}) pair, replace all instances.
-    Fixes hyperrefs with L{get_real_url}.
-
-    @param context: The context associated with this request
-    @param text: The text in which the replacements should be made
-    @param matcher: The regex to match
-    @param gen: The string used to generate the replacement
-    @return: The string, after any replacements have been made
+    For a single (regex, gen) pair, replace all instances.
+    Fixes hyperrefs with get_real_url.
     """
     out = ''
     end = 0
@@ -263,8 +235,6 @@ def fix_single(context, text, matcher, gen):
 def dict_from_cgi_form(cgi_form):
     '''
     Dump CGI form info into a dictionary
-
-    @return: A dictionary containing the values represented in C{cgi_form}
     '''
     o = {}
     for key in cgi_form:
@@ -282,9 +252,6 @@ def dict_from_cgi_form(cgi_form):
 def display_page(context):
     """
     Generate the HTTP response for a dynamically-generated page.
-
-    @param context: The context associated with this request
-    @return: A 3-tuple, as expected by L{http_response}
     """
     headers = {'Content-type': 'text/html'}
     if context.get('cs_user_info', {}).get('real_user', None) is not None:
@@ -312,15 +279,15 @@ def display_page(context):
     return ('200', 'OK'), headers, out
 
 
-
-
 def main(environment):
     """
     Generate the page content associated with this request, properly handling
     activities and static files.
 
-    @param environment: The environment variables associated with this request
-    @return: a 3-tuple, as expected by L{http_response}
+    Returns a 3-tuple (response_code, headers, content)
+
+    The "environment" parameter is a dictionary containing the environment
+    variables associated with this request.
     """
     context = {}
     context['cs_env'] = environment
@@ -428,7 +395,7 @@ def main(environment):
             loader.do_late_load(context, context['cs_course'], path_info,
                                 context, cfile)
         else:
-            context['cs_content'] = 'Placeholder for main page' 
+            context['cs_content'] = 'Placeholder for main page'
             context['cs_handler'] = 'passthrough'
 
         if 'cs_post_load' in context:
@@ -454,4 +421,3 @@ def main(environment):
             out = do_error_message(context)
     out[1].update({'Content-length': str(len(out[-1]))})
     return out
-

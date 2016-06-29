@@ -19,7 +19,7 @@ def clear_info(context, text):
 
 def error_message_content(context):
     """
-    @return: An HTML-ready string containing an error message.
+    Returns an HTML-ready string containing an error message.
     """
     return html_format(clear_info(context, traceback.format_exc()))
 
@@ -27,9 +27,6 @@ def error_message_content(context):
 def do_error_message(context, msg=None):
     """
     Display an error message
-
-    @param context: The context associated with this request
-    @return: A 3-tuple, as expected by L{render}
     """
     new = dict(context)
     loader.load_global_data(new)

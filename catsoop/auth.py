@@ -51,8 +51,8 @@ def get_logged_in_user(context):
     If cs_auth_type is 'cert', then the information is pulled from the user's
     certificate (by way of environment variables).
 
-    If cs_auth_type is C{'login'}, then the user will log in via a form, and
-    user information is pulled from logs on disk.  Information about the user
+    If cs_auth_type is 'login', then the user will log in via a form, and user
+    information is pulled from logs on disk.  Information about the user
     currently logged in to the system is stored in the session.
     """
     form = context.get('cs_form', {})
