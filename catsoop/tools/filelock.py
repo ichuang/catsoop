@@ -13,11 +13,12 @@ http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python
 import os
 import time
 import errno
+import importlib
 
-import gb
-reload(gb)
+from .. import base_context
+importlib.reload(base_context)
 
-FILELOCK_DIR = os.path.join(gb.cs_data_root, "__LOCKS__")
+FILELOCK_DIR = os.path.join(base_context.cs_data_root, "__LOCKS__")
 """
 The directory where file locks will be stored.
 """
