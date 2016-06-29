@@ -10,6 +10,7 @@ import urllib.parse
 
 from email.utils import formatdate
 
+from . import auth
 from . import tutor
 from . import loader
 from . import errors
@@ -53,7 +54,7 @@ def static_file_location(context, path):
         course = path[0]
         path = path[1:]
         newpath = []
-        for ix in xrange(len(path)):
+        for ix in range(len(path)):
             cur = path[ix]
             if cur == '.':
                 pass
@@ -68,7 +69,7 @@ def static_file_location(context, path):
         # __MEDIA__ directory
         basepath = os.path.join(
             context.get('cs_data_root', base_context.cs_data_root), 'courses', course)
-        for ix in xrange(len(newpath) - 1, -1, -1):
+        for ix in range(len(newpath) - 1, -1, -1):
             loc = os.path.join(*([basepath] + newpath[:ix] + ['__MEDIA__']))
             rest = newpath[ix:]
             if os.path.isdir(loc):
@@ -89,7 +90,7 @@ def content_file_location(context, path):
     last_dname = None
     broke = False
     cur = ''
-    for ix in xrange(len(path)):
+    for ix in range(len(path)):
         cur = path[ix]
         if cur == '.':
             pass
@@ -110,7 +111,7 @@ def content_file_location(context, path):
     basepath = loader.get_course_fs_location(context, course)
     basepath = os.path.join(basepath, *newpath)
 
-    for f in loader.source_formats:
+    for f in language.source_formats:
         if broke:
             fn = os.path.join(basepath, "%s.%s" % (cur, f))
             if os.path.isfile(fn):
@@ -338,7 +339,7 @@ def main(environment):
         if new:
             hdr = context['cs_additional_headers']
             hdr['Set-Cookie'] = 'sid=%s' % context['cs_sid']
-        session_data = session.get_session_data(context['cs_sid'])
+        session_data = session.get_session_data(context, context['cs_sid'])
         context['cs_session_data'] = session_data
 
         # DO EARLY LOAD FOR THIS REQUEST
@@ -361,11 +362,11 @@ def main(environment):
                 context['cs_user_info'] = user_info
                 context['cs_username'] = str(user_info.get('username', None))
                 if user_info.get('cs_render_now', False):
-                    session.set_session_data(context['cs_sid'],
+                    session.set_session_data(context, context['cs_sid'],
                                              context['cs_session_data'])
                     return display_page(context)
                 if user_info.get('cs_reload', False):
-                    session.set_session_data(context['cs_sid'],
+                    session.set_session_data(context, context['cs_sid'],
                                              context['cs_session_data'])
                     return redirect('/'.join([base_context.cs_url_root] + context[
                         'cs_path_info']))
@@ -398,7 +399,7 @@ def main(environment):
         if res is not None:
             # if we're here, the handler wants to give a specific HTTP response
             # (maybe a redirect?)
-            session.set_session_data(context['cs_sid'],
+            session.set_session_data(context, context['cs_sid'],
                                      context['cs_session_data'])
             return res
         elif 'cs_post_handle' in context:
@@ -407,7 +408,7 @@ def main(environment):
         out = display_page(context)  # tweak and display HTML
 
         session_data = context['cs_session_data']
-        session.set_session_data(context['cs_sid'], session_data)
+        session.set_session_data(context, context['cs_sid'], session_data)
     except:
         if not force_error:
             out = errors.do_error_message(context)

@@ -8,10 +8,12 @@
 
 # Handling of XML, MD, PY sources
 
+import os
 import re
 
 from collections import OrderedDict
 
+from . import dispatch
 from . import markdown_math
 from .tools import markdown
 from .errors import html_format, clear_info
@@ -303,7 +305,7 @@ def fix_single(context, text, matcher, gen):
     for match in matcher.finditer(text):
         d = match.groupdict()
         if 'url' in d:
-            d['url'] = get_real_url(context, d.get('url', ''))
+            d['url'] = dispatch.get_real_url(context, d.get('url', ''))
         out += text[end:match.start()]
         end = match.end()
         out += gen.format(**d)

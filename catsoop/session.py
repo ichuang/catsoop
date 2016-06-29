@@ -91,7 +91,7 @@ def expire_sessions():
             pass
 
 
-def get_session_data(sid):
+def get_session_data(context, sid):
     """
     Returns the session data associated with a given session ID
 
@@ -103,13 +103,13 @@ def get_session_data(sid):
     with filelock.FileLock(fname) as lock:
         try:
             with open(fname, 'rb') as f:
-                out = logging.unprep(f.read())
+                out = logging.get_logger(context).unprep(f.read())
         except:
             out = {}  # default to returning empty session
     return out
 
 
-def set_session_data(sid, data):
+def set_session_data(context, sid, data):
     """
     Replaces a given session's data with the dictionary provided
 
@@ -120,5 +120,5 @@ def set_session_data(sid, data):
     fname = os.path.join(SESSION_DIR, sid)
     with filelock.FileLock(fname) as lock:
         with open(fname, 'wb') as f:
-            f.write(logging.prep(data))
+            f.write(logging.get_logger(context).prep(data))
     expire_sessions()

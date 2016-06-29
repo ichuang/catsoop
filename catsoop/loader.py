@@ -55,6 +55,7 @@ def load_global_data(into, check_values=True):
             c = compile(t, fname, 'exec')
         exec(c, into)
         into['cs_random'] = random.Random()
+        into['csm_base_context'] = into['base_context'] = base_context
         clean_builtins(into)
         into['csm_loader'] = sys.modules[__name__]
     except Exception as e:
@@ -65,7 +66,7 @@ def get_course_fs_location(context, course, join=True):
     """
     Returns the base location of the specified course on disk.
     """
-    fs_root = base_context.get('cs_fs_root', base_context.cs_fs_root)
+    fs_root = context.get('cs_fs_root', base_context.cs_fs_root)
     if course == 'cs_util':
         rtn = [fs_root, '__UTIL__']
     elif course == 'cs_api':
@@ -73,7 +74,7 @@ def get_course_fs_location(context, course, join=True):
     elif course == '__QTYPE__':
         rtn = [fs_root, '__QTYPES__']
     else:
-        data_root = base_context.get('cs_data_root', base_context.cs_data_root)
+        data_root = context.get('cs_data_root', base_context.cs_data_root)
         rtn = [data_root, 'courses', course]
     if join:
         return os.path.join(*rtn)

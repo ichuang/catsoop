@@ -14,6 +14,13 @@ from . import base_context
 importlib.reload(base_context)
 
 
+def _execfile(*args):
+    fn = args[0]
+    with open(fn) as f:
+        c = compile(f.read(), fn, 'exec')
+    exec(c, *args[1:])
+
+
 def get_auth_type(context):
     """
     Returns a dictionary containing the variables defined in the
@@ -31,9 +38,9 @@ def get_auth_type(context):
     e = dict(context)
     # look in course, then global; error if not found
     if (course is not None and os.path.isfile(course_loc)):
-        execfile(course_loc, e)
+        _execfile(course_loc, e)
     elif os.path.isfile(global_loc):
-        execfile(global_loc, e)
+        _execfile(global_loc, e)
     else:
         # no valid auth type found
         raise Exception("Invalid cs_auth_type: %s" % auth_type)
