@@ -11,11 +11,10 @@
 
 import os
 import sys
-import cgi
 import cgitb
 import platform
 
-import catsoop.web as web
+import catsoop.dispatch as dispatch
 
 cgitb.enable()
 
@@ -29,8 +28,17 @@ def write(x):
     sys.stdout.flush()
 
 
+def _http_response(input_tuple):
+    status, headers, content = input_tuple
+    h = 'Status: %s %s\n' % (status[0], status[1])
+    h += '\n'.join('%s: %s' % (i, j) for (i, j) in headers.iteritems())
+    h += '\n'
+    if len(headers) > 0:
+        h += '\n'
+    return h, content
+
 if __name__ == '__main__':
-    headers, content = web.render(web.get_page_content(os.environ))
+    headers, content = _http_response(dispatch.main(os.environ))
     write(headers)
     if isinstance(content, str):
         write(content)

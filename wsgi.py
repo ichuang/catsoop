@@ -10,15 +10,15 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-import catsoop.web as web
+import catsoop.dispatch as dispatch
 
 
 def application(environ, start_response):
     """
-    WSGI application interface for CAT-SOOP, as specified in U{PEP
-    3333<http://www.python.org/dev/peps/pep-3333/>}.
+    WSGI application interface for CAT-SOOP, as specified in PEP
+    3333 (http://www.python.org/dev/peps/pep-3333/).
     """
-    status, headers, content = web.get_page_content(environ)
+    status, headers, content = dispatch.main(environ)
     start_response('%s %s' % (status[0], status[1]), headers.items())
     if isinstance(content, str):
         return [content]
