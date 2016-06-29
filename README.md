@@ -30,7 +30,7 @@ CAT-SOOP system itself and not to any third-party software included with
 CAT-SOOP, nor to any course material hosted on a CAT-SOOP instance, unless
 explicitly stated otherwise.
 
-The only requirements are [Python](https://www.python.org/) (v3.4+) and a web
+The only requirements are [Python](https://www.python.org/) (v3.5+) and a web
 server that supports either CGI or WSGI (e.g., [Apache HTTP
 Server](https://httpd.apache.org/) or
 [NGINX](https://www.nginx.com/resources/wiki/)).
