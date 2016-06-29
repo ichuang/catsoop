@@ -8,6 +8,8 @@ import os
 import cgi
 import urllib.parse
 
+from email.utils import formatdate
+
 from . import tutor
 from . import loader
 from . import errors
@@ -256,17 +258,14 @@ def display_page(context):
     context['cs_content'] = language.handle_custom_tags(context, context['cs_content'])
     default = os.path.join(
         context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__', 'templates',
-        "main.template")
+        "old.template")
     temp = _real_url_helper(context, context['cs_template'])
     if '__STATIC__' in temp:
         default = static_file_location(context, temp[2:])
     f = open(default)
     template = f.read()
     f.close()
-    fmt = dict((i, j.decode('ascii', 'ignore')
-                if isinstance(j, (str, unicode)) else j)
-               for i, j in context.iteritems())
-    out = language.handle_custom_tags(context, template.format(**fmt)) + '\n'
+    out = language.handle_custom_tags(context, template.format(**context)) + '\n'
     headers.update(context.get('cs_additional_headers', {}))
     headers.update({'Last-Modified': formatdate()})
     return ('200', 'OK'), headers, out
