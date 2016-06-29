@@ -101,7 +101,7 @@ def question(context, qtype, **kwargs):
     try:
         course = context['cs_course']
         qtypes_folder = os.path.join(
-            context.get('cs_data_root', gb.cs_data_root), 'courses', course,
+            context.get('cs_data_root', base_context.cs_data_root), 'courses', course,
             '__QTYPES__')
         loc = os.path.join(qtypes_folder, qtype)
         fname = os.path.join(loc, '%s.py' % qtype)
@@ -109,11 +109,11 @@ def question(context, qtype, **kwargs):
             raise Exception  # force into except block
     except:
         qtypes_folder = os.path.join(
-            context.get('cs_fs_root', gb.cs_fs_root), '__QTYPES__')
+            context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__')
         loc = os.path.join(qtypes_folder, qtype)
         fname = os.path.join(loc, '%s.py' % qtype)
     new = {}
-    new['csm_gb'] = new['gb'] = gb
+    new['csm_base_context'] = new['base_context'] = base_context
     for i in context:
         if i.startswith('csm_'):
             new[i] = new[i[4:]] = context[i]
@@ -139,7 +139,7 @@ def handler(context, handler, check_course=True):
     location.
     """
     new = {}
-    new['csm_gb'] = new['gb'] = gb
+    new['csm_base_context'] = new['base_context'] = base_context
     for i in context:
         if i.startswith('csm_'):
             new[i] = new[i[4:]] = context[i]
@@ -148,13 +148,13 @@ def handler(context, handler, check_course=True):
             raise Exception
         course = context['cs_course']
         fname = os.path.join(
-            context.get('cs_data_root', gb.cs_data_root), 'courses', course,
+            context.get('cs_data_root', base_context.cs_data_root), 'courses', course,
             '__HANDLERS__', handler, '%s.py' % handler)
         if not os.path.isfile(fname):
             raise Exception
     except:
         fname = os.path.join(
-            context.get('cs_fs_root', gb.cs_fs_root), '__HANDLERS__', handler,
+            context.get('cs_fs_root', base_context.cs_fs_root), '__HANDLERS__', handler,
             '%s.py' % handler)
     code = loader.cs_compile(fname)
     exec(code, new)
@@ -210,7 +210,7 @@ def available_courses():
     """
     Returns a list of available courses.
     """
-    base = os.path.join(gb.cs_data_root, 'courses')
+    base = os.path.join(base_context.cs_data_root, 'courses')
     if not os.path.isdir(base):
         return out
     global_data = {}

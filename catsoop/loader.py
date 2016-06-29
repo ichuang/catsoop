@@ -21,9 +21,6 @@ importlib.reload(base_context)
 
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
-for i in base_context.cs_all_pieces:
-    exec("from . import %s" % i)
-
 def clean_builtins(d):
     """
     Cleans __builtins__ out of a dictionary to make it serializable
@@ -53,16 +50,13 @@ def load_global_data(into, check_values=True):
         into['sys'] = sys
         fname = os.path.join(thisdir, 'base_context.py')
         with open(fname) as f:
-            c = compile(f.read(), fname, 'exec')
+            t = f.read()
+            t = '__name__ = "catsoop.base_context"\n' + t
+            c = compile(t, fname, 'exec')
         exec(c, into)
         into['cs_random'] = random.Random()
-        for i in base_context.cs_all_pieces:
-            if i != 'loader':
-                exec('into["%s"] = %s' % (i, i))
-                exec('into["csm_%s"] = %s' % (i, i))
-        into['loader'] = sys.modules[__name__]
-        into['csm_loader'] = sys.modules[__name__]
         clean_builtins(into)
+        into['csm_loader'] = sys.modules[__name__]
     except Exception as e:
         return traceback.format_exc(e)
 

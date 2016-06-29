@@ -11,8 +11,6 @@ the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
 
-cs_all_pieces = ['auth', 'base_context', 'dispatch', 'language', 'loader',
-                 'logging', 'mail', 'time', 'tools', 'tutor']
 
 cs_version = '9.0.0+develop'
 """
@@ -185,6 +183,17 @@ try:
     from .config import *
 except Exception as e:
     _cs_config_errors.append('error in config.py: %s' % (e, ))
+
+# Import all CAT-SOOP modules/subpackages
+
+cs_all_pieces = ['auth', 'base_context', 'dispatch', 'language', 'loader',
+                 'logging', 'mail', 'session', 'time', 'tools', 'tutor']
+
+for i in cs_all_pieces:
+    if i != 'base_context':
+        exec('from . import %s' % i)
+        exec('csm_%s = %s' % (i,i))
+
 
 # check for valid fs_root
 _fs_root_error = ('cs_fs_root must be a directory containing the '
