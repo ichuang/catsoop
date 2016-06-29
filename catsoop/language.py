@@ -1,3 +1,138 @@
+# This file is part of CAT-SOOP
+# Copyright (c) 2011-2016 Adam Hartz <hartz@mit.edu>
+# CAT-SOOP is free software, licensed under the terms described in the LICENSE
+# file.  If you did not receive a copy of this file with CAT-SOOP, please see:
+# https://cat-soop.org/LICENSE
+
+# Features of the CAT-SOOP specification language(s)
+
+# Handling of XML, MD, PY sources
+
+def _xml_pre_handle(context):
+    context['cs_content'] = web.handle_python_tags(context,
+                                                   context['cs_content'])
+    tmp = context['cs_content'].split('<question')
+    o = [tmp[0]]
+    for piece in tmp[1:]:
+        chunks = piece.strip().split('>', 1)
+        if len(chunks) != 2:
+            o.append(_malformed_question)
+            break
+        type, rest = chunks
+        otherrest = rest.split('</question>', 1)
+        if len(otherrest) != 2:
+            o.append(_malformed_question)
+            break
+        code, rest = otherrest
+        e = dict(context)
+        try:
+            exec(code, e)
+            o.append(tutor.question(context, type, **e))
+        except:
+            err = web.html_format(web.clear_info(context, traceback.format_exc(
+            )))
+            ret = ("<div><font color='red'>"
+                   "<b>A Python Error Occurred:</b>"
+                   "<p><pre>%s</pre><p>"
+                   "Please contact staff."
+                   "</font></div>") % err
+            o.append(ret)
+        o.append(rest)
+    context['cs_problem_spec'] = o
+
+
+def _md(x):
+    o = markdown.markdown(
+        x,
+        extensions=[tables.TableExtension(),
+                    fenced_code.FencedCodeExtension(),
+                    sane_lists.SaneListExtension(),
+                    markdown_math.MathExtension()])
+    if isinstance(o, unicode):
+        o = o.encode('ascii', 'ignore')
+    return o
+
+
+def _md_pre_handle(context, xml=True):
+    text = web.handle_python_tags(context, context['cs_content'])
+
+    text = _md_format_string(context, text, False)
+
+    context['cs_content'] = text
+    if xml:
+        _xml_pre_handle(context)
+
+
+def _py_pre_handle(context):
+    exec(context['cs_content'], context)
+
+
+def _md_format_string(context, s, xml=True):
+    # generate a unique string to split around
+    splitter = None
+    while splitter is None or splitter in s:
+        splitter = ''.join(random.choice(string.ascii_letters)
+                           for i in xrange(20))
+
+    # extract tags, replace with splitter
+    tag_contents = []
+
+    def _replacer(m):
+        tag_contents.append(m.groups())
+        return splitter
+
+    tags_to_replace = base_context.get('cs_markdown_ignore_tags', tuple())
+    tags = ('pre', 'question', '(?:display)?math', 'script'
+            ) + tuple(tags_to_replace)
+    checker = re.compile(r'<(%s)(.*?)>(.*?)</\1>' % '|'.join(tags),
+                         re.MULTILINE | re.DOTALL)
+
+    text = re.sub(checker, _replacer, s)
+
+    # markdownify individual pieces and reinsert passthrough tags
+    pieces = text.split(splitter)
+    num_tags = len(tag_contents)
+    text = ''
+    for ix, piece in enumerate(pieces):
+        text += _md(piece)
+        if ix < num_tags:
+            t, r, b = tag_contents[ix]
+            text += '<%s%s>%s</%s>' % (t, r, b, t)
+
+    s = text
+    if s.startswith('<p>') and s.endswith('</p>'):
+        s = s[3:-4]
+
+    return _xml_format_string(context, s) if xml else s
+
+
+def _xml_format_string(context, s):
+    return web.handle_custom_tags(context, s)
+
+
+source_formats = OrderedDict([('md', _md_pre_handle), ('xml', _xml_pre_handle),
+                              ('py', _py_pre_handle)])
+"""OrderedDict mapping source format names to formatting handlers"""
+
+source_format_string = OrderedDict([('md', _md_format_string),
+                                    ('xml', _xml_format_string),
+                                    ('py', _xml_format_string)])
+"""OrderedDict mappying source format names to formatters"""
+
+
+def source_transform_string(context, s):
+    """
+    Transform the given string according to the source format
+    """
+    src_format = base_context.get('cs_source_format', None)
+    if src_format is not None:
+        return source_format_string[src_format](context, s)
+    else:
+        return s
+
+
+# Handling of custom XML tags
+
 def _environment_matcher(tag):
     return re.compile("""<%s>(?P<body>.*?)</%s>""" % (tag, tag), re.MULTILINE |
                       re.DOTALL | re.IGNORECASE)
@@ -9,14 +144,14 @@ PYVAR_REGEX = re.compile(r"(?P<lead>^|[^\\])@(?P<fmt>%[^{]+)?{(?P<body>.+?)}",
 PYTHON_REGEX = re.compile(
     r"""<(?P<tag>python|printf) *(?P<opts>.*?)>(?P<body>.*?)</(?P=tag)>""",
     re.MULTILINE | re.DOTALL | re.IGNORECASE)
-"""Regular expression for matching C{<python>} tags"""
+"""Regular expression for matching <python> tags"""
 
 FOOTNOTE_REGEX = _environment_matcher('footnote')
-"""Regular expression matching C{<footnote>} tags"""
+"""Regular expression matching <footnote> tags"""
 
 _ref_regex = r"<ref *?(?P<label>.*?) *?>(?P<body>.*?)</ref>"
 REF_REGEX = re.compile(_ref_regex, re.MULTILINE | re.DOTALL | re.IGNORECASE)
-"""Regular expression for matching C{ref} tags."""
+"""Regular expression for matching ref tags."""
 
 _section_regex = (r"""<(?P<type>(?:chapter)|(?:(?:sub){0,2}section))\s*?"""
                   r"""(?:(?P<var1>(?:label)|(?:num))=(?P<quote>["'])"""
@@ -26,7 +161,7 @@ _section_regex = (r"""<(?P<type>(?:chapter)|(?:(?:sub){0,2}section))\s*?"""
                   r"""(?P<name>.*?)</(?P=type)>""")
 SECTION_REGEX = re.compile(_section_regex, re.MULTILINE | re.DOTALL |
                            re.IGNORECASE)
-"""Regular expression for matching C{section} tags."""
+"""Regular expression for matching section tags."""
 
 
 def _compiler(inp):
@@ -55,15 +190,15 @@ REGEX_LIST = map(_compiler,
                     "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)(?P<trail>.*?)/?>"),
                    '<link{lead}href="{url}"{trail}/>')])
 """
-List containing tuples C{(regex,gen)}, where C{regex} is a regular expresion
-matching a particular HTML tag, and C{gen} is a string used to generate
+List containing tuples (regex,gen), where regex is a regular expresion
+matching a particular HTML tag, and gen is a string used to generate
 processed versions of the same tag.
 """
 
 
 def html_format(string):
     """
-    @return: An HTML-escaped version of the input string, suitable for
+    Returns an HTML-escaped version of the input string, suitable for
     insertion into a <pre> tag
     """
     for x, y in (('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;'), ('\t', '    '),
@@ -76,21 +211,12 @@ def get_python_output(context, code, variables):
     '''
     Get output from Python code.
 
-    Makes use of a special variable C{cs___WEBOUT}, which is a file-like
-    object.  Any data written to C{cs___WEBOUT} will be returned.  Exposes a
-    function C{cs_print} to the code provided, so that C{cs_print(x)} will
-    function as C{print >> cs___WEBOUT, x}.
+    Makes use of a special variable cs___WEBOUT, which is a file-like
+    object.  Any data written to cs___WEBOUT will be returned.  Exposes a
+    function cs_print to the code provided, so that cs_print(x) will
+    function as print(x, file=cs___WEBOUT).
 
-    Writing code to C{stdout} (as with a normal C{print} statement) will not
-    work.
-
-    @param code: The Python code to be executed
-    @param variables: A dictionary containing variable mappings available to
-    the code.  Note that the names C{cs___WEBOUT} and
-    C{cs_print} will be overwritten every time this function
-    is called.
-    @return: Any data written to C{cs___WEBOUT} by the code provided, or an
-    error message
+    Writing code to stdout (as with a normal print statement) will not work.
     '''
     variables.update({'cs___WEBOUT': StringIO()})
     try:
@@ -153,11 +279,7 @@ def _make_python_handler(context):
 
 def handle_python_tags(context, text):
     '''
-    Process C{<python>} and C{<printf>} tags.
-
-    @param context: The data associated with this request
-    @param text: The raw HTML
-    @return: The processed HTML, after handling python tags
+    Process <python> and <printf> tags.
     '''
 
     def printf_handler(x):
@@ -172,12 +294,7 @@ def handle_python_tags(context, text):
 
 def handle_custom_tags(context, text):
     '''
-    Process custom HTML tags using L{fix_single}.
-
-    @param context: The data associated with this request
-    @param text: The raw HTML, possibly containing internal links, etc
-    @return: The processed HTML, after handling custom tags, and replacing
-    internal links with URI's
+    Process custom HTML tags using fix_single.
     '''
 
     text = re.sub(_environment_matcher('comment'), '', text)
