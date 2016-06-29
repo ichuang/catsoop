@@ -11,6 +11,9 @@ the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
 
+cs_all_pieces = ['auth', 'base_context', 'dispatch', 'language', 'loader',
+                 'logging', 'mail', 'time', 'tools', 'tutor']
+
 cs_version = '9.0.0+develop'
 """
 CAT-SOOP's version number
@@ -179,7 +182,7 @@ import traceback
 _cs_config_errors = []
 
 try:
-    from config import *
+    from .config import *
 except Exception as e:
     _cs_config_errors.append('error in config.py: %s' % (e, ))
 
@@ -195,7 +198,7 @@ else:
     else:
         contents = os.listdir(root)
         if not all(('%s.py' % i in contents or i in contents)
-                   for i in cs_all_modules):
+                   for i in cs_all_pieces):
             _cs_config_errors.append(_fs_root_error)
 # check for valid data_root
 if not os.path.isdir(cs_data_root):

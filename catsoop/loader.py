@@ -21,6 +21,8 @@ importlib.reload(base_context)
 
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
+for i in base_context.cs_all_pieces:
+    exec("from . import %s" % i)
 
 def clean_builtins(d):
     """
@@ -52,7 +54,7 @@ def load_global_data(into, check_values=True):
         fname = os.path.join(thisdir, 'base_context.py')
         execfile(fname, into)
         into['cs_random'] = random.Random()
-        for i in base_context.cs_all_modules:
+        for i in base_context.cs_all_pieces:
             if i != 'loader':
                 exec('into["%s"] = %s' % (i, i))
                 exec('into["csm_%s"] = %s' % (i, i))
