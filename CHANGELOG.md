@@ -24,7 +24,7 @@ _Next planned release.  Currently under development._
 
 * Pre-compiled CAT-SOOP (`.pycs`) files' names now include the Python
     implementation's cache tag, so that the same course can be migrated to a
-    CAT-SOOP instance running a different version of CAT-SOOP without issue.
+    CAT-SOOP instance running on a different version of Python without issue.
 * Fixed a bug whereby an empty entry in a multiplechoice question (`--`) was
     interpreted as being the last element in the `csq_options` list.
 
