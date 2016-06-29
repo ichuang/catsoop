@@ -11,6 +11,7 @@ import re
 import sys
 import random
 import string
+import importlib
 
 from . import auth
 from . import time
@@ -20,7 +21,7 @@ from . import base_context
 
 from datetime import timedelta
 
-reload(base_context)
+importlib.reload(base_context)
 
 
 def compute_page_stats(context, user, course, path, keys=None):

@@ -4,6 +4,20 @@
 # file.  If you did not receive a copy of this file with CAT-SOOP, please see:
 # https://cat-soop.org/LICENSE
 
+from . import loader
+
+
+def html_format(string):
+    """
+    Returns an HTML-escaped version of the input string, suitable for
+    insertion into a <pre> tag
+    """
+    for x, y in (('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;'), ('\t', '    '),
+                 (' ', '&nbsp;')):
+        string = string.replace(x, y)
+    return string
+
+
 def clear_info(context, text):
     """
     Clear sensitive information from a string

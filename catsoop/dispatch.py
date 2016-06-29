@@ -4,6 +4,11 @@
 # file.  If you did not receive a copy of this file with CAT-SOOP, please see:
 # https://cat-soop.org/LICENSE
 
+import cgi
+import urllib.parse
+
+from . import loader
+from . import errors
 
 def redirect(location):
     '''
@@ -337,7 +342,7 @@ def main(environment):
             m = ('The following errors occurred while '
                  'loading global configuration:\n\n')
             m += '\n'.join(context['_cs_config_errors'])
-            out = do_error_message(context, m)
+            out = errors.do_error_message(context, m)
             force_error = True
             raise Exception
 
@@ -418,6 +423,6 @@ def main(environment):
         session.set_session_data(context['cs_sid'], session_data)
     except:
         if not force_error:
-            out = do_error_message(context)
+            out = errors.do_error_message(context)
     out[1].update({'Content-length': str(len(out[-1]))})
     return out

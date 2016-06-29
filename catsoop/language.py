@@ -8,6 +8,18 @@
 
 # Handling of XML, MD, PY sources
 
+import re
+
+from collections import OrderedDict
+
+from . import markdown_math
+from .tools import markdown
+from .errors import html_format, clear_info
+from .tools.markdown.extensions import tables
+from .tools.markdown.extensions import fenced_code
+from .tools.markdown.extensions import sane_lists
+
+
 def _xml_pre_handle(context):
     context['cs_content'] = web.handle_python_tags(context,
                                                    context['cs_content'])
@@ -29,7 +41,7 @@ def _xml_pre_handle(context):
             exec(code, e)
             o.append(tutor.question(context, type, **e))
         except:
-            err = web.html_format(web.clear_info(context, traceback.format_exc(
+            err = html_format(clear_info(context, traceback.format_exc(
             )))
             ret = ("<div><font color='red'>"
                    "<b>A Python Error Occurred:</b>"
@@ -194,17 +206,6 @@ List containing tuples (regex,gen), where regex is a regular expresion
 matching a particular HTML tag, and gen is a string used to generate
 processed versions of the same tag.
 """
-
-
-def html_format(string):
-    """
-    Returns an HTML-escaped version of the input string, suitable for
-    insertion into a <pre> tag
-    """
-    for x, y in (('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;'), ('\t', '    '),
-                 (' ', '&nbsp;')):
-        string = string.replace(x, y)
-    return string
 
 
 def get_python_output(context, code, variables):

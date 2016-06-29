@@ -13,14 +13,21 @@ sys.path.insert(0, os.path.dirname(__file__))
 import catsoop.dispatch as dispatch
 
 
+def _ensure_bytes(x):
+    try:
+        return x.encode()
+    except:
+        return x
+
+
 def application(environ, start_response):
     """
     WSGI application interface for CAT-SOOP, as specified in PEP
     3333 (http://www.python.org/dev/peps/pep-3333/).
     """
     status, headers, content = dispatch.main(environ)
-    start_response('%s %s' % (status[0], status[1]), headers.items())
+    start_response('%s %s' % (status[0], status[1]), list(headers.items()))
     if isinstance(content, str):
-        return [content]
+        return [_ensure_bytes(content)]
     else:
-        return content
+        return (_ensure_bytes(i) for i in content)

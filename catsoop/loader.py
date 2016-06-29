@@ -19,16 +19,6 @@ from . import base_context
 
 importlib.reload(base_context)
 
-
-cs_all_pieces = ['api', 'auth', 'base_context', 'dispatch', 'context',
-                 'language', 'loader', 'logging', 'mail', 'time', 'tools',
-                 'tutor']
-
-for _i in cs_all_pieces:
-    if _i != 'loader':
-        command = 'from . import %s' % _i
-        exec(command)
-
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
 
