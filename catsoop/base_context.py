@@ -38,6 +38,11 @@ Which authentication type to use ('login' to use a form, 'cert' to read client
 certificates).
 """
 
+cs_db_type = 'catsoopdb'
+"""
+Which backend to use for storing logs ('catsoopdb' and 'sqlite' are supported)
+"""
+
 
 # Default Page Content
 cs_title = 'CAT-SOOP'
