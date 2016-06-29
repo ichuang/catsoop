@@ -4,8 +4,11 @@
 # file.  If you did not receive a copy of this file with CAT-SOOP, please see:
 # https://cat-soop.org/LICENSE
 
-from . import loader
+import traceback
 
+from . import loader
+from . import dispatch
+from . import base_context
 
 def html_format(string):
     """
@@ -23,9 +26,9 @@ def clear_info(context, text):
     Clear sensitive information from a string
     """
     text = text.replace(
-        context.get('cs_fs_root', gb.cs_fs_root), '<CATSOOP ROOT>')
+        context.get('cs_fs_root', base_context.cs_fs_root), '<CATSOOP ROOT>')
     text = text.replace(
-        context.get('cs_data_root', gb.cs_data_root), '<DATA ROOT>')
+        context.get('cs_data_root', base_context.cs_data_root), '<DATA ROOT>')
     for i, j in context.get('cs_extra_clear', []):
         text = text.replace(i, j)
     return text
@@ -54,6 +57,6 @@ def do_error_message(context, msg=None):
     e = ': <font color="red">ERROR</font>'
     new['cs_header'] = new.get('cs_header', '') + e
     new['cs_content_header'] = 'An Error Occurred:'
-    s, h, o = display_page(new)
+    s, h, o = dispatch.display_page(new)
     return ('500', 'Internal Server Error'), h, o
 

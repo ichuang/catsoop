@@ -4,11 +4,14 @@
 # file.  If you did not receive a copy of this file with CAT-SOOP, please see:
 # https://cat-soop.org/LICENSE
 
+import os
 import cgi
 import urllib.parse
 
 from . import loader
 from . import errors
+from . import language
+from . import base_context
 
 def redirect(location):
     '''
@@ -27,18 +30,18 @@ def static_file_location(context, path):
     if path[0] == '__BASE__':
         # serving from base
         loc = os.path.join(
-            context.get('cs_fs_root', gb.cs_fs_root), '__MEDIA__')
+            context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__')
         rest = path[1:]
     elif path[0] == '__HANDLER__':
         # serving from atype
         loc = os.path.join(
-            context.get('cs_fs_root', gb.cs_fs_root), '__HANDLERS__', path[1],
+            context.get('cs_fs_root', base_context.cs_fs_root), '__HANDLERS__', path[1],
             '__MEDIA__')
         rest = path[2:]
     elif path[0] == '__QTYPE__':
         # serving from qtype
         loc = os.path.join(
-            context.get('cs_fs_root', gb.cs_fs_root), '__QTYPES__', path[1],
+            context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__', path[1],
             '__MEDIA__')
         rest = path[2:]
     else:
@@ -60,7 +63,7 @@ def static_file_location(context, path):
         # trace up the path to find the lowest point that has a
         # __MEDIA__ directory
         basepath = os.path.join(
-            context.get('cs_data_root', gb.cs_data_root), 'courses', course)
+            context.get('cs_data_root', base_context.cs_data_root), 'courses', course)
         for ix in xrange(len(newpath) - 1, -1, -1):
             loc = os.path.join(*([basepath] + newpath[:ix] + ['__MEDIA__']))
             rest = newpath[ix:]
@@ -173,7 +176,7 @@ def is_resource(context, path):
 
 
 def _real_url_helper(context, url):
-    u = [context.get('cs_url_root', gb.cs_url_root), '__STATIC__']
+    u = [context.get('cs_url_root', base_context.cs_url_root), '__STATIC__']
     u2 = u[:1]
     end = url.split('/')[1:]
     if url.startswith('BASE'):
@@ -265,9 +268,9 @@ def display_page(context):
                   "Actions you take may affect <i>%(u)s</i>\'s account."
                   '</font></b></center><p>') % {'u': context['cs_username']}
         context['cs_content'] = impmsg + context['cs_content']
-    context['cs_content'] = handle_custom_tags(context, context['cs_content'])
+    context['cs_content'] = language.handle_custom_tags(context, context['cs_content'])
     default = os.path.join(
-        context.get('cs_fs_root', gb.cs_fs_root), '__MEDIA__', 'templates',
+        context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__', 'templates',
         "main.template")
     temp = _real_url_helper(context, context['cs_template'])
     if '__STATIC__' in temp:
@@ -278,7 +281,7 @@ def display_page(context):
     fmt = dict((i, j.decode('ascii', 'ignore')
                 if isinstance(j, (str, unicode)) else j)
                for i, j in context.iteritems())
-    out = handle_custom_tags(context, template.format(**fmt)) + '\n'
+    out = language.handle_custom_tags(context, template.format(**fmt)) + '\n'
     headers.update(context.get('cs_additional_headers', {}))
     headers.update({'Last-Modified': formatdate()})
     return ('200', 'OK'), headers, out
@@ -380,7 +383,7 @@ def main(environment):
                 if user_info.get('cs_reload', False):
                     session.set_session_data(context['cs_sid'],
                                              context['cs_session_data'])
-                    return redirect('/'.join([gb.cs_url_root] + context[
+                    return redirect('/'.join([base_context.cs_url_root] + context[
                         'cs_path_info']))
 
                 # ONCE WE HAVE THAT, GET USER INFORMATION

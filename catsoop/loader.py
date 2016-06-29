@@ -52,7 +52,9 @@ def load_global_data(into, check_values=True):
         sys.path.insert(0, thisdir)
         into['sys'] = sys
         fname = os.path.join(thisdir, 'base_context.py')
-        execfile(fname, into)
+        with open(fname) as f:
+            c = compile(f.read(), fname, 'exec')
+        exec(c, into)
         into['cs_random'] = random.Random()
         for i in base_context.cs_all_pieces:
             if i != 'loader':

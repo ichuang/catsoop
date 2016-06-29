@@ -119,7 +119,7 @@ def _md_format_string(context, s, xml=True):
 
 
 def _xml_format_string(context, s):
-    return web.handle_custom_tags(context, s)
+    return handle_custom_tags(context, s)
 
 
 source_formats = OrderedDict([('md', _md_pre_handle), ('xml', _xml_pre_handle),
