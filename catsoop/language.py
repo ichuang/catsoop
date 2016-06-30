@@ -188,25 +188,25 @@ def _compiler(inp):
     return (compiled, y)
 
 
-REGEX_LIST = map(_compiler,
-                 # img tags
-                 [(("<img(?P<lead>[^>]*?)src="
-                    "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)(?P<trail>.*?)/?>"),
-                   '<img{lead}src="{url}"{trail}/>'),
-                  # a tags
-                  (("<a(?P<lead>[^>]*?)href="
-                    "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)"
-                    "(?P<trail>.*?)>(?P<body>.*?)</a>"),
-                   '<a{lead}href="{url}"{trail}>{body}</a>'),
-                  # script tags
-                  (("<script(?P<lead>[^>]*?)src="
-                    "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)"
-                    "(?P<trail>.*?)>(?P<body>.*?)</script>"),
-                   '<script{lead}src="{url}"{trail}>{body}</script>'),
-                  # link tags
-                  (("<link(?P<lead>[^>]*?)href="
-                    "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)(?P<trail>.*?)/?>"),
-                   '<link{lead}href="{url}"{trail}/>')])
+REGEX_LIST = list(map(_compiler,
+                      # img tags
+                      [(("<img(?P<lead>[^>]*?)src="
+                         "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)(?P<trail>.*?)/?>"),
+                        '<img{lead}src="{url}"{trail}/>'),
+                       # a tags
+                       (("<a(?P<lead>[^>]*?)href="
+                         "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)"
+                         "(?P<trail>.*?)>(?P<body>.*?)</a>"),
+                        '<a{lead}href="{url}"{trail}>{body}</a>'),
+                       # script tags
+                       (("<script(?P<lead>[^>]*?)src="
+                         "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)"
+                         "(?P<trail>.*?)>(?P<body>.*?)</script>"),
+                        '<script{lead}src="{url}"{trail}>{body}</script>'),
+                       # link tags
+                       (("<link(?P<lead>[^>]*?)href="
+                         "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)(?P<trail>.*?)/?>"),
+                        '<link{lead}href="{url}"{trail}/>')]))
 """
 List containing tuples (regex,gen), where regex is a regular expresion
 matching a particular HTML tag, and gen is a string used to generate
@@ -314,8 +314,6 @@ def fix_single(context, text, matcher, gen):
         end = match.end()
         out += gen.format(**d)
     return out + text[end:]
-
-
 
 
 def handle_custom_tags(context, text):
