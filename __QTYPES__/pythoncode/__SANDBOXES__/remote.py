@@ -5,19 +5,19 @@
 # https://cat-soop.org/LICENSE
 
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 SANDBOX_URL = 'https://cat-soop.org/python3-sandbox.py'
 
 
 def run_code(context, code, options):
     code = code.replace('\r\n', '\n')
-    data = urllib.urlencode({"code": code, "options": options})
-    request = urllib2.Request(
+    data = urllib.parse.urlencode({"code": code, "options": options})
+    request = urllib.request.Request(
         context.get('csq_sandbox_url', SANDBOX_URL), data)
     try:
-        resp = urllib2.urlopen(request, data).read()
+        resp = urllib.request.urlopen(request, data).read()
         resp = json.loads(resp)
         out = resp['stdout']
         err = resp['stderr']

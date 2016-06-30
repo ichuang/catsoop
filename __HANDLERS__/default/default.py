@@ -11,7 +11,6 @@ import random
 import string
 import traceback
 import collections
-import unicodedata
 
 _prefix = 'cs_defaulthandler_'
 
@@ -26,14 +25,7 @@ def _unknown_handler(action):
 
 def _get(context, key, default, cast=lambda x: x):
     v = context.get(key, default)
-    return cast(v(context) if callable(v) else v)
-
-
-_unicode_regex = re.compile(r"[^\x00-\x7F]")
-
-
-def first_unicode(s):
-    return re.search(_unicode_regex, s)
+    return cast(v(context) if isinstance(v, collections.Callable) else v)
 
 
 def handle(context):
@@ -489,7 +481,7 @@ def handle_grade(context):
                          'scores': newentries,
                          'grader': context[_n('real_uname')]})
 
-    return make_return_json(context, outdict, names=outdict.keys())
+    return make_return_json(context, outdict, names=list(outdict.keys()))
 
 
 def handle_unlock(context):
@@ -554,16 +546,6 @@ def handle_save(context):
 
         saved_names.append(name)
 
-        error = None
-        if isinstance(sub, (str, unicode)):
-            error = unicode_error_msg(context, name)
-        if error is None:
-            error = save_msg(context, context[_n('perms')], name)
-        if error is not None:
-            out['error_msg'] = error
-            outdict[name] = out
-            continue
-
         # if we are here, no errors occurred.  go ahead with checking.
         newstate['last_submit'][name] = sub
 
@@ -620,16 +602,6 @@ def handle_check(context):
         out = {}
         sub = context[_n('form')].get(name, '')
 
-        error = None
-        if isinstance(sub, (str, unicode)):
-            error = unicode_error_msg(context, name)
-        if error is None:
-            error = check_msg(context, context[_n('perms')], name)
-        if error is not None:
-            out['error_msg'] = error
-            outdict[name] = out
-            continue
-
         # if we are here, no errors occurred.  go ahead with checking.
         newstate['last_submit'][name] = sub
         question, args = namemap[name]
@@ -640,8 +612,8 @@ def handle_check(context):
             response = exc_message(context)
 
         out['score_display'] = ''
-        out['response'] = context['csm_web'].handle_custom_tags(context,
-                                                                response)
+        out['response'] = context['csm_language'].handle_custom_tags(context,
+                                                                     response)
 
         rerender = question.get('always_rerender', False)
         if rerender is True:
@@ -707,16 +679,6 @@ def handle_submit(context):
         out = {}
         sub = context[_n('form')].get(name, '')
 
-        error = None
-        if isinstance(sub, (str, unicode)):
-            error = unicode_error_msg(context, name)
-        if error is None:
-            error = submit_msg(context, context[_n('perms')], name)
-        if error is not None:
-            out['error_msg'] = error
-            outdict[name] = out
-            continue
-
         # if we are here, no errors occurred.  go ahead with checking.
         nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
         newstate['last_submit'][name] = sub
@@ -746,7 +708,8 @@ def handle_submit(context):
         out['score_display'] = make_score_display(
             context, name, scores[name],
             assume_submit=True)
-        out['response'] = context['csm_web'].handle_custom_tags(context, msg)
+        out['response'] = context['csm_language'].handle_custom_tags(context,
+                                                                     msg)
         out['score'] = scores[name]
 
         rerender = resp.get('rerender', False) or question.get(
@@ -950,18 +913,6 @@ def grade_msg(context, perms, name):
     _, qargs = namemap[name]
     if 'grade' not in perms:
         return 'You are not allowed to grade exercises.'
-
-
-def unicode_error_msg(context, name):
-    sub = context[_n('form')].get(name, '')
-    uni = first_unicode(sub)
-    if uni is not None:
-        char = uni.group()
-        name = unicodedata.name(char, 'UNKNOWN')
-        loc = uni.start()
-        return ('Please remove the non-ASCII input from '
-                'your input and try again.  The first non-ascii character in '
-                'your code is %s (%s), at location %d.') % (name, char, loc)
 
 
 def submit_msg(context, perms, name):
@@ -1187,7 +1138,7 @@ def make_buttons(context, name):
         'lock': None,
         'unlock': None
     }
-    for (b, (func, text)) in _button_map.items():
+    for (b, (func, text)) in list(_button_map.items()):
         buttons[b] = button_text(func(context, p, name), text)
         abuttons[b] = button_text(func(context, rp, name), text)
 
@@ -1338,7 +1289,7 @@ def _get_auto_view(context):
     ava = context.get('csq_auto_viewanswer', False)
     if ava is True:
         ava = set(['nosubmits', 'perfect', 'lock'])
-    elif isinstance(ava, (str, unicode)):
+    elif isinstance(ava, str):
         ava = set([ava])
     elif not ava:
         ava = set()
@@ -1350,10 +1301,10 @@ def default_javascript(context):
     if len(namemap) == 0:
         return ''
     if 'submit_all' in context[_n('perms')]:
-        skip_alert = namemap.keys()
+        skip_alert = list(namemap.keys())
     else:
         skipper = 'csq_allow_submit_after_answer_viewed'
-        skip_alert = [name for (name, (q, args)) in namemap.items()
+        skip_alert = [name for (name, (q, args)) in list(namemap.items())
                       if _get(args, skipper, False, bool)]
     return '''
 <script type="text/javascript" src="__HANDLER__/default/cs_ajax.js"></script>
@@ -1403,7 +1354,7 @@ def default_timer(context):
 def exc_message(context):
     exc = traceback.format_exc().decode('utf-8', 'ignore')
     exc = exc.encode('ascii', 'ignore')
-    exc = context['csm_web'].clear_info(context, exc)
+    exc = context['csm_errors'].clear_info(context, exc)
     return ('<p><font color="red">'
             '<b>CAT-SOOP ERROR:</b>'
             '<pre>%s</pre></font>') % exc

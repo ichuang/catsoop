@@ -165,7 +165,6 @@ function sendRequest(names,action,send){
     for (var key in send){if (send.hasOwnProperty(key)){form[key] = send[key];}}
     var d = {action: action,
              names: JSON.stringify(names),
-             api_user: cs_api_user,
              api_token: cs_api_token,
              data: JSON.stringify(form)};
     if (cs_imp != '') d['as'] = cs_imp;

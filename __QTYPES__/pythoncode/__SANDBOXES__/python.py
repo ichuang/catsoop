@@ -38,7 +38,7 @@ class PKiller(threading.Thread):
 
 def run_code(context, code, options):
     rlimits = [(resource.RLIMIT_NPROC, (0, 0))]
-    for key, val in _resource_mapper.iteritems():
+    for key, val in _resource_mapper.items():
         if key == 'MEMORY' and options[key] <= 0:
             continue
         rlimits.append((val[0], val[1](options[key])))

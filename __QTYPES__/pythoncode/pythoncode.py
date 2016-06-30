@@ -10,10 +10,17 @@ from base64 import b64encode
 import json
 
 
+def _execfile(*args):
+    fn = args[0]
+    with open(fn) as f:
+        c = compile(f.read(), fn, 'exec')
+    exec(c, *args[1:])
+
+
 def get_sandbox(context):
     base = os.path.join(context['cs_fs_root'], '__QTYPES__', 'pythoncode',
                         '__SANDBOXES__', 'base.py')
-    execfile(base, context)
+    _execfile(base, context)
 
 
 def html_format(string):

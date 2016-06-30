@@ -11,6 +11,13 @@ import resource
 import subprocess
 
 
+def _execfile(*args):
+    fn = args[0]
+    with open(fn) as f:
+        c = compile(f.read(), fn, 'exec')
+    exec(c, *args[1:])
+
+
 def prep_code(code, test, **kwargs):
     # code is whatever code we need to test; test is the dictionary describing
     # what test we should be running
@@ -36,7 +43,7 @@ def sandbox_run_code(context, code, options):
     opts = dict(DEFAULT_OPTIONS)
     opts.update(options)
     sandbox = dict(context)
-    execfile(sandbox_file, sandbox)
+    _execfile(sandbox_file, sandbox)
     return sandbox['run_code'](context, code, opts)
 
 
@@ -174,11 +181,6 @@ def safety_check(code, bad_imports=None, bad_variables=None):
             tree)  # recursively add parent/child pointers to each node
     except:
         return "SYNTAX ERROR"  # TODO: replace this with real error message
-
-    # look for exec statements
-    execs = _ast_downward_search(tree, lambda n: isinstance(n, ast.Exec))
-    if len(execs) > 0:
-        return (execs[0].lineno, "'exec' statements are disallowed")
 
     # collect all instances of Name not contained in an Attribute object
     search = _ast_downward_search
