@@ -13,7 +13,6 @@ import string
 
 CHARACTERS = string.ascii_letters + string.digits
 
-# TODO: clear out all dead api tokens
 
 def get_api_token(context, username):
     length = context.get('cs_api_token_length', 70)
@@ -25,19 +24,18 @@ def get_api_token(context, username):
 
 def initialize_api_token(context, token, user_info):
     token = token or get_api_token(context, user_info['username'])
-    timeout = time.time() + context.get('cs_api_token_timeout', 24) * 3600
-    user_info['_api_timeout'] = timeout
     user_info['_api_token'] = token
-    context['csm_cslog'].overwrite_log(None, '_api_tokens', token, user_info)
+    context['csm_cslog'].overwrite_log(None, '_api_tokens',
+                                       '%s.userinfo' % token,
+                                       user_info)
 
 
 def get_logged_in_user(context):
     form = context.get('cs_form', {})
     if 'api_token' in form:
         tok = form['api_token']
-        log = context['csm_cslog'].most_recent(None, '_api_tokens', tok, None)
-        if log is not None and log.get('_api_timeout') < time.time():
-            # reset the timeout on the token
-            initialize_api_token(context, tok, log)
+        log = context['csm_cslog'].most_recent(None, '_api_tokens',
+                                               '%s.userinfo' % tok, None)
+        if log is not None:
             return log
     return None
