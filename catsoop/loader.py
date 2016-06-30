@@ -15,6 +15,7 @@ import importlib
 import traceback
 
 from . import time
+from . import language
 from . import base_context
 
 importlib.reload(base_context)
@@ -56,6 +57,7 @@ def load_global_data(into, check_values=True):
         exec(c, into)
         into['cs_random'] = random.Random()
         into['csm_base_context'] = into['base_context'] = base_context
+        into['csm_cslog'] = into['cslog'] = into['csm_logging'].get_logger(into)
         clean_builtins(into)
         into['csm_loader'] = sys.modules[__name__]
     except Exception as e:
@@ -205,4 +207,4 @@ def do_late_load(context, course, path, into, content_file=None):
         into['cs_children'] = {}
     into['cs_source_format'] = content_file.rsplit('.', 1)[-1]
     into['cs_content'] = open(content_file).read()
-    source_formats[into['cs_source_format']](into)
+    language.source_formats[into['cs_source_format']](into)
