@@ -13,6 +13,8 @@ import pickle
 import sqlite3
 import importlib
 
+from .. import base_context
+
 
 def prep(x):
     return zlib.compress(pickle.dumps(x, -1), 9)
@@ -65,13 +67,13 @@ def get_log_filename(course, db_name):
     Returns the filename where a given database is stored on disk.
     '''
     if course is not None:
-        d = os.path.join(gb.cs_data_root, 'courses', course, '__LOGS__')
+        d = os.path.join(base_context.cs_data_root, 'courses', course, '__LOGS__')
         create_if_not_exists(d)
         fname = os.path.join(d, db_name + '.db')
     else:
-        d = os.path.join(gb.cs_data_root, '__LOGS__')
+        d = os.path.join(base_context.cs_data_root, '__LOGS__')
         create_if_not_exists(d)
-        fname = os.path.join(gb.cs_data_root, '__LOGS__', db_name + '.db')
+        fname = os.path.join(base_context.cs_data_root, '__LOGS__', db_name + '.db')
     if os.path.dirname(os.path.abspath(fname)) != os.path.abspath(d):
         raise Exception("Cannot access log at %s" % fname)
     return fname

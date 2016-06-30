@@ -9,7 +9,7 @@ from . import catsoopdb
 
 _db_type_map = {
     'catsoopdb': catsoopdb,
-    'sqlite': sqlite
+    'sqlite': sqlite,
 }
 
 def get_logger(context):

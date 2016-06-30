@@ -48,7 +48,7 @@ def get_log_filename(course, db_name, log_name):
     '''
     Returns the filename where a given log is stored on disk.
     '''
-    base = os.path.join('__LOGS__', db_name, *(log_name.split('.')))
+    base = os.path.join('__LOGS__', db_name, *(log_name.split('.'))) + '.log'
     if course is not None:
         return os.path.join(base_context.cs_data_root, 'courses', course, base)
     else:
@@ -71,7 +71,7 @@ def update_log(course, db_name, log_name, new):
             if sep == '':
                 raise Exception
         except:
-            overwrite_log(course, db_name, log_name, new)
+            overwrite_log(course, db_name, log_name, new, lock=False)
             return
         new = prep(new)
         if good_separator(sep, new):
@@ -88,19 +88,26 @@ def update_log(course, db_name, log_name, new):
                 f.write(sep.join(entries) + sep)
 
 
-def overwrite_log(course, db_name, log_name, new):
+def _overwrite_log(fname, new):
+    create_if_not_exists(os.path.dirname(fname))
+    new = prep(new)
+    sep = get_separator(new)
+    with open(fname, 'wb') as f:
+        f.write(sep + b'\n')
+        f.write(new + sep)
+
+
+def overwrite_log(course, db_name, log_name, new, lock=True):
     """
     Overwrites the most recent entry in the specified log.
     """
-    fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before making changes
-    with FileLock(fname) as lock:
-        create_if_not_exists(os.path.dirname(fname))
-        new = prep(new)
-        sep = get_separator(new)
-        with open(fname, 'wb') as f:
-            f.write(sep + b'\n')
-            f.write(new + sep)
+    fname = get_log_filename(course, db_name, log_name)
+    if lock:
+        with FileLock(fname) as l:
+            _overwrite_log(fname, new)
+    else:
+        _overwrite_log(fname, new)
 
 
 def _read_log(course, db_name, log_name):
