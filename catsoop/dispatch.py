@@ -6,6 +6,7 @@
 
 import os
 import cgi
+import mimetypes
 import urllib.parse
 
 from email.utils import formatdate
@@ -144,14 +145,12 @@ def serve_static_file(fname, environment=None, stream=False, streamchunk=4096):
         headers['Content-length'] = os.path.getsize(fname)
         f = open(fname, 'rb')
         if stream or headers['Content-length'] > 1024 * 1024:
-
             def streamer():
                 r = f.read(streamchunk)
                 while len(r) > 0:
                     yield r
                     r = f.read(streamchunk)
                 f.close()
-
             out = streamer()
         else:
             out = f.read()
@@ -160,7 +159,7 @@ def serve_static_file(fname, environment=None, stream=False, streamchunk=4096):
     except:
         status = ('404', 'Static file not found')
         headers = {}
-        out = ''
+        out = b''
     return status, headers, out
 
 

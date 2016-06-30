@@ -29,5 +29,7 @@ def application(environ, start_response):
     start_response('%s %s' % (status[0], status[1]), list(headers.items()))
     if isinstance(content, str):
         return [_ensure_bytes(content)]
+    elif isinstance(content, bytes):
+        return [content]
     else:
         return (_ensure_bytes(i) for i in content)
