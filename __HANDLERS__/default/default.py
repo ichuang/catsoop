@@ -1315,10 +1315,10 @@ def pre_handle(context):
         context[_n('activation_password')] = pwd
 
     # determine the right log name to look up, and grab the most recent entry
-    logtail = '.'.join(context['cs_path_info'][1:])
-    ps_name = 'problemstate.%s' % logtail
-    pa_name = 'problemactions.%s' % logtail
-    pg_name = 'problemgrades.%s' % logtail
+    loghead = '.'.join(context['cs_path_info'][1:])
+    ps_name = '%s.problemstate' % loghead
+    pa_name = '%s.problemactions' % loghead
+    pg_name = '%s.problemgrades' % loghead
     ll = context['csm_cslog'].most_recent(context['cs_course'], uname, ps_name,
                                           {})
     context[_n('last_log')] = ll
