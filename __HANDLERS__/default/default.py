@@ -171,7 +171,7 @@ def handle_view(context):
     timing = context[_n('timing')]
 
     if timing == -1 and ('view_all' not in perms):
-        reltime = context['csm_cstime'].long_timestamp(context[_n('rel')])
+        reltime = context['csm_time'].long_timestamp(context[_n('rel')])
         reltime = reltime.replace(';', ' at')
         return ('This page is not yet available.  '
                 'It will become available on %s.') % reltime
@@ -185,7 +185,7 @@ def handle_view(context):
     num_questions = len(context[_n('name_map')])
     if (num_questions > 0 and _get(context, 'cs_show_due', True, bool) and
             context.get('cs_due_date', 'NEVER') != 'NEVER'):
-        duetime = context['csm_cstime'].long_timestamp(due)
+        duetime = context['csm_time'].long_timestamp(due)
         page += ('<tutoronly><center>'
                  'The questions below are due on %s.'
                  '<br/>--<br/></center></tutoronly>') % duetime
@@ -283,7 +283,7 @@ def handle_clearanswer(context):
     context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
-    duetime = context['csm_cstime'].detailed_timestamp(due)
+    duetime = context['csm_time'].detailed_timestamp(due)
     log_action(context, {'action': 'viewanswer',
                          'names': names,
                          'score': newstate.get('score', 0.0),
@@ -336,7 +336,7 @@ def handle_viewexplanation(context):
     context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
-    duetime = context['csm_cstime'].detailed_timestamp(due)
+    duetime = context['csm_time'].detailed_timestamp(due)
     log_action(context, {'action': 'viewanswer',
                          'names': names,
                          'score': newstate.get('score', 0.0),
@@ -387,7 +387,7 @@ def handle_viewanswer(context):
     context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
-    duetime = context['csm_cstime'].detailed_timestamp(due)
+    duetime = context['csm_time'].detailed_timestamp(due)
     log_action(context, {'action': 'viewanswer',
                          'names': names,
                          'score': newstate.get('score', 0.0),
@@ -438,7 +438,7 @@ def handle_lock(context):
     context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
-    duetime = context['csm_cstime'].detailed_timestamp(due)
+    duetime = context['csm_time'].detailed_timestamp(due)
     log_action(context, {'action': 'lock',
                          'names': names,
                          'score': newstate.get('score', 0.0),
@@ -526,7 +526,7 @@ def handle_unlock(context):
     context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
-    duetime = context['csm_cstime'].detailed_timestamp(due)
+    duetime = context['csm_time'].detailed_timestamp(due)
     log_action(context, {'action': 'unlock',
                          'names': names,
                          'score': newstate.get('score', 0.0),
@@ -597,7 +597,7 @@ def handle_save(context):
         context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
         # log submission in problemactions
-        duetime = context['csm_cstime'].detailed_timestamp(due)
+        duetime = context['csm_time'].detailed_timestamp(due)
         subbed = {n: context[_n('form')].get(n, '') for n in saved_names}
         log_action(context, {'action': 'save',
                              'names': saved_names,
@@ -670,7 +670,7 @@ def handle_check(context):
     context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
-    duetime = context['csm_cstime'].detailed_timestamp(due)
+    duetime = context['csm_time'].detailed_timestamp(due)
     subbed = {n: context[_n('form')].get(n, '') for n in names}
     log_action(context, {'action': 'check',
                          'names': names,
@@ -810,7 +810,7 @@ def handle_submit(context):
     context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
-    duetime = context['csm_cstime'].detailed_timestamp(due)
+    duetime = context['csm_time'].detailed_timestamp(due)
     subbed = {n: context[_n('form')].get(n, '') for n in names}
     log_action(context, {'action': 'submit',
                          'names': names,
@@ -1027,6 +1027,7 @@ def log_action(context, log_entry):
              'user_info': context['cs_user_info'],
              'form': context['cs_form']}
     entry.update(log_entry)
+    context['cs_debug'](uname, entry)
     context['csm_cslog'].update_log(course, uname, logname, entry)
 
 
@@ -1305,7 +1306,7 @@ def pre_handle(context):
     # store release and due dates
     r = context[_n('rel')] = context['csm_tutor'].get_release_date(context)
     d = context[_n('due')] = context['csm_tutor'].get_due_date(context)
-    n = context['csm_cstime'].from_detailed_timestamp(context['cs_timestamp'])
+    n = context['csm_time'].from_detailed_timestamp(context['cs_timestamp'])
     context[_n('now')] = n
     context[_n('timing')] = -1 if n <= r else 0 if n <= d else 1
 
@@ -1398,8 +1399,8 @@ def default_timer(context):
         out += ("\nvar cs_timer_now = %d;"
                 "\nvar cs_timer_due = %d;"
                 "\nvar cs_time_url = %r;") % (
-                    context['csm_cstime'].unix(context[_n('now')]),
-                    context['csm_cstime'].unix(context[_n('due')]),
+                    context['csm_time'].unix(context[_n('now')]),
+                    context['csm_time'].unix(context[_n('due')]),
                     context['cs_url_root'] + '/cs_util/time')
         out += '\n</script>'
         out += ('<script type="text/javascript" '
