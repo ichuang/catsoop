@@ -10,6 +10,7 @@
 
 import os
 import re
+import importlib
 import traceback
 
 from io import StringIO
@@ -98,7 +99,7 @@ def _md_format_string(context, s, xml=True):
         tag_contents.append(m.groups())
         return splitter
 
-    tags_to_replace = base_context.get('cs_markdown_ignore_tags', tuple())
+    tags_to_replace = context.get('cs_markdown_ignore_tags', tuple())
     tags = ('pre', 'question', '(?:display)?math', 'script'
             ) + tuple(tags_to_replace)
     checker = re.compile(r'<(%s)(.*?)>(.*?)</\1>' % '|'.join(tags),
@@ -141,7 +142,7 @@ def source_transform_string(context, s):
     """
     Transform the given string according to the source format
     """
-    src_format = base_context.get('cs_source_format', None)
+    src_format = context.get('cs_source_format', None)
     if src_format is not None:
         return source_format_string[src_format](context, s)
     else:

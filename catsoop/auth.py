@@ -9,6 +9,7 @@
 import os
 import importlib
 
+from . import api
 from . import loader
 from . import base_context
 importlib.reload(base_context)
@@ -62,16 +63,20 @@ def get_logged_in_user(context):
     information is pulled from logs on disk.  Information about the user
     currently logged in to the system is stored in the session.
     """
-    form = context.get('cs_form', {})
-    if 'ajax_username' in form:
-        import sys
-        uname = form['ajax_username']
-        if form['ajax_secret'] != context['cs_ajax_secret'](uname):
-            return {}
-        else:
-            return {'username': uname, 'name': uname, 'email': uname}
+    # if an API token was specified, use the associated information and move on
+    # this has the side-effect of renewing that token (moving back the
+    # expiration time)
+    api_user = api.get_logged_in_user(context)
+    if api_user is not None:
+        return api_user
 
-    return get_auth_type(context)['get_logged_in_user'](context)
+    # if no API token was specified, get the user's login information.  if a
+    # user was successfully logged in, generate a new API token for them.
+    regular_user = get_auth_type(context)['get_logged_in_user'](context)
+    if 'username' in regular_user:
+        api.initialize_api_token(context, None, regular_user)
+    return regular_user
+
 
 
 def get_user_information(context):

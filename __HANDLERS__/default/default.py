@@ -40,15 +40,6 @@ def handle(context):
     # set some variables in context
     pre_handle(context)
 
-    # check for updated ajax secret function
-    if len(context[_n('name_map')]) > 0:
-        updated = context['cs_ajax_secret']('test')
-        orig = context['_cs_ajax_secret_orig']('test')
-        if updated == orig:
-            m = ('Error: The cs_ajax_secret function '
-                 'must be overridden.\n%s\n%s') % (orig, updated)
-            return context['csm_web'].do_error_message(context, m)
-
     mode_handlers = {'view': handle_view,
                      'submit': handle_submit,
                      'check': handle_check,
@@ -85,7 +76,7 @@ def _new_random_seed(n=100):
     try:
         return os.urandom(n)
     except:
-        return ''.join(random.choice(string.ascii_letters) for i in xrange(n))
+        return ''.join(random.choice(string.ascii_letters) for i in range(n))
 
 
 def handle_new_seed(context):
@@ -304,6 +295,7 @@ def handle_viewexplanation(context):
     lastlog = context[_n('last_log')]
     explanationviewed = context[_n('explanation_viewed')]
     loader = context['csm_loader']
+    language = context['csm_language']
 
     newstate = dict(lastlog)
     newstate['timestamp'] = context['cs_timestamp']
@@ -322,7 +314,7 @@ def handle_viewexplanation(context):
 
         q, args = context[_n('name_map')][name]
         exp = explanation_display(args['csq_explanation'])
-        out['explanation'] = loader.source_transform_string(context, exp)
+        out['explanation'] = language.source_transform_string(context, exp)
         outdict[name] = out
 
         explanationviewed.add(name)
@@ -353,6 +345,7 @@ def handle_viewanswer(context):
     lastlog = context[_n('last_log')]
     answerviewed = context[_n('answer_viewed')]
     loader = context['csm_loader']
+    language = context['csm_language']
 
     newstate = dict(lastlog)
     newstate['timestamp'] = context['cs_timestamp']
@@ -373,7 +366,7 @@ def handle_viewanswer(context):
 
         # if we are here, no errors occurred.  go ahead with checking.
         ans = q['answer_display'](**args)
-        out['answer'] = loader.source_transform_string(context, ans)
+        out['answer'] = language.source_transform_string(context, ans)
         outdict[name] = out
 
         answerviewed.add(name)
@@ -1055,7 +1048,7 @@ def render_question(elt, context, lastsubmit):
         out += '\n<div class="question" id="cs_qdiv_%s">' % name
 
     out += '\n<div id="%s_rendered_question">\n' % name
-    out += context['csm_loader'].source_transform_string(context, args.get(
+    out += context['csm_language'].source_transform_string(context, args.get(
         'csq_prompt', ''))
     out += q['render_html'](lastsubmit, **args)
     out += '\n</div>'
@@ -1087,13 +1080,13 @@ def render_question(elt, context, lastsubmit):
     if showanswer:
         ans = q['answer_display'](**args)
         out += '\n'
-        out += context['csm_loader'].source_transform_string(context, ans)
+        out += context['csm_language'].source_transform_string(context, ans)
     out += '\n</div>'
     out += '\n<div id="%s_solution_explanation">' % name
     if (name in context[_n('explanation_viewed')] and
             args.get('csq_explanation', '') != ''):
         exp = explanation_display(args['csq_explanation'])
-        out += context['csm_loader'].source_transform_string(context, exp)
+        out += context['csm_language'].source_transform_string(context, exp)
     out += '\n</div>'
     out += '\n</div>'
 
@@ -1117,7 +1110,7 @@ def render_question(elt, context, lastsubmit):
         if comments is not None:
             ll = '<b>Score:</b> %s (out of %s)<br><br><b>Grader\'s Comments:</b><br/>%s' % (
                 score_output, tpoints, comments)
-    out += ll.encode('ascii', 'ignore') + "</div>"
+    out += ll + "</div>"
     if q.get('indiv', True) and args.get('csq_indiv', True):
         out += '\n</div>'
     out += '\n<!--END question %s -->\n' % args['csq_name']
@@ -1194,7 +1187,7 @@ def make_buttons(context, name):
         'lock': None,
         'unlock': None
     }
-    for (b, (func, text)) in _button_map.iteritems():
+    for (b, (func, text)) in _button_map.items():
         buttons[b] = button_text(func(context, p, name), text)
         abuttons[b] = button_text(func(context, rp, name), text)
 
@@ -1360,25 +1353,24 @@ def default_javascript(context):
         skip_alert = namemap.keys()
     else:
         skipper = 'csq_allow_submit_after_answer_viewed'
-        skip_alert = [name for (name, (q, args)) in namemap.iteritems()
+        skip_alert = [name for (name, (q, args)) in namemap.items()
                       if _get(args, skipper, False, bool)]
     return '''
 <script type="text/javascript" src="__HANDLER__/default/cs_ajax.js"></script>
 <script type="text/javascript">
 var cs_all_questions = %(allqs)r;
-var cs_ajax_secret = %(secret)r;
-var cs_ajax_username = %(user)r;
+var cs_api_token = %(secret)r;
 var cs_this_path = %(path)r;
 var cs_imp = %(imp)r;
 var cs_skip_alert = %(skipalert)s;
 var cs_viewans_confirm = "Are you sure?  Viewing the answer will prevent any further submissions to this question.  Press 'OK' to view the answer, or press 'Cancel' if you have changed your mind.";
 </script>''' % {
         'skipalert': json.dumps(skip_alert),
-        'allqs': context[_n('name_map')].keys(),
-        'secret': context['cs_ajax_secret'](context[_n('real_uname')]),
+        'allqs': list(context[_n('name_map')].keys()),
         'user': context[_n('real_uname')],
         'path': '/'.join([context['cs_url_root']] + context['cs_path_info']),
         'imp': context[_n('uname')] if context[_n('impersonating')] else '',
+        'secret': context['cs_user_info']['_api_token'],
     }
 
 

@@ -44,7 +44,6 @@ cs_log_type = 'catsoopdb'
 Which backend to use for storing logs ('catsoopdb' and 'sqlite' are supported)
 """
 
-
 # Default Page Content
 cs_title = 'CAT-SOOP'
 """
@@ -171,8 +170,6 @@ def cs_debug(*values, tag=''):
     with open(cs_debug_log_location, 'a') as myfile:
         print(datetime.now().time(), tag, *values, file=myfile)
 
-# Checks for valid configuration
-
 import os
 import stat
 import traceback
@@ -181,6 +178,8 @@ from datetime import datetime
 
 _cs_config_errors = []
 
+# try to import configuration from config.py
+
 try:
     from .config import *
 except Exception as e:
@@ -188,14 +187,16 @@ except Exception as e:
 
 # Import all CAT-SOOP modules/subpackages
 
-cs_all_pieces = ['auth', 'base_context', 'dispatch', 'language', 'loader',
-                 'logging', 'mail', 'session', 'time', 'tools', 'tutor']
+cs_all_pieces = ['auth', 'base_context', 'dispatch', 'errors', 'language',
+                 'loader', 'logging', 'mail', 'session', 'time', 'tools',
+                 'tutor']
 
 for i in cs_all_pieces:
     if i != 'base_context':
         exec('from . import %s' % i)
         exec('csm_%s = %s' % (i,i))
 
+# Checks for valid Configuration
 
 # check for valid fs_root
 _fs_root_error = ('cs_fs_root must be a directory containing the '

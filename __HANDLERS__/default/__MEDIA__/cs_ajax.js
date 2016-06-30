@@ -165,8 +165,8 @@ function sendRequest(names,action,send){
     for (var key in send){if (send.hasOwnProperty(key)){form[key] = send[key];}}
     var d = {action: action,
              names: JSON.stringify(names),
-             ajax_username: cs_ajax_username,
-             ajax_secret: cs_ajax_secret,
+             api_user: cs_api_user,
+             api_token: cs_api_token,
              data: JSON.stringify(form)};
     if (cs_imp != '') d['as'] = cs_imp;
     $.ajax({type:'POST',

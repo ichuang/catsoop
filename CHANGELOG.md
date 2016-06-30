@@ -22,6 +22,8 @@ _Next planned release.  Currently under development._
     implementation of PBKDF2.  Also included the option to tune the number
     of iterations used with PBKDF2, and increased the default number of
     iterations from 50,000 to 250,000.
+* Changed the way authentication is handled in AJAX requests, in preparation
+    for including the public-facing API.
 
 **Deprecated:**
 
