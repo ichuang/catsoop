@@ -10,9 +10,12 @@
 
 import os
 import re
+import traceback
 
+from io import StringIO
 from collections import OrderedDict
 
+from . import tutor
 from . import dispatch
 from . import markdown_math
 from .tools import markdown
@@ -23,8 +26,8 @@ from .tools.markdown.extensions import sane_lists
 
 
 def _xml_pre_handle(context):
-    context['cs_content'] = web.handle_python_tags(context,
-                                                   context['cs_content'])
+    context['cs_content'] = handle_python_tags(context,
+                                               context['cs_content'])
     tmp = context['cs_content'].split('<question')
     o = [tmp[0]]
     for piece in tmp[1:]:
@@ -68,7 +71,7 @@ def _md(x):
 
 
 def _md_pre_handle(context, xml=True):
-    text = web.handle_python_tags(context, context['cs_content'])
+    text = handle_python_tags(context, context['cs_content'])
 
     text = _md_format_string(context, text, False)
 
