@@ -30,6 +30,13 @@ def initialize_api_token(context, token, user_info):
                                        user_info)
 
 
+def invalidate_api_token(context, token):
+    token = token or get_api_token(context, user_info['username'])
+    context['csm_cslog'].overwrite_log(None, '_api_tokens',
+                                       '%s.userinfo' % token,
+                                       None)
+
+
 def get_logged_in_user(context):
     form = context.get('cs_form', {})
     if 'api_token' in form:
