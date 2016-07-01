@@ -23,7 +23,8 @@ No animals were harmed in the making of this CAT-SOOP.
 
 ## CAN I USE IT FOR MY COURSE?
 
-Yes\*!  CAT-SOOP is free/libre software
+Yes\*!  CAT-SOOP is [free/libre software](https://www.gnu.org/philosophy/free-sw.html),
+available under the terms of the GNU Affero General Public License version 3
 (see [LICENSE](https://gitlab.com/adqm/cat-soop/blob/master/LICENSE)
 file for details).  Please note that the terms of this license apply only to the
 CAT-SOOP system itself and not to any third-party software included with
