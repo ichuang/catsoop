@@ -9,6 +9,10 @@ _Next planned release.  Currently under development._
     with improvements to prevent collisions and a few bugfixes.
 * Added [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/) to the
     distribution.
+* Included [Bootstrap](http://getbootstrap.com/) in the distribution, and
+    updated the default theme to use it (also moved `main.template` and
+    `base.css` to `old.template` and `old.css`, respectively, to make room for new
+    style).
 
 **Changed:**
 
@@ -16,14 +20,14 @@ _Next planned release.  Currently under development._
     compatibility was dropped intentionally, but versions 3.0.0 <= x < 3.5 are
     not supported because CAT-SOOP does some strange things with imports.
 * Renamed `gb.py` -> `base_context.py` to more accurately reflect its usage.
-* Moved `main.template` and `base.css` to `old.template` and `old.css`,
-    respectively, to make room for new (more modern) style.
 * Modified the `login` authentication type to use Python's built-in
     implementation of PBKDF2.  Also included the option to tune the number
     of iterations used with PBKDF2, and increased the default number of
     iterations from 50,000 to 250,000.
 * Changed the way authentication is handled in AJAX requests, in preparation
     for including the public-facing API.
+* Themes are now run through a pre-processor that handles `<python>` and
+    `<printf>` tags (including `@{...}` syntax).
 
 **Deprecated:**
 

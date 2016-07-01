@@ -24,7 +24,7 @@ for i in ["Montserrat", "Lato"]:
 </style>
 
 <!-- Additional styling specific for course-->
-<link rel="stylesheet" type="text/css" href="{cs_theme}" />
+<link rel="stylesheet" type="text/css" href="BASE/cs_util/process_theme?theme={cs_theme}" />
 
 <!-- load in katex and mathjax -->
 <script type="text/javascript" src="BASE/scripts/katex/katex.min.js"></script>
