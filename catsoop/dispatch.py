@@ -269,7 +269,7 @@ def display_page(context):
     context['cs_content'] = language.handle_custom_tags(context, context['cs_content'])
     default = os.path.join(
         context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__', 'templates',
-        "old.template")
+        "main.template")
     temp = _real_url_helper(context, context['cs_template'])
     if '__STATIC__' in temp:
         default = static_file_location(context, temp[2:])

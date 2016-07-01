@@ -86,7 +86,7 @@ cs_footer = ''
 Special: Footer, displayed in addition to the "powered by CAT-SOOP" link
 """
 
-cs_navigation = ''
+cs_top_menu = ''
 """
 Special: Navigation menu
 """
