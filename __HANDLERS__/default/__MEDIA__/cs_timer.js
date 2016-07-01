@@ -16,8 +16,6 @@
  *  <https://www.gnu.org/licenses/agpl-3.0-standalone.html>.
  */
 
-// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3-or-Later
-
 $('body').append('<div id="timer" class="response" style="position:fixed;right:10px;bottom:0px;width:auto;z-index:10000;"></div><p>');
 
 $(document).ready(function(){
@@ -45,5 +43,3 @@ $(document).ready(function(){
         }
     }
 });
-
-// @license-end

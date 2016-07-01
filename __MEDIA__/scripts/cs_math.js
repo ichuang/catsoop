@@ -19,8 +19,6 @@
 // Math rendering for CAT-SOOP
 // Expects jQuery, KaTeX, and MathJax to be loaded already
 
-// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3-or-Later
-
 // configure MathJax not to typeset on startup
 MathJax.Hub.Config({skipStartupTypeset:true,
                     imageFont: null,
@@ -72,5 +70,3 @@ function cs_render_all_math(elt, immediate){
 
 // when the page loads, render all math elements on the page
 $(document).ready(function(){{cs_render_all_math(document)}});
-
-// @license-end
