@@ -9,6 +9,15 @@
 <link rel="stylesheet" href="BASE/themes/bootstrap.css">
 <script src="BASE/scripts/bootstrap.js"></script>
 
+<script type="text/javascript">
+var set_top_margin = function(){{
+    $("#myPage").css('padding-top', $('#cs_main_navbar').height());
+}}
+
+$(document).ready(set_top_margin);
+$(window).resize(set_top_margin);
+</script>
+
 <!-- Additional styling specific for course-->
 <link rel="stylesheet" type="text/css" href="BASE/cs_util/process_theme?theme={cs_theme}&preload={cs_original_path}" />
 
@@ -26,7 +35,7 @@
 </head> 
 <body id="myPage">
 
-<nav class="navbar navbar-default navbar-fixed-top">
+<nav class="navbar navbar-default navbar-fixed-top" id="cs_main_navbar">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
