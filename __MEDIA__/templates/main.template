@@ -34,7 +34,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>                        
       </button>
-      <div class="navbar-brand">{cs_header}</div><div class="navbar-brand"><div class="logininfo">hey</div></div>
+      <div class="navbar-brand">{cs_header}</div><div class="navbar-brand"><div class="logininfo">{cs_welcome_message}</div></div>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav navbar-right">
@@ -64,9 +64,7 @@
 </div>
 
 <div id="footer">
-  <br />
     {cs_footer}
-  <br />
     Powered by <a href='BASE/'>CAT-SOOP</a> v{cs_version}<br/>
     (<a href="BASE/cs_util/license" target="_blank">View License</a>, <a href="BASE/cs_util/source.zip" download>Download Source Code</a>)
 <pre style="font-size:50%;">{cs_base_logo_text}</pre>

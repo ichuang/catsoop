@@ -75,8 +75,11 @@ cs_base_color = "#0000AA"
 Special: The base color to use to customize the main theme.
 """
 
-#_hdr = '''<pre style="font-size: 50%%">%s</pre>CAT-SOOP'''
-#cs_header = _hdr % cs_base_logo_text
+cs_welcome_message = ""
+"""
+Special: Welcome message displayed next to title in base theme.
+"""
+
 cs_header = "CAT-SOOP"
 """
 Special: The main header, displayed at the top of the page
