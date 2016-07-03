@@ -55,7 +55,7 @@ else:
         regenerate = True
 
 if regenerate:
-    with csm_filelock.FileLock(cache_fname) as flock:
+    with csm_tools.filelock.FileLock(cache_fname) as flock:
         outfile = ZipFile(cache_fname, 'w', ZIP_DEFLATED)
         for root, dirs, files in os.walk(cs_fs_root):
             to_remove = set()
@@ -71,8 +71,8 @@ if regenerate:
                     outfile.write(fullname, name)
         outfile.close()
 
-with csm_filelock.FileLock(cache_fname) as flock:
-    with open(cache_fname, 'r') as f:
+with csm_tools.filelock.FileLock(cache_fname) as flock:
+    with open(cache_fname, 'rb') as f:
         response = f.read()
 
 cs_handler = 'raw_response'
