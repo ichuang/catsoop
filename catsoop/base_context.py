@@ -70,8 +70,14 @@ cs_base_logo_text = ('\            '
 Special: Text representing the CAT-SOOP Logo
 """
 
-_hdr = '''<pre style="font-size: 50%%">%s</pre>CAT-SOOP'''
-cs_header = _hdr % cs_base_logo_text
+cs_base_color = "#0000AA"
+"""
+Special: The base color to use to customize the main theme.
+"""
+
+#_hdr = '''<pre style="font-size: 50%%">%s</pre>CAT-SOOP'''
+#cs_header = _hdr % cs_base_logo_text
+cs_header = "CAT-SOOP"
 """
 Special: The main header, displayed at the top of the page
 """
@@ -106,17 +112,14 @@ cs_bottom_menu = ''
 Special: Additional menu space
 """
 
-cs_content_header = ('<style>'
-                     '.cs_bluebold {color: #00F; font-weight: bold}'
-                     '</style>'
-                     '<h1>'
-                     '<span class="cs_bluebold">C</span>AT-SOOP is an '
-                     '<span class="cs_bluebold">A</span>utomatic '
-                     '<span class="cs_bluebold">T</span>utor for '
-                     '<span class="cs_bluebold">S</span>ix-'
-                     '<span class="cs_bluebold">O</span>h-'
-                     '<span class="cs_bluebold">O</span>ne '
-                     '<span class="cs_bluebold">P</span>roblems'
+cs_content_header = ('<h1>'
+                     '<span class="cs_base_bold">C</span>AT-SOOP is an '
+                     '<span class="cs_base_bold">A</span>utomatic '
+                     '<span class="cs_base_bold">T</span>utor for '
+                     '<span class="cs_base_bold">S</span>ix-'
+                     '<span class="cs_base_bold">O</span>h-'
+                     '<span class="cs_base_bold">O</span>ne '
+                     '<span class="cs_base_bold">P</span>roblems'
                      '</h1>')
 """
 Special: The text to be displayed at the top of the "content" block.

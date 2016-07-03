@@ -29,7 +29,18 @@ else: # file must be remote
     except:
         original_content = 'Unknown theme: %r' % original_loc
 
+ctx = {}
+csm_loader.load_global_data(ctx)
+
+preload_from = cs_form.get('preload', '')
+if preload_from != '':
+    opath = path = [i for i in preload_from.split('/') if i != '']
+    course = path[0]
+    path = path[1:]
+    cfile = csm_dispatch.content_file_location(ctx, opath)
+    csm_loader.do_early_load(ctx, course, path, ctx, cfile)
+
 cs_handler = 'raw_response'
 content_type = 'text/css'
 
-response = csm_language.handle_python_tags(globals(), original_content)
+response = csm_language.handle_python_tags(ctx, original_content)

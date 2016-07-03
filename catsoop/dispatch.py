@@ -299,8 +299,9 @@ def main(environment):
     try:
         # DETERMINE WHAT PAGE WE ARE LOADING
         static = None
-        path_info = environment.get('PATH_INFO', '/').split('/')
-        path_info = [i for i in path_info if i != '']
+        path_info = environment.get('PATH_INFO', '/')
+        context['cs_original_path'] = path_info[1:]
+        path_info = [i for i in path_info.split('/') if i != '']
 
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
         if len(path_info) > 0 and path_info[0] == '__STATIC__':

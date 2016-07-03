@@ -1,5 +1,26 @@
 /* CAT-SOOP Base Theme */
 
+@font-face {
+      font-family: 'Montserrat';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Montserrat-Regular'), url(@{csm_dispatch.get_real_url(globals(), 'BASE/fonts/Montserrat-Regular.woff')}) format('woff'), url(@{csm_dispatch.get_real_url(globals(), 'BASE/fonts/Montserrat-Regular.woff2')}) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+      font-family: 'Lato';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Lato Regular'), local('Lato-Regular'), url(@{csm_dispatch.get_real_url(globals(), 'BASE/fonts/Lato-Regular.woff')}) format('woff'), url(@{csm_dispatch.get_real_url(globals(), 'BASE/fonts/Lato-Regular.woff2')}) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+.cs_base_bold {
+      color: @{cs_base_color};
+      font-weight: bold;
+}
+
 body {
       padding-top:80px;
       font: 400 15px Lato, sans-serif;
@@ -21,10 +42,10 @@ body {
       margin-bottom: 30px;
   }  
   .jumbotron {
-      background-color: #006097;
+      background-color: @{cs_base_color};
       color: #fff;
       padding: 60px 25px 25px 25px;
-      font-family: Montserrat, sans-serif;
+      font-family: Montserrat;
   }
   .container-fluid {
       padding: 60px 50px;
@@ -110,22 +131,23 @@ body {
   }
   .navbar {
       margin-bottom: 0;
-      background-color: #3ab0c8;
+      background-color: @{cs_base_color};
       z-index: 9999;
       border: 0;
       font-size: 12px !important;
       line-height: 20 !important;
       letter-spacing: 4px;
       border-radius: 0;
-      font-family: Montserrat, sans-serif;
+      font-family: Montserrat;
   }
   .navbar li a{
       color: #fff !important;
   }
   .navbar .navbar-brand{
       color: #fff !important;
-      font-size: 50px;
+      font-size: 40px;
       float:left;
+      vertical-align: middle;
   }
   .navbar .navbar-brand .logininfo{
       font-size: 12px;
@@ -316,14 +338,14 @@ tt {font-size: 12pt;}
 
 a {
   font-weight: normal;
-  color: #008;
+  color: @{cs_base_color};
 }
 
 a:hover {
   text-decoration: underline;
   font-weight: normal;
   color: #FFFFFF;
-  background-color: #008;
+  background-color: @{cs_base_color};
 }
 
 li {
