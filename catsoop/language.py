@@ -21,6 +21,8 @@
 
 import os
 import re
+import random
+import string
 import importlib
 import traceback
 
@@ -77,8 +79,6 @@ def _md(x):
                     fenced_code.FencedCodeExtension(),
                     sane_lists.SaneListExtension(),
                     markdown_math.MathExtension()])
-    if isinstance(o, unicode):
-        o = o.encode('ascii', 'ignore')
     return o
 
 
@@ -101,7 +101,7 @@ def _md_format_string(context, s, xml=True):
     splitter = None
     while splitter is None or splitter in s:
         splitter = ''.join(random.choice(string.ascii_letters)
-                           for i in xrange(20))
+                           for i in range(20))
 
     # extract tags, replace with splitter
     tag_contents = []
