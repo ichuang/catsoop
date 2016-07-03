@@ -15,19 +15,13 @@
 # along with this program.  If not, see
 # <https://www.gnu.org/licenses/agpl-3.0-standalone.html>.
 
-import urllib.request
-
 original_loc = cs_form.get('theme', 'BASE/themes/base.css')
 temp = csm_dispatch._real_url_helper(globals(), original_loc)
-if '__STATIC__' in temp:
-    original_loc = csm_dispatch.static_file_location(globals(), temp[2:])
-    with open(original_loc) as f:
-        original_content = f.read()
-else: # file must be remote
-    try:
-        original_content = urllib.request.urlopen(original_loc).read()
-    except:
-        original_content = 'Unknown theme: %r' % original_loc
+if '__STATIC__' not in temp:
+    temp = csm_dispatch._real_url_helper(globals(), BASE/themes/base.css)
+original_loc = csm_dispatch.static_file_location(globals(), temp[2:])
+with open(original_loc) as f:
+    original_content = f.read()
 
 ctx = {}
 csm_loader.load_global_data(ctx)
