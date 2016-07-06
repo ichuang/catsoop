@@ -13,6 +13,8 @@ _Next planned release.  Currently under development._
     updated the default theme to use it (also moved `main.template` and
     `base.css` to `old.template` and `old.css`, respectively, to make room for new
     style).
+* Added the `cs_base_color` variable, for switching the main color of the
+    default theme.
 
 **Changed:**
 
@@ -30,6 +32,8 @@ _Next planned release.  Currently under development._
     `<printf>` tags (including `@{...}` syntax).
 * Passwords (in all forms) are now hashed both before and after being sent to
     the server (passwords are now never sent in plain-text).
+* Navigation links should now be held in `cs_top_menu` instead of
+    `cs_navigation`.
 
 **Deprecated:**
 
