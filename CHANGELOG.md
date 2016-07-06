@@ -28,6 +28,8 @@ _Next planned release.  Currently under development._
     for including the public-facing API.
 * Themes are now run through a pre-processor that handles `<python>` and
     `<printf>` tags (including `@{...}` syntax).
+* Passwords (in all forms) are now hashed both before and after being sent to
+    the server (passwords are now never sent in plain-text).
 
 **Deprecated:**
 
