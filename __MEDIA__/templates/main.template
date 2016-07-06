@@ -15,7 +15,7 @@ var set_top_margin = function(){{
 }}
 
 $(document).ready(set_top_margin);
-$(window).resize(set_top_margin);
+$('#cs_main_navbar').resize(set_top_margin);
 </script>
 
 <!-- Additional styling specific for course-->
@@ -26,8 +26,9 @@ $(window).resize(set_top_margin);
 <link rel="stylesheet" type="text/css" href="BASE/scripts/katex/katex.min.css" />
 <script type="text/javascript" src="BASE/scripts/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
-<!-- CAT-SOOP-specific math rendering -->
+<!-- CAT-SOOP-specific math rendering and hashing -->
 <script type="text/javascript" src="BASE/scripts/cs_math.js"></script>
+<script type="text/javascript" src="BASE/scripts/cs_hash.js"></script>
 
 {cs_scripts}
 

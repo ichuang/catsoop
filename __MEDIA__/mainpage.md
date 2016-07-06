@@ -40,6 +40,7 @@ material hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
 * Python coding questions can optionally make use of the @{link("http://ace.ajax.org/#nav=about", "ACE")} code editor.
 * CAT-SOOP's default theme uses @{link("http://getbootstrap.com", "Bootstrap")} and the following fonts: Montserrat by Julieta Ulanovsky, Lato by Lukasz Dziedzic, and Computer Modern Typewriter by Donald Knuth.
 
+
 <python>
 courses = csm_tutor.available_courses()
 if len(courses) == 0:

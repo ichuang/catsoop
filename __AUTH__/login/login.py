@@ -537,6 +537,8 @@ def generate_password_reset_form(context):
     msg = context['cs_session_data'].get('login_message', None)
     if msg is not None:
         out += '\n%s<p>' % msg
+    safe_uname = context['cs_form']['username'].replace('"', '&quot;')
+    out += '\n<input type="hidden" name="uname" id="uname" value="%s" />' % safe_uname
     out += '\n<table>'
     out += ('\n<tr>'
             '\n<td style="text-align:right;">New Password:</td>'
@@ -553,9 +555,11 @@ def generate_password_reset_form(context):
             '\n</tr>')
     out += ('\n<tr>'
             '\n<td style="text-align:right;"></td>'
-            '\n<td style="text-align:right;">'
-            '\n<input type="submit" value="Change Password"></td>'
-            '\n</tr>')
+            '\n<td style="text-align:right;">')
+    out += _submit_button(['passwd', 'passwd2'],
+                          'uname',
+                          'pwdform', 'Change Password')
+    out += '</td>\n</tr>'
     out += '\n</table>\n</form>'
     out += CHANGE_PASSWORD_FORM_CHECKER
     return out
@@ -571,6 +575,8 @@ def generate_password_change_form(context):
     msg = context['cs_session_data'].get('login_message', None)
     if msg is not None:
         out += '\n%s<p>' % msg
+    safe_uname = context['cs_session_data']['username'].replace('"', '&quot;')
+    out += '\n<input type="hidden" name="uname" id="uname" value="%s" />' % safe_uname
     out += '\n<table>'
     out += ('\n<tr>'
             '\n<td style="text-align:right;">Current Password:</td>'
@@ -593,9 +599,11 @@ def generate_password_change_form(context):
             '\n</tr>')
     out += ('\n<tr>'
             '\n<td style="text-align:right;"></td>'
-            '\n<td style="text-align:right;">'
-            '\n<input type="submit" value="Change Password"></td>'
-            '\n</tr>')
+            '\n<td style="text-align:right;">')
+    out += _submit_button(['passwd', 'passwd2', 'oldpasswd'],
+                          'uname',
+                          'pwdform', 'Change Password')
+    out += '</td>\n</tr>'
     out += '\n</table>\n</form>'
     out += CHANGE_PASSWORD_FORM_CHECKER
     return out
@@ -606,7 +614,7 @@ def generate_login_form(context):
     Generate a login form.
     """
     base = _get_base_url(context)
-    out = '<form method="POST" action="%s">' % (base + '?loginaction=login')
+    out = '<form method="POST" id="loginform" action="%s">' % (base + '?loginaction=login')
     msg = context['cs_session_data'].get('login_message', None)
     last_uname = context['cs_session_data'].get('last_form', {}).get(
         'login_uname', '')
@@ -633,10 +641,12 @@ def generate_login_form(context):
             '\n</tr>'
             '\n<tr>'
             '\n<td style="text-align:right;"></td>'
-            '\n<td style="text-align:right;">'
-            '\n<input type="submit" value="Login"></td>'
-            '\n</tr>'
-            '\n</table>') % last_uname
+            '\n<td style="text-align:right;">') % last_uname
+    out += _submit_button(['login_passwd'],
+                          'login_uname',
+                          'loginform', 'Log In')
+    out += ('<td>\n</tr>'
+            '\n</table>')
     out += '<p>'
     if mail.can_send_email(context):
         base = _get_base_url(context)
@@ -718,9 +728,11 @@ def generate_registration_form(context):
             '\n</tr>') % last_name
     out += ('\n<tr>'
             '\n<td style="text-align:right;"></td>'
-            '\n<td style="text-align:right;">'
-            '\n<input type="submit" value="Submit">'
-            '\n</td>'
+            '\n<td style="text-align:right;">')
+    out += _submit_button(['passwd', 'passwd2'],
+                          'uname',
+                          'regform', 'Register')
+    out += ('\n</td>'
             '\n</tr>')
     out += REGISTRATION_FORM_CHECKER
     return out + '</table></form>'
@@ -963,3 +975,12 @@ _passwd_confirm_msg_base_html = r"""<p>You recently submitted a request to reset
 
 <p>If you did not submit this request, or if you otherwise feel that you
 are receiving this message in error, please ignore or delete it.</p>"""
+
+
+def _submit_button(fields, username, form, value='Submit'):
+    return ('<input type="button"'
+            ' value="%s"'
+            ' onclick="hashlib.hash_passwords(%r, %r, %r)" />') % (value,
+                                                                   fields,
+                                                                   username,
+                                                                   form)
