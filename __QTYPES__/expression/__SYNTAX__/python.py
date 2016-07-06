@@ -15,8 +15,6 @@
 # along with this program.  If not, see
 # <https://www.gnu.org/licenses/agpl-3.0-standalone.html>.
 
-import ast
-
 implicit_multiplication = False
 
 
@@ -138,7 +136,7 @@ def parser(lex=None, yacc=None):
         """
         number : NUMBER
         """
-        t[0] = ['NUMBER', complex(ast.literal_eval(t[1]), 0)]
+        t[0] = ['NUMBER', t[1]]
 
     def p_name(t):
         """
