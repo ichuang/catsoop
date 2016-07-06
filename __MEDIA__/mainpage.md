@@ -5,12 +5,12 @@ def link(url, text=None):
 </python>
 
 <center>
-<pre style="border-color:transparent; font-weight:bold; background-color:transparent;font-size:110%; color:inherit;">
+<pre style="border-color:transparent; font-weight:bold; background-color:transparent;font-size:110%; color:inherit;line-height:1.1">
 \            
 /    /\__/\  
 \__=(  o_O )=
 (__________) 
- |_ |_ |_ |_
+ |_ |_ |_ |_ 
 </pre>
 
 @{link("https://cat-soop.org")}

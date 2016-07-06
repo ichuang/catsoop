@@ -69,6 +69,14 @@
     font-weight: bold;
 }
 
+code {
+    font-family: 'Computer Modern Typewriter';
+    background-color: #eee;
+    padding: 2px;
+    border-radius: 5px;
+    color: inherit;
+}
+
 body {
     padding-top:80px;
     font: 400 15px Lato, sans-serif;
@@ -103,11 +111,11 @@ h4 {
     background-color: #f6f6f6;
 }
 .logo-small {
-    color: #3ab0c8;
+    color: @{cs_base_color};
     font-size: 50px;
 }
 .logo {
-    color: #3ab0c8;
+    color: @{cs_base_color};
     font-size: 200px;
 }
 .thumbnail {
@@ -122,13 +130,13 @@ h4 {
 }
 .carousel-control.right, .carousel-control.left {
     background-image: none;
-    color: #3ab0c8;
+    color: @{cs_base_color};
 }
 .carousel-indicators li {
-    border-color: #3ab0c8;
+    border-color: @{cs_base_color};
 }
 .carousel-indicators li.active {
-    background-color: #3ab0c8;
+    background-color: @{cs_base_color};
 }
 .item h4 {
     font-size: 19px;
@@ -141,7 +149,7 @@ h4 {
     font-style: normal;
 }
 .panel {
-    border: 1px solid #3ab0c8;
+    border: 1px solid @{cs_base_color};
     border-radius:0 !important;
     transition: box-shadow 0.5s;
 }
@@ -149,13 +157,13 @@ h4 {
     box-shadow: 5px 0px 40px rgba(0,0,0, .2);
 }
 .panel-footer .btn:hover {
-    border: 1px solid #3ab0c8;
+    border: 1px solid @{cs_base_color};
     background-color: #fff !important;
-    color: #3ab0c8;
+    color: @{cs_base_color};
 }
 .panel-heading {
     color: #fff !important;
-    background-color: #3ab0c8 !important;
+    background-color: @{cs_base_color} !important;
     padding: 25px;
     border-bottom: 1px solid transparent;
     border-top-left-radius: 0px;
@@ -175,7 +183,7 @@ h4 {
 }
 .panel-footer .btn {
     margin: 15px 0;
-    background-color: #3ab0c8;
+    background-color: @{cs_base_color};
     color: #fff;
 }
 .navbar {
@@ -203,7 +211,7 @@ h4 {
     float:left;
 }
 .navbar-nav li a:hover, .navbar-nav li.active a {
-    color: #3ab0c8 !important;
+    color: @{cs_base_color} !important;
     background-color: #fff !important;
 }
 .navbar-default .navbar-toggle {
@@ -212,20 +220,20 @@ h4 {
 }
 .open .dropdown-toggle {
     color: #fff ;
-    background-color: #3ab0c8 !important;
+    background-color: @{cs_base_color} !important;
 }
 .dropdown-menu li a {
-    color: #3ab0c8 !important;
+    color: @{cs_base_color} !important;
     background-color: #fff;
 }
 .dropdown-menu li a:hover {
-    background-color: #3ab0c8 !important;
+    background-color: @{cs_base_color} !important;
     color: #fff !important;
 }
 footer .glyphicon {
     font-size: 20px;
     margin-bottom: 20px;
-    color: #3ab0c8;
+    color: @{cs_base_color};
 }
 .slideanim {visibility:hidden;}
 .slide {
