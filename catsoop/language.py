@@ -37,6 +37,7 @@ from .errors import html_format, clear_info
 from .tools.markdown.extensions import tables
 from .tools.markdown.extensions import fenced_code
 from .tools.markdown.extensions import sane_lists
+from .tools.bs4 import BeautifulSoup
 
 
 def _xml_pre_handle(context):
@@ -167,62 +168,16 @@ def _environment_matcher(tag):
                       re.DOTALL | re.IGNORECASE)
 
 
-PYVAR_REGEX = re.compile(r"(?P<lead>^|[^\\])@(?P<fmt>%[^{]+)?{(?P<body>.+?)}",
-                         re.DOTALL | re.IGNORECASE)
+_matcher = r'[\#0\- +]*\d*(?:.\d+)?[hlL]?[diouxXeEfFgGcrs]'
+_matcher = r'(?:%%%s|%s)?' % (_matcher, _matcher)
+_pyvar_matcher = r"(?P<lead>^|[^\\])@(?P<fmt>%s){(?P<body>.+?)}" % _matcher
+PYVAR_REGEX = re.compile(_pyvar_matcher, re.DOTALL | re.IGNORECASE)
+"""Regular expression for matching @{} syntax"""
 
 PYTHON_REGEX = re.compile(
     r"""<(?P<tag>python|printf) *(?P<opts>.*?)>(?P<body>.*?)</(?P=tag)>""",
     re.MULTILINE | re.DOTALL | re.IGNORECASE)
 """Regular expression for matching <python> tags"""
-
-FOOTNOTE_REGEX = _environment_matcher('footnote')
-"""Regular expression matching <footnote> tags"""
-
-_ref_regex = r"<ref *?(?P<label>.*?) *?>(?P<body>.*?)</ref>"
-REF_REGEX = re.compile(_ref_regex, re.MULTILINE | re.DOTALL | re.IGNORECASE)
-"""Regular expression for matching ref tags."""
-
-_section_regex = (r"""<(?P<type>(?:chapter)|(?:(?:sub){0,2}section))\s*?"""
-                  r"""(?:(?P<var1>(?:label)|(?:num))=(?P<quote>["'])"""
-                  r"""(?P<val1>.*?)(?P=quote))?\s*?"""
-                  r"""(?:(?P<var2>(?:label)|(?:num))=(?P<quote2>["'])"""
-                  r"""(?P<val2>[^\s]*?)(?P=quote2))?\s*>"""
-                  r"""(?P<name>.*?)</(?P=type)>""")
-SECTION_REGEX = re.compile(_section_regex, re.MULTILINE | re.DOTALL |
-                           re.IGNORECASE)
-"""Regular expression for matching section tags."""
-
-
-def _compiler(inp):
-    (x, y) = inp
-    compiled = re.compile(x, re.MULTILINE | re.DOTALL | re.IGNORECASE)
-    return (compiled, y)
-
-
-REGEX_LIST = list(map(_compiler,
-                      # img tags
-                      [(("<img(?P<lead>[^>]*?)src="
-                         "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)(?P<trail>.*?)/?>"),
-                        '<img{lead}src="{url}"{trail}/>'),
-                       # a tags
-                       (("<a(?P<lead>[^>]*?)href="
-                         "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)"
-                         "(?P<trail>.*?)>(?P<body>.*?)</a>"),
-                        '<a{lead}href="{url}"{trail}>{body}</a>'),
-                       # script tags
-                       (("<script(?P<lead>[^>]*?)src="
-                         "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)"
-                         "(?P<trail>.*?)>(?P<body>.*?)</script>"),
-                        '<script{lead}src="{url}"{trail}>{body}</script>'),
-                       # link tags
-                       (("<link(?P<lead>[^>]*?)href="
-                         "(?P<quote>[\"'])(?P<url>.*?)(?P=quote)(?P<trail>.*?)/?>"),
-                        '<link{lead}href="{url}"{trail}/>')]))
-"""
-List containing tuples (regex,gen), where regex is a regular expresion
-matching a particular HTML tag, and gen is a string used to generate
-processed versions of the same tag.
-"""
 
 
 def get_python_output(context, code, variables):
@@ -310,120 +265,96 @@ def handle_python_tags(context, text):
     return text.replace(r'\@{', '@{')
 
 
-def fix_single(context, text, matcher, gen):
-    """
-    For a single (regex, gen) pair, replace all instances.
-    Fixes hyperrefs with get_real_url.
-    """
-    out = ''
-    end = 0
-    for match in matcher.finditer(text):
-        d = match.groupdict()
-        if 'url' in d:
-            d['url'] = dispatch.get_real_url(context, d.get('url', ''))
-        out += text[end:match.start()]
-        end = match.end()
-        out += gen.format(**d)
-    return out + text[end:]
-
-
 def handle_custom_tags(context, text):
     '''
     Process custom HTML tags using fix_single.
     '''
 
-    text = re.sub(_environment_matcher('comment'), '', text)
-
     if 'cs_course_handle_custom_tags' in context:
         text = context['cs_course_handle_custom_tags'](text)
 
-    if context.get('cs_course', None) is not None:
-        path = context['cs_path_info'][1:]
-        direc = os.path.join(context['cs_data_root'], 'courses',
-                             context['cs_course'])
-        for ix, i in enumerate(path):
-            try:
-                direc = os.path.join(direc, loader.get_directory_name(
-                    context, context['cs_course'], path[:ix], i))
-            except:
-                break
-        direc = os.path.join(direc, '__MEDIA__')
+    tree = BeautifulSoup(text, 'html.parser')
+    for i in tree.find_all('comment'):
+        i.decompose()
 
     # handle sections, etc.
+
     labels = {}
     textsections = [0, 0, 0]
-    chapter = ['None']
+    chapter = None
 
-    def do_section(match):
-        d = match.groupdict()
-        t = d['type']
-        b = d['name']
-        x = {d.get('var1', ''): d.get('val1', ''),
-             d.get('var2', ''): d.get('val2', '')}
-        r = x.get('label', '')
-        if t == 'chapter':
-            chapter[0] = str(x.get('num'))
-            d['tag'] = 'h1'
-            d['num'] = str(chapter[0])
-        if t == 'section':
-            textsections[0] += 1
-            textsections[1] = 0
-            d['tag'] = 'h2'
-            to_num = [textsections[0]]
-            if chapter[0] != 'None':
-                to_num.insert(0, chapter[0])
-            d['num'] = '.'.join(map(str, to_num))
-        if t == 'subsection':
-            textsections[1] += 1
-            textsections[2] = 0
-            to_num = textsections[:-1]
-            if chapter[0] != 'None':
-                to_num.insert(0, chapter[0])
-            d['num'] = '.'.join(map(str, to_num))
-            d['tag'] = 'h3'
-        if t == 'subsubsection':
-            textsections[2] += 1
-            to_num = textsections[:]
-            if chapter[0] != 'None':
-                to_num.insert(0, chapter[0])
-            d['num'] = '.'.join(map(str, to_num))
-            d['tag'] = 'h3'
+    tag_map = {
+        'section': ('h2', 1),
+        'subsection': ('h3', 2),
+        'subsubsection': ('h4', 3),
+    }
 
-        d['usnum'] = d['num'].replace('.', '_')
+    for i in tree.find_all(re.compile(r"(?:chapter)|(?:(?:sub){0,2}section)")):
+        if i.name == 'chapter':
+            chapter = i.attrs.get('num', '0')
+            tag = 'h1'
+            num = str(chapter)
+        else:
+            if i.name == 'section':
+                textsections[0] += 1
+                textsections[1] = 0
+            elif i.name == 'subsection':
+                textsections[1] += 1
+                textsections[2] = 0
+            elif i.name == 'subsubsection':
+                textsections[2] += 1
+            tag, lim = tag_map[i.name]
+            to_num = textsections[:lim]
+            if chapter is not None:
+                to_num.insert(0, chapter)
+            num = '.'.join(map(str, to_num))
 
-        if r != '':
-            labels[r] = {'type': d['type'],
-                         'number': d['num'],
-                         'title': d['name'],
-                         'link': '#catsoop_section_%s' % d['usnum']}
+        linknum = num.replace('.', '_')
+        linkname = "catsoop_section_%s" % linknum
 
-        return ('<a name="catsoop_section_%(usnum)s"></a>'
-                '<%(tag)s>%(num)s) %(name)s</%(tag)s>') % d
+        lbl = i.attrs.get('label', None)
+        if lbl is not None:
+            labels[lbl] = {'type': i.name,
+                           'number': num,
+                           'title': i.string,
+                           'link': '#%s' % linkname}
+        sec = tree.new_tag(tag)
+        sec.string = '%s) %s' % (num, i.string)
+        i.replace_with(sec)
+        link = tree.new_tag('a')
+        link.attrs['name'] = linkname
+        sec.insert_before(link)
 
-    def do_ref(match):
-        d = match.groupdict()
-        l = d['label'].strip()
-        b = d['body'].strip()
-        if b == '':
-            b = '{number}'
-        if l not in labels:
-            return '<font color="red">Unknown label: %s</font>' % l
-        return b.format(**labels[l])
+    # handle refs
 
-    text = re.sub(SECTION_REGEX, do_section, text)
-    text = re.sub(REF_REGEX, do_ref, text)
+    for i in tree.find_all('ref'):
+        if 'label' not in i.attrs:
+            lbl = list(i.attrs.keys())[0]
+        else:
+            lbl = i.attrs['label']
+
+        body = i.string or '<a href="{link}">{type} {number}</a>'
+        body = body.format(**labels[lbl])
+        new = BeautifulSoup(body, 'html.parser')
+        i.replace_with(new)
+
+    # footnotes
 
     footnotes = []
 
-    def dofootnote(match):
-        d = match.groupdict()
-        footnotes.append(d['body'])
-        n = len(footnotes)
-        return ('<a name="catsoop_footnote_ref_%d"></a>'
-                '<a href="#catsoop_footnote_%d">'
-                '<sup>%d</sup></a>') % (n, n, n)
+    for ix, i in enumerate(tree.find_all('footnote')):
+        jx = ix + 1
+        footnotes.append(i.string)
+        sup = tree.new_tag('sup')
+        sup.string = str(jx)
+        i.replace_with(sup)
+        link = tree.new_tag('a', href="#catsoop_footnote_%d" % jx)
+        sup.wrap(link)
+        ref = tree.new_tag('a')
+        ref.attrs['name'] = "catsoop_footnote_ref_%d" % jx
+        link.insert_before(ref)
 
-    text = re.sub(FOOTNOTE_REGEX, dofootnote, text)
+
     if len(footnotes) == 0:
         fnote = ''
     else:
@@ -436,39 +367,39 @@ def handle_custom_tags(context, text):
                       '</a></p>') % (ix, ix, f, ix)
     context['cs_footnotes'] = fnote
 
-    hintnum = [0]
+    # hints (<showhide>)
 
-    def dohint(match):
-        b = match.groupdict().get('body', '')
-        h = hintnum[0]
-        hintnum[0] += 1
-        return ('''<div class="response">'''
-                '''<button onclick="$('#cs_showhide_%d').toggle();">'''
-                '''Show/Hide</button>'''
-                '''<div id="cs_showhide_%d" style="display:none;">%s</div>'''
-                '''</div>''') % (h, h, b)
+    for ix, i in enumerate(tree.find_all('showhide')):
+            i.name = 'div'
+            i.attrs['id'] = "cs_showhide_%06d" % ix
+            i.attrs['style'] = "display:none;"
+            wrap = tree.new_tag('div')
+            wrap['class'] = ['response']
+            i.wrap(wrap)
+            button = tree.new_tag('button',
+                               onclick="$('#%s').toggle();" % i.attrs['id'])
+            button.string = 'Show/Hide'
+            i.insert_before(button)
 
-    text = re.sub(_environment_matcher('showhide'), dohint, text)
 
-    for (regex, gen) in REGEX_LIST:
-        text = fix_single(context, text, regex, gen)
+    # custom URL handling in img, a, script, link
 
-    math_id = [-1]
-    _math_regex = "<(?P<tag>(?:display)?math)>(?P<body>.*?)</(?P=tag)>"
-    MATH_REGEX = re.compile(_math_regex, re.MULTILINE | re.DOTALL)
+    URL_FIX_LIST = [('img', 'src'), ('a', 'href'),
+                    ('script', 'src'),('link', 'href')]
 
-    def math_replacer(m):
-        d = m.groupdict()
-        b = d.get('body', '')
-        t = d.get('tag', '')
-        if t == 'math':
-            otag = 'span'
+    for (tag, field) in URL_FIX_LIST:
+        for i in tree.find_all(tag):
+            if field in i.attrs:
+                i.attrs[field] = dispatch.get_real_url(context, i.attrs[field])
+
+    # math tags
+
+    for ix, i in enumerate(tree.find_all(re.compile('(?:display)?math'))):
+        if i.name == 'math':
+            i.name = 'span'
         else:
-            otag = 'div style="text-align:center;padding-bottom:10px;"'
-        math_id[0] += 1
-        return '<%s id="cs_math_%06d">%s</%s>' % (otag, math_id[0], b,
-                                                  otag.split(' ', 1)[0])
+            i.name = 'div'
+            i.attrs['style'] = "text-align:center;padding-bottom:10px;"
+        i.attrs['id'] = 'cs_math_%06d' % ix
 
-    text = re.sub(MATH_REGEX, math_replacer, text)
-
-    return text
+    return tree.prettify()

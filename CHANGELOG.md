@@ -21,6 +21,8 @@ _Next planned release.  Currently under development._
 * CAT-SOOP is now _only_ compatible with Python version 3.5+.  Python 2
     compatibility was dropped intentionally, but versions 3.0.0 <= x < 3.5 are
     not supported because CAT-SOOP does some strange things with imports.
+* CAT-SOOP XML parsing is now largely handled by Beautiful Soup instead of by
+    regular expressions.
 * Renamed `gb.py` -> `base_context.py` to more accurately reflect its usage.
 * Modified the `login` authentication type to use Python's built-in
     implementation of PBKDF2.  Also included the option to tune the number
@@ -34,6 +36,8 @@ _Next planned release.  Currently under development._
     the server (passwords are now never sent in plain-text).
 * Navigation links should now be held in `cs_top_menu` instead of
     `cs_navigation`.
+* `<ref>` tags can now take the relevant label as `label="x"` in addition to
+  just as `x`.
 
 **Deprecated:**
 
