@@ -6,7 +6,7 @@
 <link rel="icon" href="{cs_icon_url}" type="image/gif" />
 
 <script src="BASE/scripts/jquery.js"></script>
-<link rel="stylesheet" href="BASE/themes/bootstrap.css">
+<link rel="stylesheet" href="BASE/themes/bootstrap.css" />
 <script src="BASE/scripts/bootstrap.js"></script>
 
 <script type="text/javascript">
@@ -32,7 +32,7 @@ $('#cs_main_navbar').resize(set_top_margin);
 
 {cs_scripts}
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 </head> 
 <body id="myPage">
 

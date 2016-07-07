@@ -115,15 +115,13 @@ cs_bottom_menu = ''
 Special: Additional menu space
 """
 
-cs_content_header = ('<h1>'
-                     '<span class="cs_base_bold">C</span>AT-SOOP is an '
+cs_content_header = ('<span class="cs_base_bold">C</span>AT-SOOP is an '
                      '<span class="cs_base_bold">A</span>utomatic '
                      '<span class="cs_base_bold">T</span>utor for '
                      '<span class="cs_base_bold">S</span>ix-'
                      '<span class="cs_base_bold">O</span>h-'
                      '<span class="cs_base_bold">O</span>ne '
-                     '<span class="cs_base_bold">P</span>roblems'
-                     '</h1>')
+                     '<span class="cs_base_bold">P</span>roblems')
 """
 Special: The text to be displayed at the top of the "content" block.
 """

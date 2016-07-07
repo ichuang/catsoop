@@ -402,4 +402,4 @@ def handle_custom_tags(context, text):
             i.attrs['style'] = "text-align:center;padding-bottom:10px;"
         i.attrs['id'] = 'cs_math_%06d' % ix
 
-    return tree.prettify()
+    return str(tree)
