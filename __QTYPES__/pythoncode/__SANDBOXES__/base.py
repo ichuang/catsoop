@@ -34,7 +34,7 @@ def prep_code(code, test, **kwargs):
     # what test we should be running
     code = code.strip()
 
-    if kwargs.get('csq_python3', False):
+    if kwargs.get('csq_python3', True):
         footer = ('print("!LOGOUTPUT(o_O)!")\n'
                   'print(repr(%s))\n') % test['variable']
     else:

@@ -96,7 +96,7 @@ checktext = 'Run Code'
 
 
 def handle_check(submissions, **info):
-    py3k = info.get('csq_python3', False)
+    py3k = info.get('csq_python3', True)
 
     code = submissions[info['csq_name']]
     if info['csq_interface'] == 'upload':
@@ -299,7 +299,7 @@ def make_initial_display(info):
         if i['include_description']:
             init += '# %s\n' % i['description']
         init += i['code']
-        if info.get('csq_python3', False):
+        if info.get('csq_python3', True):
             init += '\nprint("Test Case %d:", %s)' % (ix + 1, i['variable'])
             if i['include_soln']:
                 init += '\nprint("Expected:", %s)' % (log_s, )

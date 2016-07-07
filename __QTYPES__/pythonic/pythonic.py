@@ -39,7 +39,7 @@ total_points = base['total_points']
 
 
 def handle_submission(submissions, **info):
-    py3k = info.get('csq_python3', False)
+    py3k = info.get('csq_python3', True)
     sub = submissions[info['csq_name']]
 
     inp = info['csq_input_check'](sub)
