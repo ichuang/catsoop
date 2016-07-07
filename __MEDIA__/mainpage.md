@@ -4,8 +4,7 @@ def link(url, text=None):
     return '<a href="%s" target="_blank">%s</a>' % (url, text)
 </python>
 
-<center>
-<pre style="border-color:transparent; font-weight:bold; background-color:transparent;font-size:110%; color:inherit;line-height:1.1">
+<pre style="border-color:transparent; font-weight:bold; background-color:transparent;font-size:110%; color:inherit;line-height:1.1; text-align:center;">
 \            
 /    /\__/\  
 \__=(  o_O )=
@@ -13,6 +12,7 @@ def link(url, text=None):
  |_ |_ |_ |_ 
 </pre>
 
+<center>
 @{link("https://cat-soop.org")}
 </center>
 
