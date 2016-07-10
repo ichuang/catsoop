@@ -57,3 +57,41 @@ $ git clone git@gitlab.com:adqm/cat-soop.git
 ## IS IT ANY GOOD?
 
 Yes.
+
+## INCLUDED SOFTWARE
+
+The following pieces of software are bundled with CAT-SOOP and are licensed
+under their own terms:
+
+* [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/) version 4.4.1
+    ([MIT (Expat) License](https://opensource.org/licenses/MIT))
+    in `catsoop/tools/bs4`
+    (locally modified to account for the structure of imports)
+* [Bootstrap](http://getbootstrap.com/) version 3.3.6
+    ([MIT (Expat) License](https://github.com/twbs/bootstrap/blob/master/LICENSE))
+    in `__MEDIA__/scripts/bootstrap.js`
+    (locally modified to include "callouts" from the Bootstrap web site)
+* [Computer Modern Typewriter Font](http://checkmyworking.com/cm-web-fonts/)
+    ([SIL Open Font License Verion 1.1](http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web))
+    in `__MEDIA__/fonts/cmun*`
+* [jQuery](http://jquery.com/) version 1.12.4
+    ([MIT (Expat) License](https://jquery.org/license/))
+    in `__MEDIA__/scripts/katex`
+* [KaTeX](https://khan.github.io/KaTeX/) version 0.6.0
+    ([MIT (Expat) License](https://github.com/Khan/KaTeX/blob/master/LICENSE.txt))
+    in `__MEDIA__/scripts/katex`
+* [Lato Font](http://www.latofonts.com/lato-free-fonts/)
+    ([SIL Open Font License Verion 1.1](http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web))
+    in `__MEDIA__/fonts/Lato*`
+* [MathJax](https://www.mathjax.org/) version 2.6.1
+    ([Apache License, version 2.0](https://github.com/mathjax/MathJax/blob/master/LICENSE))
+    in `__MEDIA__/scripts/mathjax`
+* [Montserrat Font](https://www.fontsquirrel.com/fonts/montserrat)
+    ([SIL Open Font License Verion 1.1](http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web))
+    in `__MEDIA__/fonts/Montserrat*`
+* [Python Lex-Yacc](http://www.dabeaz.com/ply/) version 3.7
+    ([BSD 3-Clause License](http://www.dabeaz.com/ply/README.txt))
+    in `catsoop/tools/ply`
+* [Python Markdown](https://pythonhosted.org/Markdown/) version 2.6.2
+    ([BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause))
+    in `catsoop/tools/markdown`
