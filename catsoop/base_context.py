@@ -202,9 +202,9 @@ except Exception as e:
 
 # Import all CAT-SOOP modules/subpackages
 
-cs_all_pieces = ['auth', 'base_context', 'dispatch', 'errors', 'language',
-                 'loader', 'logging', 'mail', 'session', 'time', 'tools',
-                 'tutor']
+cs_all_pieces = ['api', 'auth', 'base_context', 'dispatch', 'errors',
+                 'language', 'loader', 'logging', 'mail', 'session', 'time',
+                 'tools', 'tutor']
 
 for i in cs_all_pieces:
     if i != 'base_context':
