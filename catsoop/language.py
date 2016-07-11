@@ -393,7 +393,12 @@ def handle_custom_tags(context, text):
                 i.attrs[field] = dispatch.get_real_url(context, i.attrs[field])
 
     # math tags
+    handle_math_tags(tree)
 
+    return str(tree)
+
+
+def handle_math_tags(tree):
     for ix, i in enumerate(tree.find_all(re.compile('(?:display)?math'))):
         if i.name == 'math':
             i.name = 'span'
@@ -401,5 +406,4 @@ def handle_custom_tags(context, text):
             i.name = 'div'
             i.attrs['style'] = "text-align:center;padding-bottom:10px;"
         i.attrs['id'] = 'cs_math_%06d' % ix
-
-    return str(tree)
+    return tree
