@@ -39,6 +39,10 @@ def get_auth_type(context):
     authentication type specified by context['cs_auth_type'].
     """
     auth_type = context['cs_auth_type']
+    return get_auth_type_by_name(context, auth_type)
+
+
+def get_auth_type_by_name(context, auth_type):
     fs_root = context.get('cs_fs_root', base_context.cs_fs_root)
     data_root = context.get('cs_data_root', base_context.cs_data_root)
     course = context['cs_course']
@@ -91,6 +95,12 @@ def get_logged_in_user(context):
 
 
 def get_user_information(context):
+    return _get_user_information(context, context['cs_user_info'],
+                                 context.get('cs_course', None),
+                                 context['cs_username'])
+
+
+def _get_user_information(context, into, course, username, do_preload=False):
     """
     Based on the context, load extra information about the user.
 
@@ -101,38 +111,40 @@ def get_user_information(context):
     Returns a dictionary like that returned by get_logged_in_user, but
     (possibly) with additional mappings as specified in the loaded file.
     """
-    start = context['cs_user_info']
-    if context.get('cs_course', None) is not None:
+    if course is not None:
+        if do_preload:
+            loader.load_global_data(context)
+            loader.do_early_load(context, course, [], context)
         fname = os.path.join(context['cs_data_root'], 'courses',
                              context['cs_course'], '__USERS__',
-                             "%s.py" % context['cs_username'])
+                             "%s.py" % username)
     else:
         fname = os.path.join(context['cs_data_root'], '__LOGS__',
-                             context['cs_username'])
+                             username)
     if os.path.exists(fname):
         text = open(fname).read()
-        exec(text, start)
+        exec(text, into)
 
     # permissions handling
-    if 'permissions' not in start:
-        if 'role' not in start:
-            start['role'] = context.get('cs_default_role', None)
+    if 'permissions' not in into:
+        if 'role' not in into:
+            into['role'] = context.get('cs_default_role', None)
         plist = context.get('cs_permissions', {})
         defaults = context.get('cs_default_permissions', [])
-        start['permissions'] = plist.get(start['role'], defaults)
+        into['permissions'] = plist.get(into['role'], defaults)
 
-    loader.clean_builtins(start)
+    loader.clean_builtins(into)
 
     # impersonation
-    if ('as' in context['cs_form']) and ('real_user' not in start):
-        if 'impersonate' not in start['permissions']:
-            return start
-        old = dict(start)
-        old['p'] = start['permissions']
+    if ('as' in context['cs_form']) and ('real_user' not in into):
+        if 'impersonate' not in into['permissions']:
+            return into
+        old = dict(into)
+        old['p'] = into['permissions']
         context['cs_username'] = context['cs_form']['as']
-        start['real_user'] = old
-        start['username'] = start['name'] = context['cs_username']
-        start['role'] = None
-        start['permissions'] = []
-        start = get_user_information(context)
-    return start
+        into['real_user'] = old
+        into['username'] = into['name'] = context['cs_username']
+        into['role'] = None
+        into['permissions'] = []
+        into = get_user_information(context)
+    return into
