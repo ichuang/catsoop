@@ -15,6 +15,7 @@ _Next planned release.  Currently under development._
     style).
 * Added the `cs_base_color` variable, for switching the main color of the
     default theme.
+* Added syntax highlighting to code blocks, via [highlight.js](https://highlightjs.org/).
 
 **Changed:**
 
