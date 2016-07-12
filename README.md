@@ -66,9 +66,6 @@ under their own terms:
 * [Computer Modern Typewriter Font](http://checkmyworking.com/cm-web-fonts/)
     ([SIL Open Font License Verion 1.1](http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web))
     in `__MEDIA__/fonts/cmun*`
-* [highlight.js](https://highlightjs.org/) version 9.5.0
-    ([BSD 3-Clause License](https://github.com/isagalaev/highlight.js/blob/master/LICENSE))
-    in `__MEDIA__/scripts/highlight`
 * [jQuery](http://jquery.com/) version 1.12.4
     ([MIT (Expat) License](https://jquery.org/license/))
     in `__MEDIA__/scripts/katex`
@@ -103,3 +100,7 @@ original versions are available under their own terms.
     ([MIT (Expat) License](https://github.com/twbs/bootstrap/blob/master/LICENSE))
     in `__MEDIA__/scripts/bootstrap.js`
     (locally modified to include "callouts" from the Bootstrap web site)
+* [highlight.js](https://highlightjs.org/) version 9.5.0
+    ([BSD 3-Clause License](https://github.com/isagalaev/highlight.js/blob/master/LICENSE))
+    in `__MEDIA__/scripts/highlight`
+    (locally modified to change highlighting of Python code).
