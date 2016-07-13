@@ -130,7 +130,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
         if 'role' not in into:
             into['role'] = context.get('cs_default_role', None)
         plist = context.get('cs_permissions', {})
-        defaults = context.get('cs_default_permissions', [])
+        defaults = context.get('cs_default_permissions', ['view'])
         into['permissions'] = plist.get(into['role'], defaults)
 
     loader.clean_builtins(into)

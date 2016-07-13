@@ -40,6 +40,7 @@ _Next planned release.  Currently under development._
 * `<ref>` tags can now take the relevant label as `label="x"` in addition to
   just as `x`.
 * Improved error pages shown on 404 File Not Found.
+* Default permissions now include the `'view'` permission.
 
 **Deprecated:**
 
