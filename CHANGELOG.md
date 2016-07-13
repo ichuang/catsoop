@@ -39,6 +39,7 @@ _Next planned release.  Currently under development._
     `cs_navigation`.
 * `<ref>` tags can now take the relevant label as `label="x"` in addition to
   just as `x`.
+* Improved error pages shown on 404 File Not Found.
 
 **Deprecated:**
 
@@ -51,6 +52,8 @@ _Next planned release.  Currently under development._
     CAT-SOOP instance running on a different version of Python without issue.
 * Fixed a bug whereby an empty entry in a multiplechoice question (`--`) was
     interpreted as being the last element in the `csq_options` list.
+* Missing files/directories are now always handled as 404 errors, rather than
+    500.
 
 **Security:**
 

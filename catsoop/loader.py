@@ -118,7 +118,10 @@ def do_early_load(context, course, path, into, content_file=None):
         new_name = os.path.join(directory, 'preload.py')
         if os.path.isfile(new_name):
             exec(cs_compile(new_name), into)
-        newdir = get_directory_name(context, course, path[:ix], i)
+        try:
+            newdir = get_directory_name(context, course, path[:ix], i)
+        except FileNotFoundError:
+            return 'missing'
         if newdir is None:
             return 'missing'
         directory = os.path.join(directory, newdir)

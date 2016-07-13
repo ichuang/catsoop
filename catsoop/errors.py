@@ -64,10 +64,47 @@ def do_error_message(context, msg=None):
     if 'cs_handler' in new:
         del new['cs_handler']
     m = msg if msg is not None else error_message_content(context)
-    new['cs_content'] = '<textarea rows=20 cols=110>ERROR:\n%s</textarea>' % m
+    new['cs_original_path'] = ''
+    new['cs_content'] = ('<pre>ERROR:\n'
+                         '%s</pre>') % ( m)
     e = ': <font color="red">ERROR</font>'
     new['cs_header'] = new.get('cs_header', '') + e
     new['cs_content_header'] = 'An Error Occurred:'
     s, h, o = dispatch.display_page(new)
+    o = o.replace(context['cs_base_logo_text'], error_500_logo)
     return ('500', 'Internal Server Error'), h, o
 
+
+def do_404_message(context):
+    """
+    Display an error message
+    """
+    new = dict(context)
+    loader.load_global_data(new)
+    if 'cs_user_info' not in new:
+        new['cs_user_info'] = {}
+        new['cs_username'] = None
+    if 'cs_handler' in new:
+        del new['cs_handler']
+    new['cs_content'] = ('<pre>CAT-SOOP could not find the specified file or resource:\n'
+                         '%r</pre>') % (new['cs_original_path'])
+    new['cs_original_path'] = ''
+    e = ': <font color="red">404</font>'
+    new['cs_header'] = new.get('cs_header', '') + e
+    new['cs_content_header'] = 'File/Resource Not Found'
+    s, h, o = dispatch.display_page(new)
+    o = o.replace(context['cs_base_logo_text'], error_404_logo)
+    return ('404', 'File Not Found'), h, o
+
+error_404_logo = ("\   ???????? "
+                "\n/    /\__/\  "
+                "\n\__=(  @_@ )="
+                "\n(__________) "
+                "\n |_ |_ |_ |_ ")
+
+error_500_logo = ("  _  _  _  _  "
+                "\n  _|__|__|__| "
+                "\n (  _     ___)"
+                "\n=( x X  )=   \\"
+                "\n  \/  \/     /"
+                "\n             \\")

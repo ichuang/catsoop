@@ -109,7 +109,10 @@ def content_file_location(context, path):
         elif cur == '..':
             newpath = newpath[:-1]
         else:
-            dname = loader.get_directory_name(context, course, path[:ix], cur)
+            try:
+                dname = loader.get_directory_name(context, course, path[:ix], cur)
+            except FileNotFoundError:
+                return None
             if dname is None:
                 if ix != len(path) - 1:
                     return None
@@ -168,9 +171,7 @@ def serve_static_file(fname, environment=None, stream=False, streamchunk=4096):
             f.close()
         headers['Content-length'] = str(headers['Content-length'])
     except:
-        status = ('404', 'Static file not found')
-        headers = {}
-        out = b''
+        stats, headers, out = errors.do_404_message(context)
     return status, headers, out
 
 
@@ -360,10 +361,7 @@ def main(environment):
             x = loader.do_early_load(context, context['cs_course'], path_info,
                                      context, cfile)
             if x == 'missing':
-                status = ('404', "Resource not found")
-                headers = {}
-                out = ''
-                return status, headers, out
+                return errors.do_404_message(context)
 
             # AUTHENTICATE
             # doesn't happen until now because what we want to do might depend
@@ -391,10 +389,7 @@ def main(environment):
                 result = is_resource(context,
                                      [context['cs_course']] + path_info)
                 if not result:
-                    status = ('404', 'Resource not found')
-                    headers = {}
-                    out = ''
-                    return status, headers, out
+                    return errors.do_404_message(context)
 
             # FINALLY, DO LATE LOAD
             loader.do_late_load(context, context['cs_course'], path_info,
@@ -428,5 +423,6 @@ def main(environment):
     except:
         if not force_error:
             out = errors.do_error_message(context)
+    out = out[:-1] + (out[-1].encode('utf-8'), )
     out[1].update({'Content-length': str(len(out[-1]))})
     return out
