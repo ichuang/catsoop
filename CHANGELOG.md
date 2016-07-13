@@ -54,6 +54,7 @@ _Next planned release.  Currently under development._
     interpreted as being the last element in the `csq_options` list.
 * Missing files/directories are now always handled as 404 errors, rather than
     500.
+* Fixed a bug resulting from a nonexistent `courses` directory.
 
 **Security:**
 

@@ -223,7 +223,7 @@ def available_courses():
     """
     base = os.path.join(base_context.cs_data_root, 'courses')
     if not os.path.isdir(base):
-        return out
+        return []
     global_data = {}
     loader.load_global_data(global_data)
     out = []
