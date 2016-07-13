@@ -66,8 +66,6 @@ hljs.initHighlightingOnLoad();
 </nav>
   <center>
   <h1>{cs_content_header}</h1> 
-  <form class="form-inline">
-  </form>
   </center>
 
 <div class="container">
