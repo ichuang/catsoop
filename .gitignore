@@ -6,6 +6,9 @@ __pycache__/
 *.pycs
 catsoop/config.py
 
+# NOHUP
+nohup.out
+
 # Mercurial
 *.orig
 
