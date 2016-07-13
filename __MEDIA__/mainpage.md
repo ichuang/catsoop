@@ -4,7 +4,7 @@ def link(url, text=None):
     return '<a href="%s" target="_blank">%s</a>' % (url, text)
 </python>
 
-<pre style="border-color:transparent; font-weight:bold; background-color:transparent;font-size:110%; color:inherit;line-height:1.1; text-align:center;">
+<pre class="catsooplogo">
 \            
 /    /\__/\  
 \__=(  o_O )=
