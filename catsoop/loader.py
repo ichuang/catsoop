@@ -111,8 +111,9 @@ def do_early_load(context, course, path, into, content_file=None):
     """
     into['cs_course'] = course
     directory = get_course_fs_location(context, course)
-    if (content_file is not None and
-            os.path.basename(content_file).rsplit('.', 1)[0] != 'content'):
+    if content_file is None:
+        return 'missing'
+    if os.path.basename(content_file).rsplit('.', 1)[0] != 'content':
         path = path[:-1]
     for ix, i in enumerate(path):
         new_name = os.path.join(directory, 'preload.py')
