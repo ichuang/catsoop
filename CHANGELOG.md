@@ -477,5 +477,5 @@ with any similarity to the current code._
 # Version 1.0.0
 
 _The original version, used in 6.003 fall 2011, and described in
-[http://hdl.handle.net/1721.1/77086](http://hdl.handle.net/1721.1/770860),
+[http://dspace.mit.edu/handle/1721.1/77086](http://dspace.mit.edu/handle/1721.1/77086),
 which has very little relevance to later versions._
