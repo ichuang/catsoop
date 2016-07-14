@@ -187,7 +187,8 @@ def most_recent(course, db_name, log_name, default=None):
                 breaks = data[:-lsep].count(sep)
                 if breaks >= 1:
                     f.close()
-                    t = data[:-lsep][data.rfind(sep)+lsep:]
+                    data = data[:-lsep]
+                    t = data[data.rfind(sep)+lsep:]
                     return unprep(t)
         except:
             return default
