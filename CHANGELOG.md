@@ -56,6 +56,8 @@ _Next planned release.  Currently under development._
 * Missing files/directories are now always handled as 404 errors, rather than
     500.
 * Fixed a bug resulting from a nonexistent `courses` directory.
+* The `cs_post_load` hook is now invoked at a time when `cs_content` is still
+    relevant.
 
 **Security:**
 

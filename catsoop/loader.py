@@ -222,4 +222,6 @@ def do_late_load(context, course, path, into, content_file=None):
         into['cs_children'] = {}
     into['cs_source_format'] = content_file.rsplit('.', 1)[-1]
     into['cs_content'] = open(content_file).read()
+    if 'cs_post_load' in into:
+        into['cs_post_load'](into)
     language.source_formats[into['cs_source_format']](into)

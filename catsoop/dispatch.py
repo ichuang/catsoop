@@ -402,9 +402,6 @@ def main(environment):
             context['csm_language']._md_pre_handle(context)
             context['cs_handler'] = 'passthrough'
 
-        if 'cs_post_load' in context:
-            context['cs_post_load'](context)
-
         res = tutor.handle_page(context)
 
         if res is not None:
