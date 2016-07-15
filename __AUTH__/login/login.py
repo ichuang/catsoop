@@ -116,20 +116,31 @@ def get_logged_in_user(context):
         t = form.get('token', None)
         stored_token = logging.most_recent(None, u, 'confirmation_token', '')
         login_info = logging.most_recent(None, u, 'logininfo', {})
-        if t == stored_token and 'confirmed' in login_info:
+        context['cs_handler'] = 'passthrough'
+        retval = {'cs_render_now': True}
+        url = _get_base_url(context)
+        if login_info.get('confirmed', False):
+            context['cs_content_header'] = "Already Confirmed"
+            context['cs_content'] = ("This account has already been confirmed."
+                                     "  Please <a href='%s'>click here</a> to "
+                                     "log in.") % url
+        elif t == stored_token and 'confirmed' in login_info:
             login_info['confirmed'] = True
             logging.update_log(None, u, 'logininfo', login_info)
-            url = _get_base_url(context)
             context['cs_content_header'] = "Account Confirmation Succeeded"
             context['cs_content'] = ('Please <a href="%s">click here</a>'
                                      ' to log in.') % url
+            clear_session_vars(context, 'login_message', 'last_form')
+            retval.update(login_info)
+            session.update(login_info)
+            session['username'] = u
         else:
+            cs_debug(t, stored_token, login_info)
             context['cs_content_header'] = "Account Confirmation Failed"
             context['cs_content'] = ("Please double-check the details "
                                      "from the confirmation e-mail you"
                                      " received.")
-        context['cs_handler'] = 'passthrough'
-        return {'cs_render_now': True}
+        return retval
 
     # if the session tells us someone is logged in, return their
     # information
