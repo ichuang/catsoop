@@ -20,6 +20,7 @@ var set_top_margin = function(){{
 
 $(document).ready(set_top_margin);
 $('#cs_main_navbar').resize(set_top_margin);
+var catsoop = {{}};
 </script>
 
 <!-- Additional styling specific for course-->

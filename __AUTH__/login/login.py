@@ -991,7 +991,7 @@ are receiving this message in error, please ignore or delete it.</p>"""
 def _submit_button(fields, username, form, value='Submit'):
     return ('<input type="button"'
             ' value="%s"'
-            ' onclick="hashlib.hash_passwords(%r, %r, %r)" />') % (value,
+            ' onclick="catsoop.hashlib.hash_passwords(%r, %r, %r)" />') % (value,
                                                                    fields,
                                                                    username,
                                                                    form)

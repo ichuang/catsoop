@@ -33,7 +33,7 @@
         define(function() { return sha256; });
     } else {
         root.sha256 = sha256;
-        root.hashlib = exports;
+        root.catsoop.hashlib = exports;
     }
 })(this, function(exports) {
 "use strict";
@@ -415,7 +415,7 @@ function cs_hash_passwords(fields, username, formId){
     var username = $('#' + username).val();
     for (var i=0; i < fields.length; i++){
         var current = $('#' + fields[i]).val();
-        var hashed = hashlib.catsoop_hash(username, current);
+        var hashed = catsoop.hashlib.catsoop_hash(username, current);
         $('#' + fields[i]).val(hashed);
     }
     $('#' + formId).submit();
