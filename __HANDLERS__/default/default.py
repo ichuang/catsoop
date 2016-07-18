@@ -1315,23 +1315,29 @@ def default_javascript(context):
         skipper = 'csq_allow_submit_after_answer_viewed'
         skip_alert = [name for (name, (q, args)) in list(namemap.items())
                       if _get(args, skipper, False, bool)]
-    return '''
+    out = '''
 <script type="text/javascript" src="__HANDLER__/default/cs_ajax.js"></script>
 <script type="text/javascript">
 catsoop.all_questions = %(allqs)r;
-catsoop.api_token = %(secret)r;
+catsoop.api_token = %(secret)s;
 catsoop.this_path = %(path)r;
 catsoop.course = %(course)s;
-catsoop.imp = %(imp)r;
+'''
+
+    if len(namemap) > 0:
+        out += '''catsoop.imp = %(imp)r;
 catsoop.skip_alert = %(skipalert)s;
 catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any further submissions to this question.  Press 'OK' to view the answer, or press 'Cancel' if you have changed your mind.";
-</script>''' % {
+'''
+    out += '</script>'
+
+    return out % {
         'skipalert': json.dumps(skip_alert),
         'allqs': list(context[_n('name_map')].keys()),
         'user': context[_n('real_uname')],
         'path': '/'.join([context['cs_url_root']] + context['cs_path_info']),
         'imp': context[_n('uname')] if context[_n('impersonating')] else '',
-        'secret': context['cs_user_info']['api_token'],
+        'secret': repr(context['cs_user_info']['api_token']) if 'cs_user_info' in context else 'null',
         'course': repr(context['cs_course']) if context['cs_course'] else 'null',
     }
 
