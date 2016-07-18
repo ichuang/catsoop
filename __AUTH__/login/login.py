@@ -39,6 +39,7 @@ def get_logged_in_user(context):
     message = form.get('message', '')
 
     hash_iterations = context.get('cs_password_hash_iterations', 250000)
+    url = _get_base_url(context)
 
     # if the user is trying to log out, do that.
     if action == 'logout':
@@ -64,7 +65,12 @@ def get_logged_in_user(context):
             context['cs_content'] = ("Your registration is not yet "
                                      "complete.  Please check your"
                                      " e-mail for instructions on "
-                                     "how to complete the process.")
+                                     "how to complete the process.  "
+                                     "If you did not receive a "
+                                     "confirmation e-mail, please "
+                                     "<a href='%s?loginaction=reconfirm_reg"
+                                     "&username=%s'>click here</a> to "
+                                     "re-send the email.") % (url, uname)
             context['cs_handler'] = 'passthrough'
             return {'cs_render_now': True}
         if 'oldpasswd' in form:
@@ -298,7 +304,12 @@ def get_logged_in_user(context):
                 context['cs_content'] = ("Your registration is not yet "
                                          "complete.  Please check your"
                                          " e-mail for instructions on "
-                                         "how to complete the process.")
+                                         "how to complete the process.  "
+                                         "If you did not receive a "
+                                         "confirmation e-mail, please "
+                                         "<a href='%s?loginaction=reconfirm_reg"
+                                         "&username=%s'>click here</a> to "
+                                         "re-send the email.") % (url, uname)
                 context['cs_handler'] = 'passthrough'
                 return {'cs_render_now': True}
             email = login_info.get('email', uname)
@@ -313,6 +324,40 @@ def get_logged_in_user(context):
                     'Incorrect username or password.'
                     '</font>')
             session.update({'login_message': lmsg, 'last_form': form})
+
+    # a user is asking to re-send the confirmation message
+    elif action == 'reconfirm_reg':
+        uname = form.get('username', None)
+        token = logging.most_recent(None, uname, 'confirmation_token', None)
+        login_info = logging.most_recent(None, uname, 'logininfo')
+        if login_info.get('confirmed', False):
+            context['cs_content_header'] = "Already Confirmed"
+            context['cs_content'] = ("This account has already been confirmed."
+                                     "  Please <a href='%s'>click here</a> to "
+                                     "log in.") % url
+        elif token is None:
+            context['cs_content_header'] = "Error"
+            context['cs_content'] = ("The provided information is "
+                                     "complete.  Please check your"
+                                     " e-mail for instructions on "
+                                     "how to complete the process.")
+        else:
+            # generate and send e-mail
+            mail.send_email(context, login_info['email'],
+                            "CAT-SOOP: Confirm E-mail Address",
+                            *reg_confirm_emails(context, uname, token))
+            context['cs_content_header'] = "Confirmation E-mail Sent"
+            context['cs_content'] = ("Your registration is almost "
+                                     "complete.  Please check your"
+                                     " e-mail for instructions on "
+                                     "how to complete the process.  "
+                                     "If you do not receive a "
+                                     "confirmation e-mail within 5 minutes, please "
+                                     "<a href='%s?loginaction=reconfirm_reg"
+                                     "&username=%s'>click here</a> to "
+                                     "re-send the email.") % (url, uname)
+        context['cs_handler'] = 'passthrough'
+        return {'cs_render_now': True}
 
     # if we are looking at a registration action
     elif action == 'register':
@@ -412,7 +457,12 @@ def get_logged_in_user(context):
                     context['cs_content'] = ("Your registration is almost "
                                              "complete.  Please check your"
                                              " e-mail for instructions on "
-                                             "how to complete the process.")
+                                             "how to complete the process.  "
+                                             "If you do not receive a "
+                                             "confirmation e-mail within 5 minutes, please "
+                                             "<a href='%s?loginaction=reconfirm_reg"
+                                             "&username=%s'>click here</a> to "
+                                             "re-send the email.") % (url, uname)
                     context['cs_handler'] = 'passthrough'
                     return {'cs_render_now': True}
 
