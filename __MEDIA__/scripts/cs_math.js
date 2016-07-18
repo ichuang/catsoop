@@ -56,7 +56,7 @@ catsoop.render_all_math = function (elt, immediate){
     immediate = typeof immediate !== 'undefined' ? immediate : false;
     $('.cs_math_to_render', $(elt)).each(function(){
             var elt = $(this);
-            cs_render_math(elt, immediate);
+            catsoop.render_math(elt, immediate);
     }).promise().done(function(){
         if(!immediate){
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, elt]);
