@@ -32,16 +32,11 @@ function cs_render_math(elt, render_now) {
     render_now = typeof render_now !== 'undefined' ? render_now : false;
     elt = $(elt);
     var tex = elt.text(); // TeX Source
-    var type = elt.prop("tagName");
-    var disp = false;
-    var thisId = elt.attr("id");
-    if(type=="DIV"){
-        disp = true;
-    }
+    var display = elt.hasClass('cs_displaymath');
     try{
-        katex.render(tex, elt.get(0), {displayMode: Boolean(disp)});
+        katex.render(tex, elt.get(0), {displayMode: display});
     }catch(err){
-        if(disp){
+        if(display){
             var b = "\\[";
             var e = "\\]";
         }else{
@@ -53,14 +48,15 @@ function cs_render_math(elt, render_now) {
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, elt[0]]);
         }
     }
-    elt.attr("id", "cs_rendered_" + thisId);
+    elt.removeClass('cs_math_to_render');
 }
 
 // render all math elements within a given DOM element
 function cs_render_all_math(elt, immediate){
     immediate = typeof immediate !== 'undefined' ? immediate : false;
-    $('[id^="cs_math"]', $(elt)).each(function(){
-            cs_render_math($(this), immediate);
+    $('.cs_math_to_render', $(elt)).each(function(){
+            var elt = $(this);
+            cs_render_math(elt, immediate);
     }).promise().done(function(){
         if(!immediate){
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, elt]);

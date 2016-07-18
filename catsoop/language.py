@@ -400,10 +400,12 @@ def handle_custom_tags(context, text):
 
 def handle_math_tags(tree):
     for ix, i in enumerate(tree.find_all(re.compile('(?:display)?math'))):
+        i['class'] = i.get('class', [])
         if i.name == 'math':
             i.name = 'span'
         else:
             i.name = 'div'
             i.attrs['style'] = "text-align:center;padding-bottom:10px;"
-        i.attrs['id'] = 'cs_math_%06d' % ix
+            i['class'].append('cs_displaymath')
+        i['class'].append('cs_math_to_render')
     return tree
