@@ -1309,8 +1309,6 @@ def _get_auto_view(context):
 
 def default_javascript(context):
     namemap = context[_n('name_map')]
-    if len(namemap) == 0:
-        return ''
     if 'submit_all' in context[_n('perms')]:
         skip_alert = list(namemap.keys())
     else:
@@ -1320,12 +1318,13 @@ def default_javascript(context):
     return '''
 <script type="text/javascript" src="__HANDLER__/default/cs_ajax.js"></script>
 <script type="text/javascript">
-var cs_all_questions = %(allqs)r;
-var cs_api_token = %(secret)r;
-var cs_this_path = %(path)r;
-var cs_imp = %(imp)r;
-var cs_skip_alert = %(skipalert)s;
-var cs_viewans_confirm = "Are you sure?  Viewing the answer will prevent any further submissions to this question.  Press 'OK' to view the answer, or press 'Cancel' if you have changed your mind.";
+catsoop.all_questions = %(allqs)r;
+catsoop.api_token = %(secret)r;
+catsoop.this_path = %(path)r;
+catsoop.course = %(course)s;
+catsoop.imp = %(imp)r;
+catsoop.skip_alert = %(skipalert)s;
+catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any further submissions to this question.  Press 'OK' to view the answer, or press 'Cancel' if you have changed your mind.";
 </script>''' % {
         'skipalert': json.dumps(skip_alert),
         'allqs': list(context[_n('name_map')].keys()),
@@ -1333,6 +1332,7 @@ var cs_viewans_confirm = "Are you sure?  Viewing the answer will prevent any fur
         'path': '/'.join([context['cs_url_root']] + context['cs_path_info']),
         'imp': context[_n('uname')] if context[_n('impersonating')] else '',
         'secret': context['cs_user_info']['_api_token'],
+        'course': repr(context['cs_course']) if context['cs_course'] else 'null',
     }
 
 
@@ -1345,14 +1345,14 @@ def default_timer(context):
     if context[_n('now')] > context[_n('due')]:
         # view answers immediately if viewed past the due date
         out += '\n<script type="text/javascript">'
-        out += "\ncs_ajaxrequest(cs_all_questions,'lock');"
+        out += "\ncatsoop.ajaxrequest(cs_all_questions,'lock');"
         out += '\n</script>'
         return out
     else:
         out += '\n<script type="text/javascript">'
-        out += ("\nvar cs_timer_now = %d;"
-                "\nvar cs_timer_due = %d;"
-                "\nvar cs_time_url = %r;") % (
+        out += ("\ncatsoop.timer_now = %d;"
+                "\ncatsoop.timer_due = %d;"
+                "\ncatsoop.time_url = %r;") % (
                     context['csm_time'].unix(context[_n('now')]),
                     context['csm_time'].unix(context[_n('due')]),
                     context['cs_url_root'] + '/cs_util/time')

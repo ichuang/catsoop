@@ -18,11 +18,11 @@
 
 $(':button').prop("disabled",false);
 
-function switch_buttons(name, enabled){
+catsoop.switch_buttons = function (name, enabled){
     $(":button", $("#cs_qdiv_"+name)).prop("disabled", !enabled);
 }
 
-function doFiles(lastDeferred, into, files){
+catsoop.doFiles = function (lastDeferred, into, files){
     var name = null;
     var file = null;
     var num = files.length;
@@ -65,7 +65,7 @@ function doFiles(lastDeferred, into, files){
     }
 }
 
-function cs_ajaxrequest(names, action){
+catsoop.ajaxrequest = function (names, action){
     var fileD = new $.Deferred();
     var FILES = [];
     var num = names.length;
@@ -81,7 +81,7 @@ function cs_ajaxrequest(names, action){
     for (var i=0; i<num; i++){
         var name = names[i];
         var field = $(':input[name="'+name+'"]');
-        switch_buttons(name, false);
+        catsoop.switch_buttons(name, false);
         $('#'+name+'_loading').show();
         $('#'+name+'_score_display').hide();
         if (field.attr('type')==="file"){
@@ -91,7 +91,7 @@ function cs_ajaxrequest(names, action){
             }else{
                 if(action==="submit"){
                     alert("Please select a file to upload.");
-                    switch_buttons(name,true);
+                    catsoop.switch_buttons(name,true);
                     $('#'+name+'_loading').hide();
                     $('#'+name+'_score_display').show();
                     return;
@@ -104,10 +104,10 @@ function cs_ajaxrequest(names, action){
         }
     }
     fileD.done(function(){sendRequest(names, action, out);});
-    doFiles(fileD, out, FILES);
+    catsoop.doFiles(fileD, out, FILES);
 }
 
-var cs_ajaxDoneCallback = function(data, path, count) { return function(msg, textStatus, jqXHR){
+catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, textStatus, jqXHR){
                     try{
                         if(Object.keys(msg).length > 0){
                             for (var name in msg){
@@ -129,11 +129,11 @@ var cs_ajaxDoneCallback = function(data, path, count) { return function(msg, tex
                                     $('#'+name+'_solution_container').removeClass();
                                     $('#'+name+'_solution_container').addClass('solution');
                                     $('#'+name+'_solution').html(thisone['answer']);
-                                    cs_render_all_math($('#cs_qdiv_'+name)[0]);
+                                    catsoop.render_all_math($('#cs_qdiv_'+name)[0]);
                                 }
                                 if('explanation' in thisone){
                                     $('#'+name+'_solution_explanation').html(thisone['explanation']);
-                                    cs_render_all_math($('#cs_qdiv_'+name)[0]);
+                                    catsoop.render_all_math($('#cs_qdiv_'+name)[0]);
                                 }
                                 if (thisone['error_msg'] !== undefined){
                                     $('#'+name+'_response').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>:<br />'+thisone['error_msg']+'</div>');
@@ -145,10 +145,10 @@ var cs_ajaxDoneCallback = function(data, path, count) { return function(msg, tex
                                 if(thisone['val'] !== undefined){
                                     $('#'+name).val(thisone['val']);
                                 }
-                                switch_buttons(name, true);
+                                catsoop.switch_buttons(name, true);
                             }
                         }else{
-                            switch_buttons(name, true);
+                            catsoop.switch_buttons(name, true);
                             $('#'+name+'_loading').hide();
                             alert('Error: no response');
                         }
@@ -158,14 +158,14 @@ var cs_ajaxDoneCallback = function(data, path, count) { return function(msg, tex
                        setTimeout(function(){$.ajax({type:'POST',
                                url: path,
                                async: 'false',
-                               data: data}).done(cs_ajaxDoneCallback(data, path, count+1));}, 250);
+                               data: data}).done(catsoop.ajaxDoneCallback(data, path, count+1));}, 250);
                    }else{
                        var dnames = JSON.parse(data['names']);
                        console.log('giving up on retrying request');
                        for(var ix in dnames){
                            var name = dnames[ix];
                            $('#'+name+'_response').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please try again, and send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+JSON.stringify(jqXHR)+'\n'+JSON.stringify(err)+'</textarea>'+'</div>');
-                           switch_buttons(name, true);
+                           catsoop.switch_buttons(name, true);
                             $('#'+name+'_loading').hide();
                        }
                    }
@@ -177,33 +177,33 @@ function sendRequest(names,action,send){
     for (var key in send){if (send.hasOwnProperty(key)){form[key] = send[key];}}
     var d = {action: action,
              names: JSON.stringify(names),
-             api_token: cs_api_token,
+             api_token: catsoop.api_token,
              data: JSON.stringify(form)};
-    if (cs_imp != '') d['as'] = cs_imp;
+    if (catsoop.imp != '') d['as'] = catsoop.imp;
     $.ajax({type:'POST',
-            url: cs_this_path,
+            url: catsoop.this_path,
             async: 'false',
-            data: d}).done(cs_ajaxDoneCallback(d, cs_this_path, 0));
+            data: d}).done(catsoop.ajaxDoneCallback(d, catsoop.this_path, 0));
 };
-function cs_submit(name){cs_ajaxrequest([name],'submit');};
-function cs_check(name){cs_ajaxrequest([name],'check');};
-function cs_viewanswernow(name){cs_ajaxrequest([name],'viewanswer');};
-function cs_clearanswer(name){cs_ajaxrequest([name],'clearanswer');};
-function cs_viewexplanation(name){cs_ajaxrequest([name],'viewexplanation');};
-function cs_grade(name){cs_ajaxrequest([name, name+'_grading_score', name+'_grading_comments'],'grade');};
-function cs_lock(name){cs_ajaxrequest([name],'lock');};
-function cs_unlock(name){cs_ajaxrequest([name],'unlock');};
-function cs_save(name){cs_ajaxrequest([name],'save');};
-function cs_copy(name){cs_ajaxrequest([name],'copy');};
-function cs_copy_seed(name){cs_ajaxrequest([name],'copy_seed');};
-function cs_new_seed(name){cs_ajaxrequest([name],'new_seed');};
-function cs_viewanswer(name){cs_viewanswer_skipalert(name) && cs_viewanswernow(name);};
-function cs_viewanswer_skipalert(name){
-    var i = cs_skip_alert.length;
+catsoop.submit = function (name){catsoop.ajaxrequest([name],'submit');};
+catsoop.check = function (name){catsoop.ajaxrequest([name],'check');};
+catsoop.viewanswernow = function (name){catsoop.ajaxrequest([name],'viewanswer');};
+catsoop.clearanswer = function (name){catsoop.ajaxrequest([name],'clearanswer');};
+catsoop.viewexplanation = function (name){catsoop.ajaxrequest([name],'viewexplanation');};
+catsoop.grade = function (name){catsoop.ajaxrequest([name, name+'_grading_score', name+'_grading_comments'],'grade');};
+catsoop.lock = function (name){catsoop.ajaxrequest([name],'lock');};
+catsoop.unlock = function (name){catsoop.ajaxrequest([name],'unlock');};
+catsoop.save = function (name){catsoop.ajaxrequest([name],'save');};
+catsoop.copy = function (name){catsoop.ajaxrequest([name],'copy');};
+catsoop.copy_seed = function (name){catsoop.ajaxrequest([name],'copy_seed');};
+catsoop.new_seed = function (name){catsoop.ajaxrequest([name],'new_seed');};
+catsoop.viewanswer = function (name){catsoop.viewanswer_skipalert(name) && catsoop.viewanswernow(name);};
+catsoop.viewanswer_skipalert = function (name){
+    var i = catsoop.skip_alert.length;
     while (i--){
-        if (cs_skip_alert[i] === name){
+        if (catsoop.skip_alert[i] === name){
             return true
         }
     }
-    return confirm(cs_viewans_confirm);
+    return confirm(catsoop.viewans_confirm);
 }

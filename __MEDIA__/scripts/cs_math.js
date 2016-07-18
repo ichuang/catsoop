@@ -28,7 +28,7 @@ MathJax.Hub.Config({skipStartupTypeset:true,
 // render math
 // try to render with katex (fast, but limited support), and
 // fall back to mathjax (slow, but good support) if necessary
-function cs_render_math(elt, render_now) {
+catsoop.render_math = function (elt, render_now) {
     render_now = typeof render_now !== 'undefined' ? render_now : false;
     elt = $(elt);
     var tex = elt.text(); // TeX Source
@@ -52,7 +52,7 @@ function cs_render_math(elt, render_now) {
 }
 
 // render all math elements within a given DOM element
-function cs_render_all_math(elt, immediate){
+catsoop.render_all_math = function (elt, immediate){
     immediate = typeof immediate !== 'undefined' ? immediate : false;
     $('.cs_math_to_render', $(elt)).each(function(){
             var elt = $(this);
@@ -65,4 +65,4 @@ function cs_render_all_math(elt, immediate){
 }
 
 // when the page loads, render all math elements on the page
-$(document).ready(function(){{cs_render_all_math(document)}});
+$(document).ready(function(){{catsoop.render_all_math(document)}});
