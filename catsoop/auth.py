@@ -22,6 +22,7 @@ import importlib
 
 from . import api
 from . import loader
+from . import logging
 from . import base_context
 importlib.reload(base_context)
 
@@ -85,11 +86,16 @@ def get_logged_in_user(context):
     if api_user is not None:
         return api_user
 
-    # if no API token was specified, get the user's login information.  if a
-    # user was successfully logged in, generate a new API token for them.
     regular_user = get_auth_type(context)['get_logged_in_user'](context)
     if 'username' in regular_user:
-        api.initialize_api_token(context, None, regular_user)
+        # successful login.  check for existing token
+        cslog = logging.get_logger(context)
+        tok = cslog.most_recent(None, regular_user['username'],
+                                  'api_token', None)
+        if tok is None:
+            # if no token found, create a new one.
+            tok = api.initialize_api_token(context, regular_user)
+        regular_user['api_token'] = tok
     return regular_user
 
 

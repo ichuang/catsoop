@@ -25,7 +25,7 @@ import string
 CHARACTERS = string.ascii_letters + string.digits
 
 
-def get_api_token(context, username):
+def new_api_token(context, username):
     length = context.get('cs_api_token_length', 70)
     seed = username + uuid.uuid4().hex
     r = random.Random()
@@ -33,27 +33,22 @@ def get_api_token(context, username):
     return ''.join(r.choice(CHARACTERS) for i in range(length))
 
 
-def initialize_api_token(context, token, user_info):
-    token = token or get_api_token(context, user_info['username'])
-    user_info['_api_token'] = token
-    context['csm_cslog'].overwrite_log(None, '_api_tokens',
-                                       '%s.userinfo' % token,
+def initialize_api_token(context, user_info):
+    token = new_api_token(context, user_info['username'])
+    context['csm_cslog'].overwrite_log(None, 'api_tokens',
+                                       '%s' % token,
                                        user_info)
-
-
-def invalidate_api_token(context, token):
-    token = token or get_api_token(context, user_info['username'])
-    context['csm_cslog'].overwrite_log(None, '_api_tokens',
-                                       '%s.userinfo' % token,
-                                       None)
+    context['csm_cslog'].update_log(None, user_info['username'],
+                                    'api_token', token)
+    return token
 
 
 def get_logged_in_user(context):
     form = context.get('cs_form', {})
     if 'api_token' in form:
         tok = form['api_token']
-        log = context['csm_cslog'].most_recent(None, '_api_tokens',
-                                               '%s.userinfo' % tok, None)
+        log = context['csm_cslog'].most_recent(None, 'api_tokens',
+                                               '%s' % tok, None)
         if log is not None:
             return log
     return None

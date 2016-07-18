@@ -1331,7 +1331,7 @@ catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any fu
         'user': context[_n('real_uname')],
         'path': '/'.join([context['cs_url_root']] + context['cs_path_info']),
         'imp': context[_n('uname')] if context[_n('impersonating')] else '',
-        'secret': context['cs_user_info']['_api_token'],
+        'secret': context['cs_user_info']['api_token'],
         'course': repr(context['cs_course']) if context['cs_course'] else 'null',
     }
 
