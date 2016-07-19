@@ -175,11 +175,11 @@ def _run_one_test(context, sub, soln, funcs, threshold):
     maps_to_try = _get_all_mappings(context, _sub_names, _sol_names)
     for m in maps_to_try:
         try:
-            sub = eval_expr(context, m, funcs, sub)
+            subm = eval_expr(context, m, funcs, sub)
         except:
             return False
         sol = eval_expr(context, m, funcs, soln)
-        if abs(sub - sol) > threshold:
+        if abs(subm - sol) > threshold:
             return False
     return True
 

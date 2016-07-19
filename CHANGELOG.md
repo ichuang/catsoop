@@ -58,6 +58,8 @@ _Next planned release.  Currently under development._
 * Fixed a bug resulting from a nonexistent `courses` directory.
 * The `cs_post_load` hook is now invoked at a time when `cs_content` is still
     relevant.
+* Fixed bug with `expression` question type erroring when using multiple values
+    for a variable.
 
 **Security:**
 
