@@ -73,19 +73,15 @@ def get_logged_in_user(context):
                                      "re-send the email.") % (url, uname)
             context['cs_handler'] = 'passthrough'
             return {'cs_render_now': True}
-        if 'oldpasswd' in form:
+        if 'cs_hashed_2' in form:
             # the user has submitted the form.  check it.
             errors = []
             if not check_password(context, form['oldpasswd'], uname, hash_iterations):
                 errors.append('Incorrect password entered.')
-            passwd = form['passwd']
-            passwd2 = form['passwd2']
+            passwd = form['cs_hashed_0']
+            passwd2 = form['cs_hashed_1']
             if passwd != passwd2:
                 errors.append('New passwords do not match.')
-            else:
-                p_check_result = _validate_password(context, passwd)
-                if p_check_result is not None:
-                    errors.append(p_check_result)
             if len(errors) > 0:
                 # at least one error happened; display error message and show
                 # the form again
@@ -211,7 +207,7 @@ def get_logged_in_user(context):
                                      "on this CAT-SOOP instance.")
             context['cs_handler'] = 'passthrough'
             return {'cs_render_now': True}
-        if 'passwd' in form:
+        if 'cs_hashed_0' in form:
             # user has submitted the form; check and update password
             errors = []
             u = form.get('username', None)
@@ -220,14 +216,10 @@ def get_logged_in_user(context):
                                              '')
             if stored_token != t:
                 errors.append('Unknown user, or incorrect confirmation token.')
-            passwd = form['passwd']
-            passwd2 = form['passwd2']
+            passwd = form['cs_hashed_0']
+            passwd2 = form['cs_hashed_1']
             if passwd != passwd2:
                 errors.append('New passwords do not match.')
-            else:
-                p_check_result = _validate_password(context, passwd)
-                if p_check_result is not None:
-                    errors.append(p_check_result)
             if len(errors) > 0:
                 # at least one error happened; display error message and show
                 # the form again
@@ -269,7 +261,7 @@ def get_logged_in_user(context):
         if uname == '':
             clear_session_vars(context, 'login_message')
 
-        entered_password = form.get('login_passwd', '')
+        entered_password = form.get('cs_hashed_0', '')
 
         valid_uname = True
         if _validate_email(context, uname) is None:
@@ -368,8 +360,8 @@ def get_logged_in_user(context):
             # form has been filled out.  validate (mirrors javascript checks).
             email = form.get('email', '').strip()
             email2 = form.get('email2', '').strip()
-            passwd = form.get('passwd', '')
-            passwd2 = form.get('passwd2', '')
+            passwd = form.get('cs_hashed_0', '')
+            passwd2 = form.get('cs_hashed_1', '')
             name = form.get('name', '').strip()
             if name == '':
                 name = uname
@@ -403,10 +395,6 @@ def get_logged_in_user(context):
             # validate password
             if passwd != passwd2:
                 errors.append('Passwords do not match.')
-            else:
-                p_check_result = _validate_password(context, passwd)
-                if p_check_result is not None:
-                    errors.append(p_check_result)
 
             if len(errors) > 0:
                 # at least one error happened; display error message and show
@@ -619,6 +607,7 @@ def generate_password_reset_form(context):
             '\n<td style="text-align:right;">')
     out += _submit_button(['passwd', 'passwd2'],
                           'uname',
+                          [],
                           'pwdform', 'Change Password')
     out += '</td>\n</tr>'
     out += '\n</table>\n</form>'
@@ -663,6 +652,7 @@ def generate_password_change_form(context):
             '\n<td style="text-align:right;">')
     out += _submit_button(['passwd', 'passwd2', 'oldpasswd'],
                           'uname',
+                          [],
                           'pwdform', 'Change Password')
     out += '</td>\n</tr>'
     out += '\n</table>\n</form>'
@@ -705,6 +695,7 @@ def generate_login_form(context):
             '\n<td style="text-align:right;">') % last_uname
     out += _submit_button(['login_passwd'],
                           'login_uname',
+                          ['login_uname'],
                           'loginform', 'Log In')
     out += ('<td>\n</tr>'
             '\n</table>')
@@ -792,6 +783,7 @@ def generate_registration_form(context):
             '\n<td style="text-align:right;">')
     out += _submit_button(['passwd', 'passwd2'],
                           'uname',
+                          ['uname', 'email', 'email2', 'name'],
                           'regform', 'Register')
     out += ('\n</td>'
             '\n</tr>')
@@ -818,11 +810,6 @@ function _validate_password(p){
 }
 """ % (_pwd_too_short_msg)
 
-
-def _validate_password(context, p):
-    if len(p) < 5:
-        return _pwd_too_short_msg
-    return _run_validators(context.get('cs_extra_password_validators', []), p)
 
 # EMAIL VALIDATION
 
@@ -1038,10 +1025,12 @@ _passwd_confirm_msg_base_html = r"""<p>You recently submitted a request to reset
 are receiving this message in error, please ignore or delete it.</p>"""
 
 
-def _submit_button(fields, username, form, value='Submit'):
-    return ('<input type="button"'
-            ' value="%s"'
-            ' onclick="catsoop.hashlib.hash_passwords(%r, %r, %r)" />') % (value,
-                                                                   fields,
-                                                                   username,
-                                                                   form)
+def _submit_button(fields, username, preserve, form, value='Submit'):
+   base = ('<input type="button"'
+           ' id="%s_submitter"'
+           ' value="%s"'
+           ' onclick="catsoop.hashlib.hash_passwords(%r, %r, %r, %r)" />')
+   base += '<script type="text/javascript">$("#%s input").keypress'
+   base += '(function(e){console.log("hello");if(e.which == 13) $("#%s_submitter").click();});'
+   base += '</script>'
+   return base % (form, value, fields, username, preserve, form, form, form)

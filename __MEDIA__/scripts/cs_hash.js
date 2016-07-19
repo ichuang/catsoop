@@ -411,14 +411,33 @@ function catsoop_hash(username, pass){
     return ua2hex(pbkdf2(str2array(pass), str2array(username), 16384, 32));
 }
 exports.catsoop_hash = catsoop_hash;
-function cs_hash_passwords(fields, username, formId){
+function cs_hash_passwords(fields, username, preserve, formId){
+    //create a new dummy form
+    var newForm = $('<form>', {id: 'cs_realform_'+formId,
+                               action: $('#'+formId).attr('action'),
+                               method: 'POST'})
+    var curIx = 0;
     var username = $('#' + username).val();
     for (var i=0; i < fields.length; i++){
         var current = $('#' + fields[i]).val();
         var hashed = catsoop.hashlib.catsoop_hash(username, current);
-        $('#' + fields[i]).val(hashed);
+        var newID = 'cs_hashed_' + newForm.children().length;
+        var newInp = $('<input>', {type: 'hidden',
+                                   value: hashed,
+                                   name: newID,
+                                   id: newID})
+        newForm.append(newInp);
     }
-    $('#' + formId).submit();
+    for (var i=0; i < preserve.length; i++){
+        var name = preserve[i];
+        var newInp = $('<input>', {type: 'hidden',
+                                   value: $('#' + name).val(),
+                                   name: name,
+                                   id: name})
+        newForm.append(newInp);
+    }
+    $('body').append(newForm);
+    newForm.submit();
 }
 exports.hash_passwords = cs_hash_passwords;
 });
