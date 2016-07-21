@@ -1183,7 +1183,7 @@ def make_buttons(context, name):
                     '\n<button id="%(n)s_%(k)s" '
                     'class="%(k)s" '
                     'style="background-color: #FFD9D9; border-color: red;" '
-                    'onclick="cs_%(k)s(\'%(n)s\');">'
+                    'onclick="catsoop.%(k)s(\'%(n)s\');">'
                     '%(b)s</button>') % x
         # in manual grading mode, add a box and button for grading
         gmode = _get(args, 'csq_grading_mode', 'auto', str)
@@ -1214,7 +1214,7 @@ def make_buttons(context, name):
                      '<button class="grade" '
                      'style="background-color: #FFD9D9; '
                      'border-color: red;" '
-                     'onclick="cs_grade(\'%s\');">'
+                     'onclick="catsoop.grade(\'%s\');">'
                      'Submit Grade'
                      '</button></td></tr></table>') % (tpoints, output, name,
                                                        name, name, name,
@@ -1228,7 +1228,7 @@ def make_buttons(context, name):
         if buttons[k] is not None:
             out += ('\n<button id="%(n)s_%(k)s" '
                     'class="%(k)s" '
-                    'onclick="cs_%(k)s(\'%(n)s\');">'
+                    'onclick="catsoop.%(k)s(\'%(n)s\');">'
                     '%(b)s</button>') % x
     return out + aout
 
