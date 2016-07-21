@@ -17,24 +17,23 @@
 
 import json
 import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 
-SANDBOX_URL = 'https://cat-soop.org/python3-sandbox.py'
+SANDBOX_URL = 'https://cat-soop.org/cgi-bin/python3-sandbox.py'
 
 
 def run_code(context, code, options):
     code = code.replace('\r\n', '\n')
-    data = urllib.parse.urlencode({"code": code, "options": options})
+    data = urllib.parse.urlencode({"code": code, "options": options}).encode()
     request = urllib.request.Request(
         context.get('csq_sandbox_url', SANDBOX_URL), data)
     try:
         resp = urllib.request.urlopen(request, data).read()
-        resp = json.loads(resp)
+        resp = json.loads(resp.decode())
         out = resp['stdout']
         err = resp['stderr']
         fname = resp['filename']
     except:
         out = ''
-        err = ''
+        err = 'CAT-SOOP: Could not connect to %s' % SANDBOX_URL
         fname = ''
     return fname, out, err
