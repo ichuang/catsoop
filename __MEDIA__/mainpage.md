@@ -1,4 +1,17 @@
 <python>
+# This file is part of CAT-SOOP
+# Copyright (c) 2011-2016 Adam Hartz <hartz@mit.edu>
+
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the Soopycat License, version 1.
+
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the Soopycat License for more details.
+
+# You should have received a copy of the Soopycat License along with this
+# program.  If not, see <https://smatz.net/soopycat>.
+
 def link(url, text=None):
     text = text or url
     return '<a href="%s" target="_blank">%s</a>' % (url, text)
@@ -21,7 +34,7 @@ def link(url, text=None):
 CAT-SOOP is a tool for automatic collection and assessment of online exercises.
 CAT-SOOP is @{link("https://www.fsf.org/about/what-is-free-software", "free software")},
 available under the terms of the
-@{link("BASE/cs_util/license", "GNU Affero General Public License, version 3")}.
+@{link("BASE/cs_util/license", "Soopycat License, version 1")}.
 In accordance with the terms of this license, the source code of the base
 system that generated this page is available @{link("BASE/cs_util/source.zip",
 "here")} as a zip archive.
