@@ -175,7 +175,7 @@ def handle_view(context):
         log_action(context, {'action': 'view',
                              'score': lastlog.get('score', 0.0)})
 
-    page = '<link rel="stylesheet" href="__HANDLER__/default/loader.css" />'
+    page = ''
     num_questions = len(context[_n('name_map')])
     if (num_questions > 0 and _get(context, 'cs_show_due', True, bool) and
             context.get('cs_due_date', 'NEVER') != 'NEVER'):

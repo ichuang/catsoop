@@ -18,6 +18,19 @@
 ctx = {}
 csm_loader.load_global_data(ctx)
 
+
+def _hex_to_rgb(x):
+    if x.startswith('#'):
+        return _hex_to_rgb(x[1:])
+    if len(x) == 3:
+        return _hex_to_rgb(''.join(i*2 for i in x))
+    try:
+        return tuple(int(x[i*2:i*2+2], 16) for i in range(3))
+    except:
+        return (0, 0, 0)
+
+ctx['_hex_to_rgb'] = _hex_to_rgb
+
 preload_from = cs_form.get('preload', '')
 if preload_from != '':
     opath = path = [i for i in preload_from.split('/') if i != '']
