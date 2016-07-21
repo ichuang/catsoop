@@ -65,6 +65,7 @@ catsoop.doFiles = function (lastDeferred, into, files){
     }
 }
 
+
 catsoop.ajaxrequest = function (names, action){
     var fileD = new $.Deferred();
     var FILES = [];
@@ -166,7 +167,7 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, te
                            var name = dnames[ix];
                            $('#'+name+'_response').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please try again, and send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+JSON.stringify(jqXHR)+'\n'+JSON.stringify(err)+'</textarea>'+'</div>');
                            catsoop.switch_buttons(name, true);
-                            $('#'+name+'_loading').hide();
+                           $('#'+name+'_loading').hide();
                        }
                    }
                }

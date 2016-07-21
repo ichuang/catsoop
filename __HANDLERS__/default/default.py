@@ -175,7 +175,7 @@ def handle_view(context):
         log_action(context, {'action': 'view',
                              'score': lastlog.get('score', 0.0)})
 
-    page = ''
+    page = '<link rel="stylesheet" href="__HANDLER__/default/loader.css" />'
     num_questions = len(context[_n('name_map')])
     if (num_questions > 0 and _get(context, 'cs_show_due', True, bool) and
             context.get('cs_due_date', 'NEVER') != 'NEVER'):
@@ -1007,7 +1007,7 @@ def render_question(elt, context, lastsubmit):
     answer_viewed = context[_n('answer_viewed')]
     out = '\n<!--START question %s -->' % (name)
     if q.get('indiv', True) and args.get('csq_indiv', True):
-        out += '\n<div class="question" id="cs_qdiv_%s">' % name
+        out += '\n<div class="question" id="cs_qdiv_%s" style="position: static">' % name
 
     out += '\n<div id="%s_rendered_question">\n' % name
     out += context['csm_language'].source_transform_string(context, args.get(
@@ -1018,8 +1018,8 @@ def render_question(elt, context, lastsubmit):
     out += '<div>'
     out += (('\n<span id="%s_buttons">' % name) + make_buttons(context, name) +
             "</span>")
-    out += ('\n<span id="%s_loading" class="loading" style="display:none;">'
-            '<img src="BASE/images/loading.gif" /></span>') % name
+    out += ('\n<div id="%s_loading" class="loader" style="display:none;">'
+            '</div>') % name
     out += (('\n<span id="%s_score_display">' % args['csq_name']) +
             make_score_display(context, name, lastlog.get('scores', {}).get(
                 name, None)) + '</span>')
