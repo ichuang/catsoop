@@ -41,6 +41,7 @@ _Next planned release.  Currently under development._
   just as `x`.
 * Improved error pages shown on 404 File Not Found.
 * Default permissions now include the `'view'` permission.
+* Modified the default "loading" spinner to use CSS instead of an image
 
 **Deprecated:**
 
