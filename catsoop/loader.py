@@ -135,7 +135,7 @@ def cs_compile(fname, pre_code='', post_code=''):
     """
     base_fname = fname.rsplit('.', 1)[0]
     cache_tag = sys.implementation.cache_tag
-    cname = '.'.join([base_fname, cache_tag, 'pycs'])
+    cname = '.'.join([base_fname, 'pycs', cache_tag])
     try:
         # this is a 'try' block instead of a straight conditional to account
         # for cases where, e.g., cname doesn't exist.
