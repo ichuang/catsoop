@@ -16,7 +16,7 @@ cs_content_header = "SOOPYCAT LICENSE"
 cs_title = "Soopycat License"
 </python> 
 
-Version 1.0.0
+Version 1
 <br/>Copyright &copy; 2016 Adam Hartz &lt;`hartz@mit.edu`&gt;
 <br/>Everyone is permitted to copy and distribute verbatim copies of this license
 document, and changing it is allowed as long as the name is changed.
