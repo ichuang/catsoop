@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 
 # CAT-SOOP Specifics
-*.pycs
+*.pycs*
 catsoop/config.py
 
 # NOHUP
