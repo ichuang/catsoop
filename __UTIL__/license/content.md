@@ -12,7 +12,7 @@
 # You should have received a copy of the Soopycat License along with this
 # program.  If not, see <https://smatz.net/soopycat>.
 
-cs_content_header = "SOOPYCAT LICENSE" 
+cs_content_header = "SOOPYCAT LICENSE"
 cs_title = "Soopycat License"
 </python> 
 
@@ -33,7 +33,7 @@ permitted, provided that the following conditions are met:
 2. Copies in all other forms (in whole or in part, with or without
     modification) must reproduce all relevant copyright notices, this list of
     conditions and the following disclaimer in the documentation and/or other
-    materials included in the distribution.
+    materials included with the copy.
 
 3. Copies (in any form, in whole or in part, with or without modification) must
     prominently offer all users receiving them or interacting with them
@@ -43,9 +43,9 @@ permitted, provided that the following conditions are met:
     the copy through a documented plugin interface but excluding source files
     intended as input for the resulting software.
 
-    The source code must either be included in the distribution or made
-    available from a network server at no additional charge, through some
-    standard or customary means of faciliating copying of software.
+    The source code must either be included with the copy or made available
+    from a network server at no additional charge, through some standard or
+    customary means of faciliating copying of software.
 
     The source code must be provided in the preferred form for making
     modifications to it and must be licensed in its entirety at no charge to

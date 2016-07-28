@@ -47,11 +47,11 @@ material hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
 
 * CAT-SOOP is written in the @{link("http://python.org", "Python")} programming language (v3.5).
 * CAT-SOOP makes heavy use of @{link("http://jquery.com/", "jQuery")}.
-* CAT-SOOP uses @{link("https://pypi.python.org/pypi/Markdown", "a Python implementation")} of John Gruber's @{link("http://daringfireball.net/projects/markdown/", "Markdown")} markup language.
+* CAT-SOOP uses @{link("https://pypi.python.org/pypi/Markdown", "a Python implementation")} of John Gruber's @{link("http://daringfireball.net/projects/markdown/", "Markdown")} markup language, as well as @{link("https://www.crummy.com/software/BeautifulSoup/", "Beautiful Soup")}, to parse its input language.
 * CAT-SOOP uses @{link("http://khan.github.io/KaTeX/", "KaTeX")} and @{link("http://www.mathjax.org/", "MathJax")} for rendering math in the browser.
-* Expression questions use David Beazley's @{link("http://www.dabeaz.com/ply/", "Python Lex-Yacc")}.
+* Expression questions use David Beazley's @{link("http://www.dabeaz.com/ply/", "Python Lex-Yacc")} for parsing.
 * Python coding questions can optionally make use of the @{link("http://ace.ajax.org/#nav=about", "ACE")} code editor.
-* CAT-SOOP's default theme uses @{link("http://getbootstrap.com", "Bootstrap")} and the following fonts: Montserrat by Julieta Ulanovsky, Lato by Lukasz Dziedzic, and Computer Modern Typewriter by Donald Knuth.
+* CAT-SOOP's default theme uses @{link("http://getbootstrap.com", "Bootstrap")} and the following fonts: Montserrat by Julieta Ulanovsky, Lato by Łukasz Dziedzic, and Computer Modern Typewriter by Donald Knuth.
 
 
 <python>
