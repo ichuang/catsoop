@@ -370,11 +370,15 @@ def main(environment):
                     session.set_session_data(context, context['cs_sid'],
                                              context['cs_session_data'])
                     return display_page(context)
+                redir = None
                 if user_info.get('cs_reload', False):
+                    redir = '/'.join([base_context.cs_url_root] + context['cs_path_info'])
+                if redir is None:
+                    redir = user_info.get('cs_redirect', None)
+                if redir is not None:
                     session.set_session_data(context, context['cs_sid'],
                                              context['cs_session_data'])
-                    return redirect('/'.join([base_context.cs_url_root] + context[
-                        'cs_path_info']))
+                    return redirect(redir)
 
                 # ONCE WE HAVE THAT, GET USER INFORMATION
                 context['cs_user_info'] = auth.get_user_information(context)
