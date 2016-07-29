@@ -1327,13 +1327,18 @@ catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any fu
 '''
     out += '</script>'
 
+    api_tok = 'null'
+    given_tok = context.get('cs_user_info', {}).get('api_token', None)
+    if given_tok is not None:
+        api_tok = repr(given_tok)
+
     return out % {
         'skipalert': json.dumps(skip_alert),
         'allqs': list(context[_n('name_map')].keys()),
         'user': context[_n('real_uname')],
         'path': '/'.join([context['cs_url_root']] + context['cs_path_info']),
         'imp': context[_n('uname')] if context[_n('impersonating')] else '',
-        'secret': repr(context['cs_user_info']['api_token']) if 'cs_user_info' in context else 'null',
+        'secret': api_tok,
         'course': repr(context['cs_course']) if context['cs_course'] else 'null',
     }
 
