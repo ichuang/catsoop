@@ -233,6 +233,15 @@ h4 {
     font-size: 12px;
     float:left;
 }
+
+.navbar-brand a {
+    color: #fff !important;
+}
+
+.navbar-brand a:hover {
+    text-decoration: none;
+}
+
 .navbar-nav li a:hover, .navbar-nav li.active a {
     color: @{cs_base_color} !important;
     background-color: #fff !important;

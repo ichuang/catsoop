@@ -329,6 +329,8 @@ def main(environment):
             context['cs_course'] = path_info[0]
             path_info = path_info[1:]
 
+        context['cs_home_link'] = (context['cs_course'] and 'COURSE') or 'BASE'
+
         # CHECK FOR VALID CONFIGURATION
         if e is not None:
             return (('500', 'Internal Server Error'),
