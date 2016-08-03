@@ -16,6 +16,7 @@ _Next planned release.  Currently under development._
 * Added the `cs_base_color` variable, for switching the main color of the
     default theme.
 * Added syntax highlighting to code blocks, via [highlight.js](https://highlightjs.org/).
+* Added support for authentication via [OpenID Connect](http://openid.net/connect/).
 
 **Changed:**
 
