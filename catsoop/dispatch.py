@@ -346,7 +346,10 @@ def main(environment):
         context['cs_sid'], new = session.get_session_id(environment)
         if new:
             hdr = context['cs_additional_headers']
-            hdr['Set-Cookie'] = 'sid=%s' % context['cs_sid']
+            url_root = urllib.parse.urlparse(context['cs_url_root'])
+            domain = url_root.netloc.rsplit(':', 1)[0]
+            path = url_root.path or '/'
+            hdr['Set-Cookie'] = 'sid=%s; Domain=%s; Path=%s' % (context['cs_sid'], domain, path)
         session_data = session.get_session_data(context, context['cs_sid'])
         context['cs_session_data'] = session_data
 

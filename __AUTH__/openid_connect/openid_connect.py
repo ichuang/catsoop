@@ -17,22 +17,33 @@ import urllib.parse
 def get_logged_in_user(context):
     session = context['cs_session_data']
 
+    logintype = context['csm_auth'].get_auth_type_by_name(context, 'login')
+
     def generate_token():
-        a = context['csm_auth'].get_auth_type_by_name(context, 'login')
-        return a['generate_confirmation_token'](50)
+        return logintype['generate_confirmation_token'](50)
+
+    _get_base_url = logintype['_get_base_url']
 
     # TODO: log out
     # TODO: show "click here to login" page, with "remember me" link
 
     # if the session tells us someone is logged in, return their
     # information
-    if 'username' in session:
+    action = context['cs_form'].get('loginaction', None)
+    if action == 'logout':
+        context['cs_session_data'] = {}
+        return {'cs_reload': True}
+    elif 'username' in session:
         uname = session['username']
         return {'username': uname,
                 'name': session.get('name', uname),
                 'email': session.get('email', uname)}
-
-    else:
+    elif action is None:
+        context['cs_handler'] = 'passthrough'
+        context['cs_content_header'] = 'Please Log In'
+        context['cs_content'] = LOGIN_PAGE % _get_base_url(context)
+        return {'cs_render_now': True}
+    elif action == 'redirect':
         redir_url = '%s/__AUTH__/openid_connect/callback' % context['cs_url_root']
         scope = context.get('cs_openid_scope', 'openid profile email')
         state = generate_token()
@@ -51,3 +62,10 @@ def get_logged_in_user(context):
         # todo: make this redirect actually work
         qstring = urllib.parse.urlencode(get_data)
         return {'cs_redirect': '%s/authorize?%s' % (openid_url, qstring)}
+    else:
+        raise Exception("Unknown action: %r" % action)
+
+
+LOGIN_PAGE = """
+Access to this page requires logging in via OpenID Connect.  Please <a href="%s?loginaction=redirect">Log In</a> to continue.
+"""
