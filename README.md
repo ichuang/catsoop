@@ -15,8 +15,15 @@
 
 CAT-SOOP is a tool for automatic collection and assessment of online exercises,
 originally developed primarily for use in MIT's 6.01 (Introduction to
-Electrical Engineering and Computer Science).  It has since been used in
-multiple courses at MIT, and also at Olin College.
+Electrical Engineering and Computer Science via Robot Sensing, Software, and
+Control).  It has since been used in several courses:
+
+* MIT 6.01: Introduction to EECS via Robot Sensing, Software and Control
+* MIT 6.02: Introduction to EECS via Communications Networks
+* MIT 6.s08: Interconnected Embedded Systems
+* MIT 6.s080: Brief Introduction to Computer Programming in Python
+* MIT 6.003: Signals and Systems
+* Olin College MTH 2132/SCI 2032: Bayesian Inference and Reasoning
 
 No animals were harmed in the making of this CAT-SOOP.
 
