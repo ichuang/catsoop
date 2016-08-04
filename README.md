@@ -34,9 +34,8 @@ Yes\*!  CAT-SOOP is [free/libre software](https://www.gnu.org/philosophy/free-sw
 available under the terms of the Soopycat License version 1
 (see [LICENSE](https://gitlab.com/adqm/cat-soop/blob/master/LICENSE)
 file for details).  Please note that the terms of this license apply only to the
-CAT-SOOP system itself and not to any third-party software included with
-CAT-SOOP, nor to any course material hosted on a CAT-SOOP instance, unless
-explicitly stated otherwise.
+CAT-SOOP system itself and any plugins in use, but not to any course material
+hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
 
 The only requirements are [Python](https://www.python.org/) (v3.5+) and a web
 server that supports either CGI or WSGI (e.g., [Apache HTTP
