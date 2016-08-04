@@ -54,6 +54,7 @@ def do_error_message(context, msg=None):
     """
     new = dict(context)
     loader.load_global_data(new)
+    new['cs_home_link'] = 'BASE'
     if 'cs_user_info' not in new:
         new['cs_user_info'] = {}
         new['cs_username'] = None
@@ -67,7 +68,7 @@ def do_error_message(context, msg=None):
     new['cs_header'] = new.get('cs_header', '') + e
     new['cs_content_header'] = 'An Error Occurred:'
     s, h, o = dispatch.display_page(new)
-    o = o.replace(context['cs_base_logo_text'], error_500_logo)
+    o = o.replace(new['cs_base_logo_text'], error_500_logo)
     return ('500', 'Internal Server Error'), h, o
 
 
@@ -77,6 +78,7 @@ def do_404_message(context):
     """
     new = dict(context)
     loader.load_global_data(new)
+    new['cs_home_link'] = 'BASE'
     if 'cs_user_info' not in new:
         new['cs_user_info'] = {}
         new['cs_username'] = None
@@ -89,7 +91,7 @@ def do_404_message(context):
     new['cs_header'] = new.get('cs_header', '') + e
     new['cs_content_header'] = 'File/Resource Not Found'
     s, h, o = dispatch.display_page(new)
-    o = o.replace(context['cs_base_logo_text'], error_404_logo)
+    o = o.replace(new['cs_base_logo_text'], error_404_logo)
     return ('404', 'File Not Found'), h, o
 
 error_404_logo = ("\   ???????? "

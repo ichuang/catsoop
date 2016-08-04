@@ -135,7 +135,7 @@ def content_file_location(context, path):
     return None
 
 
-def serve_static_file(fname, environment=None, stream=False, streamchunk=4096):
+def serve_static_file(context, fname, environment=None, stream=False, streamchunk=4096):
     """
     Generate HTTP response to serve up a static file, or a 404 error if the
     file does not exist.  Makes use of the browser's cache when possible.
@@ -302,8 +302,9 @@ def main(environment):
 
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
         if len(path_info) > 0 and path_info[0] == '__STATIC__':
-            return serve_static_file(
-                static_file_location(context, path_info[1:]), environment)
+            return serve_static_file(context,
+                                     static_file_location(context, path_info[1:]),
+                                     environment)
 
         # LOAD FORM DATA
         if 'wsgi.input' in environment:
