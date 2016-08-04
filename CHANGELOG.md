@@ -43,6 +43,14 @@ _Next planned release.  Currently under development._
 * Improved error pages shown on 404 File Not Found.
 * Default permissions now include the `'view'` permission.
 * Modified the default "loading" spinner to use CSS instead of an image
+* `csq_check_function` can now return a dictionary mapping `'score'` to the
+    score and `'msg'` to a message to be returned, eliminating the need for
+    `csq_msg_function` when it is more convenent to compute the score and
+    message at the same time.  Alternatively, it can return a tuple `(score,
+    message)`.  The old form is still supported.
+* `csq_msg_function`, if used, can now optionally take a second argument
+    representing the solution (the message doe not need to be computed from the
+    submission alone).
 
 **Deprecated:**
 
