@@ -11,11 +11,13 @@
 # You should have received a copy of the Soopycat License along with this
 # program.  If not, see <https://smatz.net/soopycat>.
 
+import collections.abc
+
 defaults = {
     'csq_soln': '',
-    'csq_check_function': lambda sub, soln: (sub.strip() == soln.strip()),
+    'csq_check_function': lambda sub, soln: sub.strip() == soln.strip(),
     'csq_npoints': 1,
-    'csq_msg_function': lambda sub: (''),
+    'csq_msg_function': lambda sub, soln: '',
     'csq_show_check': False
 }
 
@@ -32,18 +34,34 @@ def handle_submission(submissions, **info):
     check = info['csq_check_function']
     sub = submissions[info['csq_name']]
     soln = info['csq_soln']
-    percent = float(check(sub, soln))
+    check_result = check(sub, soln)
+    if isinstance(check_result, collections.abc.Mapping):
+        score = check_result['score']
+        msg = check_result['msg']
+    elif isinstance(check_result, collections.abc.Sequence):
+        score, msg = check_result
+    else:
+        score = check_result
+        mfunc = info['csq_msg_function']
+        try:
+            msg = mfunc(sub, soln)
+        except:
+            try:
+                msg = mfunc(sub)
+            except:
+                msg = ''
+    percent = float(score)
     if info['csq_show_check']:
         if percent == 1.0:
-            msg = '<img src="BASE/images/check.png" />'
+            response = '<img src="BASE/images/check.png" />'
         elif percent == 0.0:
-            msg = '<img src="BASE/images/cross.png" />'
+            response = '<img src="BASE/images/cross.png" />'
         else:
-            msg = ''
+            response = ''
     else:
-        msg = ''
-    msg += info['csq_msg_function'](submissions[info['csq_name']])
-    return {'score': percent, 'msg': msg}
+        response = ''
+    response += msg
+    return {'score': percent, 'msg': response}
 
 
 def render_html(last_log, **info):

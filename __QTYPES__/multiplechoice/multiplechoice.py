@@ -12,14 +12,17 @@
 # program.  If not, see <https://smatz.net/soopycat>.
 
 import json
+import collections.abc
+
+def default_checkbox_checker(x, y):
+    return float(len([i for i, j in zip(x, y) if i == j])) / len(y)
 
 defaults = {
     'csq_soln': '--',
     'csq_npoints': 1,
     'csq_check_function': lambda x, y: (x == y) * 1.0,
-    'csq_checkbox_check_function':
-    lambda x, y: float(len([i for i, j in zip(x, y) if i == j])) / len(y),
-    'csq_msg_function': lambda sub: (''),
+    'csq_checkbox_check_function': default_checkbox_checker,
+    'csq_msg_function': lambda sub: '',
     'csq_options': [],
     'csq_show_check': False,
     'csq_multiplechoice_renderer': 'dropdown',
@@ -51,14 +54,34 @@ def handle_submission(submissions, **info):
         sub = int(sub)
         if info['csq_multiplechoice_soln_mode'] == 'value':
             sub = info['csq_options'][sub]
-    percent = float(check(sub, soln))
-    msg = info['csq_msg_function'](submissions[info['csq_name']])
+    check_result = check(sub, soln)
+    if isinstance(check_result, collections.abc.Mapping):
+        score = check_result['score']
+        msg = check_result['msg']
+    elif isinstance(check_result, collections.abc.Sequence):
+        score, msg = check_result
+    else:
+        score = check_result
+        mfunc = info['csq_msg_function']
+        try:
+            msg = mfunc(sub, soln)
+        except:
+            try:
+                msg = mfunc(sub)
+            except:
+                msg = ''
+    percent = float(score)
     if info['csq_show_check']:
         if percent == 1.0:
-            msg += ' <img src="BASE/images/check.png" />'
+            response = '<img src="BASE/images/check.png" />'
         elif percent == 0.0:
-            msg += ' <img src="BASE/images/cross.png" />'
-    return {'score': percent, 'msg': msg}
+            response = '<img src="BASE/images/cross.png" />'
+        else:
+            response = ''
+    else:
+        response = ''
+    response += msg
+    return {'score': percent, 'msg': response}
 
 
 def render_html(last_log, **info):

@@ -23,6 +23,7 @@ defaults.update({
 render_html = base['render_html']
 total_points = base['total_points']
 answer_display = base['answer_display']
+handle_submission = base['handle_submission']
 
 
 def markdownify(context, text):
@@ -40,24 +41,6 @@ def richtext_format(context, text, msg="Preview:"):
             '</script>') % context['csq_name']
     out += '</div>'
     return out
-
-
-def handle_submission(submissions, **info):
-    check = info['csq_check_function']
-    sub = submissions[info['csq_name']]
-    soln = info['csq_soln']
-    percent = float(check(sub, soln))
-    if info['csq_show_check']:
-        if percent == 1.0:
-            msg = '<img src="BASE/images/check.png" />'
-        elif percent == 0.0:
-            msg = '<img src="BASE/images/cross.png" />'
-        else:
-            msg = ''
-    else:
-        msg = ''
-    msg += richtext_format(info, sub, "You submitted the following text:")
-    return {'score': percent, 'msg': msg}
 
 
 checktext = "Preview"

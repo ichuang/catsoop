@@ -19,11 +19,11 @@ base, _ = tutor.question('smallbox')
 defaults = dict(base['defaults'])
 defaults.update({
     'csq_soln': '',
-    'csq_check_function':
-    lambda sub, soln: (type(sub) == type(soln)) and (sub == soln),
+    'csq_check_function': lambda sub, soln: ((type(sub) == type(soln)) and
+                                             (sub == soln)),
     'csq_input_check': lambda sub: None,
     'csq_npoints': 1,
-    'csq_msg_function': lambda sub: (''),
+    'csq_msg_function': lambda sub, soln: '',
     'csq_show_check': False,
     'csq_code_pre': '',
     'csq_mode': 'raw',
@@ -65,21 +65,38 @@ def handle_submission(submissions, **info):
         return {'score': 0.0,
                 'msg': info['csq_msg_function'](submissions[info['csq_name']])}
 
+    check = info['csq_check_function']
     try:
-        percent = float(info['csq_check_function'](sub, soln))
+        check_result = check(sub, soln)
     except:
-        percent = 0.0
+        check_result = (0.0, 'An error occurred in the checker: <pre>%s</pre>' % traceback.format_exc())
 
-    msg = ''
+    if isinstance(check_result, collections.abc.Mapping):
+        score = check_result['score']
+        msg = check_result['msg']
+    elif isinstance(check_result, collections.abc.Sequence):
+        score, msg = check_result
+    else:
+        score = check_result
+        mfunc = info['csq_msg_function']
+        try:
+            msg = mfunc(sub, soln)
+        except:
+            try:
+                msg = mfunc(sub)
+            except:
+                msg = ''
+
+    response = ''
     if info['csq_show_check']:
         if percent == 1.0:
-            msg = '<img src="BASE/images/check.png" />'
+            response = '<img src="BASE/images/check.png" />'
         elif percent == 0.0:
-            msg = '<img src="BASE/images/cross.png" />'
+            response = '<img src="BASE/images/cross.png" />'
 
-    msg += info['csq_msg_function'](submissions[info['csq_name']])
+    response += msg
 
-    return {'score': percent, 'msg': msg}
+    return {'score': percent, 'msg': response}
 
 
 def answer_display(**info):

@@ -16,16 +16,6 @@ import ast
 base, _ = tutor.question('pythonic')
 
 defaults = dict(base['defaults'])
-defaults.update({
-    'csq_soln': '',
-    'csq_input_check': lambda sub: None,
-    'csq_npoints': 1,
-    'csq_msg_function': lambda sub: (''),
-    'csq_show_check': False,
-    'csq_size': 50,
-    'csq_check_function':
-    lambda sub, soln: ((type(sub) == type(soln)) and (sub == soln))
-})
 
 render_html = base['render_html']
 total_points = base['total_points']

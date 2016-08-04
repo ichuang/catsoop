@@ -11,42 +11,22 @@
 # You should have received a copy of the Soopycat License along with this
 # program.  If not, see <https://smatz.net/soopycat>.
 
-defaults = {
-    'csq_soln': '',
-    'csq_check_function': lambda sub, soln: (sub.strip() == soln.strip()),
-    'csq_npoints': 1,
-    'csq_msg_function': lambda sub: (''),
-    'csq_rows': 10,
-    'csq_cols': 60,
-    'csq_show_check': False
-}
+import collections.abc
+
+smbox, _ = csm_tutor.question('smallbox')
+
+defaults = dict(smbox['defaults'])
+
+defaults.update({'csq_rows': 10, 'csq_cols': 60,})
 
 
 def escape(s):
     return s.replace('&', '&amp;').replace('"', '&quot;').replace(
         '<', '&lt;').replace('>', '&gt;')
 
-
-def total_points(**info):
-    return info['csq_npoints']
-
-
-def handle_submission(submissions, **info):
-    check = info['csq_check_function']
-    sub = submissions[info['csq_name']]
-    soln = info['csq_soln']
-    percent = float(check(sub, soln))
-    if info['csq_show_check']:
-        if percent == 1.0:
-            msg = '<img src="BASE/images/check.png" />'
-        elif percent == 0.0:
-            msg = '<img src="BASE/images/cross.png" />'
-        else:
-            msg = ''
-    else:
-        msg = ''
-    msg += info['csq_msg_function'](submissions[info['csq_name']])
-    return {'score': percent, 'msg': msg}
+total_points = smbox['total_points']
+answer_display = smbox['answer_display']
+handle_submission = smbox['handle_submission']
 
 
 def render_html(last_log, **info):
@@ -58,9 +38,4 @@ def render_html(last_log, **info):
     out += ' name="%s"' % info['csq_name']
     out += ' id="%s"' % info['csq_name']
     out += '>%s</textarea><br>' % escape(last_log.get(info['csq_name'], ''))
-    return out
-
-
-def answer_display(**info):
-    out = "<p>Solution: %s<p>" % (info['csq_soln'])
     return out
