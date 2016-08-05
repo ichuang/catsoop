@@ -161,13 +161,14 @@ if error is None:
     except:
         error = "Error setting user information."
 
+path = [csm_base_context.cs_url_root] + session['_openid_path']
+redirect_location = '/'.join(path)
 if error is None:
     # we made it! set session data and redirect to original page
     csm_session.set_session_data(globals(), cs_sid, session)
     cs_handler = 'redirect'
-    path = [csm_base_context.cs_url_root] + session['_openid_path']
-    redirect_location = '/'.join(path)
 else:
-    cs_handler = 'raw_response'
-    content_type = 'text/plain'
-    response = error
+    cs_handler = 'passthrough'
+    cs_content_header = 'Could Not Log You In'
+    cs_content = 'You could not be logged in to the system because of the following error:<br/><font color="red">%s</font><p>Click <a href="%s?loginaction=redirect">here</a> to try again.' % (error, redirect_location)
+    cs_footer = cs_footer.replace(cs_base_logo_text, csm_errors.error_500_logo)
