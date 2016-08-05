@@ -15,7 +15,12 @@ _Next planned release.  Currently under development._
     style).
 * Added the `cs_base_color` variable, for switching the main color of the
     default theme.
-* Added syntax highlighting to code blocks, via [highlight.js](https://highlightjs.org/).
+* Added syntax highlighting to code blocks, via
+    [highlight.js](https://highlightjs.org/).  If no language is explicitly
+    specified for syntax highlighting, the value stored in
+    `cs_default_code_language` will be used (default is no syntax highlighting;
+    explicitly setting that value to `None` will cause `highlight.js` to guess
+    the appropriate language for each block).
 * Added support for authentication via [OpenID Connect](http://openid.net/connect/).
 
 **Changed:**
