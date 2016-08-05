@@ -391,6 +391,19 @@ def handle_custom_tags(context, text):
     # math tags
     handle_math_tags(tree)
 
+    # code blocks: specific default behavior
+    default_code_class = context.get('cs_default_code_language', 'nohighlight')
+    if default_code_class is not None:
+        for i in tree.find_all('code'):
+            if i.parent.name != 'pre':
+                continue
+            if ('class' in i.attrs and
+                    (isinstance(i.attrs['class'], str) or
+                    len(i.attrs['class']) > 0)):
+                # this already has a class; skip!
+                continue
+            i.attrs['class'] = [default_code_class]
+
     return str(tree)
 
 
