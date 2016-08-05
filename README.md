@@ -49,8 +49,9 @@ Server](https://httpd.apache.org/) or
 
 ## HOW DO I GET IT?
 
-Development is carried out on a self-hosted instance of GoGS, so you can also
-clone the most recent (potentially unstable) version with the following:
+Development is carried out on a self-hosted instance of
+[GoGS](http://gogs.io/).  You can also clone the most recent (potentially
+unstable) version with the following:
 ```
 $ git clone https://cat-soop.org/git/cat-soop.git
 ```
