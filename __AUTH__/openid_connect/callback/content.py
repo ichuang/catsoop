@@ -80,15 +80,42 @@ if error is None:
                     for i in desired_scope)):
             error = scope_error
 
+    id_token, sig = resp['id_token'].rsplit('.', 1)
+
+    if error is None:
+        # verify JWT signature
+        if ctx.get('cs_openid_verify_signature', True):
+            try:
+                import jose
+            except:
+                error = ('Verifying JWT signatures requires installing '
+                         'python-jose (<tt>pip install python-jose</tt>).')
+
+        if error is None:
+            from jose import jwk
+            from jose.utils import base64url_decode
+            # get JWK from the web
+            url = '%s/jwk' % ctx.get('cs_openid_server', '')
+            try:
+                key = json.loads(urllib.request.urlopen(url).read().decode())['keys'][0]
+            except:
+                error = 'Server rejected request for JWK'
+            if 'alg' not in key:
+                key['alg'] = ctx.get('cs_openid_default_algorithm', 'RS256')
+            key = jwk.construct(key)
+            decoded_sig = base64url_decode(sig.encode())
+            if not key.verify(id_token.encode(), decoded_sig):
+                error = 'Invalid signature on JWS.'
+
+
     if error is None:
         # check information from ID Token
-        # TODO: verify signature
         def _b64_pad(s, char='='):
             missing = len(s) % 4
             if not missing:
                 return s
             return s + char*(4-missing)
-        header, body, sig = resp['id_token'].split('.')
+        header, body = id_token.split('.')
         header = _b64_pad(header)
         body = _b64_pad(body)
         try:
