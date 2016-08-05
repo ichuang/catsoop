@@ -62,43 +62,54 @@ if error is None:
     except:
         error = "Server rejected Token request."
 
-    try:
-        resp = json.loads(resp.decode())
-    except:
-        error = "Token request response was not valid JSON."
+    if error is None:
+        try:
+            resp = json.loads(resp.decode())
+        except:
+            error = "Token request response was not valid JSON."
 
     if error is None:
         # make sure we have been given authorization to access the proper
         # information
-        desired_scope = new.get('cs_openid_scope', 'openid profile email')
+        desired_scope = ctx.get('cs_openid_scope', 'openid profile email')
+        desired_scope = desired_scope.split()
         scope_error = ('You must provide CAT-SOOP access '
-                       'to the following scopes: %r') % desired_scope.split()
+                       'to the following scopes: %r') % desired_scope
         if ('id_token' not in resp or
                 any(i not in resp.get('scope', '').split()
-                    for i in desired_scope))
+                    for i in desired_scope)):
             error = scope_error
 
     if error is None:
         # check information from ID Token
         # TODO: verify signature
+        def _b64_pad(s, char='='):
+            missing = len(s) % 4
+            if not missing:
+                return s
+            return s + char*(4-missing)
         header, body, sig = resp['id_token'].split('.')
+        header = _b64_pad(header)
+        body = _b64_pad(body)
         try:
-            header = json.loads(base64.b64decode(header))
-            body = json.loads(base64.b64decode(body))
+            header = json.loads(base64.b64decode(header).decode())
+            body = json.loads(base64.b64decode(body).decode())
         except:
-            error = "Malformed header and/or body of ID token."
-        now = time.time()
-        if body['iss'] != new.get('cs_openid_server', None):
-            error = 'Invalid ID Token issuer.'
-        elif body['nonce'] != stored_nonce:
-            error = ('Suspected tampering!'
-                     'Nonce from server does not match local nonce.')
-        elif body['iat'] > now:
-            error = 'ID Token is from the future.'
-        elif now > body['exp']:
-            error = 'ID Token has expired.'
-        elif context.get('cs_openid_client_id', None) not in body['aud']:
-            error = 'ID Token is not intended for CAT-SOOP.'
+            error = "Malformed header and/or body of ID token"
+
+        if error is None:
+            now = time.time.time()
+            if body['iss'].rstrip('/') != ctx.get('cs_openid_server', None):
+                error = 'Invalid ID Token issuer.'
+            elif body['nonce'] != stored_nonce:
+                error = ('Suspected tampering!'
+                         'Nonce from server does not match local nonce.')
+            elif body['iat'] > now + 60:
+                error = 'ID Token is from the future. %r' % ((body['iat'], now),)
+            elif now > body['exp'] + 60:
+                error = 'ID Token has expired.'
+            elif ctx.get('cs_openid_client_id', None) not in body['aud']:
+                error = 'ID Token is not intended for CAT-SOOP.'
 
 if error is None:
     # get user information from server
@@ -116,7 +127,7 @@ if error is None:
     def get_username(idtoken, userinfo):
         return userinfo['preferred_username']
     try:
-        get_username = new.get('cs_openid_username_generator', get_username)
+        get_username = ctx.get('cs_openid_username_generator', get_username)
         session.update({'username': get_username(body, resp),
                         'email': resp['email'],
                         'name': resp['name']})
@@ -129,3 +140,7 @@ if error is None:
     cs_handler = 'redirect'
     path = [csm_base_context.cs_url_root] + session['_openid_path']
     redirect_location = '/'.join(path)
+else:
+    cs_handler = 'raw_response'
+    content_type = 'text/plain'
+    response = error
