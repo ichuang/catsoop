@@ -24,9 +24,6 @@ def get_logged_in_user(context):
 
     _get_base_url = logintype['_get_base_url']
 
-    # TODO: log out
-    # TODO: show "click here to login" page, with "remember me" link
-
     # if the session tells us someone is logged in, return their
     # information
     action = context['cs_form'].get('loginaction', None)
@@ -59,7 +56,6 @@ def get_logged_in_user(context):
         session['_openid_path'] = context['cs_path_info']
         session['_openid_nonce'] = nonce
         session['_openid_state'] = state
-        # todo: make this redirect actually work
         qstring = urllib.parse.urlencode(get_data)
         return {'cs_redirect': '%s/authorize?%s' % (openid_url, qstring)}
     else:
