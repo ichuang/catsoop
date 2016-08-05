@@ -80,10 +80,10 @@ if error is None:
                     for i in desired_scope)):
             error = scope_error
 
-    id_token, sig = resp['id_token'].rsplit('.', 1)
 
     if error is None:
         # verify JWT signature
+        id_token, sig = resp['id_token'].rsplit('.', 1)
         if ctx.get('cs_openid_verify_signature', True):
             try:
                 import jose
