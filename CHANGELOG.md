@@ -22,6 +22,7 @@ _Next planned release.  Currently under development._
     explicitly setting that value to `None` will cause `highlight.js` to guess
     the appropriate language for each block).
 * Added support for authentication via [OpenID Connect](http://openid.net/connect/).
+* Added support for default courses via `cs_default_course`.
 
 **Changed:**
 

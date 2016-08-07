@@ -401,12 +401,17 @@ def main(environment):
             loader.do_late_load(context, context['cs_course'], path_info,
                                 context, cfile)
         else:
-            root = context.get('cs_fs_root', base_context.cs_fs_root)
-            path = os.path.join(root, '__MEDIA__', 'mainpage.md')
-            with open(path) as f:
-                context['cs_content'] = f.read()
-            context['csm_language']._md_pre_handle(context)
-            context['cs_handler'] = 'passthrough'
+            default_course = context.get('cs_default_course', None)
+            if default_course is not None:
+                return redirect('/'.join([base_context.cs_url_root,
+                                          default_course]))
+            else:
+                root = context.get('cs_fs_root', base_context.cs_fs_root)
+                path = os.path.join(root, '__MEDIA__', 'mainpage.md')
+                with open(path) as f:
+                    context['cs_content'] = f.read()
+                context['csm_language']._md_pre_handle(context)
+                context['cs_handler'] = 'passthrough'
 
         res = tutor.handle_page(context)
 
