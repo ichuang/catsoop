@@ -447,8 +447,6 @@ _Next planned release.  Currently under development._
 * Fixed glaring bug with static file handling.
 * Fixed inheritance bug in the `pythonic` question type.
 
-**Security:**
-
 # Version 3.1.0
 
 **Added:**
