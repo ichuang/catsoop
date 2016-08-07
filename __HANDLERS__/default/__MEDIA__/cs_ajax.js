@@ -121,7 +121,7 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, te
                                     $('#'+name+'_solution_explanation').html('');
                                 }
                                 if ('save' in thisone){
-                                    $('#'+name+'_response').html('');
+                                    $('#'+name+'_message').html('');
                                 }
                                 if('answer' in thisone){
                                     $('#'+name+'_solution_container').removeClass();
@@ -134,10 +134,10 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, te
                                     catsoop.render_all_math($('#cs_qdiv_'+name)[0]);
                                 }
                                 if (thisone['error_msg'] !== undefined){
-                                    $('#'+name+'_response').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>:<br />'+thisone['error_msg']+'</div>');
+                                    $('#'+name+'_message').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>:<br />'+thisone['error_msg']+'</div>');
                                 }
                                 $('#'+name+'_score_display').html(thisone['score_display']);
-                                $('#'+name+'_response').html(thisone['response']);
+                                $('#'+name+'_message').html(thisone['message']);
                                 $('#'+name+'_nsubmits_left').html(thisone['nsubmits_left']);
                                 $('#'+name+'_buttons').html(thisone['buttons']);
                                 if(thisone['val'] !== undefined){
@@ -148,7 +148,7 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, te
                         }else{
                             catsoop.switch_buttons(name, true);
                             $('#'+name+'_loading').hide();
-                            alert('Error: no response');
+                            alert('Error: no message');
                         }
                 }catch(err){
                    if(count < 5){
@@ -162,7 +162,7 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, te
                        console.log('giving up on retrying request');
                        for(var ix in dnames){
                            var name = dnames[ix];
-                           $('#'+name+'_response').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please try again, and send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+JSON.stringify(jqXHR)+'\n'+JSON.stringify(err)+'</textarea>'+'</div>');
+                           $('#'+name+'_message').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please try again, and send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+JSON.stringify(jqXHR)+'\n'+JSON.stringify(err)+'</textarea>'+'</div>');
                            catsoop.switch_buttons(name, true);
                            $('#'+name+'_loading').hide();
                        }

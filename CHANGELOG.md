@@ -56,6 +56,8 @@ _Next planned release.  Currently under development._
 * `csq_msg_function`, if used, can now optionally take a second argument
     representing the solution (the message doe not need to be computed from the
     submission alone).
+* Replaced `"response"` field with `"message"` in JSON returned by the default
+    handler's AJAX calls, to avoid duplicate use of `"response"`.
 
 **Deprecated:**
 

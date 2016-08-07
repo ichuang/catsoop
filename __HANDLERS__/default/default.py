@@ -471,7 +471,7 @@ def handle_grade(context):
                            'timestamp': context['cs_timestamp']})
         outdict[name] = {
             'score_display': make_score_display(context, name, None),
-            'response': "<b>Grader's Comments:</b><br/><br/>%s" % comments,
+            'message': "<b>Grader's Comments:</b><br/><br/>%s" % comments,
             'score': score,
         }
 
@@ -569,7 +569,7 @@ def handle_save(context):
 
         # cache responses
         newstate['%s_score_display' % name] = out['score_display']
-        newstate['%s_response' % name] = out['response']
+        newstate['%s_message' % name] = out['message']
 
     # update problemstate log
     if len(saved_names) > 0:
@@ -619,8 +619,8 @@ def handle_check(context):
             response = exc_message(context)
 
         out['score_display'] = ''
-        out['response'] = context['csm_language'].handle_custom_tags(context,
-                                                                     response)
+        out['message'] = context['csm_language'].handle_custom_tags(context,
+                                                                    response)
 
         rerender = question.get('always_rerender', False)
         if rerender is True:
@@ -633,7 +633,7 @@ def handle_check(context):
 
         # cache responses
         newstate['%s_score_display' % name] = out['score_display']
-        newstate['%s_response' % name] = out['response']
+        newstate['%s_message' % name] = out['message']
 
     # update problemstate log
     course = context['cs_course']
@@ -715,8 +715,8 @@ def handle_submit(context):
         out['score_display'] = make_score_display(
             context, name, scores[name],
             assume_submit=True)
-        out['response'] = context['csm_language'].handle_custom_tags(context,
-                                                                     msg)
+        out['message'] = context['csm_language'].handle_custom_tags(context,
+                                                                    msg)
         out['score'] = scores[name]
 
         rerender = resp.get('rerender', False) or question.get(
@@ -748,7 +748,7 @@ def handle_submit(context):
 
         # cache responses
         newstate['%s_score_display' % name] = out['score_display']
-        newstate['%s_response' % name] = out['response']
+        newstate['%s_message' % name] = out['message']
 
     # update score
     if any(scores[i] is None for i in scores):
@@ -1048,10 +1048,10 @@ def render_question(elt, context, lastsubmit):
     out += '\n</div>'
     out += '\n</div>'
 
-    out += '\n<div id="%s_response">' % args['csq_name']
+    out += '\n<div id="%s_message">' % args['csq_name']
 
     gmode = _get(args, 'csq_grading_mode', 'auto', str)
-    ll = context[_n('last_log')].get('%s_response' % name, '')
+    ll = context[_n('last_log')].get('%s_message' % name, '')
     if gmode == 'manual':
         q, args = context[_n('name_map')][name]
         lastlog = get_manual_grading_entry(context, name) or {}
