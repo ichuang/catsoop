@@ -16,10 +16,11 @@ import platform
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
+course = cs_form.get('course', None)
 
 def keep_file(full, base):
     # ignore compiled python files
-    if base.endswith('.pyc') or base.endswith('.pycs'):
+    if base.endswith('.pyc') or '.pycs' in base:
         return False
     # ignore vim temporary files and swap files
     if base.endswith('~') or base.endswith('.swp'):
@@ -38,9 +39,23 @@ def keep_file(full, base):
         return False
     return True
 
+def add_files_to_zip(zipfile, base_dir, zip_base):
+    for root, dirs, files in os.walk(base_dir):
+        to_remove = set()
+        for d in dirs:
+            if d.startswith('.'):
+                to_remove.add(d)
+        for d in to_remove:
+            dirs.remove(d)
+        for f in files:
+            fullname = os.path.join(root, f)
+            if keep_file(fullname, f):
+                name = fullname.replace(base_dir, zip_base)
+                zipfile.write(fullname, name)
+
 tmp = os.environ.get('TEMP',cs_fs_root) if platform.system() == 'Windows' else '/tmp'
 
-cache_fname = os.path.join(tmp, '.catsoop-source-%s.zip' % hash(cs_fs_root))
+cache_fname = os.path.join(tmp, '.catsoop-source-%s.zip' % hash((cs_fs_root, course)))
 regenerate = False
 if not os.path.isfile(cache_fname):
     regenerate = True
@@ -53,18 +68,23 @@ else:
 if regenerate:
     with csm_tools.filelock.FileLock(cache_fname) as flock:
         outfile = ZipFile(cache_fname, 'w', ZIP_DEFLATED)
-        for root, dirs, files in os.walk(cs_fs_root):
-            to_remove = set()
-            for d in dirs:
-                if d.startswith('.'):
-                    to_remove.add(d)
-            for d in to_remove:
-                dirs.remove(d)
-            for f in files:
-                fullname = os.path.join(root, f)
-                if keep_file(fullname, f):
-                    name = fullname.replace(cs_fs_root, 'cat-soop')
-                    outfile.write(fullname, name)
+        add_files_to_zip(outfile, cs_fs_root, 'cat-soop-src/cat-soop')
+        now = csm_time.from_detailed_timestamp(cs_timestamp)
+        now = csm_time.long_timestamp(now).replace('; ', ' at')
+        if course is None:
+            outfile.writestr('cat-soop-src/README.catsoop-source',
+                             SOURCE_README_NOCOURSE % (cs_url_root, now))
+        else:
+            course_name = '...'
+            outfile.writestr('cat-soop-src/README.catsoop-source',
+                             SOURCE_README % (cs_url_root, now,
+                                              course_name,
+                                              course))
+            plugins_base = os.path.join(cs_data_root, 'courses',
+                                        course, '__PLUGINS__')
+            add_files_to_zip(outfile,
+                             plugins_base,
+                             'cat-soop-src/%s_plugins' % course)
         outfile.close()
 
 with csm_tools.filelock.FileLock(cache_fname) as flock:
