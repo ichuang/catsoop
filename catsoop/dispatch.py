@@ -221,7 +221,7 @@ def _real_url_helper(context, url):
             pre = u + new
     elif (url.startswith('__HANDLER__') or
           url.startswith('__QTYPE__') or
-          url.startswith('__PLUGIN__'):
+          url.startswith('__PLUGIN__')):
         pre = u
         end = [url]
     else:
@@ -337,7 +337,13 @@ def main(environment):
             context['cs_course'] = path_info[0]
             path_info = path_info[1:]
 
-        context['cs_home_link'] = (context['cs_course'] and 'COURSE') or 'BASE'
+        course = context['cs_course']
+        if course is None:
+            context['cs_home_link'] = 'BASE'
+            context['cs_source_qstring'] = ''
+        else:
+            context['cs_home_link'] = 'COURSE'
+            context['cs_source_qstring'] = '?course=%s' % course
 
         # CHECK FOR VALID CONFIGURATION
         if e is not None:
