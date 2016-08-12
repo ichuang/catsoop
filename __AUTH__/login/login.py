@@ -1027,6 +1027,6 @@ def _submit_button(fields, username, preserve, form, value='Submit'):
            ' value="%s"'
            ' onclick="catsoop.hashlib.hash_passwords(%r, %r, %r, %r)" />')
    base += '<script type="text/javascript">$("#%s input").keypress'
-   base += '(function(e){console.log("hello");if(e.which == 13) $("#%s_submitter").click();});'
+   base += '(function(e){if(e.which == 13) $("#%s_submitter").click();});'
    base += '</script>'
    return base % (form, value, fields, username, preserve, form, form, form)
