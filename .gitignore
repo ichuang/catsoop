@@ -66,6 +66,7 @@ docs/_build/
 # PyBuilder
 target/
 
-# vim temp files
-*.swp
+# vim/emacs temp files
+*.sw[po]
 *~
+\#*\#

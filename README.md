@@ -32,7 +32,7 @@ No animals were harmed in the making of this CAT-SOOP.
 
 Yes\*!  CAT-SOOP is [free/libre software](https://www.gnu.org/philosophy/free-sw.html),
 available under the terms of the Soopycat License version 1
-(see [LICENSE](https://gitlab.com/adqm/cat-soop/blob/master/LICENSE)
+(see [LICENSE](https://smatz.net/git/cat-soop/cat-soop/src/master/LICENSE)
 file for details).  Please note that the terms of this license apply only to the
 CAT-SOOP system itself and any plugins in use, but not to any course material
 hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
@@ -49,17 +49,19 @@ Server](https://httpd.apache.org/) or
 
 ## HOW DO I GET IT?
 
-Development is carried out on Gitlab.com, so you can also clone the most
-recent (potentially unstable) version with the following:
+Development is carried out on a self-hosted instance of
+[GoGS](http://gogs.io/).  You can also clone the most recent (potentially
+unstable) version with the following:
 ```
-$ git clone https://gitlab.com/adqm/cat-soop.git
-```
-
-If you have SSH keys on Gitlab.com, you can clone instead with:
-```
-$ git clone git@gitlab.com:adqm/cat-soop.git
+$ git clone https://cat-soop.org/git/cat-soop.git
 ```
 
+If you have SSH keys on the GoGS instance, you can clone instead with:
+```
+$ git clone git@cat-soop.org:cat-soop/cat-soop.git
+```
+
+You can also browse the source code online at https://cat-soop.org/repo
 
 ## IS IT ANY GOOD?
 

@@ -107,13 +107,11 @@ def question(context, qtype, **kwargs):
     """
     try:
         course = context['cs_course']
-        qtypes_folder = os.path.join(
-            context.get('cs_data_root', base_context.cs_data_root), 'courses', course,
-            '__QTYPES__')
-        loc = os.path.join(qtypes_folder, qtype)
-        fname = os.path.join(loc, '%s.py' % qtype)
-        if not os.path.isfile(fname):
-            raise Exception  # force into except block
+        fname = os.path.join(context.get('cs_data_root',
+                                         base_context.cs_data_root),
+                             'courses', course,
+                             '__PLUGINS__', qtype, 'qtype.py')
+        assert os.path.isfile(fname)
     except:
         qtypes_folder = os.path.join(
             context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__')
@@ -151,18 +149,18 @@ def handler(context, handler, check_course=True):
         if i.startswith('csm_'):
             new[i] = new[i[4:]] = context[i]
     try:
-        if not check_course:
-            raise Exception
+        assert check_course
         course = context['cs_course']
-        fname = os.path.join(
-            context.get('cs_data_root', base_context.cs_data_root), 'courses', course,
-            '__HANDLERS__', handler, '%s.py' % handler)
-        if not os.path.isfile(fname):
-            raise Exception
+        fname = os.path.join(context.get('cs_data_root',
+                                         base_context.cs_data_root),
+                             'courses', course,
+                             '__PLUGINS__', handler, 'handler.py')
+        assert os.path.isfile(fname)
     except:
-        fname = os.path.join(
-            context.get('cs_fs_root', base_context.cs_fs_root), '__HANDLERS__', handler,
-            '%s.py' % handler)
+        fname = os.path.join(context.get('cs_fs_root',
+                                         base_context.cs_fs_root),
+                             '__HANDLERS__', handler,
+                             '%s.py' % handler)
     code = loader.cs_compile(fname)
     exec(code, new)
     return new

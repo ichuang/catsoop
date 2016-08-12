@@ -39,24 +39,30 @@ def static_file_location(context, path):
     Used by serve_static_file.
     '''
     loc = ''
-    rest = []
+    rest = path[2:]
     if path[0] == '__BASE__':
         # serving from base
-        loc = os.path.join(
-            context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__')
+        loc = os.path.join(context.get('cs_fs_root',
+                                       base_context.cs_fs_root),
+                           '__MEDIA__')
         rest = path[1:]
+    elif path[0] == '__PLUGIN__':
+        # serving from plugin
+        course = context.get('cs_course', '')
+        loc = os.path.join(context.get('cs_data_root',
+                                       base_context.cs_data_root),
+                           'courses', course, '__PLUGINS__', path[1],
+                           '__MEDIA__')
     elif path[0] == '__HANDLER__':
-        # serving from atype
-        loc = os.path.join(
-            context.get('cs_fs_root', base_context.cs_fs_root), '__HANDLERS__', path[1],
-            '__MEDIA__')
-        rest = path[2:]
+        # serving from handler
+        loc = os.path.join(context.get('cs_fs_root',
+                                       base_context.cs_fs_root),
+                           '__HANDLERS__', path[1], '__MEDIA__')
     elif path[0] == '__QTYPE__':
         # serving from qtype
-        loc = os.path.join(
-            context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__', path[1],
-            '__MEDIA__')
-        rest = path[2:]
+        loc = os.path.join(context.get('cs_fs_root',
+                                       base_context.cs_fs_root),
+                           '__QTYPES__', path[1], '__MEDIA__')
     else:
         # preprocess the path to prune out 'dots' and 'double-dots'
         course = path[0]
@@ -75,8 +81,9 @@ def static_file_location(context, path):
 
         # trace up the path to find the lowest point that has a
         # __MEDIA__ directory
-        basepath = os.path.join(
-            context.get('cs_data_root', base_context.cs_data_root), 'courses', course)
+        basepath = os.path.join(context.get('cs_data_root',
+                                            base_context.cs_data_root),
+                                'courses', course)
         for ix in range(len(newpath) - 1, -1, -1):
             loc = os.path.join(*([basepath] + newpath[:ix] + ['__MEDIA__']))
             rest = newpath[ix:]
@@ -212,7 +219,9 @@ def _real_url_helper(context, url):
             pre = u2 + new
         else:
             pre = u + new
-    elif url.startswith('__HANDLER__') or url.startswith('__QTYPE__'):
+    elif (url.startswith('__HANDLER__') or
+          url.startswith('__QTYPE__') or
+          url.startswith('__PLUGIN__')):
         pre = u
         end = [url]
     else:
@@ -229,9 +238,7 @@ def get_real_url(context, url):
     u = urllib.parse.urlparse(url)
     original = urllib.parse.urlunparse(u[:3] + ('', '', ''))
     new_url = '/'.join(_real_url_helper(context, original))
-    u = ('',
-         '',
-         new_url, ) + u[3:]
+    u = ('', '', new_url, ) + u[3:]
     return urllib.parse.urlunparse(u)
 
 
@@ -330,7 +337,13 @@ def main(environment):
             context['cs_course'] = path_info[0]
             path_info = path_info[1:]
 
-        context['cs_home_link'] = (context['cs_course'] and 'COURSE') or 'BASE'
+        course = context['cs_course']
+        if course is None:
+            context['cs_home_link'] = 'BASE'
+            context['cs_source_qstring'] = ''
+        else:
+            context['cs_home_link'] = 'COURSE'
+            context['cs_source_qstring'] = '?course=%s' % course
 
         # CHECK FOR VALID CONFIGURATION
         if e is not None:
@@ -401,12 +414,17 @@ def main(environment):
             loader.do_late_load(context, context['cs_course'], path_info,
                                 context, cfile)
         else:
-            root = context.get('cs_fs_root', base_context.cs_fs_root)
-            path = os.path.join(root, '__MEDIA__', 'mainpage.md')
-            with open(path) as f:
-                context['cs_content'] = f.read()
-            context['csm_language']._md_pre_handle(context)
-            context['cs_handler'] = 'passthrough'
+            default_course = context.get('cs_default_course', None)
+            if default_course is not None:
+                return redirect('/'.join([base_context.cs_url_root,
+                                          default_course]))
+            else:
+                root = context.get('cs_fs_root', base_context.cs_fs_root)
+                path = os.path.join(root, '__MEDIA__', 'mainpage.md')
+                with open(path) as f:
+                    context['cs_content'] = f.read()
+                context['csm_language']._md_pre_handle(context)
+                context['cs_handler'] = 'passthrough'
 
         res = tutor.handle_page(context)
 

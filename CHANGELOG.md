@@ -22,6 +22,7 @@ _Next planned release.  Currently under development._
     explicitly setting that value to `None` will cause `highlight.js` to guess
     the appropriate language for each block).
 * Added support for authentication via [OpenID Connect](http://openid.net/connect/).
+* Added support for default courses via `cs_default_course`.
 
 **Changed:**
 
@@ -56,6 +57,8 @@ _Next planned release.  Currently under development._
 * `csq_msg_function`, if used, can now optionally take a second argument
     representing the solution (the message doe not need to be computed from the
     submission alone).
+* Replaced `"response"` field with `"message"` in JSON returned by the default
+    handler's AJAX calls, to avoid duplicate use of `"response"`.
 
 **Deprecated:**
 
@@ -444,8 +447,6 @@ _Next planned release.  Currently under development._
     impersonatee.
 * Fixed glaring bug with static file handling.
 * Fixed inheritance bug in the `pythonic` question type.
-
-**Security:**
 
 # Version 3.1.0
 
