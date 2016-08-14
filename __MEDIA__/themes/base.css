@@ -311,6 +311,18 @@ footer .glyphicon {
   }
 }
 
+<python>
+clip = lambda x, lo=0, hi=1: min(hi, max(x, lo))
+base_hsv = _rgb_to_hsv(_hex_to_rgb(cs_base_color))
+light_hsv = (base_hsv[0], clip(base_hsv[1]-0.2), clip(base_hsv[2]+0.2))
+cs_light_color = _rgb_to_hex(_hsv_to_rgb(light_hsv))
+</python>
+
+.btn-catsoop{color:#fff;background-color:@{cs_base_color};border-color:#000000}
+.btn-catsoop.focus,.btn-catsoop:focus{color:#fff;background-color:@{cs_light_color};border-color:#00000}
+.btn-catsoop:hover{color:#fff;background-color:@{cs_light_color};border-color:#000000}
+.btn-catsoop.active.focus,.btn-catsoop.active:focus,.btn-catsoop.active:hover,.btn-catsoop:active.focus,.btn-catsoop:active:focus,.btn-catsoop:active:hover,.open>.dropdown-toggle.btn-catsoop.focus,.open>.dropdown-toggle.btn-catsoop:focus,.open>.dropdown-toggle.btn-catsoop:hover{color:@{cs_base_color};background-color:#ffffff;border-color:#000000}
+.btn-catsoop.active,.btn-catsoop:active,.open>.dropdown-toggle.btn-catsoop{background-image:none}
 
 
 pre {
