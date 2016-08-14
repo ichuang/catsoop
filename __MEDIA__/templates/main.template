@@ -24,7 +24,7 @@ var catsoop = {{}};
 </script>
 
 <!-- Additional styling specific for course-->
-<link rel="stylesheet" type="text/css" href="BASE/cs_util/process_theme?theme={cs_theme}&preload={cs_original_path}" />
+<link rel="stylesheet" type="text/css" href="{cs_theme}" />
 
 <!-- load in katex and mathjax, and CAT-SOOP-specific math rendering  -->
 <script type="text/javascript" src="BASE/scripts/katex/katex.min.js"></script>

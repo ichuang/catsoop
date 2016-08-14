@@ -71,6 +71,11 @@ cs_base_color = "#0000CC"
 Special: The base color to use to customize the main theme.
 """
 
+cs_process_theme = True
+"""
+Special: Whether the theme should be "processed" by, e.g., evaluating Python code
+"""
+
 cs_welcome_message = ""
 """
 Special: Welcome message displayed next to title in base theme.

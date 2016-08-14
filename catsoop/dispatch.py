@@ -436,7 +436,12 @@ def main(environment):
             return res
         elif 'cs_post_handle' in context:
             context['cs_post_handle'](context)
-
+        if context['cs_process_theme']:
+            context['cs_theme'] = ("%s/cs_util/process_theme"
+                                   "?theme=%s"
+                                   "&preload=%s") % (context['cs_url_root'],
+                                                     context['cs_theme'],
+                                                     context['cs_original_path'])
         out = display_page(context)  # tweak and display HTML
 
         session_data = context['cs_session_data']
