@@ -11,6 +11,8 @@
 # You should have received a copy of the Soopycat License along with this
 # program.  If not, see <https://smatz.net/soopycat>.
 
+import colorsys
+
 ctx = {}
 csm_loader.load_global_data(ctx)
 
@@ -25,7 +27,23 @@ def _hex_to_rgb(x):
     except:
         return (0, 0, 0)
 
+def _hex(n):
+    n = int(n)
+    return hex(n)[2:4]
+
+def _rgb_to_hex(tup):
+    return '#%s%s%s' % tuple(map(_hex, tup))
+
+def _rgb_to_hsv(tup):
+    return colorsys.rgb_to_hsv(*(i/255 for i in tup))
+
+def _hsv_to_rgb(tup):
+    return tuple(int(i*255) for i in colorsys.hsv_to_rgb(*tup))
+
 ctx['_hex_to_rgb'] = _hex_to_rgb
+ctx['_rgb_to_hex'] = _rgb_to_hex
+ctx['_rgb_to_hsv'] = _rgb_to_hsv
+ctx['_hsv_to_rgb'] = _hsv_to_rgb
 
 preload_from = cs_form.get('preload', '')
 if preload_from != '':
