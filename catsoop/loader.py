@@ -92,6 +92,17 @@ def get_course_fs_location(context, course, join=True):
     return rtn
 
 
+def spoof_early_load(path):
+    ctx = {}
+    load_global_data(ctx)
+    opath = path
+    ctx['cs_course'] = path[0]
+    path = path[1:]
+    cfile = ctx['csm_dispatch'].content_file_location(ctx, opath)
+    do_early_load(ctx, ctx['cs_course'], path, ctx, cfile)
+    return ctx
+
+
 def do_early_load(context, course, path, into, content_file=None):
     """
     Load data from preload.py in the appropriate directories for this request.
