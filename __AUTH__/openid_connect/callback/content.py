@@ -155,9 +155,10 @@ if error is None:
         return userinfo['preferred_username']
     try:
         get_username = ctx.get('cs_openid_username_generator', get_username)
-        session.update({'username': get_username(body, resp),
-                        'email': resp['email'],
-                        'name': resp['name']})
+        openid_info = {'username': get_username(body, resp),
+                       'email': resp['email'],
+                       'name': resp['name']}
+        session.update(openid_info)
     except:
         error = "Error setting user information."
 
@@ -166,6 +167,8 @@ redirect_location = '/'.join(path)
 if error is None:
     # we made it! set session data and redirect to original page
     csm_session.set_session_data(globals(), cs_sid, session)
+    csm_cslog.overwrite_log(None, session['username'],
+                            'extra_info', openid_info)
     cs_handler = 'redirect'
 else:
     cs_handler = 'passthrough'
