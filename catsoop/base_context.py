@@ -212,7 +212,6 @@ for i in cs_all_pieces:
 for i in cs_all_tools:
     exec('from .tools import %s' % i)
     exec('csm_tools.%s = %s' % (i,i))
-    print(i, eval('csm_tools.%s' % i))
 
 # Checks for valid Configuration
 
