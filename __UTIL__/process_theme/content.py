@@ -29,12 +29,8 @@ ctx['_hex_to_rgb'] = _hex_to_rgb
 
 preload_from = cs_form.get('preload', '')
 if preload_from != '':
-    opath = path = [i for i in preload_from.split('/') if i != '']
-    course = path[0]
-    ctx['cs_course'] = course
-    path = path[1:]
-    cfile = csm_dispatch.content_file_location(ctx, opath)
-    csm_loader.do_early_load(ctx, course, path, ctx, cfile)
+    path = [i for i in preload_from.split('/') if i != '']
+    ctx.update(csm_loader.spoof_early_load(path))
 
 original_loc = cs_form.get('theme', 'BASE/themes/base.css')
 temp = csm_dispatch._real_url_helper(ctx, original_loc)
