@@ -111,6 +111,7 @@ def question(context, qtype, **kwargs):
                                          base_context.cs_data_root),
                              'courses', course,
                              '__PLUGINS__', qtype, 'qtype.py')
+        loc = os.path.dirname(fname)
         assert os.path.isfile(fname)
     except:
         qtypes_folder = os.path.join(
@@ -134,6 +135,7 @@ def question(context, qtype, **kwargs):
               'render_html', 'answer_display'}:
         if i in new:
             new[i] = _wrapped_defaults_maker(new, i)
+    new['qtype'] = qtype
     return (new, kwargs)
 
 
