@@ -92,6 +92,10 @@ def get_logged_in_user(context):
             # if no token found, create a new one.
             tok = api.initialize_api_token(context, regular_user)
         regular_user['api_token'] = tok
+
+        extra_info = cslog.most_recent(None, regular_user['username'],
+                                       'extra_info', {})
+        regular_user.update(extra_info)
     return regular_user
 
 

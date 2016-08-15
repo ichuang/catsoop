@@ -46,5 +46,6 @@ def get_logged_in_user(context):
         log = context['csm_cslog'].most_recent(None, 'api_tokens',
                                                '%s' % tok, None)
         if log is not None:
+            log['api_token'] = tok
             return log
     return None
