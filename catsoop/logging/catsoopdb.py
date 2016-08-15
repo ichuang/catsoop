@@ -22,7 +22,8 @@ import random
 import string
 
 from .. import base_context
-from ..tools.filelock import FileLock
+
+FileLock = base_context.csm_tools.filelock.FileLock
 
 SEP_CHARS = (string.ascii_letters + string.digits).encode()
 

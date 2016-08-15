@@ -21,11 +21,9 @@ import os
 import time
 import errno
 import importlib
+import tempfile
 
-from .. import base_context
-importlib.reload(base_context)
-
-FILELOCK_DIR = os.path.join(base_context.cs_data_root, "__LOCKS__")
+FILELOCK_DIR = tempfile.TemporaryDirectory(prefix='catsoop_filelocks').name
 """
 The directory where file locks will be stored.
 """

@@ -4,5 +4,5 @@
 __version__ = '3.7'
 __all__ = ['lex','yacc']
 
-import lex as lex
-import yacc as yacc
+from . import lex as lex
+from . import yacc as yacc

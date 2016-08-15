@@ -202,10 +202,17 @@ cs_all_pieces = ['api', 'auth', 'base_context', 'dispatch', 'errors',
                  'language', 'loader', 'logging', 'mail', 'session', 'time',
                  'tools', 'tutor']
 
+cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4']
+
 for i in cs_all_pieces:
     if i != 'base_context':
         exec('from . import %s' % i)
         exec('csm_%s = %s' % (i,i))
+
+for i in cs_all_tools:
+    exec('from .tools import %s' % i)
+    exec('csm_tools.%s = %s' % (i,i))
+    print(i, eval('csm_tools.%s' % i))
 
 # Checks for valid Configuration
 
