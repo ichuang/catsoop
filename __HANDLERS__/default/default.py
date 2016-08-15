@@ -53,11 +53,25 @@ def handle(context):
                      'unlock': handle_unlock,
                      'grade': handle_grade,
                      'passthrough': lambda c: '',
-                     'new_seed': handle_new_seed, }
+                     'new_seed': handle_new_seed,
+                     'list_questions': handle_list_questions,
+                     'get_state': handle_get_state,
+                     }
 
     action = context[_n('action')]
     return mode_handlers.get(action, _unknown_handler(action))(context)
 
+def handle_list_questions(context):
+    types = {k: v[0]['qtype'] for k,v in context[_n('name_map')].items()}
+    order = list(context[_n('name_map')])
+    return make_return_json(context, {'order': order, 'types': types}, [])
+
+def handle_get_state(context):
+    ll = context[_n('last_log')]
+    for i in ll:
+        if isinstance(ll[i], set):
+            ll[i] = list(ll[i])
+    return make_return_json(context, ll, [])
 
 def handle_copy_seed(context):
     if context[_n('impersonating')]:
@@ -408,8 +422,7 @@ def handle_lock(context):
         locked.add(name)
 
         # automatically view the answer if the option is set
-        if 'lock' in _get_auto_view(args) and _get(
-                args, 'csq_allow_viewanswer', True, bool):
+        if 'lock' in _get_auto_view(args) and q.get('allow_viewanswer', True) and _get(args, 'csq_allow_viewanswer', True, bool):
             c = dict(context)
             c[_n('question_names')] = [name]
             o = json.loads(handle_viewanswer(c)[2])
@@ -681,10 +694,18 @@ def handle_submit(context):
             name = name[2:].rsplit('_', 1)[0]
         if name in names_done:
             continue
+
+
         names_done.add(name)
         newstate['last_submit_times'][name] = context['cs_timestamp']
         out = {}
         sub = context[_n('form')].get(name, '')
+
+        error = submit_msg(context, context[_n('perms')], name)
+        if error is not None:
+            out['error_msg'] = error
+            outdict[name] = out
+            continue
 
         # if we are here, no errors occurred.  go ahead with checking.
         nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
@@ -726,14 +747,25 @@ def handle_submit(context):
                                                       **args)
         elif rerender:
             out['rerender'] = rerender
+
         outdict[name] = out
+
+        if resp.get('lock', False):
+            c = dict(context)
+            c[_n('question_names')] = [name]
+            o = json.loads(handle_lock(c)[2])
+            ll = context['csm_cslog'].most_recent(
+                context['cs_course'], context.get('cs_username', 'None'),
+                context[_n('logname_state')], {})
+            newstate['locked'] = ll.get('locked', set())
+            outdict[name].update(o[name])
 
         # auto view answer if the option is set
         if 'submit_all' not in context[_n('orig_perms')]:
             x = nsubmits_left(context, name)
-            if (((out['score'] == 1 and 'perfect' in _get_auto_view(args)) or
+            if (question.get('allow_viewanswer', True) and (((out['score'] == 1 and 'perfect' in _get_auto_view(args)) or
                  (x[0] == 0 and 'nosubmits' in _get_auto_view(args))) and
-                    _get(args, 'csq_allow_viewanswer', True, bool)):
+                    _get(args, 'csq_allow_viewanswer', True, bool))):
                 # this is a hack...
                 c = dict(context)
                 c[_n('question_names')] = [name]
@@ -844,7 +876,9 @@ def viewanswer_msg(context, perms, name):
     _, qargs = namemap[name]
     error = None
 
-    if ('submit' not in perms and 'submit_all' not in perms):
+    if not _.get('allow_viewanswer', True):
+        error = 'You cannot view the answer to this type of question.'
+    elif ('submit' not in perms and 'submit_all' not in perms):
         error = 'You are not allowed to view the answer to this question.'
     elif name in ansviewed:
         error = 'You have already viewed the answer for this question.'
@@ -865,7 +899,9 @@ def save_msg(context, perms, name):
     i = context[_n('impersonating')]
     _, qargs = namemap[name]
     error = None
-    if 'submit' not in perms and 'submit_all' not in perms:
+    if not _.get('allow_save', True):
+        error = 'You cannot save this type of question.'
+    elif 'submit' not in perms and 'submit_all' not in perms:
         error = 'You are not allowed to check answers to this question.'
     elif name not in namemap:
         error = ('No question with name %s.  '
@@ -930,7 +966,11 @@ def submit_msg(context, perms, name):
     i = context[_n('impersonating')]
     _, qargs = namemap[name]
     error = None
-    if 'submit' not in perms and 'submit_all' not in perms:
+    if not _.get('allow_submit', True):
+        error = 'You cannot submit this type of question.'
+    if (not _.get('allow_self_submit', True)) and 'real_user' not in context['cs_user_info']:
+        error = 'You cannot submit this type of question yourself.'
+    elif 'submit' not in perms and 'submit_all' not in perms:
         error = 'You are not allowed to submit answers to this question.'
     elif name not in namemap:
         error = ('No question with name %s.  '
@@ -1003,7 +1043,7 @@ def render_question(elt, context, lastsubmit):
     answer_viewed = context[_n('answer_viewed')]
     out = '\n<!--START question %s -->' % (name)
     if q.get('indiv', True) and args.get('csq_indiv', True):
-        out += '\n<div class="question" id="cs_qdiv_%s" style="position: static">' % name
+        out += '\n<div class="question question-%s" id="cs_qdiv_%s" style="position: static">' % (q['qtype'], name)
 
     out += '\n<div id="%s_rendered_question">\n' % name
     out += context['csm_language'].source_transform_string(context, args.get(
@@ -1078,6 +1118,9 @@ def render_question(elt, context, lastsubmit):
 def nsubmits_left(context, name):
     nused = context[_n('nsubmits_used')].get(name, 0)
     q, args = context[_n('name_map')][name]
+
+    if not q.get('allow_submit', True) or not q.get('allow_self_submit', True):
+        return 0, ''
 
     info = q.get('defaults', {})
     info.update(args)
@@ -1283,7 +1326,7 @@ def pre_handle(context):
 
     # what is the user trying to do?
     context[_n('action')] = context['cs_form'].get('action', 'view').lower()
-    if context[_n('action')] in ('view', 'activate', 'passthrough'):
+    if context[_n('action')] in ('view', 'activate', 'passthrough', 'list_questions', 'get_state'):
         context[_n('form')] = context['cs_form']
     else:
         names = context['cs_form'].get('names', "[]")
