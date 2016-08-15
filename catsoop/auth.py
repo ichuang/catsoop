@@ -152,5 +152,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
         into['username'] = into['name'] = context['cs_username']
         into['role'] = None
         into['permissions'] = []
+        into['api_token'] = context['csm_cslog'].most_recent(None, into['username'],
+                                                             'api_token', None)
         into = get_user_information(context)
     return into
