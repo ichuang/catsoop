@@ -23,6 +23,8 @@ _Next planned release.  Currently under development._
     the appropriate language for each block).
 * Added support for authentication via [OpenID Connect](http://openid.net/connect/).
 * Added support for default courses via `cs_default_course`.
+* Added the `list_questions` and `get_state` API endpoints to the default handler.
+* Added an easier way to spoof context loading with `loader.spoof_early_load`.
 
 **Changed:**
 
