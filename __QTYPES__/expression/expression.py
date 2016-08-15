@@ -261,7 +261,7 @@ def _implicit_multiplication(context):
 
 
 def _get_parser(context):
-    return _get_syntax_module(context).parser(csm_csply.lex, csm_csply.yacc)
+    return _get_syntax_module(context).parser(csm_tools.ply.lex, csm_tools.ply.yacc)
 
 
 def handle_submission(submissions, **info):
@@ -286,7 +286,7 @@ def handle_submission(submissions, **info):
 
         result = False
         for soln in solns:
-            for attempt in xrange(info['csq_num_trials']):
+            for attempt in range(info['csq_num_trials']):
                 _sub_names = _get_all_names(sub)
                 _sol_names = _get_all_names(soln)
                 if info['csq_error_on_unknown_variable']:
@@ -344,7 +344,7 @@ def get_display(info, name, last, reparse=True, extra_msg=''):
     last = '<displaymath>%s</displaymath>' % tree2tex(info, funcs, tree)[0]
     #except:
     #    last = '<font color="red">ERROR: Could not interpret your input</font>'
-    last += csm_loader.source_transform_string(info, extra_msg)
+    last += csm_language.source_transform_string(info, extra_msg)
     out = '<div id="expr%s">Your entry was parsed as:<br/>%s</div>' % (name,
                                                                        last)
     out += '<script type="text/javascript">cs_render_all_math($("#expr%s"), true)</script>' % name
@@ -468,7 +468,7 @@ def call2tex(context, funcs, c):
         new_c[1] = tree2tex(context, funcs, c[1])[0]
         new_c[2] = [tree2tex(context, funcs, i)[0] for i in c[2]]
         o = funcs['_default'][1](context, new_c)
-    if isinstance(o, (str, unicode)):
+    if isinstance(o, str):
         pass
     elif isinstance(o, Sequence) and len(o) > 1:
         o = r"{\color{red} \underbrace{%s}_{\text{%s}}}" % tuple(o[:2])
