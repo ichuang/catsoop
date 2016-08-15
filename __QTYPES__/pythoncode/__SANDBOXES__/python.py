@@ -56,8 +56,8 @@ def run_code(context, code, options):
             resource.setrlimit(*i)
 
     tmpdir = context.get('csq_sandbox_dir', '/tmp/sandbox')
-    this_one = hashlib.sha512('%s-%s' % (context.get('cs_username', 'None'),
-                                         time.time())).hexdigest()
+    this_one = hashlib.sha512(('%s-%s' % (context.get('cs_username', 'None'),
+                                         time.time())).encode()).hexdigest()
     tmpdir = os.path.join(tmpdir, this_one)
     os.makedirs(tmpdir, 0o777)
     for f in options['FILES']:
@@ -71,7 +71,7 @@ def run_code(context, code, options):
     with open(os.path.join(tmpdir, fname), 'w') as f:
         f.write(code.replace('\r\n', '\n'))
 
-    interp = context.get('csq_python_interpreter', sys.executable)
+    interp = context.get('csq_python_interpreter', '/usr/local/bin/python3')
 
     p = subprocess.Popen([interp, '-E', '-B', fname],
                          cwd=tmpdir,
@@ -83,6 +83,8 @@ def run_code(context, code, options):
     killer.start()
 
     out, err = p.communicate(options['STDIN'])
+    out = out.decode()
+    err = err.decode()
 
     shutil.rmtree(tmpdir, True)
 
