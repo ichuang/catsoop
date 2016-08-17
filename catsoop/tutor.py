@@ -23,7 +23,7 @@ import importlib
 from . import auth
 from . import time
 from . import loader
-from . import logging
+from . import logging as logging_import
 from . import base_context
 
 from datetime import timedelta
@@ -32,6 +32,7 @@ importlib.reload(base_context)
 
 
 def compute_page_stats(context, user, course, path, keys=None):
+    logging = logging_import.get_logger(context)
     if keys is None:
         keys = ['context', 'question_points', 'state', 'actions',
                 'manual_grades']
@@ -58,14 +59,15 @@ def compute_page_stats(context, user, course, path, keys=None):
     # spoof loading the page for the user in question
     new = dict(context)
     loader.load_global_data(new)
-    loader.do_early_load(context, course, path, new)
+    new['cs_path_info'] = [course] + path
+    cfile = context['csm_dispatch'].content_file_location(context, new['cs_path_info'])
+    loader.do_early_load(context, course, path, new, cfile)
     new['cs_course'] = course
     new['cs_username'] = user
     new['cs_form'] = {'action': 'passthrough'}
     new['cs_user_info'] = {'username': user}
-    new['cs_path_info'] = [course] + path
     new['cs_user_info'] = auth.get_user_information(new)
-    loader.do_late_load(context, course, path, new)
+    loader.do_late_load(context, course, path, new, cfile)
     if 'cs_post_load' in new:
         new['cs_post_load'](new)
     handle_page(new)
@@ -77,7 +79,7 @@ def compute_page_stats(context, user, course, path, keys=None):
         out['context'] = new
     if 'question_points' in keys:
         keys.remove('question_points')
-        items = new['cs_defaulthandler_name_map'].iteritems()
+        items = new['cs_defaulthandler_name_map'].items()
         out['question_points'] = {n: q['total_points'](**a)
                                   for (n, (q, a)) in items}
     for k in keys:
