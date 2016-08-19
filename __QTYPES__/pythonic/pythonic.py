@@ -12,6 +12,7 @@
 # program.  If not, see <https://smatz.net/soopycat>.
 
 import ast
+import collections.abc
 
 base1, _ = tutor.question('pythoncode')
 base, _ = tutor.question('smallbox')
@@ -87,6 +88,7 @@ def handle_submission(submissions, **info):
             except:
                 msg = ''
 
+    percent = float(score)
     response = ''
     if info['csq_show_check']:
         if percent == 1.0:
