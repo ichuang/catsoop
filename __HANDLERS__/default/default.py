@@ -56,15 +56,18 @@ def handle(context):
                      'new_seed': handle_new_seed,
                      'list_questions': handle_list_questions,
                      'get_state': handle_get_state,
+                     'manage_groups': manage_groups,
                      }
 
     action = context[_n('action')]
     return mode_handlers.get(action, _unknown_handler(action))(context)
 
+
 def handle_list_questions(context):
     types = {k: v[0]['qtype'] for k,v in context[_n('name_map')].items()}
     order = list(context[_n('name_map')])
     return make_return_json(context, {'order': order, 'types': types}, [])
+
 
 def handle_get_state(context):
     ll = context[_n('last_log')]
@@ -72,6 +75,7 @@ def handle_get_state(context):
         if isinstance(ll[i], set):
             ll[i] = list(ll[i])
     return make_return_json(context, ll, [])
+
 
 def handle_copy_seed(context):
     if context[_n('impersonating')]:
@@ -817,6 +821,76 @@ def handle_submit(context):
     return make_return_json(context, outdict)
 
 
+def manage_groups(context):
+    # displays the screen to admins who are adjusting groups
+    perms = context['cs_permissions']
+    #if 'groups' not in perms and 'admin' not in perms:
+    #    return 'You are not allowed to view this page.'
+    form = context['cs_form']
+    # show the main partnering page
+    section = context['cs_user_info'].get('section', None)
+    default_section = context.get('cs_default_section', 1)
+    all_sections = context.get('cs_sections', [])
+    if len(all_sections) == 0:
+        all_sections = {default_section: 'Default Section'} 
+    if section is None:
+        section = default_section  
+    hdr = ('Group Assignments for %s, Section '
+           '<span id="cs_groups_section">%s</span>')
+    hdr %= (context['cs_original_path'], section)
+    context['cs_content_header'] = hdr
+
+    # menu for choosing section to display 
+    out = 'Show Current Groups for Section: <select name="section" id="section">'
+    for i in sorted(all_sections):
+        s = ' selected' if i == section else ''
+        out += '<option value="%s"%s>%s</a>' % (i, s, i)
+    out += '</select>&nbsp;<a class="btn btn-catsoop" id="cs_groups_show">Go</a>'
+    
+    # empty table that will eventually be populated with groups
+    out += ('<p><h4>Groups:</h4>'
+            '<table id="cs_groups_table" border="1" align="center">'
+            '<tr><td>Loading...</td></tr>'
+            '</table>')
+
+    # create partnership from two students
+    out += ('<p><h4>Make New Partnership:</h4>'
+            'Student 1: <select name="cs_groups_name1" id="cs_groups_name1">'
+            '</select>&nbsp;'
+            'Student 2: <select name="cs_groups_name2" id="cs_groups_name2">'
+            '</select>&nbsp;'
+            '<a class="btn btn-catsoop" id="cs_groups_newpartners">Partner Students</a>'
+            '</p>')
+
+    # add a student to a group
+    out += ('<p><h4>Add Student to Group:</h4>'
+            'Student: <select name="cs_groups_nameadd" id="cs_groups_nameadd">'
+            '</select>&nbsp;'
+            'Group: <select name="cs_groups_groupadd" id="cs_groups_groupadd">'
+            '</select>&nbsp;'
+            '<a class="btn btn-catsoop" id="cs_groups_addtogroup">Add to Group</a></p>')
+
+
+    # randomly assign all partners.  this needs to be sufficiently scary...
+    out += ('<p><h4>Randomly assign groups</h4>'
+            'Number per group:&nbsp;'
+            '<select name="cs_groups_numberpergroup" '
+            'id="cs_groups_numberpergroup">')
+    for i in range(10):
+        s = ' selected' if i == 2 else ''
+        out += '<option value="%s"%s>%s</option>' % (i, s, i)
+    out += '</select>'
+    out += '<br/>'
+    return out + default_javascript(context)
+
+
+def update_groups(context):
+    # actually handles the updating of a groupship
+    perms = context['cs_permissions']
+    if 'groups' not in perms and 'admin' not in perms:
+        return 'You are not allowed to view this page.'
+
+
 def clearanswer_msg(context, perms, name):
     namemap = context[_n('name_map')]
     timing = context[_n('timing')]
@@ -1313,12 +1387,25 @@ def pre_handle(context):
     ps_name = '%s.problemstate' % loghead
     pa_name = '%s.problemactions' % loghead
     pg_name = '%s.problemgrades' % loghead
-    ll = context['csm_cslog'].most_recent(context['cs_course'], uname, ps_name,
+    grp_name = '%s.group' % loghead
+    ll = context['csm_cslog'].most_recent(context['cs_course'],
+                                          uname,
+                                          ps_name,
                                           {})
+    context[_n('group')] = context['csm_cslog'].most_recent(context['cs_course'],
+                                                            uname,
+                                                            grp_name,
+                                                            None)
+    context[_n('all_groups')] = context['csm_cslog'].most_recent(context['cs_course'],
+                                                                 uname,
+                                                                 '%ss' % grp_name,
+                                                                 {})
     context[_n('last_log')] = ll
     context[_n('logname_state')] = ps_name
     context[_n('logname_actions')] = pa_name
     context[_n('logname_grades')] = pg_name
+    context[_n('logname_group')] = grp_name
+    context[_n('logname_groups')] = '%ss' % grp_name
     context[_n('locked')] = ll.get('locked', set())
     context[_n('answer_viewed')] = ll.get('answer_viewed', set())
     context[_n('explanation_viewed')] = ll.get('explanation_viewed', set())
@@ -1326,7 +1413,9 @@ def pre_handle(context):
 
     # what is the user trying to do?
     context[_n('action')] = context['cs_form'].get('action', 'view').lower()
-    if context[_n('action')] in ('view', 'activate', 'passthrough', 'list_questions', 'get_state'):
+    if context[_n('action')] in ('view', 'activate',
+                                 'passthrough', 'list_questions',
+                                 'get_state', 'manage_groups'):
         context[_n('form')] = context['cs_form']
     else:
         names = context['cs_form'].get('names', "[]")
