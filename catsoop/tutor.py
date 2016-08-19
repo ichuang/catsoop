@@ -42,15 +42,15 @@ def compute_page_stats(context, user, course, path, keys=None):
     logtail = '.'.join(path)
     if 'state' in keys:
         keys.remove('state')
-        state_name = 'problemstate.%s' % logtail
+        state_name = '%s.problemstate' % logtail
         out['state'] = logging.most_recent(course, user, state_name, {})
     if 'actions' in keys:
         keys.remove('actions')
-        actions_name = 'problemactions.%s' % logtail
+        actions_name = '%s.problemactions' % logtail
         out['actions'] = logging.read_log(course, user, actions_name)
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
-        grades_name = 'problemgrades.%s' % logtail
+        grades_name = '%s.problemgrades' % logtail
         out['manual_grades'] = logging.read_log(course, user, grades_name)
 
     if len(keys) == 0:
