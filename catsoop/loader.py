@@ -78,8 +78,6 @@ def get_course_fs_location(context, course, join=True):
     fs_root = context.get('cs_fs_root', base_context.cs_fs_root)
     if course == 'cs_util':
         rtn = [fs_root, '__UTIL__']
-    elif course == 'cs_api':
-        rtn = [fs_root, '__API__']
     elif course == '__QTYPE__':
         rtn = [fs_root, '__QTYPES__']
     elif course == '__AUTH__':
