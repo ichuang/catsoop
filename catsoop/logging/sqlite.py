@@ -22,6 +22,7 @@ import importlib
 
 from .. import base_context
 
+FileLock = base_context.csm_tools.filelock.FileLock
 
 def prep(x):
     return zlib.compress(pickle.dumps(x, -1), 9)
@@ -152,3 +153,16 @@ def most_recent(course, db_name, logname, default=None):
     out = c.fetchone()
     conn.close()
     return unprep(out[2]) if out is not None else default
+
+
+def modify_most_recent(course, db_name, log, default=None, transform_func=lambda x: x, method='update'):
+    fname = get_log_filename(course, db_name, log_name)
+    with FileLock(fname) as lock:
+        old_val = most_recent(course, db_name, log, default)
+        new_val = transform_func(old_val)
+        if method == 'update':
+            updater = update_log
+        else:
+            updater = overwrite_log
+        updater(course, db_name, log, new_val)
+    return new_val

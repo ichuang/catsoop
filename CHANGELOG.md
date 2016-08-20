@@ -25,6 +25,8 @@ _Next planned release.  Currently under development._
 * Added support for default courses via `cs_default_course`.
 * Added the `list_questions` and `get_state` API endpoints to the default handler.
 * Added an easier way to spoof context loading with `loader.spoof_early_load`.
+* Added `cslog.modify_most_recent`, which updates the most recent log entry
+    atomically.
 
 **Changed:**
 

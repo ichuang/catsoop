@@ -20,6 +20,11 @@ import zlib
 import pickle
 import random
 import string
+import contextlib
+
+@contextlib.contextmanager
+def passthrough():
+    yield
 
 from .. import base_context
 
@@ -63,14 +68,15 @@ def get_log_filename(course, db_name, log_name):
         return os.path.join(base_context.cs_data_root, base)
 
 
-def update_log(course, db_name, log_name, new):
+def update_log(course, db_name, log_name, new, lock=True):
     """
     Adds a new entry to the specified log.
     """
     fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before making changes
     # look up the separator and the data
-    with FileLock(fname) as lock:
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as lock:
         try:
             create_if_not_exists(os.path.dirname(fname))
             with open(fname, 'rb') as f:
@@ -111,17 +117,16 @@ def overwrite_log(course, db_name, log_name, new, lock=True):
     """
     #get an exclusive lock on this file before making changes
     fname = get_log_filename(course, db_name, log_name)
-    if lock:
-        with FileLock(fname) as l:
-            _overwrite_log(fname, new)
-    else:
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as l:
         _overwrite_log(fname, new)
 
 
-def _read_log(course, db_name, log_name):
+def _read_log(course, db_name, log_name, lock=True):
     fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before reading it
-    with FileLock(fname) as lock:
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as lock:
         try:
             f = open(fname, 'rb')
             sep = f.readline().strip()
@@ -133,14 +138,14 @@ def _read_log(course, db_name, log_name):
             raise StopIteration
 
 
-def read_log(course, db_name, log_name):
+def read_log(course, db_name, log_name, lock=True):
     """
     Reads all entries of a log.
     """
-    return list(_read_log(course, db_name, log_name))
+    return list(_read_log(course, db_name, log_name, lock))
 
 
-def most_recent(course, db_name, log_name, default=None):
+def most_recent(course, db_name, log_name, default=None, lock=True):
     '''
     Ignoring most of the log, grab the last entry
 
@@ -149,7 +154,8 @@ def most_recent(course, db_name, log_name, default=None):
     '''
     fname = get_log_filename(course, db_name, log_name)
     #get an exclusive lock on this file before reading it
-    with FileLock(fname) as lock:
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as lock:
         try:
             f = open(fname, 'rb')
             sep = f.readline().strip()
@@ -189,3 +195,17 @@ def most_recent(course, db_name, log_name, default=None):
                     return unprep(t)
         except:
             return default
+
+
+def modify_most_recent(course, db_name, log, default=None, transform_func=lambda x: x, method='update', lock=True):
+    fname = get_log_filename(course, db_name, log_name)
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as lock:
+        old_val = most_recent(course, db_name, log, default, lock=False)
+        new_val = transform_func(old_val)
+        if method == 'update':
+            updater = update_log
+        else:
+            updater = overwrite_log
+        updater(course, db_name, log, new_val, lock=False)
+    return new_val
