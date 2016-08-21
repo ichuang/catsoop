@@ -63,8 +63,11 @@ _Next planned release.  Currently under development._
     submission alone).
 * Replaced `"response"` field with `"message"` in JSON returned by the default
     handler's AJAX calls, to avoid duplicate use of `"response"`.
-
-**Deprecated:**
+* Minimum password length in the `login` authentication type is now 8 instead
+    of 5 (per this
+    [NIST recommendation](https://pages.nist.gov/800-63-3/sp800-63b.html)).
+                                                                                     
+**Deprecated:**                                                                      
 
 **Removed:**
 

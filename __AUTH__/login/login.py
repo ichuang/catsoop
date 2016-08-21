@@ -795,11 +795,11 @@ def _run_validators(validators, x):
 
 # PASSWORD VALIDATION
 
-_pwd_too_short_msg = "Passwords must be at least 5 characters long."
+_pwd_too_short_msg = "Passwords must be at least 8 characters long."
 
 _validate_password_javascript = r"""
 function _validate_password(p){
-    if (p.length < 5){
+    if (p.length < 8){
         return %r;
     }
     return null;
