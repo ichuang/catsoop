@@ -16,7 +16,6 @@ $('body').append('<div id="timer" class="response" style="position:fixed;right:1
 
 $(document).ready(function(){
     catsoop.timer_remaining = catsoop.timer_due-catsoop.timer_now;
-    catsoop.timer_counter = setInterval(catsoop.timer,1000);
     catsoop.timer = function () {
         catsoop.timer_remaining=catsoop.timer_remaining-1;
         if(catsoop.timer_remaining <= 0){
@@ -37,5 +36,6 @@ $(document).ready(function(){
             $('#timer').append('' + catsoop.timer_hours + ' hours, ' + catsoop.timer_minutes + ' minutes, ' + catsoop.timer_seconds + ' seconds');
         }
     }
+    catsoop.timer_counter = setInterval(catsoop.timer,1000);
     catsoop.timer();
 });
