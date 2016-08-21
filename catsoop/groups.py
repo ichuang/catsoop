@@ -25,7 +25,7 @@ def list_groups(context, course, path):
     """
     log = context['csm_cslog']
     return log.most_recent(None, course,
-                           get_group_log_name(path), {})
+                           get_group_log_name(course, path), {})
 
 
 def get_section(context, course, username):
@@ -36,14 +36,15 @@ def get_section(context, course, username):
         return None
 
 
-def get_group(context, course, path, username):
+def get_group(context, course, path, username, groups=None):
     """
     Returns the section number and group to which the given user belongs, or
     None if they have not been assigned a group.
     """
-    groups = list_groups(context, course, path)
+    if groups is None:
+        groups = list_groups(context, course, path)
     secnum = get_section(context, course, username)
-    for group in groups[secnum]:
+    for group in groups.get(secnum, {}):
         if username in groups[secnum][group]:
             return (secnum, group)
     return None, None
