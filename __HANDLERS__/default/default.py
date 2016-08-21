@@ -832,21 +832,21 @@ def manage_groups(context):
     default_section = context.get('cs_default_section', 1)
     all_sections = context.get('cs_sections', [])
     if len(all_sections) == 0:
-        all_sections = {default_section: 'Default Section'} 
+        all_sections = {default_section: 'Default Section'}
     if section is None:
-        section = default_section  
+        section = default_section
     hdr = ('Group Assignments for %s, Section '
            '<span id="cs_groups_section">%s</span>')
     hdr %= (context['cs_original_path'], section)
     context['cs_content_header'] = hdr
 
-    # menu for choosing section to display 
+    # menu for choosing section to display
     out = 'Show Current Groups for Section: <select name="section" id="section">'
     for i in sorted(all_sections):
         s = ' selected' if i == section else ''
         out += '<option value="%s"%s>%s</a>' % (i, s, i)
     out += '</select>&nbsp;<a class="btn btn-catsoop" id="cs_groups_show">Go</a>'
-    
+
     # empty table that will eventually be populated with groups
     out += ('<p><h4>Groups:</h4>'
             '<table id="cs_groups_table" border="1" align="center">'
@@ -882,13 +882,6 @@ def manage_groups(context):
     out += '</select>'
     out += '<br/>'
     return out + default_javascript(context)
-
-
-def update_groups(context):
-    # actually handles the updating of a groupship
-    perms = context['cs_permissions']
-    if 'groups' not in perms and 'admin' not in perms:
-        return 'You are not allowed to view this page.'
 
 
 def clearanswer_msg(context, perms, name):
@@ -1096,6 +1089,14 @@ def log_action(context, log_entry):
     context['csm_cslog'].update_log(course, uname, logname, entry)
 
 
+def simple_return_json(val):
+    content = json.dumps(val, separators=(',', ':'))
+    length = str(len(content))
+    retcode = ('200', 'OK')
+    headers = {'Content-type': 'application/json', 'Content-length': length}
+    return retcode, headers, content
+
+
 def make_return_json(context, ret, names=None):
     names = context[_n('question_names')] if names is None else names
     names = set(i[2:].rsplit('_', 1)[0] if i.startswith('__') else i
@@ -1103,11 +1104,7 @@ def make_return_json(context, ret, names=None):
     for name in names:
         ret[name]['nsubmits_left'] = nsubmits_left(context, name)[1],
         ret[name]['buttons'] = make_buttons(context, name)
-    content = json.dumps(ret, separators=(',', ':'))
-    length = str(len(content))
-    retcode = ('200', 'OK')
-    headers = {'Content-type': 'application/json', 'Content-length': length}
-    return retcode, headers, content
+    return simple_return_json(ret)
 
 
 def render_question(elt, context, lastsubmit):
@@ -1392,20 +1389,27 @@ def pre_handle(context):
                                           uname,
                                           ps_name,
                                           {})
-    context[_n('group')] = context['csm_cslog'].most_recent(context['cs_course'],
-                                                            uname,
-                                                            grp_name,
-                                                            None)
-    context[_n('all_groups')] = context['csm_cslog'].most_recent(context['cs_course'],
-                                                                 uname,
-                                                                 '%ss' % grp_name,
-                                                                 {})
+    _cs_group_path = context.get('cs_groups_to_use', context['cs_path_info'])
+    context[_n('all_groups')] = context['csm_groups'].list_groups(context,
+                                                                  context['cs_course'],
+                                                                  _cs_group_path)
+    context[_n('group')] = context['csm_groups'].get_group(context,
+                                                           context['cs_course'],
+                                                           _cs_group_path,
+                                                           uname,
+                                                           context[_n('all_groups')])
+    _ag = context[_n('all_groups')]
+    _g = context[_n('group')]
+    context[_n('group_members')] = _gm = _ag.get(_g[0], {}).get(_g[1], [])
+    if uname not in _gm:
+        _gm.append(uname)
     context[_n('last_log')] = ll
     context[_n('logname_state')] = ps_name
     context[_n('logname_actions')] = pa_name
     context[_n('logname_grades')] = pg_name
     context[_n('logname_group')] = grp_name
     context[_n('logname_groups')] = '%ss' % grp_name
+
     context[_n('locked')] = ll.get('locked', set())
     context[_n('answer_viewed')] = ll.get('answer_viewed', set())
     context[_n('explanation_viewed')] = ll.get('explanation_viewed', set())
