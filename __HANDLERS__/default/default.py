@@ -1488,7 +1488,7 @@ def default_timer(context):
     if context[_n('now')] > context[_n('due')]:
         # view answers immediately if viewed past the due date
         out += '\n<script type="text/javascript">'
-        out += "\ncatsoop.ajaxrequest(cs_all_questions,'lock');"
+        out += "\ncatsoop.ajaxrequest(catsoop.all_questions,'lock');"
         out += '\n</script>'
         return out
     else:
