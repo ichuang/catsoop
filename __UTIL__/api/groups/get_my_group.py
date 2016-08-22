@@ -35,7 +35,7 @@ if error is None:
         error = 'Could not get user information'
 
 if error is None:
-    ctx = csm_loader.spoof_early_load(opath) 
+    ctx = csm_loader.spoof_early_load(opath)
     section, group = csm_groups.get_group(ctx, course, path, uinfo['username'])
     if section is None and group is None:
         error = "%s has not been assigned to a group" % uinfo['username']
@@ -43,7 +43,7 @@ if error is None:
 if error is not None:
     output = {'ok': False, 'error': error}
 else:
-    output = {'ok': True, 'section': section, 'group': group} 
+    output = {'ok': True, 'section': section, 'group': group}
 
 cs_handler = 'raw_response'
 content_type = 'application/json'

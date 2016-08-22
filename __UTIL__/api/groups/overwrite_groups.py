@@ -44,13 +44,13 @@ except:
     error = "error loading groups JSON" + str(groups)
 
 if error is None:
-    ctx = csm_loader.spoof_early_load(opath) 
+    ctx = csm_loader.spoof_early_load(opath)
     error = csm_groups.overwrite_groups(ctx, course, path, section, groups)
 
 if error is not None:
     output = {'ok': False, 'error': error}
 else:
-    output = {'ok': True} 
+    output = {'ok': True}
 
 cs_handler = 'raw_response'
 content_type = 'application/json'

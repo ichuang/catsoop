@@ -36,13 +36,13 @@ if error is None:
             error = 'Permission Denied'
 
 if error is None:
-    ctx = csm_loader.spoof_early_load(opath) 
+    ctx = csm_loader.spoof_early_load(opath)
     error = csm_groups.make_all_groups(ctx, course, path, section)
 
 if error is not None:
     output = {'ok': False, 'error': error}
 else:
-    output = {'ok': True} 
+    output = {'ok': True}
 
 cs_handler = 'raw_response'
 content_type = 'application/json'

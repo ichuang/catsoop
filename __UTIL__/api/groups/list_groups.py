@@ -35,9 +35,9 @@ if error is None:
 if error is not None:
     output = {'ok': False, 'error': error}
 else:
-    ctx = csm_loader.spoof_early_load(opath) 
+    ctx = csm_loader.spoof_early_load(opath)
     groups = csm_groups.list_groups(ctx, course, path)
-    output = {'ok': True, 'groups': groups} 
+    output = {'ok': True, 'groups': groups}
 
 cs_handler = 'raw_response'
 content_type = 'application/json'
