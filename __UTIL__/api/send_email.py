@@ -30,10 +30,11 @@ if error is None:
         if 'email' not in uinfo['permissions']:
             error = 'Permission Denied'
 
-try:
-    messages = json.loads(messages)
-except:
-    error = 'error loading messages'
+if error is None:
+    try:
+        messages = json.loads(messages)
+    except:
+        error = 'error loading messages'
 
 required_fields = ('recipient', 'subject', 'body')
 
