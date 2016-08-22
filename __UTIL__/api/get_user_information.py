@@ -19,4 +19,12 @@ import json
 
 cs_handler = 'raw_response'
 content_type = 'application/json'
-response = json.dumps(csm_api.get_user_information(globals()))
+
+output = csm_api.get_user_information(globals(),
+                                      uname=cs_form.get('username', None),
+                                      passwd=cs_form.get('password_hash', None),
+                                      api_token=cs_form.get('api_token', None),
+                                      course=cs_form.get('course', None),
+                                      _as=cs_form.get('as', None))
+
+response = json.dumps(output)
