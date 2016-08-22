@@ -15,7 +15,7 @@ import os
 
 
 def _hide(n):
-    return i[0] in ('_', '.') or not i.endswith('.py')
+    return n[0] in ('_', '.') or not n.endswith('.py')
 
 
 def users_dir(context, course):
@@ -25,13 +25,15 @@ def users_dir(context, course):
 
 def list_all_users(context, course):
     usrdir = users_dir(context, course)
-    return [i.rsplit('.', 1) for i in os.listdir(usrdir) if not _hide(i)]
+    return [i.rsplit('.', 1)[0] for i in os.listdir(usrdir) if not _hide(i)]
 
 
 def read_user_file(context, course, user, default=None):
     user_file = os.path.join(users_dir(context, course), user)
     if os.path.isfile(user_file):
-        return eval(open(user_file).read())
+        uinfo = eval(open(user_file).read())
+        uinfo['username'] = user
+        return uinfo
     else:
         return default
     

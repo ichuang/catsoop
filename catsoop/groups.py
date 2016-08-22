@@ -11,6 +11,7 @@
 # You should have received a copy of the Soopycat License along with this
 # program.  If not, see <https://smatz.net/soopycat>.
 
+import random
 
 def get_group_log_name(course, path):
     """
@@ -112,3 +113,37 @@ def overwrite_groups(context, course, path, section, newdict):
                                {}, _transformer)
     except:
         return 'An error occured when overwriting groups.'
+
+
+def make_all_groups(context, course, path, section):
+    """
+    Randomly assigns groups within the given section.
+    """
+    util = context['csm_util']
+    size = context.get('cs_group_size', 2)
+    def cat(uname):
+        f = context.get('cs_group_category', lambda path, uname: 'all')
+        return f(path, uname)
+    group_names = context.get('cs_group_names', list(map(str, range(1000))))
+    group_names = list(group_names)
+    students = util.list_all_users(context, course)
+    def filt(uinfo):
+        return (uinfo.get('role', None) == 'Student' and
+                uinfo.get('section', None) == section)
+    cats = {}
+    for s in students:
+        if not filt(util.read_user_file(context, course, s, {})):
+            continue
+        c = cat(s)
+        cats[c] = cats.get(c, []) + [s]
+
+    output = {}
+    for c in cats:
+        random.shuffle(cats[c])
+        while len(cats[c]) > 0:
+            out, cats[c] = cats[c][:size], cats[c][size:]
+            g = group_names[len(output)]
+            output[g] = out
+
+    err = overwrite_groups(context, course, path, section, output)
+    return err
