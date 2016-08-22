@@ -167,8 +167,7 @@ redirect_location = '/'.join(path)
 if error is None:
     # we made it! set session data and redirect to original page
     csm_session.set_session_data(globals(), cs_sid, session)
-    csm_cslog.overwrite_log(None, session['username'],
-                            'extra_info', openid_info)
+    csm_cslog.overwrite_log(None, 'extra_info', session['username'], openid_info)
     cs_handler = 'redirect'
 else:
     cs_handler = 'passthrough'

@@ -86,8 +86,8 @@ def get_logged_in_user(context):
     if 'username' in regular_user:
         # successful login.  check for existing token
         cslog = logging.get_logger(context)
-        tok = cslog.most_recent(None, regular_user['username'],
-                                  'api_token', None)
+        tok = cslog.most_recent(None, 'api_users',
+                                regular_user['username'], None)
         if tok is None:
             # if no token found, create a new one.
             tok = api.initialize_api_token(context, regular_user)
@@ -149,15 +149,14 @@ def _get_user_information(context, into, course, username, do_preload=False):
         into['username'] = into['name'] = context['cs_username']
         into['role'] = None
         into['permissions'] = []
-        into['api_token'] = context['csm_cslog'].most_recent(None, into['username'],
-                                                             'api_token', None)
+        into['api_token'] = context['csm_cslog'].most_recent(None, 'api_tokens',
+                                                             into['username'],
+                                                             None)
         into = get_user_information(context)
     cslog = context['csm_cslog']
-    logininfo = cslog.most_recent(None, into['username'],
-                                  'logininfo', {})
+    logininfo = cslog.most_recent(None, 'logininfo', into['username'], {})
     logininfo = {k:v for k,v in logininfo.items() if k in ('username', 'name', 'email')}
     into.update(logininfo)
-    extra_info = cslog.most_recent(None, into['username'],
-                                   'extra_info', {})
+    extra_info = cslog.most_recent(None, 'extra_info', into['username'], {})
     into.update(extra_info)
     return into

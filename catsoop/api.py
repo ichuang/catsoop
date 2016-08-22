@@ -35,8 +35,8 @@ def initialize_api_token(context, user_info):
     context['csm_cslog'].overwrite_log(None, 'api_tokens',
                                        '%s' % token,
                                        user_info)
-    context['csm_cslog'].update_log(None, user_info['username'],
-                                    'api_token', token)
+    context['csm_cslog'].update_log(None, 'api_users',
+                                    user_info['username'], token)
     return token
 
 
@@ -70,8 +70,8 @@ def get_user_information(context, uname=None, passwd=None, api_token=None, cours
             error = "Invalid API token: %s" % api_token
         else:
             user['api_token'] = api_token
-            extra_info = log.most_recent(None, user['username'],
-                                           'extra_info', {})
+            extra_info = log.most_recent(None, 'extra_info',
+                                           user['username'], {})
             user.update(extra_info)
     else:
         if uname is not None and passwd is not None:
@@ -82,7 +82,7 @@ def get_user_information(context, uname=None, passwd=None, api_token=None, cours
             if not pwd_check:
                 error = 'Invalid username or password.'
             else:
-                user = log.most_recent(None, uname, 'logininfo', None)
+                user = log.most_recent(None, 'logininfo', user['username'], None)
         else:
             error = 'API token or username and password hash required.'
 

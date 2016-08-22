@@ -54,7 +54,7 @@ def get_logged_in_user(context):
                                      '<a href="%s">Go Back</a>') % base
             context['cs_handler'] = 'passthrough'
             return {'cs_render_now': True}
-        login_info = logging.most_recent(None, uname, 'logininfo', {})
+        login_info = logging.most_recent(None, 'logininfo', uname, {})
         if not login_info.get('confirmed', False):
             # show the confirmation message again
             context['cs_content_header'] = "Your E-mail Has Not Been Confirmed"
@@ -93,7 +93,7 @@ def get_logged_in_user(context):
                 phash = compute_password_hash(passwd, salt, hash_iterations)
                 login_info['password_salt'] = salt
                 login_info['password_hash'] = phash
-                logging.update_log(None, uname, 'logininfo', login_info)
+                logging.update_log(None, 'logininfo', uname, login_info)
                 context['cs_content_header'] = "Password Changed!"
                 base = _get_base_url(context)
                 context['cs_content'] = ("Your password has been successfully"
@@ -112,8 +112,8 @@ def get_logged_in_user(context):
     elif action == 'confirm_reg':
         u = form.get('username', None)
         t = form.get('token', None)
-        stored_token = logging.most_recent(None, u, 'confirmation_token', '')
-        login_info = logging.most_recent(None, u, 'logininfo', {})
+        stored_token = logging.most_recent(None, 'confirmation_token', u, '')
+        login_info = logging.most_recent(None, 'logininfo', u, {})
         context['cs_handler'] = 'passthrough'
         retval = {'cs_render_now': True}
         url = _get_base_url(context)
@@ -124,7 +124,7 @@ def get_logged_in_user(context):
                                      "log in.") % url
         elif t == stored_token and 'confirmed' in login_info:
             login_info['confirmed'] = True
-            logging.update_log(None, u, 'logininfo', login_info)
+            logging.update_log(None, 'logininfo', u, login_info)
             context['cs_content_header'] = "Account Confirmation Succeeded"
             context['cs_content'] = ('Please <a href="%s">click here</a>'
                                      ' to log in.') % url
@@ -162,7 +162,7 @@ def get_logged_in_user(context):
             # user has submitted the form; check and send request
             uname = form['uname']
             email = form.get('email', None)
-            login_info = logging.most_recent(None, uname, 'logininfo', {})
+            login_info = logging.most_recent(None, 'logininfo', uname, {})
             if email != login_info.get('email', ''):
                 lmsg = ('<font color="red">The information you provided '
                         'does not match any known accounts.</font>')
@@ -228,12 +228,12 @@ def get_logged_in_user(context):
                 # clear login info from session.
                 clear_session_vars(context, 'login_message')
                 # store new password.
-                login_info = logging.most_recent(None, u, 'logininfo', {})
+                login_info = logging.most_recent(None, 'logininfo', u, {})
                 salt = get_new_password_salt()
                 phash = compute_password_hash(passwd, salt, hash_iterations)
                 login_info['password_salt'] = salt
                 login_info['password_hash'] = phash
-                logging.update_log(None, u, 'logininfo', login_info)
+                logging.update_log(None, 'logininfo', u, login_info)
                 context['cs_content_header'] = "Password Changed!"
                 base = _get_base_url(context)
                 context['cs_content'] = ("Your password has been successfully"
@@ -270,7 +270,7 @@ def get_logged_in_user(context):
                 if not d.endswith('.db'):
                     continue
                 u = d[:-3]
-                e = logging.most_recent(None, u, 'logininfo', {})
+                e = logging.most_recent(None, 'logininfo', u, {})
                 e = e.get('email', None)
                 if e == uname:
                     uname = u
@@ -284,7 +284,7 @@ def get_logged_in_user(context):
         valid_pwd = check_password(context, entered_password, uname, hash_iterations)
         if valid_uname and valid_pwd:
             # successful login
-            login_info = logging.most_recent(None, uname, 'logininfo', {})
+            login_info = logging.most_recent(None, 'logininfo', uname, {})
             if not login_info.get('confirmed', False):
                 # show the confirmation message again
                 context[
@@ -316,8 +316,8 @@ def get_logged_in_user(context):
     # a user is asking to re-send the confirmation message
     elif action == 'reconfirm_reg':
         uname = form.get('username', None)
-        token = logging.most_recent(None, uname, 'confirmation_token', None)
-        login_info = logging.most_recent(None, uname, 'logininfo')
+        token = logging.most_recent(None, 'confirmation_token', uname, None)
+        login_info = logging.most_recent(None, 'logininfo', uname)
         if login_info.get('confirmed', False):
             context['cs_content_header'] = "Already Confirmed"
             context['cs_content'] = ("This account has already been confirmed."
@@ -383,9 +383,9 @@ def get_logged_in_user(context):
                     uname_okay = False
             if uname_okay:
                 login_info = logging.most_recent(None,
-                                               uname,
-                                               'logininfo',
-                                               default=None)
+                                                 'logininfo',
+                                                 uname,
+                                                 default=None)
                 if uname.lower() == 'none' or login_info is not None:
                     errors.append('Username %s is not available.' % uname)
             # validate password
@@ -412,8 +412,10 @@ def get_logged_in_user(context):
                         context.get('cs_require_confirm_email', True)):
                     # generate and store token
                     token = generate_confirmation_token()
-                    logging.overwrite_log(None, uname, 'confirmation_token',
-                                        token)
+                    logging.overwrite_log(None,
+                                          'confirmation_token',
+                                          uname,
+                                          token)
                     # generate and send e-mail
                     mail.send_email(context, email,
                                     "CAT-SOOP: Confirm E-mail Address",
@@ -427,7 +429,7 @@ def get_logged_in_user(context):
                          'email': email,
                          'name': name,
                          'confirmed': confirmed}
-                logging.overwrite_log(None, uname, 'logininfo', uinfo)
+                logging.overwrite_log(None, 'logininfo', uname, uinfo)
                 if confirmed:
                     # load user info into session
                     info = {'username': uname, 'name': name, 'email': email}
@@ -484,7 +486,7 @@ def check_password(context, provided, uname, iterations=250000):
     Compare the provided password against a stored hash.
     """
     logging = context['csm_logging'].get_logger(context)
-    user_login_info = logging.most_recent(None, uname, 'logininfo', {})
+    user_login_info = logging.most_recent(None, 'logininfo', uname, {})
     pass_hash = user_login_info.get('password_hash', None)
     if pass_hash is not None:
         salt = user_login_info.get('password_salt', None)
