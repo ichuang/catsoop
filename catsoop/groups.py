@@ -64,33 +64,12 @@ def add_to_group(context, course, path, username, group):
         x[section] = x.get(section, {})
         x[section][group] = x[section].get(group, []) + [username]
         return x
-    #try:
-    log.modify_most_recent(None, course,
-                           get_group_log_name(course, path),
-                           {}, _transformer)
-    #except:
-    #    return 'An error occured when assigning to group.'
-
-
-def new_group(context, course, path, section, group):
-    """
-    Adds a new (empty) group to the list of groups.
-    """
-    log = context['csm_cslog']
-    section = get_section(context, course, username)
-    groups = list_groups(context, course, path)
-    if group in groups.get(section, {}):
-        return "%r is already a group for section %s." % (group, section)
-    def _transformer(x):
-        x[section] = x.get(section, {})
-        x[section][group] = [] 
-        return x
     try:
         log.modify_most_recent(None, course,
                                get_group_log_name(course, path),
                                {}, _transformer)
     except:
-        return 'An error occured when creating new group.'
+        return 'An error occured when assigning to group.'
 
 
 def remove_from_group(context, course, path, username, group):
