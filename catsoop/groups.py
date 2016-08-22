@@ -97,34 +97,14 @@ def remove_from_group(context, course, path, username, group):
         return 'An error occured when removing from group.'
 
 
-def update_groups(context, course, path, section, group, newdict):
-    """
-    Updates group assignments for the given group and section to match those
-    provided in newdict
-    """
-    log = context['csm_cslog']
-    def _transformer(x):
-        x[section] = x.get(section, {})
-        x[section][group] = x[section].get(group, {})
-        x[section][group].update(newdict)
-        return x
-    try:
-        log.modify_most_recent(None, course,
-                               get_group_log_name(course, path),
-                               {}, _transformer)
-    except:
-        return 'An error occured when updating groups.'
-
-
-def overwrite_groups(context, course, path, section, group, newdict):
+def overwrite_groups(context, course, path, section, newdict):
     """
     Overwrites group assignments for the given group and section to be those
     provided in newdict
     """
     log = context['csm_cslog']
     def _transformer(x):
-        x[section] = x.get(section, {})
-        x[section][group] = newdict
+        x[section] = newdict
         return x
     try:
         log.modify_most_recent(None, course,
