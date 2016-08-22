@@ -37,9 +37,7 @@ _Next planned release.  Currently under development._
     regular expressions.
 * Renamed `gb.py` -> `base_context.py` to more accurately reflect its usage.
 * Modified the `login` authentication type to use Python's built-in
-    implementation of PBKDF2.  Also included the option to tune the number
-    of iterations used with PBKDF2, and increased the default number of
-    iterations from 50,000 to 250,000.
+    implementation of PBKDF2. 
 * Changed the way authentication is handled in AJAX requests, in preparation
     for including the public-facing API.
 * Themes are now run through a pre-processor that handles `<python>` and
@@ -63,9 +61,6 @@ _Next planned release.  Currently under development._
     submission alone).
 * Replaced `"response"` field with `"message"` in JSON returned by the default
     handler's AJAX calls, to avoid duplicate use of `"response"`.
-* Minimum password length in the `login` authentication type is now 8 instead
-    of 5 (per this
-    [NIST recommendation](https://pages.nist.gov/800-63-3/sp800-63b.html)).
                                                                                      
 **Deprecated:**                                                                      
 
@@ -87,6 +82,11 @@ _Next planned release.  Currently under development._
     for a variable.
 
 **Security:**
+* Included the option to tune the number of iterations used with PBKDF2, and
+    increased the default number of iterations from 50,000 to 250,000.
+* Minimum password length in the `login` authentication type is now 8 instead
+    of 5 (per this
+    [NIST recommendation](https://pages.nist.gov/800-63-3/sp800-63b.html)).
 
 # Version 8.0.0
 
