@@ -47,8 +47,8 @@ def get_group(context, course, path, username, groups=None):
     secnum = get_section(context, course, username)
     for group in groups.get(secnum, {}):
         if username in groups[secnum][group]:
-            return (secnum, group)
-    return None, None
+            return (secnum, group, groups[secnum][group])
+    return None, None, None
 
 
 def add_to_group(context, course, path, username, group):

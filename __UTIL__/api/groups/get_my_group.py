@@ -15,6 +15,7 @@ import json
 
 api_token = cs_form.get('api_token', None)
 path = cs_form.get('path', None)
+_as = cs_form.get('as', None)
 
 error = None
 
@@ -28,7 +29,7 @@ except:
     error = "invalid path: %s" % path
 
 if error is None:
-    output = csm_api.get_user_information(globals(), api_token=api_token, course=course)
+    output = csm_api.get_user_information(globals(), api_token=api_token, course=course, _as=_as)
     if output['ok']:
         uinfo = output['user_info']
     else:
@@ -36,14 +37,16 @@ if error is None:
 
 if error is None:
     ctx = csm_loader.spoof_early_load(opath)
-    section, group = csm_groups.get_group(ctx, course, path, uinfo['username'])
+    section, group, members = csm_groups.get_group(ctx, course, path, uinfo['username'])
     if section is None and group is None:
         error = "%s has not been assigned to a group" % uinfo['username']
+        members = [uinfo['username']]
+    members = list(sorted(members, key=lambda x: (0 if x == uinfo['username'] else 1, x)))
 
 if error is not None:
     output = {'ok': False, 'error': error}
 else:
-    output = {'ok': True, 'section': section, 'group': group}
+    output = {'ok': True, 'section': section, 'group': group, 'members': members}
 
 cs_handler = 'raw_response'
 content_type = 'application/json'
