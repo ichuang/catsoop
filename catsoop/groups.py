@@ -107,6 +107,8 @@ def remove_from_group(context, course, path, username, group):
         x[section] = x.get(section, {})
         x[section][group] = [i for i in x[section].get(group, [])
                              if i != username]
+        if len(x[section][group]) == 0:
+            del x[section][group]
         return x
     try:
         log.modify_most_recent(None, course,
