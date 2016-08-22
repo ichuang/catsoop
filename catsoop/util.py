@@ -36,4 +36,3 @@ def read_user_file(context, course, user, default=None):
         return uinfo
     else:
         return default
-    

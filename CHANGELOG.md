@@ -27,6 +27,8 @@ _Next planned release.  Currently under development._
 * Added an easier way to spoof context loading with `loader.spoof_early_load`.
 * Added `cslog.modify_most_recent`, which updates the most recent log entry
     atomically.
+* Added method for sending e-mail to a CAT-SOOP user from the API without
+    knowing their e-mail address.
 
 **Changed:**
 
@@ -37,7 +39,7 @@ _Next planned release.  Currently under development._
     regular expressions.
 * Renamed `gb.py` -> `base_context.py` to more accurately reflect its usage.
 * Modified the `login` authentication type to use Python's built-in
-    implementation of PBKDF2. 
+    implementation of PBKDF2.
 * Changed the way authentication is handled in AJAX requests, in preparation
     for including the public-facing API.
 * Themes are now run through a pre-processor that handles `<python>` and
@@ -61,8 +63,8 @@ _Next planned release.  Currently under development._
     submission alone).
 * Replaced `"response"` field with `"message"` in JSON returned by the default
     handler's AJAX calls, to avoid duplicate use of `"response"`.
-                                                                                     
-**Deprecated:**                                                                      
+
+**Deprecated:**
 
 **Removed:**
 

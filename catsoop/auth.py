@@ -93,9 +93,6 @@ def get_logged_in_user(context):
             tok = api.initialize_api_token(context, regular_user)
         regular_user['api_token'] = tok
 
-        extra_info = cslog.most_recent(None, regular_user['username'],
-                                       'extra_info', {})
-        regular_user.update(extra_info)
     return regular_user
 
 
@@ -142,7 +139,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
     loader.clean_builtins(into)
 
     # impersonation
-    if ('as' in context['cs_form']) and ('real_user' not in into):
+    if ('as' in context.get('cs_form', {})) and ('real_user' not in into):
         if 'impersonate' not in into['permissions']:
             return into
         old = dict(into)
@@ -155,4 +152,8 @@ def _get_user_information(context, into, course, username, do_preload=False):
         into['api_token'] = context['csm_cslog'].most_recent(None, into['username'],
                                                              'api_token', None)
         into = get_user_information(context)
+    cslog = context['csm_cslog']
+    extra_info = cslog.most_recent(None, into['username'],
+                                   'extra_info', {})
+    into.update(extra_info)
     return into

@@ -58,10 +58,10 @@ def get_logged_in_user(context):
 
 def get_user_information(context, uname=None, passwd=None, api_token=None, course=None, _as=None):
     login = context['csm_auth'].get_auth_type_by_name(context, 'login')
-    
+
     user = None
     error = None
-   
+
     log = context['csm_cslog']
     if api_token is not None:
         # if there is an API token, check it.
@@ -85,21 +85,21 @@ def get_user_information(context, uname=None, passwd=None, api_token=None, cours
                 user = log.most_recent(None, uname, 'logininfo', None)
         else:
             error = 'API token or username and password hash required.'
-    
+
     if user is None and error is None:
         # catch-all error: if we haven't authenticated but don't have an error
         # messge, use this one.
         error = 'Could not authenticate'
-    
+
     if error is None and course is not None:
         # if we have successfully logged in and a course is specified, we need to
         # look up extra information from the course in question.
         ctx = context['csm_loader'].spoof_early_load([course])
-    
+
         ctx['cs_form'] = {}
         if _as is not None:
             ctx['cs_form']['as'] = _as
-    
+
         base_loc = os.path.join(context['cs_data_root'], 'courses', course)
         if os.path.isdir(base_loc):
             uname = user['username']
@@ -109,7 +109,7 @@ def get_user_information(context, uname=None, passwd=None, api_token=None, cours
                                                              do_preload=True)
         else:
             error = 'No such course: %s' % course
-    
+
     if error is not None:
         return {'ok': False, 'error': error}
     else:
