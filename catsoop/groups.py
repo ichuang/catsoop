@@ -16,7 +16,7 @@ def get_group_log_name(course, path):
     """
     Returns the relevant log name for groups associated with the given path
     """
-    return '.'.join(['groups'] + path)
+    return '.'.join([course] + path)
 
 
 def list_groups(context, course, path):
@@ -24,7 +24,7 @@ def list_groups(context, course, path):
     Returns a dictionary mapping group names to lists of group members
     """
     log = context['csm_cslog']
-    return log.most_recent(None, course,
+    return log.most_recent(None, 'groups',
                            get_group_log_name(course, path), {})
 
 
@@ -65,7 +65,7 @@ def add_to_group(context, course, path, username, group):
         x[section][group] = x[section].get(group, []) + [username]
         return x
     try:
-        log.modify_most_recent(None, course,
+        log.modify_most_recent(None, 'groups',
                                get_group_log_name(course, path),
                                {}, _transformer)
     except:
@@ -90,7 +90,7 @@ def remove_from_group(context, course, path, username, group):
             del x[section][group]
         return x
     try:
-        log.modify_most_recent(None, course,
+        log.modify_most_recent(None, 'groups',
                                get_group_log_name(course, path),
                                {}, _transformer)
     except:
@@ -107,7 +107,7 @@ def overwrite_groups(context, course, path, section, newdict):
         x[section] = newdict
         return x
     try:
-        log.modify_most_recent(None, course,
+        log.modify_most_recent(None, 'groups',
                                get_group_log_name(course, path),
                                {}, _transformer)
     except:
