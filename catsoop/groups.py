@@ -57,19 +57,19 @@ def add_to_group(context, course, path, username, group):
     """
     log = context['csm_cslog']
     section = get_section(context, course, username)
-    preexisting_group = get_group(context, path, username)
+    preexisting_group = get_group(context, course, path, username)
     if preexisting_group != (None, None):
         return "%s is already assigned to a group (section %s group %s)" % ((username,) + preexisting_group)
     def _transformer(x):
         x[section] = x.get(section, {})
         x[section][group] = x[section].get(group, []) + [username]
         return x
-    try:
-        log.modify_most_recent(course, username,
-                               get_group_log_name(course, path),
-                               {}, _transformer)
-    except:
-        return 'An error occured when assigning to group.'
+    #try:
+    log.modify_most_recent(None, course,
+                           get_group_log_name(course, path),
+                           {}, _transformer)
+    #except:
+    #    return 'An error occured when assigning to group.'
 
 
 def new_group(context, course, path, section, group):
@@ -86,7 +86,7 @@ def new_group(context, course, path, section, group):
         x[section][group] = [] 
         return x
     try:
-        log.modify_most_recent(course, username,
+        log.modify_most_recent(None, course,
                                get_group_log_name(course, path),
                                {}, _transformer)
     except:
@@ -109,7 +109,7 @@ def remove_from_group(context, course, path, username, group):
                              if i != username]
         return x
     try:
-        log.modify_most_recent(course, username,
+        log.modify_most_recent(None, course,
                                get_group_log_name(course, path),
                                {}, _transformer)
     except:
@@ -128,7 +128,7 @@ def update_groups(context, course, path, section, group, newdict):
         x[section][group].update(newdict)
         return x
     try:
-        log.modify_most_recent(course, username,
+        log.modify_most_recent(None, course,
                                get_group_log_name(course, path),
                                {}, _transformer)
     except:
@@ -146,7 +146,7 @@ def overwrite_groups(context, course, path, section, group, newdict):
         x[section][group] = newdict
         return x
     try:
-        log.modify_most_recent(course, username,
+        log.modify_most_recent(None, course,
                                get_group_log_name(course, path),
                                {}, _transformer)
     except:

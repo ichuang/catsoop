@@ -198,7 +198,7 @@ def most_recent(course, db_name, log_name, default=None, lock=True):
 
 
 def modify_most_recent(course, db_name, log, default=None, transform_func=lambda x: x, method='update', lock=True):
-    fname = get_log_filename(course, db_name, log_name)
+    fname = get_log_filename(course, db_name, log)
     cm = FileLock(fname) if lock else passthrough()
     with cm as lock:
         old_val = most_recent(course, db_name, log, default, lock=False)
