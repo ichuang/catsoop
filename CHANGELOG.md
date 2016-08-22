@@ -178,6 +178,7 @@ _Next planned release.  Currently under development._
     instead of a tuple.
 * Restructured authentication types to make adding more types in the future
     easier.
+* Section labels are now rendered as id's of the associated headers.
 
 **Fixed:**
 

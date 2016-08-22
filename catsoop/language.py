@@ -316,6 +316,8 @@ def handle_custom_tags(context, text):
                            'link': '#%s' % linkname}
         sec = tree.new_tag(tag)
         sec.string = '%s) %s' % (num, i.string)
+        if lbl is not None:
+            sec.attrs['id'] = 'catsoop_label_%s' % lbl
         i.replace_with(sec)
         link = tree.new_tag('a')
         link.attrs['name'] = linkname
