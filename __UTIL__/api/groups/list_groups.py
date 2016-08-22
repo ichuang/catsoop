@@ -15,7 +15,6 @@ import json
 
 api_token = cs_form.get('api_token', None)
 path = cs_form.get('path', None)
-_as = cs_form.get('as', None)
 error = None
 if api_token is None:
     error = "api_token is required"
@@ -27,7 +26,7 @@ except:
     error = "invalid path: %s" % path
 
 if error is None:
-    output = csm_api.get_user_information(globals(), api_token=api_token, _as=_as, course=course)
+    output = csm_api.get_user_information(globals(), api_token=api_token, course=course)
     if output['ok']:
         uinfo = output['user_info']
         if 'groups' not in uinfo['permissions']:
