@@ -42,7 +42,7 @@ if error is None:
 
 if error is None:
     ctx = csm_loader.spoof_early_load(opath) 
-    error = csm_groups.remote_from_group(ctx, course, path, username, group)
+    error = csm_groups.remove_from_group(ctx, course, path, username, group)
 
 if error is not None:
     output = {'ok': False, 'error': error}

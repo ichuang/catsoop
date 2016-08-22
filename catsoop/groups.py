@@ -100,7 +100,7 @@ def remove_from_group(context, course, path, username, group):
     """
     log = context['csm_cslog']
     section = get_section(context, course, username)
-    preexisting_group = get_group(context, path, username)
+    preexisting_group = get_group(context, course, path, username)
     if preexisting_group != (section, group):
         return "%s is not assigned to section %s group %s." % (username, section, group)
     def _transformer(x):
