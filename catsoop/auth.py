@@ -153,6 +153,9 @@ def _get_user_information(context, into, course, username, do_preload=False):
                                                              'api_token', None)
         into = get_user_information(context)
     cslog = context['csm_cslog']
+    logininfo = cslog.most_recent(None, into['username'],
+                                  'logininfo', {})
+    into.update(logininfo)
     extra_info = cslog.most_recent(None, into['username'],
                                    'extra_info', {})
     into.update(extra_info)
