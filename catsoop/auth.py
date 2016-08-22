@@ -155,6 +155,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
     cslog = context['csm_cslog']
     logininfo = cslog.most_recent(None, into['username'],
                                   'logininfo', {})
+    logininfo = {k:v for k,v in logininfo.items() if k in ('username', 'name', 'email')}
     into.update(logininfo)
     extra_info = cslog.most_recent(None, into['username'],
                                    'extra_info', {})
