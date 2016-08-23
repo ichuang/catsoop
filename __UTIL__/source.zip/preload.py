@@ -2,7 +2,7 @@ SOURCE_README = '''This archive contains the source code for the CAT-SOOP instan
 
 The (potentially modified) source of the base system is located in the "cat-soop" directory.
 
-The plugins used by the course in question (%s), if any, are located in the "%s_plugins" directory.
+If the course in question (%s) used any plugins (including custom question types or content handlers), these are located in the "%s" directory.
 
 CAT-SOOP
 https://cat-soop.org'''

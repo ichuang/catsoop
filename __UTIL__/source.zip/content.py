@@ -88,7 +88,17 @@ if regenerate:
                                         course, '__PLUGINS__')
             add_files_to_zip(outfile,
                              plugins_base,
-                             'cat-soop-src/%s_plugins' % course)
+                             'cat-soop-src/%s/__PLUGINS__' % course)
+            qtypes_base = os.path.join(cs_data_root, 'courses',
+                                        course, '__QTYPES__')
+            add_files_to_zip(outfile,
+                             qtypes_base,
+                             'cat-soop-src/%s/__QTYPES__' % course)
+            handlers_base = os.path.join(cs_data_root, 'courses',
+                                        course, '__HANDLERS__')
+            add_files_to_zip(outfile,
+                             handlers_base,
+                             'cat-soop-src/%s/__HANDLERS' % course)
         outfile.close()
 
 with csm_tools.filelock.FileLock(cache_fname) as flock:
