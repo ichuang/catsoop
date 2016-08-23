@@ -36,10 +36,20 @@ def get_logged_in_user(context):
                 'name': session.get('name', uname),
                 'email': session.get('email', uname)}
     elif action is None:
-        context['cs_handler'] = 'passthrough'
-        context['cs_content_header'] = 'Please Log In'
-        context['cs_content'] = LOGIN_PAGE % _get_base_url(context)
-        return {'cs_render_now': True}
+        if context.get('cs_view_without_auth', True):
+            context['cs_handler'] = 'passthrough'
+            context['cs_content_header'] = 'Please Log In'
+            context['cs_content'] = LOGIN_PAGE % _get_base_url(context)
+            return {'cs_render_now': True}
+        else:
+            old_postload = context.get('cs_post_load', None)
+            if old_postload is not None:
+                def new_postload(context):
+                    old_postload(context)
+                    context['cs_content'] = ((LOGIN_BOX % _get_base_url(context)) +
+                                              context['cs_content'])
+                context['cs_post_load'] = new_postload
+            return {}
     elif action == 'redirect':
         redir_url = '%s/__AUTH__/openid_connect/callback' % context['cs_url_root']
         scope = context.get('cs_openid_scope', 'openid profile email')
@@ -64,4 +74,11 @@ def get_logged_in_user(context):
 
 LOGIN_PAGE = """
 Access to this page requires logging in via OpenID Connect.  Please <a href="%s?loginaction=redirect">Log In</a> to continue.
+"""
+
+LOGIN_BOX = """
+<div class="response">
+<b><center>You are not logged in.</center></b><br/>
+If you are a current student, please <a href="%s?loginaction=redirect">Log In</a> for full access to this page.
+</div>
 """
