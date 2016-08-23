@@ -109,11 +109,12 @@ def question(context, qtype, **kwargs):
     """
     try:
         course = context['cs_course']
-        fname = os.path.join(context.get('cs_data_root',
-                                         base_context.cs_data_root),
-                             'courses', course,
-                             '__PLUGINS__', qtype, 'qtype.py')
-        loc = os.path.dirname(fname)
+        qtypes_folder = os.path.join(context.get('cs_data_root',
+                                                 base_context.cs_data_root),
+                                                 'courses', course,
+                                                '__QTYPES__')
+        loc = os.path.join(qtypes_folder, qtype)
+        fname = os.path.join(loc, '%s.py' % qtype)
         assert os.path.isfile(fname)
     except:
         qtypes_folder = os.path.join(
@@ -155,10 +156,12 @@ def handler(context, handler, check_course=True):
     try:
         assert check_course
         course = context['cs_course']
-        fname = os.path.join(context.get('cs_data_root',
-                                         base_context.cs_data_root),
-                             'courses', course,
-                             '__PLUGINS__', handler, 'handler.py')
+        qtypes_folder = os.path.join(context.get('cs_data_root',
+                                                 base_context.cs_data_root),
+                                                 'courses', course,
+                                                '__HANDLERS__')
+        loc = os.path.join(qtypes_folder, handler)
+        fname = os.path.join(loc, '%s.py' % handler)
         assert os.path.isfile(fname)
     except:
         fname = os.path.join(context.get('cs_fs_root',
