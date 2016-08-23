@@ -463,10 +463,23 @@ def get_logged_in_user(context):
         clear_session_vars(context, 'login_message')
 
     # no one is logged in; show the login form.
-    context['cs_content_header'] = 'Please Log In To Continue'
-    context['cs_content'] = generate_login_form(context)
-    context['cs_handler'] = 'passthrough'
-    return {'cs_render_now': True}
+    if context.get('cs_view_without_auth', True) and action != 'login':
+        old_postload = context.get('cs_post_load', None)
+        def new_postload(context):
+            if old_postload is not None:
+                old_postload(context)
+            context['cs_content'] = ((LOGIN_BOX % _get_base_url(context)) +
+                                      context['cs_content'])
+        context['cs_post_load'] = new_postload
+        return {}
+    else:
+        uname = form.get('login_uname', '')
+        if uname == '':
+            clear_session_vars(context, 'login_message')
+        context['cs_content_header'] = 'Please Log In To Continue'
+        context['cs_content'] = generate_login_form(context)
+        context['cs_handler'] = 'passthrough'
+        return {'cs_render_now': True}
 
 
 def clear_session_vars(context, *args):
@@ -1032,3 +1045,10 @@ def _submit_button(fields, username, preserve, form, value='Submit'):
    base += '(function(e){if(e.which == 13) $("#%s_submitter").click();});'
    base += '</script>'
    return base % (form, value, fields, username, preserve, form, form, form)
+
+LOGIN_BOX = """
+<div class="response">
+<b><center>You are not logged in.</center></b><br/>
+If you are a current student, please <a href="%s?loginaction=login">Log In</a> for full access to this page.
+</div>
+"""

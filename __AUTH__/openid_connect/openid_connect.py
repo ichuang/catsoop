@@ -43,12 +43,12 @@ def get_logged_in_user(context):
             return {'cs_render_now': True}
         else:
             old_postload = context.get('cs_post_load', None)
-            if old_postload is not None:
-                def new_postload(context):
+            def new_postload(context):
+                if old_postload is not None:
                     old_postload(context)
-                    context['cs_content'] = ((LOGIN_BOX % _get_base_url(context)) +
-                                              context['cs_content'])
-                context['cs_post_load'] = new_postload
+                context['cs_content'] = ((LOGIN_BOX % _get_base_url(context)) +
+                                          context['cs_content'])
+            context['cs_post_load'] = new_postload
             return {}
     elif action == 'redirect':
         redir_url = '%s/__AUTH__/openid_connect/callback' % context['cs_url_root']
