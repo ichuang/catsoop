@@ -325,6 +325,8 @@ def handle_submission(submissions, **info):
            """$('#image%s').html(%r);</script>\n""") % (n, msg)
     if info['csq_render_result']:
         msg += get_display(info, n, sub, False, _m or '')
+    else:
+        msg += _m or ''
     return {'score': float(result), 'msg': msg}
 
 

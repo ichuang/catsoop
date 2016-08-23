@@ -31,6 +31,7 @@ _Next planned release.  Currently under development._
     knowing their e-mail address.
 * Added support for input checks and ratio checking (rather than absolute error
     checking) to the `expression` question type.
+* Added `number` question type for single numbers (or simple fractions).
 
 **Changed:**
 
