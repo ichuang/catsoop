@@ -13,13 +13,7 @@
 
 import ast
 
-base, _ = tutor.question('pythonic')
-
-defaults = dict(base['defaults'])
-
-render_html = base['render_html']
-total_points = base['total_points']
-answer_display = base['answer_display']
+tutor.qtype_inherit('pythonic')
 
 
 def handle_submission(submissions, **info):

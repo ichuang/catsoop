@@ -41,6 +41,8 @@ _Next planned release.  Currently under development._
 * CAT-SOOP is now _only_ compatible with Python version 3.5+.  Python 2
     compatibility was dropped intentionally, but versions 3.0.0 <= x < 3.5 are
     not supported because CAT-SOOP does some strange things with imports.
+* Drastically improved inheritance for question types (requiring far less
+    manual work) via `tutor.qtype_inherit`.
 * CAT-SOOP XML parsing is now largely handled by Beautiful Soup instead of by
     regular expressions.
 * Renamed `gb.py` -> `base_context.py` to more accurately reflect its usage.
@@ -70,6 +72,7 @@ _Next planned release.  Currently under development._
 * Replaced `"response"` field with `"message"` in JSON returned by the default
     handler's AJAX calls, to avoid duplicate use of `"response"`.
 * The CAT-SOOP cat changes when displaying a 404 or 500 error message.
+* Improved error reporting in `pythonic` question type.
 
 **Deprecated:**
 

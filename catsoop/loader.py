@@ -200,6 +200,7 @@ def cs_compile(fname, pre_code='', post_code=''):
         # make some modifications to the code, and compile
         code = '\n\n'.join([pre_code, open(fname).read(), post_code])
         code = code.replace('tutor.question(', 'tutor.question(globals(),')
+        code = code.replace('tutor.qtype_inherit(', 'tutor.qtype_inherit(globals(),')
         x = compile(
             code.replace('tutor.init_random()',
                          'tutor.init_random(globals())').strip(),

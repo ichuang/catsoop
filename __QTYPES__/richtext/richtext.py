@@ -11,19 +11,13 @@
 # You should have received a copy of the Soopycat License along with this
 # program.  If not, see <https://smatz.net/soopycat>.
 
-base, _ = tutor.question('bigbox')
+tutor.qtype_inherit('bigbox')
 
-defaults = dict(base['defaults'])
 defaults.update({
     'csq_soln': '',
     'csq_npoints': 1,
     'csq_show_check': False,
 })
-
-render_html = base['render_html']
-total_points = base['total_points']
-answer_display = base['answer_display']
-handle_submission = base['handle_submission']
 
 
 def markdownify(context, text):

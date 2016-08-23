@@ -14,19 +14,15 @@
 import base64
 import mimetypes
 
-base, _ = csm_tutor.question('smallbox')
+tutor.qtype_inherit('smallbox')
 
 always_rerender = True
 
-defaults = base['defaults']
 defaults.update({
     'csq_soln_filename': 'solution.txt',
     'csq_allow_save': False,
     'csq_soln_type': 'string',
 })
-
-total_points = base['total_points']
-answer_display = base['answer_display']
 
 
 def handle_submission(submissions, **info):

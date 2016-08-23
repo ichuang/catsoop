@@ -87,6 +87,11 @@ def compute_page_stats(context, user, course, path, keys=None):
     return out
 
 
+def qtype_inherit(context, other_type):
+    base, _ = question(context, other_type)
+    context.update(base)
+
+
 def _wrapped_defaults_maker(context, name):
     orig = context[name]
 
