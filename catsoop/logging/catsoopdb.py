@@ -153,48 +153,47 @@ def most_recent(course, db_name, log_name, default=None, lock=True):
     http://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-with-python-similar-to-tail
     '''
     fname = get_log_filename(course, db_name, log_name)
+    if not os.path.isfile(fname):
+        return default
     #get an exclusive lock on this file before reading it
     cm = FileLock(fname) if lock else passthrough()
     with cm as lock:
-        try:
-            f = open(fname, 'rb')
-            sep = f.readline().strip()
-            f.seek(0, 2)
-            blocksize = 1024
-            numbytes = f.tell()
-            block = -1
-            data = b''
-            lsep = len(sep)
-            offset = lsep + 1
-            while True:
-                if numbytes - blocksize > offset:
-                    # if we are more than one "blocksize" from the start of
-                    # the file (counting from the end), add that block to our
-                    # buffer and continue on
-                    f.seek(block * blocksize, 2)
-                    data = f.read(blocksize) + data
-                else:
-                    # otherwise, seek to the start of the file and read
-                    # through to the end
-                    f.seek(offset, 0)
-                    # need to split on this next line because some entries
-                    # may be shorter than one "blocksize"
-                    data = (f.read(numbytes) + data)[:-lsep].split(sep)[-1]
-                    f.close()
-                    return unprep(data)
-                # update our counters
-                block -= 1
-                numbytes -= blocksize
-                # if we found a break (or multiple breaks), we are done.  grab
-                # the data and return.
-                breaks = data[:-lsep].count(sep)
-                if breaks >= 1:
-                    f.close()
-                    data = data[:-lsep]
-                    t = data[data.rfind(sep)+lsep:]
-                    return unprep(t)
-        except:
-            return default
+        f = open(fname, 'rb')
+        sep = f.readline().strip()
+        lsep = len(sep)
+        offset = lsep + 1
+        f.seek(0, 2)
+        blocksize = 1024
+        numbytes = f.tell() - offset
+        block = -1
+        data = b''
+        while True:
+            if numbytes - blocksize > offset:
+                # if we are more than one "blocksize" from the start of
+                # the file (counting from the end), add that block to our
+                # buffer and continue on
+                f.seek(block * blocksize, 2)
+                data = f.read(blocksize) + data
+            else:
+                # otherwise, seek to the start of the file and read
+                # through to the end
+                f.seek(offset, 0)
+                # need to split on this next line because some entries
+                # may be shorter than one "blocksize"
+                data = (f.read(numbytes) + data)[:-lsep].split(sep)[-1]
+                f.close()
+                return unprep(data)
+            # update our counters
+            block -= 1
+            numbytes -= blocksize
+            # if we found a break (or multiple breaks), we are done.  grab
+            # the data and return.
+            breaks = data[:-lsep].count(sep)
+            if breaks >= 1:
+                f.close()
+                data = data[:-lsep]
+                t = data[data.rfind(sep)+lsep:]
+                return unprep(t)
 
 
 def modify_most_recent(course, db_name, log, default=None, transform_func=lambda x: x, method='update', lock=True):
