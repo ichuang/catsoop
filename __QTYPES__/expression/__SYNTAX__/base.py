@@ -128,4 +128,4 @@ def parser(lex=None, yacc=None):
         """
         pass
 
-    return yacc.yacc(optimize=False, debug=False)
+    return yacc.yacc(optimize=False, debug=False, write_tables=False)

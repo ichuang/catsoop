@@ -29,6 +29,8 @@ _Next planned release.  Currently under development._
     atomically.
 * Added method for sending e-mail to a CAT-SOOP user from the API without
     knowing their e-mail address.
+* Added support for input checks and ratio checking (rather than absolute error
+    checking) to the `expression` question type.
 
 **Changed:**
 
@@ -84,8 +86,10 @@ _Next planned release.  Currently under development._
     relevant.
 * Fixed bug with `expression` question type erroring when using multiple values
     for a variable.
+* Prevented PLY from writing its parsing tables to disk.
 
 **Security:**
+
 * Included the option to tune the number of iterations used with PBKDF2, and
     increased the default number of iterations from 50,000 to 250,000.
 * Minimum password length in the `login` authentication type is now 8 instead

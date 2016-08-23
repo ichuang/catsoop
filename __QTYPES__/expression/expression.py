@@ -24,9 +24,11 @@ smallbox, _ = csm_tutor.question('smallbox')
 defaults = {
     'csq_error_on_unknown_variable': False,
     'csq_input_check': lambda raw, tree: None,
+    'csq_render_result': True,
     'csq_syntax': 'base',
     'csq_num_trials': 20,
     'csq_threshold': 1e-9,
+    'csq_ratio_check': True,
     'csq_soln': ['6', 'sqrt(2)'],
     'csq_npoints': 1,
     'csq_msg_function': lambda sub: (''),
@@ -165,7 +167,7 @@ _eval_map = {
 }
 
 
-def _run_one_test(context, sub, soln, funcs, threshold):
+def _run_one_test(context, sub, soln, funcs, threshold, ratio=True):
     _sub_names = _get_all_names(sub)
     _sol_names = _get_all_names(soln)
     maps_to_try = _get_all_mappings(context, _sub_names, _sol_names)
@@ -175,7 +177,9 @@ def _run_one_test(context, sub, soln, funcs, threshold):
         except:
             return False
         sol = eval_expr(context, m, funcs, soln)
-        if abs(subm - sol) > threshold:
+        if ratio and abs(subm/sol - 1) > threshold:
+            return False
+        elif (not ratio) and abs(subm - sol) > threshold:
             return False
     return True
 
@@ -280,27 +284,33 @@ def handle_submission(submissions, **info):
     if sub is None:
         result = False
     else:
-        if not isinstance(solns, list):
-            solns = [solns]
-        solns = [parser.parse(i) for i in solns]
+        in_check = info['csq_input_check'](_sub, sub)
+        if in_check is not None:
+            result = False
+            _m = in_check
+        else:
+            if not isinstance(solns, list):
+                solns = [solns]
+            solns = [parser.parse(i) for i in solns]
 
-        result = False
-        for soln in solns:
-            for attempt in range(info['csq_num_trials']):
-                _sub_names = _get_all_names(sub)
-                _sol_names = _get_all_names(soln)
-                if info['csq_error_on_unknown_variable']:
-                    _unique_names = set(_sub_names).difference(_sol_names)
-                    if len(_unique_names) > 0:
-                        _s = "s" if len(_unique_names) > 1 else ""
-                        _v = ", ".join(tree2tex(info, funcs, ["NAME", i])[0]
-                                       for i in _unique_names)
-                        _m = "Unknown variable%s: $%s$" % (_s, _v)
-                result = _run_one_test(info, sub, soln, funcs, test_threshold)
-                if not result:
+            ratio = info['csq_ratio_check']
+            result = False
+            for soln in solns:
+                for attempt in range(info['csq_num_trials']):
+                    _sub_names = _get_all_names(sub)
+                    _sol_names = _get_all_names(soln)
+                    if info['csq_error_on_unknown_variable']:
+                        _unique_names = set(_sub_names).difference(_sol_names)
+                        if len(_unique_names) > 0:
+                            _s = "s" if len(_unique_names) > 1 else ""
+                            _v = ", ".join(tree2tex(info, funcs, ["NAME", i])[0]
+                                           for i in _unique_names)
+                            _m = "Unknown variable%s: $%s$" % (_s, _v)
+                    result = _run_one_test(info, sub, soln, funcs, test_threshold, ratio)
+                    if not result:
+                        break
+                if result:
                     break
-            if result:
-                break
 
     if info['csq_show_check']:
         if result:
@@ -313,7 +323,8 @@ def handle_submission(submissions, **info):
     msg += info['csq_msg_function'](submissions[info['csq_name']])
     msg = ("""\n<script type="text/javascript">"""
            """$('#image%s').html(%r);</script>\n""") % (n, msg)
-    msg += get_display(info, n, sub, False, _m or '')
+    if info['csq_render_result']:
+        msg += get_display(info, n, sub, False, _m or '')
     return {'score': float(result), 'msg': msg}
 
 
@@ -333,17 +344,17 @@ def render_html(last_log, **info):
 
 
 def get_display(info, name, last, reparse=True, extra_msg=''):
-    #try:
-    if reparse:
-        parser = _get_parser(info)
-        tree = parser.parse(last)
-    else:
-        tree = last
-    funcs = dict(default_funcs)
-    funcs.update(info.get('csq_funcs', {}))
-    last = '<displaymath>%s</displaymath>' % tree2tex(info, funcs, tree)[0]
-    #except:
-    #    last = '<font color="red">ERROR: Could not interpret your input</font>'
+    try:
+        if reparse:
+            parser = _get_parser(info)
+            tree = parser.parse(last)
+        else:
+            tree = last
+        funcs = dict(default_funcs)
+        funcs.update(info.get('csq_funcs', {}))
+        last = '<displaymath>%s</displaymath>' % tree2tex(info, funcs, tree)[0]
+    except:
+        last = '<font color="red">ERROR: Could not interpret your input</font>'
     last += csm_language.source_transform_string(info, extra_msg)
     out = '<div id="expr%s">Your entry was parsed as:<br/>%s</div>' % (name,
                                                                        last)
