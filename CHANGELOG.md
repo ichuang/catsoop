@@ -63,6 +63,7 @@ _Next planned release.  Currently under development._
     submission alone).
 * Replaced `"response"` field with `"message"` in JSON returned by the default
     handler's AJAX calls, to avoid duplicate use of `"response"`.
+* The CAT-SOOP cat changes when displaying a 404 or 500 error message.
 
 **Deprecated:**
 
@@ -70,6 +71,7 @@ _Next planned release.  Currently under development._
 
 **Fixed:**
 
+* Tracebacks in CAT-SOOP error messages now actually show useful information.
 * Pre-compiled CAT-SOOP (`.pycs`) files' names now include the Python
     implementation's cache tag, so that the same course can be migrated to a
     CAT-SOOP instance running on a different version of Python without issue.

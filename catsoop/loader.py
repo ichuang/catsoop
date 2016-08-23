@@ -160,7 +160,8 @@ def cs_compile(fname, pre_code='', post_code=''):
         code = code.replace('tutor.question(', 'tutor.question(globals(),')
         x = compile(
             code.replace('tutor.init_random()',
-                         'tutor.init_random(globals())').strip(), cname,
+                         'tutor.init_random(globals())').strip(),
+            fname,
             'exec')
         try:
             # write the compiled code to disk
