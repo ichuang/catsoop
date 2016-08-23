@@ -238,7 +238,7 @@ def make_score_display(context, name, score, assume_submit=False):
             return 'Grade not available.'
         else:
             return ''
-    c = context.get('cs_make_score_display', None)
+    c = context.get('cs_score_message', None)
     try:
         return c(score)
     except:
@@ -1209,12 +1209,16 @@ def nsubmits_left(context, name):
     for (regex, nchecks) in context['cs_user_info'].get('nsubmits_extra', []):
         if re.match(regex, '.'.join(context['cs_path_info'][1:] + [name])):
             nleft += nchecks
-    if nleft < float('inf'):
-        msg = "<i>You have %d submission%s remaining.</i>" % (nleft, 's'
-                                                              if nleft != 1
-                                                              else '')
+    nmsg = context.get('cs_nsubmits_message', None)
+    if nmsg is None:
+        if nleft < float('inf'):
+            msg = "<i>You have %d submission%s remaining.</i>" % (nleft, 's'
+                                                                  if nleft != 1
+                                                                  else '')
+        else:
+            msg = "<i>You have infinitely-many submissions remaining.</i>"
     else:
-        msg = "<i>You have infinitely-many submissions remaining.</i>"
+        msg = nmsg(nsubmits, nused, nleft)
 
     if 'submit_all' in perms:
         msg = (
