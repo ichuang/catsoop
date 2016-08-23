@@ -1,6 +1,4 @@
-# Version 9.0.0 (current progress)
-
-_Next planned release.  Currently under development._
+# Version 9.0.0
 
 **Added:**
 
@@ -73,10 +71,6 @@ _Next planned release.  Currently under development._
     handler's AJAX calls, to avoid duplicate use of `"response"`.
 * The CAT-SOOP cat changes when displaying a 404 or 500 error message.
 * Improved error reporting in `pythonic` question type.
-
-**Deprecated:**
-
-**Removed:**
 
 **Fixed:**
 
