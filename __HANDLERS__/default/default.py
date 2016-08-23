@@ -1510,8 +1510,7 @@ def default_timer(context):
 
 
 def exc_message(context):
-    exc = traceback.format_exc().decode('utf-8', 'ignore')
-    exc = exc.encode('ascii', 'ignore')
+    exc = traceback.format_exc()
     exc = context['csm_errors'].clear_info(context, exc)
     return ('<p><font color="red">'
             '<b>CAT-SOOP ERROR:</b>'
