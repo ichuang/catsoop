@@ -13,11 +13,11 @@
 
 import ast
 import collections.abc
+import traceback
 
+tutor.qtype_inherit('smallbox')
 base1, _ = tutor.question('pythoncode')
-base, _ = tutor.question('smallbox')
 
-defaults = dict(base['defaults'])
 defaults.update({
     'csq_soln': '',
     'csq_check_function': lambda sub, soln: ((type(sub) == type(soln)) and
@@ -30,10 +30,6 @@ defaults.update({
     'csq_mode': 'raw',
     'csq_size': 50
 })
-
-render_html = base['render_html']
-total_points = base['total_points']
-
 
 def handle_submission(submissions, **info):
     py3k = info.get('csq_python3', True)
@@ -61,16 +57,35 @@ def handle_submission(submissions, **info):
         else:
             code += '\nprint repr(%s)' % sub
         opts = info.get('csq_options', {})
-        sub = eval(info['sandbox_run_code'](info, code, opts)[1], info)
+        fname, out, err = info['sandbox_run_code'](info, code, opts)
+        sub = eval(out, info)
     except:
+        try:
+            assert err != ''
+            _m = info['fix_error_msg'](fname, err, 0, code)
+            e = info['csm_errors']
+            _m = e.html_format(e.clear_info(info, _m))
+            msg = '<p><font color="red"><b>ERROR RUNNING CODE:</b><pre>%s</pre>' % _m
+        except:
+            msg = ''
+        mfunc = info['csq_msg_function']
+        try:
+            msg += mfunc(sub, soln)
+        except:
+            try:
+                msg += mfunc(sub)
+            except:
+                pass
         return {'score': 0.0,
-                'msg': info['csq_msg_function'](submissions[info['csq_name']])}
+                'msg': msg}
 
     check = info['csq_check_function']
     try:
         check_result = check(sub, soln)
     except:
-        check_result = (0.0, 'An error occurred in the checker: <pre>%s</pre>' % traceback.format_exc())
+        err = info['csm_errors']
+        e = err.html_format(err.clear_info(info, traceback.format_exc()))
+        check_result = (0.0, 'An error occurred in the checker: <pre>%s</pre>' % e)
 
     if isinstance(check_result, collections.abc.Mapping):
         score = check_result['score']
