@@ -37,11 +37,6 @@ def get_logged_in_user(context):
                 'email': session.get('email', uname)}
     elif action is None:
         if context.get('cs_view_without_auth', True):
-            context['cs_handler'] = 'passthrough'
-            context['cs_content_header'] = 'Please Log In'
-            context['cs_content'] = LOGIN_PAGE % _get_base_url(context)
-            return {'cs_render_now': True}
-        else:
             old_postload = context.get('cs_post_load', None)
             def new_postload(context):
                 if old_postload is not None:
@@ -50,6 +45,11 @@ def get_logged_in_user(context):
                                           context['cs_content'])
             context['cs_post_load'] = new_postload
             return {}
+        else:
+            context['cs_handler'] = 'passthrough'
+            context['cs_content_header'] = 'Please Log In'
+            context['cs_content'] = LOGIN_PAGE % _get_base_url(context)
+            return {'cs_render_now': True}
     elif action == 'redirect':
         redir_url = '%s/__AUTH__/openid_connect/callback' % context['cs_url_root']
         scope = context.get('cs_openid_scope', 'openid profile email')

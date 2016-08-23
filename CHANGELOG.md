@@ -12,6 +12,8 @@ _Next planned release.  Currently under development._
 
 **Fixed:**
 
+* Fixed bug with `cs_view_without_auth` flag.
+
 **Security:**
 
 # Version 9.0.0
