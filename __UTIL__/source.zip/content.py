@@ -98,7 +98,12 @@ if regenerate:
                                         course, '__HANDLERS__')
             add_files_to_zip(outfile,
                              handlers_base,
-                             'cat-soop-src/%s/__HANDLERS' % course)
+                             'cat-soop-src/%s/__HANDLERS__' % course)
+            authtypes_base = os.path.join(cs_data_root, 'courses',
+                                        course, '__AUTH__')
+            add_files_to_zip(outfile,
+                             authtypes_base,
+                             'cat-soop-src/%s/__AUTH__' % course)
         outfile.close()
 
 with csm_tools.filelock.FileLock(cache_fname) as flock:
