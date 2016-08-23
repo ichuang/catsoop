@@ -39,6 +39,46 @@ def clean_builtins(d):
         pass
 
 
+def plugin_locations(context, course):
+    out = [os.path.join(context.get('cs_fs_root', base_context.cs_fs_root),
+                            '__PLUGINS__')]
+    if course is not None:
+        out.append(os.path.join(context.get('cs_data_root',
+                                            base_context.cs_data_root),
+                                'courses', course, '__PLUGINS__'))
+    return out
+
+
+def available_plugins(context, course):
+    out = []
+    for loc in plugin_locations(context, course):
+        try:
+            p = os.listdir(loc)
+        except:
+            p = []
+        for i in p:
+            fullname = os.path.join(loc, i)
+            if os.path.isdir(fullname):
+                out.append(fullname)
+    return out
+
+
+def get_plugin_code_file(plugin, type):
+    full_fname = os.path.join(plugin, "%s.py" % type)
+    if os.path.isfile(full_fname):
+        return full_fname
+    return None
+
+
+def run_plugins(context, course, type, into):
+    plugins = available_plugins(context, course)
+    for p in plugins:
+        codefile = get_plugin_code_file(p, type)
+        if codefile is None:
+            continue
+        exec(cs_compile(codefile), into)
+
+
 def load_global_data(into, check_values=True):
     """
     Load global data into the specified dictionary
@@ -120,6 +160,7 @@ def do_early_load(context, course, path, into, content_file=None):
     directory = get_course_fs_location(context, course)
     if content_file is None:
         return 'missing'
+    run_plugins(context, course, 'pre_preload', into)
     if os.path.basename(content_file).rsplit('.', 1)[0] != 'content':
         path = path[:-1]
     for ix, i in enumerate(path):
@@ -136,6 +177,7 @@ def do_early_load(context, course, path, into, content_file=None):
     new_name = os.path.join(directory, 'preload.py')
     if os.path.isfile(new_name):
         exec(cs_compile(os.path.join(directory, 'preload.py')), into)
+    run_plugins(context, course, 'pre_auth', into)
 
 
 def cs_compile(fname, pre_code='', post_code=''):
@@ -214,6 +256,7 @@ def do_late_load(context, course, path, into, content_file=None):
     This function is run after loading user data, so the code in the content
     file can make use of that information, which includes user permissions.
     """
+    run_plugins(context, course, 'post_auth', into)
     directory = os.path.dirname(content_file)
     if os.path.basename(content_file).rsplit('.', 1)[0] == 'content':
         subdirs = get_subdirs(context, course, path)
@@ -232,4 +275,5 @@ def do_late_load(context, course, path, into, content_file=None):
     into['cs_content'] = open(content_file).read()
     if 'cs_post_load' in into:
         into['cs_post_load'](into)
+    run_plugins(context, course, 'post_load', into)
     language.source_formats[into['cs_source_format']](into)

@@ -32,6 +32,9 @@ _Next planned release.  Currently under development._
 * Added support for input checks and ratio checking (rather than absolute error
     checking) to the `expression` question type.
 * Added `number` question type for single numbers (or simple fractions).
+* Added `__PLUGINS__` directory for plugins which work in ways other than
+    defining a new QTYPE or handler (ability to affect the context before or
+    after preload, before or after content load, and after handler is invoked).
 
 **Changed:**
 

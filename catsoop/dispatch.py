@@ -440,8 +440,10 @@ def main(environment):
             session.set_session_data(context, context['cs_sid'],
                                      context['cs_session_data'])
             return res
-        elif 'cs_post_handle' in context:
+        if 'cs_post_handle' in context:
             context['cs_post_handle'](context)
+        loader.run_plugins(context, context['cs_course'],
+                           'post_handle', context)
 
         out = display_page(context)  # tweak and display HTML
 
