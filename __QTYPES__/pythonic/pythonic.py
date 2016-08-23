@@ -65,7 +65,7 @@ def handle_submission(submissions, **info):
             _m = info['fix_error_msg'](fname, err, 0, code)
             e = info['csm_errors']
             _m = e.html_format(e.clear_info(info, _m))
-            msg = '<p><font color="red"><b>ERROR RUNNING CODE:</b><pre>%s</pre>' % _m
+            msg = '<p><font color="red"><b>ERROR RUNNING CODE:</b><pre>%s</pre></font></p>' % _m
         except:
             msg = ''
         mfunc = info['csq_msg_function']
@@ -85,7 +85,7 @@ def handle_submission(submissions, **info):
     except:
         err = info['csm_errors']
         e = err.html_format(err.clear_info(info, traceback.format_exc()))
-        check_result = (0.0, 'An error occurred in the checker: <pre>%s</pre>' % e)
+        check_result = (0.0, '<font color="red">An error occurred in the checker: <pre>%s</pre></font>' % e)
 
     if isinstance(check_result, collections.abc.Mapping):
         score = check_result['score']
