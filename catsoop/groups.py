@@ -59,8 +59,8 @@ def add_to_group(context, course, path, username, group):
     log = context['csm_cslog']
     section = get_section(context, course, username)
     preexisting_group = get_group(context, course, path, username)
-    if preexisting_group != (None, None):
-        return "%s is already assigned to a group (section %s group %s)" % ((username,) + preexisting_group)
+    if preexisting_group != (None, None, None):
+        return "%s is already assigned to a group (section %s group %s)" % ((username,) + preexisting_group[:2])
     def _transformer(x):
         x[section] = x.get(section, {})
         x[section][group] = x[section].get(group, []) + [username]

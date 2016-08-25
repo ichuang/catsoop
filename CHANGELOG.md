@@ -13,6 +13,7 @@ _Next planned release.  Currently under development._
 **Fixed:**
 
 * Fixed bug with `cs_view_without_auth` flag.
+* Fixed bug with listing groups.
 
 **Security:**
 
