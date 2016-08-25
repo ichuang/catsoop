@@ -4,6 +4,8 @@ _Next planned release.  Currently under development._
 
 **Added:**
 
+* Added `catsoop.path_info` added to javascript (for groups).
+
 **Changed:**
 
 **Deprecated:**
