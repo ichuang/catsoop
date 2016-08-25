@@ -1481,7 +1481,7 @@ catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any fu
         'imp': context[_n('uname')] if context[_n('impersonating')] else '',
         'secret': api_tok,
         'course': repr(context['cs_course']) if context['cs_course'] else 'null',
-        'pathinfo': context['cs_path_info'][1:],
+        'pathinfo': context['cs_path_info'],
     }
 
 
