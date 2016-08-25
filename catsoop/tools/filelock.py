@@ -23,7 +23,7 @@ import errno
 import importlib
 import tempfile
 
-FILELOCK_DIR = tempfile.TemporaryDirectory(prefix='catsoop_filelocks').name
+FILELOCK_DIR = os.path.join(tempfile.gettempdir(), 'catsoop_filelocks')
 """
 The directory where file locks will be stored.
 """

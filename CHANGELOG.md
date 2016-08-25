@@ -16,6 +16,7 @@ _Next planned release.  Currently under development._
 
 * Fixed bug with `cs_view_without_auth` flag.
 * Fixed bug with listing groups.
+* Fixed bug with file locking stemming from a change in 9.0.0.
 
 **Security:**
 
