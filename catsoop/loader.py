@@ -160,6 +160,7 @@ def do_early_load(context, course, path, into, content_file=None):
     directory = get_course_fs_location(context, course)
     if content_file is None:
         return 'missing'
+    breadcrumbs = []
     run_plugins(context, course, 'pre_preload', into)
     if os.path.basename(content_file).rsplit('.', 1)[0] != 'content':
         path = path[:-1]
@@ -174,9 +175,12 @@ def do_early_load(context, course, path, into, content_file=None):
         if newdir is None:
             return 'missing'
         directory = os.path.join(directory, newdir)
+        breadcrumbs.append(dict(into))
     new_name = os.path.join(directory, 'preload.py')
     if os.path.isfile(new_name):
         exec(cs_compile(os.path.join(directory, 'preload.py')), into)
+        breadcrumbs.append(dict(into))
+    into['cs_loader_states'] = breadcrumbs
     run_plugins(context, course, 'pre_auth', into)
 
 
