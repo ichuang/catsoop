@@ -282,3 +282,6 @@ def do_late_load(context, course, path, into, content_file=None):
         into['cs_post_load'](into)
     run_plugins(context, course, 'post_load', into)
     language.source_formats[into['cs_source_format']](into)
+    if 'cs_pre_handle' in into:
+        into['cs_pre_handle'](into)
+    run_plugins(context, course, 'pre_handle', into)
