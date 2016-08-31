@@ -343,6 +343,7 @@ def main(environment):
             context['cs_course'] = path_info[0]
             path_info = path_info[1:]
 
+        # SET SOME CONSTANTS FOR THE TEMPLATE (may be changed later)
         course = context['cs_course']
         if course is None:
             context['cs_home_link'] = 'BASE'
@@ -350,6 +351,8 @@ def main(environment):
         else:
             context['cs_home_link'] = 'COURSE'
             context['cs_source_qstring'] = '?course=%s' % course
+        context['cs_top_menu_html'] = ''
+        context['cs_breadcrumbs_html'] = ''
 
         # CHECK FOR VALID CONFIGURATION
         if e is not None:
@@ -444,6 +447,11 @@ def main(environment):
             context['cs_post_handle'](context)
         loader.run_plugins(context, context['cs_course'],
                            'post_handle', context)
+
+
+        # SET SOME MORE TEMPLATE-SPECIFIC CONSTANTS, AND RENDER THE PAGE
+        context['cs_top_menu_html'] = 'hello'
+        context['cs_breadcrumbs_html'] = 'hey'
 
         out = display_page(context)  # tweak and display HTML
 
