@@ -296,7 +296,7 @@ def _breadcrumbs_html(context):
     _defined = context.get('cs_breadcrumbs_html', None)
     if callable(_defined):
         return _defined(context)
-    if len(context['cs_loader_states']) < 2:
+    if len(context.get('cs_loader_states', [])) < 2:
             return ''
     out = '<ol class="breadcrumb">'
     to_skip = context.get('cs_breadcrumbs_skip', [])
