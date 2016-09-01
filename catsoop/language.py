@@ -37,7 +37,9 @@ from .tools.bs4 import BeautifulSoup
 
 
 def _xml_pre_handle(context):
-    tmp = context['cs_content'].split('<question')
+    text = context['cs_content']
+    text = re.sub(_environment_matcher('comment'), '', text)
+    tmp = text.split('<question')
     o = [tmp[0]]
     for piece in tmp[1:]:
         chunks = piece.strip().split('>', 1)
@@ -82,6 +84,8 @@ def _md(x):
 
 def _md_pre_handle(context, xml=True):
     text = context['cs_content']
+
+    text = re.sub(_environment_matcher('comment'), '', text)
 
     text = _md_format_string(context, text, False)
 
@@ -292,8 +296,6 @@ def handle_custom_tags(context, text):
         text = context['cs_course_handle_custom_tags'](text)
 
     tree = BeautifulSoup(text, 'html.parser')
-    for i in tree.find_all('comment'):
-        i.decompose()
 
     # handle sections, etc.
 
