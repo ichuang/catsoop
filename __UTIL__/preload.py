@@ -13,3 +13,4 @@
 
 cs_auth_required = False
 cs_course_available = False
+cs_breadcrumbs_skip = True

@@ -63,6 +63,6 @@ else:
     cs_print("""
 The following courses are hosted on this system:
 """)
-    for course_id,title in courses:
+    for course_id, title in courses:
         cs_print('* [%s](BASE/%s/)' % (title, course_id))
 </python>

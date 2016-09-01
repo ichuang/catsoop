@@ -299,13 +299,15 @@ def _breadcrumbs_html(context):
     if len(context.get('cs_loader_states', [])) < 2:
             return ''
     out = '<ol class="breadcrumb">'
-    to_skip = context.get('cs_breadcrumbs_skip', [])
+    to_skip = context.get('cs_breadcrumbs_skip_paths', [])
     link = 'BASE'
     for ix, elt in enumerate(context['cs_loader_states']):
         link = link + '/' + context['cs_path_info'][ix]
         if '/'.join(context['cs_path_info'][1:ix+1]) in to_skip:
             continue
-        name = elt['cs_long_name'] if ix != 0 else 'Home'
+        if context.get('cs_breadcrumbs_skip', False):
+            continue
+        name = elt.get('cs_long_name', context['cs_path_info'][ix]) if ix != 0 else 'Home'
         name = language.source_transform_string(context, name)
         extra = '-active' if ix == len(context['cs_loader_states']) - 1 else ''
         out += '<li class="breadcrumb-item%s"><a href="%s">%s</a></li>' % (extra, link, name)
@@ -477,6 +479,7 @@ def main(environment):
                 path = os.path.join(root, '__MEDIA__', 'mainpage.md')
                 with open(path) as f:
                     context['cs_content'] = f.read()
+                context['cs_content'] = language.handle_python_tags(context, context['cs_content'])
                 context['csm_language']._md_pre_handle(context)
                 context['cs_handler'] = 'passthrough'
 
