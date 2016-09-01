@@ -116,21 +116,22 @@ def _md_format_string(context, s, xml=True):
 
     text = re.sub(checker, _replacer, s)
 
-    # markdownify individual pieces and reinsert passthrough tags
-    pieces = text.split(splitter)
+    text = _md(text)
+
     num_tags = len(tag_contents)
-    text = ''
+    pieces = text.split(splitter)
+    o = ''
     for ix, piece in enumerate(pieces):
-        text += _md(piece)
+        o += piece
         if ix < num_tags:
             t, r, b = tag_contents[ix]
-            text += '<%s%s>%s</%s>' % (t, r, b, t)
+            o += '<%s%s>%s</%s>' % (t, r, b, t)
+    text = o
 
-    s = text
-    if s.startswith('<p>') and s.endswith('</p>'):
-        s = s[3:-4]
+    if text.startswith('<p>') and text.endswith('</p>'):
+        text = text[3:-4]
 
-    return _xml_format_string(context, s) if xml else s
+    return _xml_format_string(context, text) if xml else text
 
 
 def _xml_format_string(context, s):
@@ -363,7 +364,7 @@ def handle_custom_tags(context, text):
 
     for ix, i in enumerate(tree.find_all('footnote')):
         jx = ix + 1
-        footnotes.append(i.string)
+        footnotes.append(i.decode_contents())
         sup = tree.new_tag('sup')
         sup.string = str(jx)
         i.replace_with(sup)
@@ -372,7 +373,6 @@ def handle_custom_tags(context, text):
         ref = tree.new_tag('a')
         ref.attrs['name'] = "catsoop_footnote_ref_%d" % jx
         link.insert_before(ref)
-
 
     if len(footnotes) == 0:
         fnote = ''
