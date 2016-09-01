@@ -127,9 +127,6 @@ h4 {
     padding: 60px 25px 25px 25px;
     font-family: Montserrat;
 }
-.container-fluid {
-    padding: 60px 50px;
-}
 .bg-grey {
     background-color: #f6f6f6;
 }
@@ -214,11 +211,13 @@ h4 {
     background-color: @{cs_base_color};
     z-index: 9999;
     border: 0;
-    font-size: 12px !important;
+    font-size: 14px !important;
     line-height: 20 !important;
-    letter-spacing: 4px;
     border-radius: 0;
     font-family: Montserrat;
+}
+.navbar code{
+    background-color: transparent;
 }
 .navbar li a{
     color: #fff !important;
@@ -696,6 +695,9 @@ li {
   }
 }
 
+.breadcrumb {
+    background-color: transparent;
+}
 
 /* Printed Style */
 

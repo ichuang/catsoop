@@ -168,6 +168,7 @@ def do_early_load(context, course, path, into, content_file=None):
         new_name = os.path.join(directory, 'preload.py')
         if os.path.isfile(new_name):
             exec(cs_compile(new_name), into)
+        breadcrumbs.append(dict(into))
         try:
             newdir = get_directory_name(context, course, path[:ix], i)
         except FileNotFoundError:
@@ -175,11 +176,10 @@ def do_early_load(context, course, path, into, content_file=None):
         if newdir is None:
             return 'missing'
         directory = os.path.join(directory, newdir)
-        breadcrumbs.append(dict(into))
     new_name = os.path.join(directory, 'preload.py')
     if os.path.isfile(new_name):
         exec(cs_compile(os.path.join(directory, 'preload.py')), into)
-        breadcrumbs.append(dict(into))
+    breadcrumbs.append(dict(into))
     into['cs_loader_states'] = breadcrumbs
     run_plugins(context, course, 'pre_auth', into)
 

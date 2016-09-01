@@ -9,6 +9,7 @@ _Next planned release.  Currently under development._
 * The state of the context is now stored after every `preload.py` file in the
     chain has been executed (in `cs_loader_states`), to allow, e.g., looking up
     parents' names.
+* Added "breadcrumbs" to the default theme.
 
 **Changed:**
 

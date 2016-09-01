@@ -299,9 +299,14 @@ def _breadcrumbs_html(context):
     if len(context['cs_loader_states']) < 2:
             return ''
     out = '<ol class="breadcrumb">'
+    to_skip = context.get('cs_breadcrumbs_skip', [])
+    link = 'BASE'
     for ix, elt in enumerate(context['cs_loader_states']):
+        link = link + '/' + context['cs_path_info'][ix]
+        if '/'.join(context['cs_path_info'][1:ix+1]) in to_skip:
+            continue
         name = elt['cs_long_name'] if ix != 0 else 'Home'
-        link = 'BASE/%s' % '/'.join(context['cs_path_info'][:ix+1])
+        name = language.source_transform_string(context, name)
         extra = '-active' if ix == len(context['cs_loader_states']) - 1 else ''
         out += '<li class="breadcrumb-item%s"><a href="%s">%s</a></li>' % (extra, link, name)
     return out + '</ol>'
