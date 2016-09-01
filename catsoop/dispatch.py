@@ -292,6 +292,46 @@ def display_page(context):
     return ('200', 'OK'), headers, out
 
 
+def _breadcrumbs_html(context):
+    _defined = context.get('cs_breadcrumbs_html', None)
+    if callable(_defined):
+        return _defined(context)
+    if len(context['cs_loader_states']) < 2:
+            return ''
+    out = '<ol class="breadcrumb">'
+    for ix, elt in enumerate(context['cs_loader_states']):
+        name = elt['cs_long_name'] if ix != 0 else 'Home'
+        link = 'BASE/%s' % '/'.join(context['cs_path_info'][:ix+1])
+        extra = '-active' if ix == len(context['cs_loader_states']) - 1 else ''
+        out += '<li class="breadcrumb-item%s"><a href="%s">%s</a></li>' % (extra, link, name)
+    return out + '</ol>'
+
+
+def _top_menu_html(topmenu, header=True):
+    if isinstance(topmenu, str):
+        return topmenu
+    if header:
+        out = '<div class="collapse navbar-collapse" id="catsoopnavbar">'
+        out += '<ul class="nav navbar-nav navbar-right">'
+    else:
+        out = ''
+    for i in topmenu:
+        link = i['link']
+        if isinstance(link, str):
+            out += '\n<li><a href="%s">%s</a></li>' % (link, i['text'])
+        else:
+            out += '\n<li class="dropdown">'
+            out += '<a href="#" data-toggle="dropdown" class="dropdown-toggle" role="button" aria-expanded="false">'
+            out += i['text']
+            out += '<span class="caret"></span></a>'
+            out += '<ul class="dropdown-menu">'
+            out += _top_menu_html(link, False)
+            out += '</ul>'
+    if header:
+        return out + '</ul></div>'
+    return out
+
+
 def main(environment):
     """
     Generate the page content associated with this request, properly handling
@@ -450,8 +490,8 @@ def main(environment):
 
 
         # SET SOME MORE TEMPLATE-SPECIFIC CONSTANTS, AND RENDER THE PAGE
-        context['cs_top_menu_html'] = 'hello'
-        context['cs_breadcrumbs_html'] = 'hey'
+        context['cs_top_menu_html'] = _top_menu_html(context['cs_top_menu'], True)
+        context['cs_breadcrumbs_html'] = _breadcrumbs_html(context)
 
         out = display_page(context)  # tweak and display HTML
 

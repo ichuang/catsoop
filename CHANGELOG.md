@@ -12,6 +12,9 @@ _Next planned release.  Currently under development._
 
 **Changed:**
 
+* Navigational menu entries can now optionally be specified in a more
+    straightforward (Pythonic) manner.
+
 **Deprecated:**
 
 **Removed:**
