@@ -65,11 +65,11 @@ def run_code(context, code, options):
         if typ == 'copy':
             shutil.copyfile(f[1], os.path.join(tmpdir, f[2]))
         elif typ == 'string':
-            with open(os.path.join(tmpdir, f[1]), 'w') as f:
-                f.write(f[2])
+            with open(os.path.join(tmpdir, f[1]), 'w') as fileobj:
+                fileobj.write(f[2])
     fname = '%s.py' % this_one
-    with open(os.path.join(tmpdir, fname), 'w') as f:
-        f.write(code.replace('\r\n', '\n'))
+    with open(os.path.join(tmpdir, fname), 'w') as fileobj:
+        fileobj.write(code.replace('\r\n', '\n'))
 
     interp = context.get('csq_python_interpreter', '/usr/local/bin/python3')
 
