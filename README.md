@@ -52,12 +52,12 @@ Server](https://httpd.apache.org/) or
 Development is carried out on a self-hosted instance of
 [GoGS](http://gogs.io/).  You can also clone the most recent (potentially
 unstable) version with the following:
-```
+```nohighlight
 $ git clone https://cat-soop.org/git/cat-soop.git
 ```
 
 If you have SSH keys on the GoGS instance, you can clone instead with:
-```
+```nohighlight
 $ git clone git@cat-soop.org:cat-soop/cat-soop.git
 ```
 
