@@ -209,7 +209,7 @@ h4 {
 .navbar {
     margin-bottom: 0;
     background-color: @{cs_base_color};
-    z-index: 9999;
+    z-index: 1999;
     border: 0;
     font-size: 14px !important;
     line-height: 20 !important;
@@ -333,7 +333,7 @@ pre {
   font-family: 'Computer Modern Typewriter';
 }
 
-img {vertical-align:middle;}
+img {vertical-align:middle; max-width:100%;}
 
 .equal {
   width: 100%;
