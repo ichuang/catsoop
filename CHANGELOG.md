@@ -15,6 +15,8 @@ _Next planned release.  Currently under development._
 
 * Navigational menu entries can now optionally be specified in a more
     straightforward (Pythonic) manner.
+* `csq_name`s are now automatically assigned as part of the XML parsing step,
+    rather than in the default handler.
 
 **Deprecated:**
 

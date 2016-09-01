@@ -40,6 +40,7 @@ def _xml_pre_handle(context):
     text = context['cs_content']
     text = re.sub(_environment_matcher('comment'), '', text)
     tmp = text.split('<question')
+    qcount = 0
     o = [tmp[0]]
     for piece in tmp[1:]:
         chunks = piece.strip().split('>', 1)
@@ -58,6 +59,9 @@ def _xml_pre_handle(context):
             if isinstance(code, int):
                 raise IndentationError('Inconsistent indentation on line %d' % code)
             exec(code, e)
+            if 'csq_name' not in e:
+                e['csq_name'] = 'q%06d' % qcount
+                qcount += 1
             o.append(tutor.question(context, type, **e))
         except:
             err = html_format(clear_info(context, traceback.format_exc(
