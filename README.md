@@ -96,7 +96,10 @@ under their own terms:
 * [Python Markdown](https://pythonhosted.org/Markdown/) version 2.6.2
     ([BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause))
     in `catsoop/tools/markdown`
-    
+* [SweetAlert2](https://limonte.github.io/sweetalert2/) version 4.2.4
+    ([MIT (Expat) License](https://opensource.org/licenses/MIT))
+    in `__MEDIA__/scripts/sweetalert2.js` and `__MEDIA__/themes/sweetalert2.css`
+
 Modified versions of the following pieces of software are also included.  The
 modified versions are available under the same terms as CAT-SOOP, and the
 original versions are available under their own terms.

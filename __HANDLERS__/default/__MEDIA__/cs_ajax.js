@@ -195,7 +195,10 @@ catsoop.save = function (name){catsoop.ajaxrequest([name],'save');};
 catsoop.copy = function (name){catsoop.ajaxrequest([name],'copy');};
 catsoop.copy_seed = function (name){catsoop.ajaxrequest([name],'copy_seed');};
 catsoop.new_seed = function (name){catsoop.ajaxrequest([name],'new_seed');};
-catsoop.viewanswer = function (name){catsoop.viewanswer_skipalert(name) && catsoop.viewanswernow(name);};
+catsoop.viewanswer = function (name){
+    if (catsoop.viewanswer_skipalert(name)) catsoop.viewanswernow(name);
+    else catsoop.confirmAndViewAnswer(name);
+};
 catsoop.viewanswer_skipalert = function (name){
     var i = catsoop.skip_alert.length;
     while (i--){
@@ -203,5 +206,18 @@ catsoop.viewanswer_skipalert = function (name){
             return true
         }
     }
-    return confirm(catsoop.viewans_confirm);
-}
+    return false;
+};
+catsoop.confirmAndViewAnswer = function(name) {
+    swal({
+      title: 'Are you sure?',
+      text: catsoop.viewans_confirm,
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, view answer!'
+    }).then(function() {
+        catsoop.viewanswernow(name);
+    })
+};

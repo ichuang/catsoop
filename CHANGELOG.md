@@ -17,6 +17,8 @@ _Next planned release.  Currently under development._
     straightforward (Pythonic) manner.
 * `csq_name`s are now automatically assigned as part of the XML parsing step,
     rather than in the default handler.
+* Changed "Are you sure you want to view the answer" dialog to use
+    [SweetAlert2](https://limonte.github.io/sweetalert2/).
 
 **Deprecated:**
 
