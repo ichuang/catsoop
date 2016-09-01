@@ -52,6 +52,9 @@ def _xml_pre_handle(context):
         code, rest = otherrest
         e = dict(context)
         try:
+            code = remove_common_leading_whitespace(code)
+            if isinstance(code, int):
+                raise IndentationError('Inconsistent indentation on line %d' % code)
             exec(code, e)
             o.append(tutor.question(context, type, **e))
         except:
@@ -174,6 +177,23 @@ PYTHON_REGEX = re.compile(
 """Regular expression for matching <python> tags"""
 
 
+def remove_common_leading_whitespace(x):
+    lines = x.splitlines()
+    for j in {0, -1}:
+        while len(lines) > 0 and lines[j].strip() == '':
+            lines.pop(j)
+    candidate = re.match(r'^(\s*)', lines[0])
+    if candidate is None:
+        return x
+    candidate = candidate.group(1)
+    for ix, i in enumerate(lines):
+        if not (i.startswith(candidate) or i.strip() == ''):
+            return ix
+    lc = len(candidate)
+    return '\n'.join(i[lc:] for i in lines)
+
+
+
 def get_python_output(context, code, variables):
     '''
     Get output from Python code.
@@ -187,6 +207,9 @@ def get_python_output(context, code, variables):
     '''
     variables.update({'cs___WEBOUT': StringIO()})
     try:
+        code = remove_common_leading_whitespace(code)
+        if isinstance(code, int):
+            raise IndentationError('Inconsistent indentation on line %d' % code)
         code = 'def cs_print(*args):\n    print(*args, file=cs___WEBOUT)\n\n' + code
         code = code.replace('tutor.init_random()',
                             'tutor.init_random(globals())')
