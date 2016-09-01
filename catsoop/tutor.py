@@ -230,19 +230,13 @@ def available_courses():
     base = os.path.join(base_context.cs_data_root, 'courses')
     if not os.path.isdir(base):
         return []
-    global_data = {}
-    loader.load_global_data(global_data)
     out = []
     for course in os.listdir(base):
         if course.startswith('_') or course.startswith('.'):
             continue
         if not os.path.isdir(os.path.join(base, course)):
             continue
-        data = dict(global_data)
-        try:
-            loader.do_early_load(data, course, [], data)
-        except:
-            continue
+        data = loader.spoof_early_load([course])
         if data.get('cs_course_available', True):
             t = data.get('cs_long_name', course)
             out.append((course, t))
