@@ -7,10 +7,12 @@
 <title>{cs_title}</title>
 <link rel="icon" href="{cs_icon_url}" type="image/gif" />
 
-<!-- jQuery and Bootstrap -->
+<!-- jQuery and Bootstrap and SweetAlert -->
 <script src="BASE/scripts/jquery.js"></script>
 <link rel="stylesheet" href="BASE/themes/bootstrap.css" />
 <script src="BASE/scripts/bootstrap.js"></script>
+<link rel="stylesheet" href="BASE/themes/sweetalert2.css" />
+<script src="BASE/scripts/sweetalert2.js"></script>
 
 <!-- automatically adjust the top padding so that the whole page is visible even if the navbar's height changes -->
 <script type="text/javascript">
@@ -20,7 +22,7 @@ var set_top_margin = function(){{
 
 $(document).ready(set_top_margin);
 $('#cs_main_navbar').resize(set_top_margin);
-var catsoop = {{}};
+var catsoop = {{plugins: {{}}}};
 </script>
 
 <!-- Additional styling specific for course-->
