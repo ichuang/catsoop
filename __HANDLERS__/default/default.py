@@ -581,7 +581,7 @@ def handle_save(context):
             out['rerender'] = rerender
 
         out['score_display'] = ''
-        out['response'] = ''
+        out['message'] = ''
         outdict[name] = out
 
         # cache responses
@@ -823,13 +823,13 @@ def handle_submit(context):
 
 def manage_groups(context):
     # displays the screen to admins who are adjusting groups
-    perms = context['cs_permissions']
-    #if 'groups' not in perms and 'admin' not in perms:
-    #    return 'You are not allowed to view this page.'
+    perms = context['cs_user_info'].get('permissions', [])
+    if 'groups' not in perms and 'admin' not in perms:
+        return 'You are not allowed to view this page. %s' % perms
     form = context['cs_form']
     # show the main partnering page
     section = context['cs_user_info'].get('section', None)
-    default_section = context.get('cs_default_section', 1)
+    default_section = context.get('cs_default_section', 'default')
     all_sections = context.get('cs_sections', [])
     if len(all_sections) == 0:
         all_sections = {default_section: 'Default Section'}
@@ -844,14 +844,14 @@ def manage_groups(context):
     out = 'Show Current Groups for Section: <select name="section" id="section">'
     for i in sorted(all_sections):
         s = ' selected' if i == section else ''
-        out += '<option value="%s"%s>%s</a>' % (i, s, i)
+        out += '<option value="%s"%s>%s</option>' % (i, s, i)
     out += '</select>&nbsp;<a class="btn btn-catsoop" id="cs_groups_show">Go</a>'
 
     # empty table that will eventually be populated with groups
     out += ('<p><h4>Groups:</h4>'
-            '<table id="cs_groups_table" border="1" align="center">'
-            '<tr><td>Loading...</td></tr>'
-            '</table>')
+            '<div id="cs_groups_table" border="1" align="center">'
+            'Loading...'
+            '</div>')
 
     # create partnership from two students
     out += ('<p><h4>Make New Partnership:</h4>'
@@ -871,16 +871,11 @@ def manage_groups(context):
             '<a class="btn btn-catsoop" id="cs_groups_addtogroup">Add to Group</a></p>')
 
 
-    # randomly assign all partners.  this needs to be sufficiently scary...
+    # randomly assign all groups.  this needs to be sufficiently scary...
     out += ('<p><h4>Randomly assign groups</h4>'
-            'Number per group:&nbsp;'
-            '<select name="cs_groups_numberpergroup" '
-            'id="cs_groups_numberpergroup">')
-    for i in range(10):
-        s = ' selected' if i == 2 else ''
-        out += '<option value="%s"%s>%s</option>' % (i, s, i)
-    out += '</select>'
-    out += '<br/>'
+            '<a class="btn btn-catsoop" id="cs_groups_show">Go</a>')
+
+    out += '<script type="text/javascript" src="__HANDLER__/default/cs_groups.js"></script>'
     return out + default_javascript(context)
 
 
@@ -1354,9 +1349,6 @@ def pre_handle(context):
     for elt in context['cs_problem_spec']:
         if isinstance(elt, tuple):
             m = elt[1]
-            if 'csq_name' not in m:
-                m['csq_name'] = 'q%06d' % qcount
-                qcount += 1
             context[_n('name_map')][m['csq_name']] = elt
 
     # who is the user (and, who is being impersonated?)
@@ -1459,6 +1451,7 @@ catsoop.api_token = %(secret)s;
 catsoop.this_path = %(path)r;
 catsoop.path_info = %(pathinfo)r;
 catsoop.course = %(course)s;
+catsoop.url_root = %(root)r;
 '''
 
     if len(namemap) > 0:
@@ -1482,6 +1475,7 @@ catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any fu
         'secret': api_tok,
         'course': repr(context['cs_course']) if context['cs_course'] else 'null',
         'pathinfo': context['cs_path_info'],
+        'root': context['cs_url_root'],
     }
 
 

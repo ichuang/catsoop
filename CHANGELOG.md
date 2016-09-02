@@ -33,6 +33,7 @@ _Next planned release.  Currently under development._
 * Fixed bug with additional files in the "`python`" python sandbox.
 * Fixed several bugs related to HTML parsing/display.
 * Internal Server Errors in AJAX callbacks now display an error message.
+* Fixed a bug that prevented saving entries to questions.
 
 **Security:**
 
