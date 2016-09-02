@@ -159,6 +159,7 @@ if error is None:
                        'email': resp['email'],
                        'name': resp['name']}
         session.update(openid_info)
+        session['course'] = cs_session_data['_openid_course']
     except:
         error = "Error setting user information."
 

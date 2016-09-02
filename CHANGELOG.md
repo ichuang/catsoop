@@ -37,6 +37,8 @@ _Next planned release.  Currently under development._
 
 **Security:**
 
+* Logins are no longer carried over between courses (user must log in to each course separately).
+
 # Version 9.0.0
 
 **Added:**

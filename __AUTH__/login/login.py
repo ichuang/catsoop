@@ -132,6 +132,7 @@ def get_logged_in_user(context):
             retval.update(login_info)
             session.update(login_info)
             session['username'] = u
+            session['course'] = context.get('cs_course', None)
         else:
             cs_debug(t, stored_token, login_info)
             context['cs_content_header'] = "Account Confirmation Failed"
@@ -142,7 +143,7 @@ def get_logged_in_user(context):
 
     # if the session tells us someone is logged in, return their
     # information
-    elif 'username' in session:
+    elif 'username' in session and session.get('course', None) == context['cs_course']:
         uname = session['username']
         clear_session_vars(context, 'login_message', 'last_form')
         return {'username': uname,
@@ -244,6 +245,7 @@ def get_logged_in_user(context):
                 name = login_info.get('name', u)
                 info = {'username': u, 'name': name, 'email': email}
                 session.update(info)
+                session['course'] = context.get('cs_course', None)
                 return {'cs_render_now': True}
         # show the form.
         context['cs_content_header'] = 'Reset Password'
@@ -304,6 +306,7 @@ def get_logged_in_user(context):
             name = login_info.get('name', uname)
             info = {'username': uname, 'name': name, 'email': email}
             session.update(info)
+            session['course'] = context.get('cs_course', None)
             clear_session_vars(context, 'login_message')
             info['cs_reload'] = True
             return info
@@ -434,6 +437,7 @@ def get_logged_in_user(context):
                     # load user info into session
                     info = {'username': uname, 'name': name, 'email': email}
                     session.update(info)
+                    session['course'] = context.get('cs_course', None)
                     # redirect to current location, with no "logininfo" in URL
                     info['cs_reload'] = True
                     return info
