@@ -41,17 +41,21 @@ def clear_info(context, text):
     return text
 
 
-def error_message_content(context):
+def error_message_content(context, html=True):
     """
     Returns an HTML-ready string containing an error message.
     """
-    return html_format(clear_info(context, traceback.format_exc()))
+    i = clear_info(context, traceback.format_exc())
+    if html:
+        return html_format(i)
+    return i
 
 
 def do_error_message(context, msg=None):
     """
     Display an error message
     """
+    plain = 'data' in context['cs_form']
     new = dict(context)
     loader.load_global_data(new)
     new['cs_home_link'] = 'BASE'
@@ -60,7 +64,11 @@ def do_error_message(context, msg=None):
         new['cs_username'] = None
     if 'cs_handler' in new:
         del new['cs_handler']
-    m = msg if msg is not None else error_message_content(context)
+    m = msg if msg is not None else error_message_content(context, html=(not plain))
+    if plain:
+        return ((500, 'Internal Server Error'),
+                {'Content-type': 'text/plain', 'Content-length': len(m.encode())},
+                m)
     new['cs_original_path'] = ''
     new['cs_content'] = ('<pre>ERROR:\n'
                          '%s</pre>') % ( m)

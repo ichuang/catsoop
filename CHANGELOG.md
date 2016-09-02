@@ -32,6 +32,7 @@ _Next planned release.  Currently under development._
 * `cs_post_load` and plugins' post-load hooks now fire at the right time (after `<python>` tags are evaluated).
 * Fixed bug with additional files in the "`python`" python sandbox.
 * Fixed several bugs related to HTML parsing/display.
+* Internal Server Errors in AJAX callbacks now display an error message.
 
 **Security:**
 

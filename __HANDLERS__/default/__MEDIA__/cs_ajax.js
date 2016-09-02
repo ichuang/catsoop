@@ -170,6 +170,12 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, te
                }
 }}
 
+catsoop.ajaxErrorCallback = function(name) {return function(jqXHR, textStatus, msg){
+    catsoop.switch_buttons(name, true);
+    $('#'+name+'_loading').hide();
+    $('#'+name+'_message').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+msg+'\n'+jqXHR.responseText+'</textarea>'+'</div>');
+}}
+
 function sendRequest(names,action,send){
     var form = {};
     for (var key in send){if (send.hasOwnProperty(key)){form[key] = send[key];}}
@@ -181,7 +187,7 @@ function sendRequest(names,action,send){
     $.ajax({type:'POST',
             url: catsoop.this_path,
             async: 'false',
-            data: d}).done(catsoop.ajaxDoneCallback(d, catsoop.this_path, 0));
+            data: d}).done(catsoop.ajaxDoneCallback(d, catsoop.this_path, 0)).fail(catsoop.ajaxErrorCallback(names[0]));
 };
 catsoop.submit = function (name){catsoop.ajaxrequest([name],'submit');};
 catsoop.check = function (name){catsoop.ajaxrequest([name],'check');};
