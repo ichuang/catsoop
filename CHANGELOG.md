@@ -20,6 +20,7 @@ _Next planned release.  Currently under development._
 * Changed "Are you sure you want to view the answer" dialog to use
     [SweetAlert2](https://limonte.github.io/sweetalert2/).
 * Nicer-looking tables in default theme.
+* Added a more complete message to the "log in" box for OpenID Connect.
 
 **Deprecated:**
 
