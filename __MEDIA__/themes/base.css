@@ -334,6 +334,8 @@ pre {
 }
 
 img {vertical-align:middle; max-width:100%;}
+table {margin-bottom: 20px;}
+td,th {padding:5px; text-align:center;vertical-align:middle;}
 
 .equal {
   width: 100%;
