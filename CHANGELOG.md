@@ -10,6 +10,7 @@ _Next planned release.  Currently under development._
     chain has been executed (in `cs_loader_states`), to allow, e.g., looking up
     parents' names.
 * Added "breadcrumbs" to the default theme.
+* Fleshed out the interactive group management page.
 
 **Changed:**
 

@@ -825,7 +825,7 @@ def manage_groups(context):
     # displays the screen to admins who are adjusting groups
     perms = context['cs_user_info'].get('permissions', [])
     if 'groups' not in perms and 'admin' not in perms:
-        return 'You are not allowed to view this page. %s' % perms
+        return 'You are not allowed to view this page.'
     form = context['cs_form']
     # show the main partnering page
     section = context['cs_user_info'].get('section', None)
@@ -841,41 +841,47 @@ def manage_groups(context):
     context['cs_content_header'] = hdr
 
     # menu for choosing section to display
-    out = 'Show Current Groups for Section: <select name="section" id="section">'
+    out = '\nShow Current Groups for Section:\n<select name="section" id="section">'
     for i in sorted(all_sections):
-        s = ' selected' if i == section else ''
-        out += '<option value="%s"%s>%s</option>' % (i, s, i)
-    out += '</select>&nbsp;<a class="btn btn-catsoop" id="cs_groups_show">Go</a>'
+        s = ' selected' if str(i) == str(section) else ''
+        out += '\n<option value="%s"%s>%s</option>' % (i, s, i)
+    out += '\n</select>'
 
     # empty table that will eventually be populated with groups
-    out += ('<p><h4>Groups:</h4>'
-            '<div id="cs_groups_table" border="1" align="center">'
-            'Loading...'
-            '</div>')
+    out += ('\n<p>\n<h2>Groups:</h2>'
+            '\n<div id="cs_groups_table" border="1" align="left">'
+            '\nLoading...'
+            '\n</div>')
 
     # create partnership from two students
-    out += ('<p><h4>Make New Partnership:</h4>'
-            'Student 1: <select name="cs_groups_name1" id="cs_groups_name1">'
+    out += ('\n<p>\n<h2>Make New Partnership:</h2>'
+            '\nStudent 1: <select name="cs_groups_name1" id="cs_groups_name1">'
             '</select>&nbsp;'
-            'Student 2: <select name="cs_groups_name2" id="cs_groups_name2">'
+            '\nStudent 2: <select name="cs_groups_name2" id="cs_groups_name2">'
             '</select>&nbsp;'
-            '<a class="btn btn-catsoop" id="cs_groups_newpartners">Partner Students</a>'
+            '\n<button class="btn btn-catsoop" id="cs_groups_newpartners">Partner Students</button>'
             '</p>')
 
     # add a student to a group
-    out += ('<p><h4>Add Student to Group:</h4>'
-            'Student: <select name="cs_groups_nameadd" id="cs_groups_nameadd">'
+    out += ('\n<p>\n<h2>Add Student to Group:</h2>'
+            '\nStudent: <select name="cs_groups_nameadd" id="cs_groups_nameadd">'
             '</select>&nbsp;'
-            'Group: <select name="cs_groups_groupadd" id="cs_groups_groupadd">'
+            '\nGroup: <select name="cs_groups_groupadd" id="cs_groups_groupadd">'
             '</select>&nbsp;'
-            '<a class="btn btn-catsoop" id="cs_groups_addtogroup">Add to Group</a></p>')
-
+            '\n<button class="btn btn-catsoop" id="cs_groups_addtogroup">Add to Group</button></p>')
 
     # randomly assign all groups.  this needs to be sufficiently scary...
-    out += ('<p><h4>Randomly assign groups</h4>'
-            '<a class="btn btn-catsoop" id="cs_groups_show">Go</a>')
+    out += ('\n<p><h2>Randomly assign groups</h2>'
+            '\n<button class="btn btn-catsoop" id="cs_groups_reassign">Reassign Groups</button></p>')
 
-    out += '<script type="text/javascript" src="__HANDLER__/default/cs_groups.js"></script>'
+    all_group_names = context.get('cs_group_names', None)
+    if all_group_names is None:
+        all_group_names = map(str, range(100))
+    else:
+        all_group_names = sorted(all_group_names)
+    all_group_names = list(all_group_names)
+    out += '\n<script type="text/javascript">catsoop.group_names = %s</script>' % all_group_names
+    out += '\n<script type="text/javascript" src="__HANDLER__/default/cs_groups.js"></script>'
     return out + default_javascript(context)
 
 

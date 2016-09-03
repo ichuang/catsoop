@@ -13,6 +13,9 @@
 
 import random
 
+from . import util
+
+
 def get_group_log_name(course, path):
     """
     Returns the relevant log name for groups associated with the given path
@@ -30,11 +33,8 @@ def list_groups(context, course, path):
 
 
 def get_section(context, course, username):
-    if context.get('cs_groups_per_section', False):
-        uinfo = read_user_file(context, course, username, {})
-        return uinfo.get('section', None)
-    else:
-        return None
+    uinfo = util.read_user_file(context, course, username, {})
+    return str(uinfo.get('section', 'default'))
 
 
 def get_group(context, course, path, username, groups=None):
@@ -81,7 +81,7 @@ def remove_from_group(context, course, path, username, group):
     log = context['csm_cslog']
     section = get_section(context, course, username)
     preexisting_group = get_group(context, course, path, username)
-    if preexisting_group != (section, group):
+    if preexisting_group[:-1] != (section, group):
         return "%s is not assigned to section %s group %s." % (username, section, group)
     def _transformer(x):
         x[section] = x.get(section, {})
@@ -129,7 +129,7 @@ def make_all_groups(context, course, path, section):
     students = util.list_all_users(context, course)
     def filt(uinfo):
         return (uinfo.get('role', None) == 'Student' and
-                uinfo.get('section', None) == section)
+                str(uinfo.get('section', None)) == str(section))
     cats = {}
     for s in students:
         if not filt(util.read_user_file(context, course, s, {})):
@@ -138,7 +138,7 @@ def make_all_groups(context, course, path, section):
         cats[c] = cats.get(c, []) + [s]
 
     output = {}
-    for c in cats:
+    for c in sorted(cats):
         random.shuffle(cats[c])
         while len(cats[c]) > 0:
             out, cats[c] = cats[c][:size], cats[c][size:]

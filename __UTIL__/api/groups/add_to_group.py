@@ -37,7 +37,7 @@ if error is None:
     output = csm_api.get_user_information(globals(), api_token=api_token, course=course)
     if output['ok']:
         uinfo = output['user_info']
-        if 'groups' not in uinfo['permissions']:
+        if 'groups' not in uinfo['permissions'] and 'admin' not in uinfo['permissions']:
             error = 'Permission Denied'
 
 if error is None:
