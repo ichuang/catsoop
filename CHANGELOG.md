@@ -1,6 +1,4 @@
-# Version 9.1.0 (current progress)
-
-_Next planned release.  Currently under development._
+# Version 9.1.0
 
 **Added:**
 
@@ -22,10 +20,6 @@ _Next planned release.  Currently under development._
     [SweetAlert2](https://limonte.github.io/sweetalert2/).
 * Nicer-looking tables in default theme.
 * Added a more complete message to the "log in" box for OpenID Connect.
-
-**Deprecated:**
-
-**Removed:**
 
 **Fixed:**
 
