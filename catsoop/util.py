@@ -13,6 +13,7 @@
 
 import os
 
+from . import loader
 
 def _hide(n):
     return n[0] in ('_', '.') or not n.endswith('.py')
@@ -29,10 +30,12 @@ def list_all_users(context, course):
 
 
 def read_user_file(context, course, user, default=None):
-    user_file = os.path.join(users_dir(context, course), user)
+    user_file = os.path.join(users_dir(context, course), "%s.py" % user)
     if os.path.isfile(user_file):
-        uinfo = eval(open(user_file).read())
+        uinfo = {}
+        exec(open(user_file).read(), uinfo)
         uinfo['username'] = user
+        loader.clean_builtins(uinfo)
         return uinfo
     else:
         return default
