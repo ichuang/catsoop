@@ -17,6 +17,7 @@ No animals were harmed in the making of this CAT-SOOP.
 CAT-SOOP is a tool for automatic collection and assessment of online exercises,
 originally developed primarily for use in MIT's 6.01 (Introduction to
 Electrical Engineering and Computer Science via Robot Sensing, Software, and
+Control).
 
 CAT-SOOP is [free/libre software](https://www.gnu.org/philosophy/free-sw.html),
 available under the terms of the Soopycat License version 1
