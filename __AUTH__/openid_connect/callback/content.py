@@ -39,6 +39,7 @@ if error is None:
 
     if '_openid_course' in session:
         ctx['cs_course'] = cs_session_data['_openid_course']
+        ctx['cs_path_info'] = [ctx['cs_course']]
         cfile = csm_dispatch.content_file_location(ctx, [ctx['cs_course']])
         csm_loader.do_early_load(ctx, ctx['cs_course'], [], ctx, cfile)
 

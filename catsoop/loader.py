@@ -135,6 +135,7 @@ def spoof_early_load(path):
     load_global_data(ctx)
     opath = path
     ctx['cs_course'] = path[0]
+    ctx['cs_path_info'] = opath
     path = path[1:]
     cfile = ctx['csm_dispatch'].content_file_location(ctx, opath)
     do_early_load(ctx, ctx['cs_course'], path, ctx, cfile)

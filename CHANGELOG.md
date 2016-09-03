@@ -12,6 +12,8 @@ _Next planned release.  Currently under development._
 
 **Fixed:**
 
+* Fixed a bug with `cs_path_info` not being defined in certain situations.
+
 **Security:**
 
 # Version 9.1.0

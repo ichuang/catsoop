@@ -48,6 +48,7 @@ ctx['_hsv_to_rgb'] = _hsv_to_rgb
 preload_from = cs_form.get('preload', '')
 if preload_from != '':
     path = [i for i in preload_from.split('/') if i != '']
+    ctx['cs_path_info'] = []
     ctx.update(csm_loader.spoof_early_load(path))
 
 original_loc = cs_form.get('theme', 'BASE/themes/base.css')
