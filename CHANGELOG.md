@@ -1,3 +1,19 @@
+# Version 9.2.0 (current progress)
+
+_Next planned release.  Currently under development._
+
+**Added:**
+
+**Changed:**
+
+**Deprecated:**
+
+**Removed:**
+
+**Fixed:**
+
+**Security:**
+
 # Version 9.1.0
 
 **Added:**
