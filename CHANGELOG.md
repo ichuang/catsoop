@@ -6,6 +6,8 @@ _Next planned release.  Currently under development._
 
 **Changed:**
 
+* Better checks and display for `checkoff` question type.
+
 **Deprecated:**
 
 **Removed:**

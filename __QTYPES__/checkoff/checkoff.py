@@ -31,10 +31,24 @@ def handle_submission(submissions, **info):
         l = False
     else:
         import time
-        un = info['cs_user_info']['real_user']['username']
-        percent = 1
-        msg = 'You received this checkoff from %s on %s.' % (un, time.time())
-        l = True
+        un = submissions[info['csq_name']]
+        new = dict(info)
+        new['cs_form'] = {}
+        uinfo = info['csm_auth']._get_user_information(new,
+                                                       new,
+                                                       info['cs_course'],
+                                                       un,
+                                                       True)
+        if 'checkoff' not in uinfo.get('permissions', []):
+            percent = 0
+            msg = '%s is not allowed to give checkoffs.' % uinfo
+            l = False
+        else:
+            percent = 1
+            now = info['csm_time'].from_detailed_timestamp(info['cs_timestamp'])
+            now = info['csm_time'].long_timestamp(now).replace('; ', ' at ')
+            msg = 'You received this checkoff from %s on %s.' % (un, now)
+            l = True
     return {'score': percent, 'msg': msg, 'lock': l}
 
 def render_html(last_log, **info):
