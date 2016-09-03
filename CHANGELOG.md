@@ -4,6 +4,9 @@ _Next planned release.  Currently under development._
 
 **Added:**
 
+* Added `render_single_question` to the default handler, for rendering a single
+    question's contents.
+
 **Changed:**
 
 * Better checks and display for `checkoff` question type.

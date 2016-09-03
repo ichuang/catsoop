@@ -57,6 +57,7 @@ def handle(context):
                      'list_questions': handle_list_questions,
                      'get_state': handle_get_state,
                      'manage_groups': manage_groups,
+                     'render_single_question': handle_single_question,
                      }
 
     action = context[_n('action')]
@@ -75,6 +76,17 @@ def handle_get_state(context):
         if isinstance(ll[i], set):
             ll[i] = list(ll[i])
     return make_return_json(context, ll, [])
+
+
+def handle_single_question(context):
+    lastlog = context[_n('last_log')]
+    lastsubmit = lastlog.get('last_submit', {})
+
+    qname = context['cs_form'].get('name', None)
+    elt = context[_n('name_map')][qname]
+
+    o = render_question(elt, context, lastsubmit, wrap=False)
+    return ('200', 'OK'), {'Content-type': 'text/html'}, o
 
 
 def handle_copy_seed(context):
@@ -1108,13 +1120,16 @@ def make_return_json(context, ret, names=None):
     return simple_return_json(ret)
 
 
-def render_question(elt, context, lastsubmit):
+def render_question(elt, context, lastsubmit, wrap=True):
     q, args = elt
     name = args['csq_name']
     lastlog = context[_n('last_log')]
     answer_viewed = context[_n('answer_viewed')]
-    out = '\n<!--START question %s -->' % (name)
-    if q.get('indiv', True) and args.get('csq_indiv', True):
+    if wrap:
+        out = '\n<!--START question %s -->' % (name)
+    else:
+        out = ''
+    if wrap and q.get('indiv', True) and args.get('csq_indiv', True):
         out += '\n<div class="question question-%s" id="cs_qdiv_%s" style="position: static">' % (q['qtype'], name)
 
     out += '\n<div id="%s_rendered_question">\n' % name
@@ -1181,9 +1196,10 @@ def render_question(elt, context, lastsubmit):
             ll = '<b>Score:</b> %s (out of %s)<br><br><b>Grader\'s Comments:</b><br/>%s' % (
                 score_output, tpoints, comments)
     out += ll + "</div>"
-    if q.get('indiv', True) and args.get('csq_indiv', True):
+    if wrap and q.get('indiv', True) and args.get('csq_indiv', True):
         out += '\n</div>'
-    out += '\n<!--END question %s -->\n' % args['csq_name']
+    if wrap:
+        out += '\n<!--END question %s -->\n' % args['csq_name']
     return out
 
 
@@ -1421,12 +1437,13 @@ def pre_handle(context):
     context[_n('action')] = context['cs_form'].get('action', 'view').lower()
     if context[_n('action')] in ('view', 'activate',
                                  'passthrough', 'list_questions',
-                                 'get_state', 'manage_groups'):
+                                 'get_state', 'manage_groups',
+                                 'render_single_question'):
         context[_n('form')] = context['cs_form']
     else:
         names = context['cs_form'].get('names', "[]")
         context[_n('question_names')] = json.loads(names)
-        context[_n('form')] = json.loads(context['cs_form']['data'])
+        context[_n('form')] = json.loads(context['cs_form'].get('data', {}))
 
 
 def _get_auto_view(context):
