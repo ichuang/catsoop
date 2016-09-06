@@ -6,6 +6,8 @@ _Next planned release.  Currently under development._
 
 * Added `render_single_question` to the default handler, for rendering a single
     question's contents.
+* Added ability to customize how e-mail address is created from available
+    information when using OpenID Connect.
 
 **Changed:**
 

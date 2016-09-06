@@ -154,10 +154,13 @@ if error is None:
     # try to set usert information in session
     def get_username(idtoken, userinfo):
         return userinfo['preferred_username']
+    def get_email(idtoken, userinfo):
+        return userinfo['email']
     try:
         get_username = ctx.get('cs_openid_username_generator', get_username)
+        get_email = ctx.get('cs_openid_email_generator', get_email)
         openid_info = {'username': get_username(body, resp),
-                       'email': resp['email'],
+                       'email': get_email(body, resp),
                        'name': resp['name']}
         session.update(openid_info)
         session['course'] = cs_session_data['_openid_course']
