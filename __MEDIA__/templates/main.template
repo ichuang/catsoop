@@ -63,6 +63,7 @@ hljs.initHighlightingOnLoad();
           {cs_top_menu_html}
   </div>
 </nav>
+<div id="content">
   <center>
   <h1>{cs_content_header}</h1>
   </center>
@@ -81,6 +82,7 @@ hljs.initHighlightingOnLoad();
   {cs_bottom_menu}
 </div>
 
+</div>
 <div id="footer">
     {cs_footer}
     Powered by <a href='https://cat-soop.org'>CAT-SOOP</a> v{cs_version}<br/>

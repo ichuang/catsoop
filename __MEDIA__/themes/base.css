@@ -440,17 +440,6 @@ li {
   margin-bottom:12pt;
 }
 
-#content {
-  display: block;
-  float: right;
-  width: calc(80% - 20px);
-  max-width:880px;
-  background-color: #FFFFFF;
-  margin: 0px;
-  padding: 10px;
-  overflow: auto;
-}
-
 .response {
  width:90%;
  padding:10px;
