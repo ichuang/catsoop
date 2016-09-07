@@ -37,14 +37,15 @@ def get_section(context, course, username):
     return str(uinfo.get('section', 'default'))
 
 
-def get_group(context, course, path, username, groups=None):
+def get_group(context, course, path, username, groups=None, secnum=None):
     """
     Returns the section number and group to which the given user belongs, or
     None if they have not been assigned a group.
     """
     if groups is None:
         groups = list_groups(context, course, path)
-    secnum = get_section(context, course, username)
+    if secnum is None:
+        secnum = get_section(context, course, username)
     for group in groups.get(secnum, {}):
         if username in groups[secnum][group]:
             return (secnum, group, groups[secnum][group])
