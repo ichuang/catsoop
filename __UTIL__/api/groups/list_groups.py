@@ -53,7 +53,7 @@ else:
             all_partnered = sum(secgrp.values(), [])
             unpartnered = [i for i in all_students
                            if i not in all_partnered and
-                           all_students[i].get('section', 'default') == section]
+                           str(all_students[i].get('section', 'default')) == section]
             secgrp['_unpartnered'] = unpartnered
     output = {'ok': True, 'groups': groups}
 
