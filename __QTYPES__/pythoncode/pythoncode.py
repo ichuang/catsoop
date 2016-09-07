@@ -40,7 +40,7 @@ def html_format(string):
                 break
         s[ix] = '&nbsp;' * jx + line[jx:]
 
-    return '<br>'.join(s)
+    return '<br/>'.join(s)
 
 
 defaults = {
@@ -152,11 +152,11 @@ def handle_check(submissions, **info):
         msg += '</b></p>'
     if out != '':
         msg += "\n<p><b>Your code produced the following output:</b>"
-        msg += "<br><pre>%s</pre>" % html_format(out)
+        msg += "<br/><pre>%s</pre></p>" % html_format(out)
     if err != '':
         if not timeout:
             msg += "\n<p><b>Your code produced an error:</b>"
-        msg += "\n<br><font color='red'><tt>%s</tt></font>" % html_format(err)
+        msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % html_format(err)
     msg += '</div>'
 
     return msg
@@ -207,10 +207,10 @@ def handle_submission(submissions, **info):
                 info, info['csq_soln'], test)
 
         if count != 1:
-            msg += "\n\n<p><hr><p>\n\n"
+            msg += "\n\n<p></p><hr/><p></p>\n\n"
         msg += "\n<center><h3>Test %02d</h3>" % count
         if test['show_description']:
-            msg += "\n<i>%s</i></center><p>" % test['description']
+            msg += "\n<i>%s</i></center><p></p>" % test['description']
 
         if test['show_code']:
             html_code = html_format(test['code'])
@@ -237,30 +237,30 @@ def handle_submission(submissions, **info):
             msg += ("\n<p>Our solution produced the following "
                     "value for <tt>%s</tt>:") % test['variable']
             m = test['transform_output'](log_s)
-            msg += "\n<br><font color='blue'>%s</font>" % m
+            msg += "\n<br/><font color='blue'>%s</font></p>" % m
         elif log_s == '':
             msg += "\n<p><b>OOPS!</b> Our code produced an error:"
             e = html_format(err_s)
-            msg += "\n<br><font color='red'><tt>%s</tt></font>" % e
+            msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
 
         if log != '' and test['show_code']:
             msg += ("\n<p>Your submission produced the following "
                     "value for <tt>%s</tt>:") % test['variable']
             m = test['transform_output'](log)
-            msg += "\n<br><font color='blue'>%s</font>%s" % (m, image)
+            msg += "\n<br/><font color='blue'>%s</font>%s</p>" % (m, image)
         elif log != '':
-            msg += "\n<br><center>%s</center>" % (image)
+            msg += "\n<br/><center>%s</center></p>" % (image)
 
         if out != '' and test['show_code']:
             msg += "\n<p>Your code produced the following output:"
-            msg += "<br><pre>%s</pre>" % html_format(out)
+            msg += "<br/><pre>%s</pre></p>" % html_format(out)
 
         if err != '' and test['show_code']:
             msg += "\n<p>Your submission produced an error:"
             e = html_format(err)
-            msg += "\n<br><font color='red'><tt>%s</tt></font>" % e
+            msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
         elif err != '':
-            msg += "\n<br><center>%s</center>" % (image)
+            msg += "\n<br/><center>%s</center></p>" % (image)
 
         count += 1
 
