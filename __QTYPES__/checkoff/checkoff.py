@@ -52,6 +52,7 @@ def handle_submission(submissions, **info):
     return {'score': percent, 'msg': msg, 'lock': l}
 
 def render_html(last_log, **info):
+    info['csq_description'] = info['csm_language'].source_transform_string(info, info['csq_description'])
     return '<b>%s</b>:<br/>%s' % (info['csq_display_name'],
                               info['csq_description'])
 
