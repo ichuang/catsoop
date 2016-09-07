@@ -58,6 +58,8 @@ def handle(context):
                      'get_state': handle_get_state,
                      'manage_groups': manage_groups,
                      'render_single_question': handle_single_question,
+                     'stats': handle_stats,
+                     'whdw': handle_whdw,
                      }
 
     action = context[_n('action')]
@@ -1098,7 +1100,6 @@ def log_action(context, log_entry):
              'user_info': context['cs_user_info'],
              'form': context['cs_form']}
     entry.update(log_entry)
-    context['cs_debug'](uname, entry)
     context['csm_cslog'].update_log(course, uname, logname, entry)
 
 
@@ -1443,7 +1444,7 @@ def pre_handle(context):
     else:
         names = context['cs_form'].get('names', "[]")
         context[_n('question_names')] = json.loads(names)
-        context[_n('form')] = json.loads(context['cs_form'].get('data', {}))
+        context[_n('form')] = json.loads(context['cs_form'].get('data', '{}'))
 
 
 def _get_auto_view(context):
@@ -1534,3 +1535,130 @@ def exc_message(context):
     return ('<p><font color="red">'
             '<b>CAT-SOOP ERROR:</b>'
             '<pre>%s</pre></font>') % exc
+
+def get_scores(context):
+    util = context['csm_util']
+
+    usernames = util.list_all_users(context, context['cs_course'])
+    users = [
+        util.read_user_file(context, context['cs_course'], username, {})
+        for username in usernames
+    ]
+    students = [
+        user
+        for user in users
+        if user.get('role', None) in ['Student', 'SLA']
+    ]
+
+    questions = context[_n('name_map')]
+    scores = {}
+    for name in questions:
+        counts = {}
+
+        for student in students:
+            username = student.get('username', 'None')
+            log = context['csm_cslog'].most_recent(
+                context['cs_course'],
+                username,
+                '.'.join(context['cs_path_info'][1:] + ['problemstate']),
+                {},
+            )
+            score = log.get('scores', {}).get(name, None)
+            counts[username] = score
+
+        scores[name] = counts
+
+    return scores
+
+def handle_stats(context):
+    stats = {}
+    total_students = 0
+    for name, scores in get_scores(context).items():
+        counts = {
+            'completed': 0,
+            'attempted': 0,
+            'not-tried': 0,
+        }
+
+        for score in scores.values():
+            if score is None:
+                counts['not-tried'] += 1
+            elif score == 1:
+                counts['completed'] += 1
+            else:
+                counts['attempted'] += 1
+
+        stats[name] = counts
+        total_students = max(total_students, sum(counts.values()))
+
+    BeautifulSoup = context['csm_tools'].bs4.BeautifulSoup
+    soup = BeautifulSoup('')
+    table = soup.new_tag('table')
+
+    header = soup.new_tag('tr')
+    for heading in ['name', 'completed', 'attempted', 'not-tried']:
+        th = soup.new_tag('th')
+        th.string = heading
+        header.append(th)
+    table.append(header)
+
+    for name, counts in stats.items():
+        tr = soup.new_tag('tr')
+        td = soup.new_tag('td')
+        a = soup.new_tag('a',
+            href = '?action=whdw&question={}'.format(name),
+        )
+        a.string = name
+        td.append(a)
+        td['class'] = 'text-left'
+        tr.append(td)
+        for key in ['completed', 'attempted', 'not-tried']:
+            td = soup.new_tag('td')
+            td.string = '{:.2%}'.format(counts[key] / total_students)
+            td['class'] = 'text-right'
+            tr.append(td)
+        table.append(tr)
+
+    soup.append(table)
+
+    return str(soup)
+
+def handle_whdw(context):
+    question = context['cs_form']['question']
+    scores = get_scores(context)[question]
+
+    states = {
+        'completed': [],
+        'attempted': [],
+        'not-tried': [],
+    }
+
+    for username, score in scores.items():
+        if score is None:
+            state = 'not-tried'
+        elif score == 1:
+            state = 'completed'
+        else:
+            state = 'attempted'
+
+        states[state].append(username)
+
+    BeautifulSoup = context['csm_tools'].bs4.BeautifulSoup
+    soup = BeautifulSoup('')
+
+    for state in ['not-tried', 'attempted', 'completed']:
+        usernames = states[state]
+        h3 = soup.new_tag('h3')
+        h3.string = state
+        soup.append(h3)
+
+        grid = soup.new_tag('div')
+        grid['class'] = 'row'
+        for username in sorted(usernames):
+            cell = soup.new_tag('div')
+            cell.string = username
+            cell['class'] = 'col-sm-2'
+            grid.append(cell)
+        soup.append(grid)
+
+    return str(soup)
