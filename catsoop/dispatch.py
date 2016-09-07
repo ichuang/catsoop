@@ -174,7 +174,7 @@ def serve_static_file(context, fname, environment=None, stream=False, streamchun
             f.close()
         headers['Content-length'] = str(headers['Content-length'])
     except:
-        stats, headers, out = errors.do_404_message(context)
+        status, headers, out = errors.do_404_message(context)
     return status, headers, out
 
 

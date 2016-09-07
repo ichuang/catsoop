@@ -13,6 +13,8 @@
 
 import re
 
+from http import HTTPStatus
+
 
 def handle(context):
     uname = context.get('cs_username', 'None')
@@ -24,29 +26,32 @@ def handle(context):
 
     rel = context['csm_tutor'].get_release_date(context)
     ts = context['cs_timestamp']
-    current = context['csm_cstime'].from_detailed_timestamp(ts)
+    current = context['csm_time'].from_detailed_timestamp(ts)
 
     log_entry = {
         k: v
-        for (k, v) in context.iteritems()
+        for (k, v) in context.items()
         if k in {'cs_timestamp', 'cs_path_info', 'cs_ip', 'cs_user_info'}
     }
 
     m = None
+    status = HTTPStatus.OK
 
-    if 'view' not in perms and 'view_all' not in perms:
+    if 'view' not in perms and 'view_all' not in perms or uname == 'None':
         m = 'You are not authorized to view this handout.'
+        status = HTTPStatus.UNAUTHORIZED
     elif 'view' in perms and current < rel:
-        reltime = context['cstime'].short_timestamp(rel)
+        reltime = context['csm_time'].short_timestamp(rel)
         m = ('This handout is not yet available.  '
              'It will become available at: %s') % reltime
+        status = HTTPStatus.NOT_FOUND
 
     log_entry['success'] = m is None
     context['csm_cslog'].update_log(context['cs_course'], uname, logname,
                                     log_entry)
 
     if m is None:
-        return context['csm_web'].serve_static_file(fname, context['cs_env'])
+        return context['csm_dispatch'].serve_static_file(context, fname, context['cs_env'])
     else:
-        return (('200', 'OK'), {'Content-type': 'text/plain',
+        return ((status.value, status.phrase), {'Content-type': 'text/plain',
                                 'Content-length': str(len(m))}, m)
