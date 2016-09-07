@@ -52,6 +52,8 @@ def handle_submission(submissions, **info):
         soln = eval(info['sandbox_run_code'](info, code, opts)[1], info)
     try:
         code = info['csq_code_pre']
+        if sub == '':
+            return {'score': 0.0, 'msg': ''}
         if py3k:
             code += '\nprint(repr(%s))' % sub
         else:
