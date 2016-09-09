@@ -8,10 +8,16 @@ _Next planned release.  Currently under development._
     question's contents.
 * Added ability to customize how e-mail address is created from available
     information when using OpenID Connect.
+* Added the ability to override `get_group`'s section lookup and instead use
+    the specified section.
+* Added `stats` and `whdw` (Who Has Done What) actions to the default handler.
 
 **Changed:**
 
 * Better checks and display for `checkoff` question type.
+* Improved error handling in the `pythonic` question type.
+* Improved the formatting of HTML in the `pythoncode` question type to prevent
+    Beautiful Soup from modifying it too much.
 
 **Deprecated:**
 
@@ -22,9 +28,14 @@ _Next planned release.  Currently under development._
 * Fixed a bug with `cs_path_info` not being defined in certain situations.
 * Fixed the stylesheet so that pages can be printed again.
 * Fixed a bug with reporting error messages related to malformed questions.
+* Fixed a type error in `list_groups` that prevented students' sections from
+    being determined correctly.
 * Brought the `richtext` question type up to speed with current CAT-SOOP.
 * Brought the `multiplechoice` question type up to speed with current CAT-SOOP.
+* Brought the `handout` handler up to speed with current CAT-SOOP and improved
+    its error reporting.
 * Fixed a regression that rendered `pythonliteral` questions unusable.
+* Fixed a typo in `dispatch` that broke proper 404 handling of `handout`s.
 
 **Security:**
 
