@@ -13,6 +13,8 @@
 
 tutor.qtype_inherit('bigbox')
 
+_base_render_html = render_html
+
 defaults.update({
     'csq_soln': '',
     'csq_npoints': 1,
@@ -31,7 +33,7 @@ def richtext_format(context, text, msg="Preview:"):
             'padding:10px; border-radius:10px;">')
     out += markdownify(context, text)
     out += ('<script type="text/javascript">'
-            'cs_render_all_math($("#cs_qdiv_%s"), true);'
+            'catsoop.render_all_math($("#cs_qdiv_%s"), true);'
             '</script>') % context['csq_name']
     out += '</div>'
     return out
@@ -46,12 +48,11 @@ def handle_check(submission, **info):
 
 
 def render_html(last_log, **info):
-    out = base['render_html'](last_log, **info)
+    out = _base_render_html(last_log, **info)
     help_url = '/'.join([info['cs_url_root'], '__QTYPE__', 'richtext',
                          'formatting.html'])
     out += ('''<a onClick="window.open('%s', '_blank', '''
-            ''''toolbar=0,location=0,menubar=0,'''
-            '''width=200,height=400');" '''
+            ''''');" '''
             '''style="cursor:pointer; cursor:hand;">'''
             '''Formatting Help</a>''') % help_url
     return out
