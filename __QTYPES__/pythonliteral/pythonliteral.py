@@ -14,7 +14,7 @@
 import ast
 
 tutor.qtype_inherit('pythonic')
-
+base, _ = tutor.question('pythonic')
 
 def handle_submission(submissions, **info):
     sub = submissions[info['csq_name']]
