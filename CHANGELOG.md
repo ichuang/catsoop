@@ -23,6 +23,7 @@ _Next planned release.  Currently under development._
 * Fixed the stylesheet so that pages can be printed again.
 * Fixed a bug with reporting error messages related to malformed questions.
 * Brought the `richtext` question type up to speed with current CAT-SOOP.
+* Brought the `multiplechoice` question type up to speed with current CAT-SOOP.
 * Fixed a regression that rendered `pythonliteral` questions unusable.
 
 **Security:**
