@@ -35,6 +35,7 @@ from .tools.markdown.extensions import fenced_code
 from .tools.markdown.extensions import sane_lists
 from .tools.bs4 import BeautifulSoup
 
+_malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
 def _xml_pre_handle(context):
     text = context['cs_content']

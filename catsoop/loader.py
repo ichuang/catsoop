@@ -27,7 +27,6 @@ from . import base_context
 
 importlib.reload(base_context)
 
-_malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
 def clean_builtins(d):
     """

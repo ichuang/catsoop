@@ -21,6 +21,7 @@ _Next planned release.  Currently under development._
 
 * Fixed a bug with `cs_path_info` not being defined in certain situations.
 * Fixed the stylesheet so that pages can be printed again.
+* Fixed a bug with reporting error messages related to malformed questions.
 
 **Security:**
 
