@@ -75,10 +75,7 @@ if regenerate:
             outfile.writestr('cat-soop-src/README.catsoop-source',
                              SOURCE_README_NOCOURSE % (cs_url_root, now))
         else:
-            ctx = {}
-            csm_loader.load_global_data(ctx)
-            cfile = csm_dispatch.content_file_location(ctx, [course])
-            csm_loader.do_early_load(ctx, course, [], ctx, cfile)
+            ctx = csm_loader.spoof_early_load([course])
             course_name = ctx.get('cs_long_name', course)
             outfile.writestr('cat-soop-src/README.catsoop-source',
                              SOURCE_README % (cs_url_root, now,
