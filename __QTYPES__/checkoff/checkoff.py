@@ -41,7 +41,7 @@ def handle_submission(submissions, **info):
                                                        True)
         if 'checkoff' not in uinfo.get('permissions', []):
             percent = 0
-            msg = '%s is not allowed to give checkoffs.' % uinfo
+            msg = '%s is not allowed to give checkoffs.' % un
             l = False
         else:
             percent = 1
