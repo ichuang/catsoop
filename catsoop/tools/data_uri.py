@@ -1,5 +1,6 @@
 # https://gist.github.com/zacharyvoase/5538178
 
+import base64
 import mimetypes
 import re
 import urllib
@@ -83,7 +84,7 @@ class DataURI(str):
         mimetype = match.group('mimetype') or None
         charset = match.group('charset') or None
         if match.group('base64'):
-            data = match.group('data').decode('base64')
+            data = base64.b64decode(match.group('data').encode()).decode()
         else:
             data = urllib.unquote(match.group('data'))
         return mimetype, charset, bool(match.group('base64')), data
