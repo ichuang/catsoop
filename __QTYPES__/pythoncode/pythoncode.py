@@ -74,8 +74,6 @@ test_defaults = {
     'show_code': True,
     'check_function': lambda sub, soln: (sub == soln != '') * 1.0,
     'transform_output': lambda x: '<tt>%s</tt>' % (x, ),
-    'show_code': True,
-    'show_description': True
 }
 
 
@@ -96,7 +94,7 @@ def handle_check(submissions, **info):
 
     code = submissions[info['csq_name']]
     if info['csq_interface'] == 'upload':
-        code = csm_data_uri.DataURI(code[1]).data
+        code = csm_tools.data_uri.DataURI(code[1]).data
     code = code.replace('\r\n', '\n')
 
     if py3k:
@@ -165,7 +163,7 @@ def handle_check(submissions, **info):
 def handle_submission(submissions, **info):
     code = submissions[info['csq_name']]
     if info['csq_interface'] == 'upload':
-        code = csm_data_uri.DataURI(code[1]).data
+        code = csm_tools.data_uri.DataURI(code[1]).data
     code = code.replace('\r\n', '\n')
     tests = [dict(test_defaults) for i in info['csq_tests']]
     for (i, j) in zip(tests, info['csq_tests']):
@@ -210,11 +208,11 @@ def handle_submission(submissions, **info):
             msg += "\n\n<p></p><hr/><p></p>\n\n"
         msg += "\n<center><h3>Test %02d</h3>" % count
         if test['show_description']:
-            msg += "\n<i>%s</i></center><p></p>" % test['description']
-
+            msg += "\n<i>%s</i>" % test['description']
+        msg += "</center><p></p>"
         if test['show_code']:
             html_code = html_format(test['code'])
-            msg += "\nThe test case was:<br>\n<tt>%s</tt>" % html_code
+            msg += "\nThe test case was:<br/>\n<tt>%s</tt>" % html_code
 
         try:
             percentage = test['check_function'](log, log_s)
@@ -255,8 +253,9 @@ def handle_submission(submissions, **info):
             msg += "\n<p>Your code produced the following output:"
             msg += "<br/><pre>%s</pre></p>" % html_format(out)
 
+        msg += '<p>'
         if err != '' and test['show_code']:
-            msg += "\n<p>Your submission produced an error:"
+            msg += "\nYour submission produced an error:"
             e = html_format(err)
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
         elif err != '':
@@ -315,7 +314,7 @@ def render_html_textarea(last_log, **info):
 def render_html_upload(last_log, **info):
     name = info['csq_name']
     init = last_log.get(name, (None, info['csq_initial']))
-    if isinstance(init, (str, unicode)):
+    if isinstance(init, str):
         fname = ''
     else:
         fname, init = init
@@ -323,7 +322,7 @@ def render_html_upload(last_log, **info):
         'name': name,
         'init': str(init),
         'safeinit': init.replace('<', '&lt;'),
-        'b64init': b64encode(make_initial_display(info)),
+        'b64init': b64encode(make_initial_display(info).encode()),
         'dl': (' download="%s"' % info['csq_skeleton_name'])
         if 'csq_skeleton_name' in info else 'download',
         'dl2': (' download="%s"' % fname)
@@ -335,8 +334,8 @@ def render_html_upload(last_log, **info):
                 '''target="_blank"%(dl)s>Code Skeleton</a><br />''') % params
     if last_log.get(name, None) is not None:
         code = last_log[name]
-        if isinstance(code, (str, unicode)):
-            code = (None, "data:text/plain;base64,%s" % b64encode(code))
+        if isinstance(code, str):
+            code = (None, "data:text/plain;base64,%s" % b64encode(code.encode()))
         out += ('''<a href="%s" '''
                 '''target="_blank" id="%s_lastfile">'''
                 '''Your Last Submission</a><br />''') % (code[1], name)
@@ -406,5 +405,6 @@ def render_html(last_log, **info):
 
 def answer_display(**info):
     out = ('Here is the solution we wrote:<p>'
-           '<pre>%s</pre>') % html_format(info['csq_soln'])
+           '<pre><code id="%s_soln_highlight" class="lang-python">%s</code></pre>'
+           '<script type="text/javascript">hljs.highlightBlock($("#%s_soln_highlight")[0]);</script>') % (info['csq_name'], info['csq_soln'], info['csq_name'])
     return out
