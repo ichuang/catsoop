@@ -30,7 +30,7 @@ def handle_submission(submissions, **info):
     name = info['csq_name']
     ll = submissions.get(name, None)
     if ll is not None:
-        submissions[name] = csm_data_uri.DataURI(ll[1]).data
+        submissions[name] = csm_tools.data_uri.DataURI(ll[1]).data
         o.update(base['handle_submission'](submissions, **info))
     return o
 
@@ -55,10 +55,10 @@ def render_html(last_log, **info):
 def answer_display(**info):
     name = info['csq_soln_filename']
     if info['csq_soln_type'] == 'string':
-        data = csm_data_uri.DataURI.make('text/plain', None, True,
+        data = csm_tools.data_uri.DataURI.make('text/plain', None, True,
                                          info['csq_soln'])
     else:
-        data = csm_data_uri.DataURI.from_file(info['csq_soln'])
+        data = csm_tools.data_uri.DataURI.from_file(info['csq_soln'])
         ext = mimetypes.guess_extension(data.mimetype) or '.txt'
         name = name.rsplit('.', 1) + ext
     return ('<a href="%s" '
