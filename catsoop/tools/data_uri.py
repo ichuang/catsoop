@@ -36,7 +36,7 @@ class DataURI(str):
             parts.extend([';charset=', charset])
         if base64:
             parts.append(';base64')
-            encoded_data = data.encode('base64').replace('\n', '')
+            encoded_data = base64.b64encode(data.encode()).decode()
         else:
             encoded_data = urllib.quote(data)
         parts.extend([',', encoded_data])
