@@ -273,10 +273,10 @@ def _get_random_seed(context, n=100, force_new=False):
     if force_new:
         stored = None
     else:
-        stored = context['csm_logging'].most_recent(course, uname, logname, None)
+        stored = context['csm_cslog'].most_recent(course, uname, logname, None)
     if stored is None:
         stored = _new_random_seed(n)
-        context['csm_logging'].update_log(course, uname, logname, stored)
+        context['csm_cslog'].update_log(course, uname, logname, stored)
     return stored
 
 
