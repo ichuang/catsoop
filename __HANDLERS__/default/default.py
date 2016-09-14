@@ -1699,7 +1699,7 @@ def handle_whdw(context):
         grid['class'] = 'row'
         for group, members in sorted(groups.items()):
             min_score = min(
-                (scores[member] for member in members),
+                (scores.get(member, None) for member in members),
                 key=lambda x: -1 if x is None else x,
             )
 
