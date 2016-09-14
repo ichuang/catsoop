@@ -1537,6 +1537,9 @@ def exc_message(context):
             '<pre>%s</pre></font>') % exc
 
 def get_scores(context):
+    section = str(context.get('cs_form', {}).get('section',
+            context.get('cs_user_info').get('section', 'default')))
+
     util = context['csm_util']
 
     usernames = util.list_all_users(context, context['cs_course'])
@@ -1547,12 +1550,14 @@ def get_scores(context):
     students = [
         user
         for user in users
-        if user.get('role', None) in ['Student', 'SLA']
+        if user.get('role', None) in ['Student', 'SLA'] and str(user.get('section', None)) == section
     ]
 
     questions = context[_n('name_map')]
-    scores = {}
-    for name in questions:
+    scores = collections.OrderedDict()
+    for name, question in questions.items():
+        if not context.get('cs_whdw_filter', lambda q: True)(question): continue
+
         counts = {}
 
         for student in students:
@@ -1571,7 +1576,12 @@ def get_scores(context):
     return scores
 
 def handle_stats(context):
-    stats = {}
+    perms = context['cs_user_info'].get('permissions', [])
+    if 'whdw' not in perms:
+        return 'You are not allowed to view this page.'
+
+    questions = context[_n('name_map')]
+    stats = collections.OrderedDict()
     total_students = 0
     for name, scores in get_scores(context).items():
         counts = {
@@ -1608,7 +1618,8 @@ def handle_stats(context):
         a = soup.new_tag('a',
             href = '?action=whdw&question={}'.format(name),
         )
-        a.string = name
+        qargs = questions[name][1]
+        a.string = qargs['csq_display_name']
         td.append(a)
         td['class'] = 'text-left'
         tr.append(td)
@@ -1623,42 +1634,128 @@ def handle_stats(context):
 
     return str(soup)
 
+def _real_name(context, username):
+    return (context['csm_cslog'].most_recent(None, 'extra_info', username, None) or {}).get('name', username)
+
 def handle_whdw(context):
+    perms = context['cs_user_info'].get('permissions', [])
+    if 'whdw' not in perms:
+        return 'You are not allowed to view this page.'
+
+    section = str(context.get('cs_form', {}).get('section',
+            context.get('cs_user_info').get('section', 'default')))
+
+    usernames = util.list_all_users(context, context['cs_course'])
+    users = [
+        util.read_user_file(context, context['cs_course'], username, {})
+        for username in usernames
+    ]
+
     question = context['cs_form']['question']
+    qtype, qargs = context[_n('name_map')][question]
+    display_name = qargs.get('csq_display_name', qargs['csq_name'])
+    context['cs_content_header'] += ' | {}'.format(display_name)
+
     scores = get_scores(context)[question]
 
-    states = {
-        'completed': [],
-        'attempted': [],
-        'not-tried': [],
-    }
-
-    for username, score in scores.items():
-        if score is None:
-            state = 'not-tried'
-        elif score == 1:
-            state = 'completed'
-        else:
-            state = 'attempted'
-
-        states[state].append(username)
+    groups = context['csm_groups'].list_groups(
+        context,
+        context['cs_course'],
+        context['cs_path_info'][1:],
+    ).get(section, None)
 
     BeautifulSoup = context['csm_tools'].bs4.BeautifulSoup
     soup = BeautifulSoup('')
 
-    for state in ['not-tried', 'attempted', 'completed']:
-        usernames = states[state]
-        h3 = soup.new_tag('h3')
-        h3.string = state
-        soup.append(h3)
+    if groups:
+        css = soup.new_tag('style')
+        css.string = '''\
+        .whdw-cell {
+          border: 5px white solid;
+        }
+
+        .whdw-not-tried {
+          background-color: #ff6961;
+          color: black;
+        }
+
+        .whdw-attempted {
+          background-color: #ffb347;
+          color: black;
+        }
+
+        .whdw-completed {
+          background-color: #77dd77;
+          color: black;
+        }
+
+        .whdw-cell p {
+          margin: 0;
+        }
+        '''
+        soup.append(css)
 
         grid = soup.new_tag('div')
         grid['class'] = 'row'
-        for username in sorted(usernames):
-            cell = soup.new_tag('div')
-            cell.string = username
-            cell['class'] = 'col-sm-2'
-            grid.append(cell)
-        soup.append(grid)
+        for group, members in sorted(groups.items()):
+            min_score = min(
+                (scores[member] for member in members),
+                key=lambda x: -1 if x is None else x,
+            )
 
-    return str(soup)
+            cell = soup.new_tag('div')
+            cell['class'] = 'col-sm-3 whdw-cell {}'.format({
+                    None: 'whdw-not-tried',
+                    1: 'whdw-completed',
+            }.get(min_score, 'whdw-attempted'))
+            grid.append(cell)
+
+            header = soup.new_tag('div')
+            header['class'] = 'text-center'
+            header.string = '{}'.format(group)
+            cell.append(header)
+
+            people = soup.new_tag('div')
+            header['class'] = 'text-center'
+
+            for member in members:
+                p = soup.new_tag('p')
+                p.string = _real_name(context, member)
+                people.append(p)
+            cell.append(people)
+
+        soup.append(grid)
+        return str(soup)
+    else:
+        states = {
+            'completed': [],
+            'attempted': [],
+            'not-tried': [],
+        }
+
+        for username, score in scores.items():
+            if score is None:
+                state = 'not-tried'
+            elif score == 1:
+                state = 'completed'
+            else:
+                state = 'attempted'
+
+            states[state].append(username)
+
+        for state in ['not-tried', 'attempted', 'completed']:
+            usernames = states[state]
+            h3 = soup.new_tag('h3')
+            h3.string = '{} ({})'.format(state, len(states[state]))
+            soup.append(h3)
+
+            grid = soup.new_tag('div')
+            grid['class'] = 'row'
+            for username in sorted(usernames):
+                cell = soup.new_tag('div')
+                cell.string = _real_name(context, username)
+                cell['class'] = 'col-sm-2'
+                grid.append(cell)
+            soup.append(grid)
+
+        return str(soup)
