@@ -1672,7 +1672,7 @@ def handle_whdw(context):
         css = soup.new_tag('style')
         css.string = '''\
         .whdw-cell {
-          border: 5px white solid;
+          border: 1px white solid;
         }
 
         .whdw-not-tried {
