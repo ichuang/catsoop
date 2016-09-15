@@ -441,16 +441,17 @@ def handle_lock(context):
 
         # automatically view the answer if the option is set
         if 'lock' in _get_auto_view(args) and q.get('allow_viewanswer', True) and _get(args, 'csq_allow_viewanswer', True, bool):
-            c = dict(context)
-            c[_n('question_names')] = [name]
-            o = json.loads(handle_viewanswer(c)[2])
-            ll = context['csm_cslog'].most_recent(
-                context['cs_course'], context.get('cs_username', 'None'),
-                context[_n('logname_state')], {})
-            newstate['answer_viewed'] = ll.get('answer_viewed', set())
-            newstate['explanation_viewed'] = ll.get('explanation_viewed',
-                                                    set())
-            outdict[name].update(o[name])
+            if name not in newstate['answer_viewed']:
+                c = dict(context)
+                c[_n('question_names')] = [name]
+                o = json.loads(handle_viewanswer(c)[2])
+                ll = context['csm_cslog'].most_recent(
+                    context['cs_course'], context.get('cs_username', 'None'),
+                    context[_n('logname_state')], {})
+                newstate['answer_viewed'] = ll.get('answer_viewed', set())
+                newstate['explanation_viewed'] = ll.get('explanation_viewed',
+                                                        set())
+                outdict[name].update(o[name])
 
     newstate['locked'] = locked
 
