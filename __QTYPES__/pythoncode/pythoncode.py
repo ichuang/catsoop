@@ -406,5 +406,5 @@ def render_html(last_log, **info):
 def answer_display(**info):
     out = ('Here is the solution we wrote:<p>'
            '<pre><code id="%s_soln_highlight" class="lang-python">%s</code></pre>'
-           '<script type="text/javascript">hljs.highlightBlock($("#%s_soln_highlight")[0]);</script>') % (info['csq_name'], info['csq_soln'], info['csq_name'])
+           '<script type="text/javascript">hljs.highlightBlock($("#%s_soln_highlight")[0]);</script>') % (info['csq_name'], html_format(info['csq_soln']), info['csq_name'])
     return out
