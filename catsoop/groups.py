@@ -140,6 +140,8 @@ def make_all_groups(context, course, path, section):
 
     output = {}
     for c in sorted(cats):
+        if c is None:
+            continue
         random.shuffle(cats[c])
         while len(cats[c]) > 0:
             out, cats[c] = cats[c][:size], cats[c][size:]
