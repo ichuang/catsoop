@@ -1636,7 +1636,14 @@ def handle_stats(context):
     return str(soup)
 
 def _real_name(context, username):
-    return (context['csm_cslog'].most_recent(None, 'extra_info', username, None) or {}).get('name', username)
+    return (context['csm_cslog'].most_recent(None, 'extra_info', username, None) or {}).get('name', None)
+
+def _whdw_name(context, username):
+    real_name = _real_name(context, username)
+    if real_name:
+        return '{} ({})'.format(real_name, username)
+    else:
+        return username
 
 def handle_whdw(context):
     perms = context['cs_user_info'].get('permissions', [])
@@ -1690,8 +1697,8 @@ def handle_whdw(context):
           color: black;
         }
 
-        .whdw-cell p {
-          margin: 0;
+        .whdw-cell ul {
+          padding-left: 5px;
         }
         '''
         soup.append(css)
@@ -1716,13 +1723,21 @@ def handle_whdw(context):
             header.string = '{}'.format(group)
             cell.append(header)
 
-            people = soup.new_tag('div')
+            people = soup.new_tag('ul')
             header['class'] = 'text-center'
 
             for member in members:
-                p = soup.new_tag('p')
-                p.string = _real_name(context, member)
-                people.append(p)
+                m = soup.new_tag('li')
+                name = soup.new_tag('span')
+                name.string = _whdw_name(context, member)
+                m.append(name)
+
+                score = soup.new_tag('span')
+                score['class'] = 'pull-right'
+                score.string = str(scores.get(member, None))
+                m.append(score)
+
+                people.append(m)
             cell.append(people)
 
         soup.append(grid)
@@ -1754,7 +1769,7 @@ def handle_whdw(context):
             grid['class'] = 'row'
             for username in sorted(usernames):
                 cell = soup.new_tag('div')
-                cell.string = _real_name(context, username)
+                cell.string = _whdw_name(context, username)
                 cell['class'] = 'col-sm-2'
                 grid.append(cell)
             soup.append(grid)
