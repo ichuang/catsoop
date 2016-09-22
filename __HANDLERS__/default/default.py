@@ -1551,7 +1551,7 @@ def get_scores(context):
     students = [
         user
         for user in users
-        if user.get('role', None) in ['Student', 'SLA'] and str(user.get('section', None)) == section
+        if user.get('role', None) in ['Student', 'SLA'] and str(user.get('section', 'default')) == section
     ]
 
     questions = context[_n('name_map')]
@@ -1620,13 +1620,13 @@ def handle_stats(context):
             href = '?action=whdw&question={}'.format(name),
         )
         qargs = questions[name][1]
-        a.string = qargs['csq_display_name']
+        a.string = qargs.get('csq_display_name', name)
         td.append(a)
         td['class'] = 'text-left'
         tr.append(td)
         for key in ['completed', 'attempted', 'not-tried']:
             td = soup.new_tag('td')
-            td.string = '{:.2%}'.format(counts[key] / total_students)
+            td.string = '{:.2%}'.format((counts[key] / total_students) if total_students != 0 else 0)
             td['class'] = 'text-right'
             tr.append(td)
         table.append(tr)
