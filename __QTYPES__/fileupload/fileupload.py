@@ -15,6 +15,7 @@ import base64
 import mimetypes
 
 tutor.qtype_inherit('smallbox')
+base, _ = tutor.question("smallbox")
 
 always_rerender = True
 
