@@ -209,7 +209,7 @@ def handle_view(context):
             context.get('cs_due_date', 'NEVER') != 'NEVER'):
         duetime = context['csm_time'].long_timestamp(due)
         page += ('<tutoronly><center>'
-                 'The questions below are due on %s, plus whatever <a href="COURSE/extensions">extension days</a> you requested.'
+                 'The questions below are due on %s.'
                  '<br/><hr><br/></center></tutoronly>') % duetime
 
     for elt in context['cs_problem_spec']:
