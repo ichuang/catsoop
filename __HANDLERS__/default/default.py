@@ -209,8 +209,8 @@ def handle_view(context):
             context.get('cs_due_date', 'NEVER') != 'NEVER'):
         duetime = context['csm_time'].long_timestamp(due)
         page += ('<tutoronly><center>'
-                 'The questions below are due on %s.'
-                 '<br/>--<br/></center></tutoronly>') % duetime
+                 'The questions below are due on %s, plus whatever <a href="COURSE/extensions">extension days</a> you requested.'
+                 '<br/><hr><br/></center></tutoronly>') % duetime
 
     for elt in context['cs_problem_spec']:
         if isinstance(elt, str):
@@ -576,6 +576,13 @@ def handle_save(context):
     saved_names = []
     for name in names:
         out = {}
+
+        error = save_msg(context, context[_n('perms')], name)
+        if error is not None:
+            out['error_msg'] = error
+            outdict[name] = out
+            continue
+
         question, args = context[_n('name_map')].get(name)
         sub = context[_n('form')].get(name, '')
 
@@ -993,7 +1000,7 @@ def save_msg(context, perms, name):
         if timing == -1 and not i:
             error = 'This question is not yet available.'
         elif name in context[_n('locked')]:
-            error = 'You are not allowed to save for this question.'
+            error = 'You are not allowed to save for this question (it has been locked).'
         elif (not _get(qargs, 'csq_allow_submit_after_answer_viewed', False,
                        bool) and name in context[_n('answer_viewed')]):
             error = 'You are not allowed to save to this question after viewing the answer.'
