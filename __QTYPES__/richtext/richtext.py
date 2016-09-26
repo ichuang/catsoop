@@ -23,8 +23,7 @@ defaults.update({
 
 
 def markdownify(context, text):
-    return context['csm_loader']._md(text)
-
+    return context['csm_language']._md(text)
 
 def richtext_format(context, text, msg="Preview:"):
     text = text.replace('<', '&lt;').replace('>', '&gt;')
