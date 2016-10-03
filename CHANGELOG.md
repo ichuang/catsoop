@@ -18,6 +18,10 @@ _Next planned release.  Currently under development._
 * Improved error handling in the `pythonic` question type.
 * Improved the formatting of HTML in the `pythoncode` question type to prevent
     Beautiful Soup from modifying it too much.
+* `None` is now a special category that is skipped when assigning groups.
+* Improved formatting of answers to `pythoncode` questions.
+* Cells in HTML tables are no longer automatically center-aligned.
+* Removed confusing answer display from `checkoff` question type.
 
 **Deprecated:**
 
@@ -36,6 +40,16 @@ _Next planned release.  Currently under development._
     its error reporting.
 * Fixed a regression that rendered `pythonliteral` questions unusable.
 * Fixed a typo in `dispatch` that broke proper 404 handling of `handout`s.
+* Fixed a regression with the permissions check for the "Save" button.
+* Several fixes for the `fileupload`, `richtext`, and `pythoncode` question
+    types.
+* Prevented a misleading error message from being displayed when automatically
+    viewing answers on a timed exercise.
+* Several fixes for `catsoop.tools.data_uri`
+* Fixed a bug that prevented per-user randomness from functioning as expected.
+* Updated automatic source downloader to use `spoof_early_load`, fixing a bug.
+* Fixed a typo in the `checkoff` question type.
+
 
 **Security:**
 
