@@ -1,6 +1,4 @@
-# Version 9.2.0 (current progress)
-
-_Next planned release.  Currently under development._
+# Version 9.2.0
 
 **Added:**
 
@@ -22,10 +20,6 @@ _Next planned release.  Currently under development._
 * Improved formatting of answers to `pythoncode` questions.
 * Cells in HTML tables are no longer automatically center-aligned.
 * Removed confusing answer display from `checkoff` question type.
-
-**Deprecated:**
-
-**Removed:**
 
 **Fixed:**
 
@@ -49,9 +43,6 @@ _Next planned release.  Currently under development._
 * Fixed a bug that prevented per-user randomness from functioning as expected.
 * Updated automatic source downloader to use `spoof_early_load`, fixing a bug.
 * Fixed a typo in the `checkoff` question type.
-
-
-**Security:**
 
 # Version 9.1.0
 
