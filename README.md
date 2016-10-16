@@ -20,7 +20,7 @@ Electrical Engineering and Computer Science via Robot Sensing, Software, and
 Control).
 
 CAT-SOOP is [free/libre software](https://www.gnu.org/philosophy/free-sw.html),
-available under the terms of the Soopycat License version 1
+available under the terms of the Soopycat License version 2
 (see [LICENSE](https://notabug.org/cat-soop/cat-soop/src/master/LICENSE)
 file for details).  Please note that the terms of this license apply only to the
 CAT-SOOP system itself and any plugins in use, but not to any course material
