@@ -21,26 +21,26 @@ Control).
 
 CAT-SOOP is [free/libre software](https://www.gnu.org/philosophy/free-sw.html),
 available under the terms of the Soopycat License version 1
-(see [LICENSE](https://smatz.net/git/cat-soop/cat-soop/src/master/LICENSE)
+(see [LICENSE](https://notabug.org/cat-soop/cat-soop/src/master/LICENSE)
 file for details).  Please note that the terms of this license apply only to the
 CAT-SOOP system itself and any plugins in use, but not to any course material
 hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
 
 ## HOW DO I GET IT?
 
-Development is carried out on a self-hosted instance of
-[GoGS](http://gogs.io/).  You can also clone the most recent (potentially
+The source code is hosted on [Notabug.org](https://notabug.org).
+You can also clone the most recent (potentially
 unstable) version with the following:
 ```nohighlight
-$ git clone https://cat-soop.org/git/cat-soop.git
+$ git clone https://notabug.org/cat-soop/cat-soop.git
 ```
 
-If you have SSH keys on the GoGS instance, you can clone instead with:
+If you have SSH keys on Notabug.org, you can clone instead with:
 ```nohighlight
-$ git clone git@cat-soop.org:cat-soop/cat-soop.git
+$ git clone git@notabug.org:cat-soop/cat-soop.git
 ```
 
-You can also browse the source code online at https://cat-soop.org/repo
+You can also browse the source code online at [https://notabug.org/cat-soop/cat-soop](https://notabug.org/cat-soop/cat-soop).
 
 ## HOW DO I INSTALL IT?
 

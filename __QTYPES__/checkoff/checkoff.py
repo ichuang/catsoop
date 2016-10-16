@@ -57,4 +57,4 @@ def render_html(last_log, **info):
                               info['csq_description'])
 
 def answer_display(**info):
-    return "You received this checkoff."
+    return ""

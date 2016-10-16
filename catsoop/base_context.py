@@ -19,7 +19,7 @@ or late loads at lower levels).
 """
 
 
-cs_version = '9.2.0+develop'
+cs_version = '9.3.0+develop'
 """
 CAT-SOOP's version number
 """
