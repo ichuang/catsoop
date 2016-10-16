@@ -9,6 +9,8 @@ _Work toward next release.  Currently under development._
 
 **Changed:**
 
+* Code is now released under version 2 of the Soopycat License.
+
 **Deprecated:**
 
 **Removed:**

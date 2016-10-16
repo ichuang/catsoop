@@ -2,7 +2,7 @@
  * <hartz@mit.edu>
  *
  * This program is free software: you can redistribute it and/or modify it
- * under the terms of the Soopycat License, version 1.
+ * under the terms of the Soopycat License, version 2.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or

@@ -3,7 +3,7 @@
 # Copyright (c) 2011-2016 Adam Hartz <hartz@mit.edu>
 
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the Soopycat License, version 1.
+# the terms of the Soopycat License, version 2.
 
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -16,7 +16,7 @@ cs_content_header = "SOOPYCAT LICENSE"
 cs_title = "Soopycat License"
 </python> 
 
-Version 1
+Version 2
 <br/>Copyright &copy; 2016 Adam Hartz &lt;`hartz@mit.edu`&gt;
 <br/>Everyone is permitted to copy and distribute verbatim copies of this license
 document, and changing it is allowed as long as the name is changed.
@@ -51,16 +51,12 @@ permitted, provided that the following conditions are met:
     modifications to it and must be licensed in its entirety at no charge to
     all third parties, either:
 
-    * under the terms of this license (either version 1 or, at your option,
+    * under the terms of this license (either version 2 or, at your option,
         any later version); or
 
     * under the terms of the GNU Affero General Public License as published
         by the Free Software Foundation (either version 3 or, at your option,
         any later version).
-
-4. Neither the name of the copyright holder nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
 
 THE SOFTWARE LICENSED UNDER THIS LICENSE IS PROVIDED "AS IS", WITHOUT WARRANTY
 OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF

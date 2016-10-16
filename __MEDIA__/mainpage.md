@@ -3,7 +3,7 @@
 # Copyright (c) 2011-2016 Adam Hartz <hartz@mit.edu>
 
 # This program is free software: you can redistribute it and/or modify it under
-# the terms of the Soopycat License, version 1.
+# the terms of the Soopycat License, version 2.
 
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -34,7 +34,7 @@ def link(url, text=None):
 CAT-SOOP is a tool for automatic collection and assessment of online exercises.
 CAT-SOOP is @{link("https://www.fsf.org/about/what-is-free-software", "free software")},
 available under the terms of the
-@{link("BASE/cs_util/license", "Soopycat License, version 1")}.
+@{link("BASE/cs_util/license", "Soopycat License, version 2")}.
 In accordance with the terms of this license, the source code of the base
 system that generated this page is available @{link("BASE/cs_util/source.zip",
 "here")} as a zip archive.
