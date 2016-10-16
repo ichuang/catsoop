@@ -597,8 +597,10 @@ def handle_save(context):
 
         rerender = question.get('always_rerender', False)
         if rerender is True:
-            out['rerender'] = question['render_html'](newstate['last_submit'],
-                                                      **args)
+            out['rerender'] = context['csm_language'].source_transform_string(context, args.get(
+                                                                              'csq_prompt', ''))
+            out['rerender'] += question['render_html'](newstate['last_submit'],
+                                                       **args)
         elif rerender:
             out['rerender'] = rerender
 
@@ -837,6 +839,7 @@ def handle_submit(context):
                          'names': names,
                          'submitted': subbed,
                          'score': newstate['score'],
+                         'scores': newstate['scores'],
                          'response': outdict,
                          'due_date': duetime})
 
