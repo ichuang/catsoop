@@ -4,6 +4,9 @@ _Work toward next release.  Currently under development._
 
 **Added:**
 
+* Default handler now logs scores of all questions in the `problemactions` log
+    on `'submit'` actions.
+
 **Changed:**
 
 **Deprecated:**
@@ -11,6 +14,8 @@ _Work toward next release.  Currently under development._
 **Removed:**
 
 **Fixed:**
+
+* Fixed rendering of questions via `'rerender'` in the default handler.
 
 **Security:**
 
