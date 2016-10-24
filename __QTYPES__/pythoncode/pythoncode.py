@@ -363,7 +363,7 @@ def render_html_ace(last_log, **info):
 <div id="editor%(name)s" name="editor%(name)s" class="embedded_ace_code">%(safeinit)s</div></div>
 <input type="hidden" name="%(name)s" id="%(name)s" />
 <input type="hidden" name="%(name)s_log" id="%(name)s_log" />
-<script type="text/javascript" src="https://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js"></script>
 <script type="text/javascript">
     var log%(name)s = new Array();
     var editor%(name)s = ace.edit("editor%(name)s");
