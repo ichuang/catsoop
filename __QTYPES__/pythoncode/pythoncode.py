@@ -257,7 +257,7 @@ def handle_submission(submissions, **info):
         if err != '':
             msg += "\nYour submission produced an error:"
             e = html_format(err)
-            msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
+            msg += "\n<br/><font color='red'><tt>%s</tt></font>" % e
             msg += "\n<br/><center>%s</center></p>" % (image)
 
         count += 1
