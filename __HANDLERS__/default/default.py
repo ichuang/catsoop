@@ -441,7 +441,7 @@ def handle_lock(context):
 
         # automatically view the answer if the option is set
         if 'lock' in _get_auto_view(args) and q.get('allow_viewanswer', True) and _get(args, 'csq_allow_viewanswer', True, bool):
-            if name not in newstate['answer_viewed']:
+            if name not in newstate.get('answer_viewed', set()):
                 c = dict(context)
                 c[_n('question_names')] = [name]
                 o = json.loads(handle_viewanswer(c)[2])
