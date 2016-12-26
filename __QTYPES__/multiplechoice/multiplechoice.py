@@ -188,8 +188,21 @@ _renderers = {
 
 
 def answer_display(**info):
-    soln = info['csq_soln']
-    if info['csq_multiplechoice_soln_mode'] != 'value':
-        soln = info['csq_options'][soln]
-    out = "Solution: %s" % (soln, )
+    if info['csq_multiplechoice_renderer'] == 'checkbox':
+        out = "Solution: <table>"
+        for c, i in zip(info['csq_soln'], info['csq_options']):
+            out += '<tr style="height:30px;"></tr>'
+            out += '<tr><td align="center">'
+            _im = "check" if c else "cross"
+            out += '<img src="BASE/images/%s.png" />' % _im
+            out += '</td><td>'
+            text = csm_language.source_transform_string(info, i)
+            out += text
+            out += '</td></tr>'
+        out += '</table>'
+    else:
+        soln = info['csq_soln']
+        if info['csq_multiplechoice_soln_mode'] != 'value':
+            soln = info['csq_options'][soln]
+        out = "Solution: %s" % (soln, )
     return out
