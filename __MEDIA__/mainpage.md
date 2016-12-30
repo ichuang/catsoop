@@ -43,7 +43,7 @@ Please note that these terms apply only to the CAT-SOOP system itself and
 not to any third-party software included with CAT-SOOP, nor to any course
 material hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
 
-## Acknowledgements
+## Acknowledgments
 
 * CAT-SOOP is written in the @{link("http://python.org", "Python")} programming language (v3.5).
 * CAT-SOOP makes heavy use of @{link("http://jquery.com/", "jQuery")}.
