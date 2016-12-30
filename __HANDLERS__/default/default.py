@@ -843,6 +843,8 @@ def handle_submit(context):
                          'response': outdict,
                          'due_date': duetime})
 
+    context['csm_loader'].run_plugins(context, context['cs_course'], 'post_submit', context)
+
     return make_return_json(context, outdict)
 
 
