@@ -31,7 +31,7 @@ def new_api_token(context, username):
 
 
 def initialize_api_token(context, user_info):
-    user_info = {k:v for (k,v) in user_info if k in {'username','name','email'}}
+    user_info = {k:v for (k,v) in user_info.items() if k in {'username','name','email'}}
     token = new_api_token(context, user_info['username'])
     context['csm_cslog'].overwrite_log(None, 'api_tokens',
                                        '%s' % token,
