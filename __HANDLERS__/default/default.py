@@ -46,6 +46,8 @@ def handle(context):
                      'viewanswer': handle_viewanswer,
                      'clearanswer': handle_clearanswer,
                      'viewexplanation': handle_viewexplanation,
+                     'content_only': handle_content_only,
+                     'raw_html': handle_raw_html,
                      'copy': handle_copy,
                      'copy_seed': handle_copy_seed,
                      'activate': handle_activate,
@@ -172,6 +174,108 @@ def handle_activation_form(context):
 
     return out
 
+def handle_raw_html(context):
+    # base function: display the problem
+    uname = context[_n('uname')]
+    perms = context[_n('perms')]
+
+    lastlog = context[_n('last_log')]
+    lastsubmit = lastlog.get('last_submit', {})
+
+    if (_get(context, 'cs_auth_required', True, bool) and
+            'view' not in perms and 'view_all' not in perms):
+        return 'You are not allowed to view this page.'
+
+    if (_get(context, 'cs_require_activation', False, bool) and
+            not lastlog.get('activated', False)):
+        return 'You must activate this page first.'
+
+    due = context[_n('due')]
+    timing = context[_n('timing')]
+
+    if timing == -1 and ('view_all' not in perms):
+        reltime = context['csm_time'].long_timestamp(context[_n('rel')])
+        reltime = reltime.replace(';', ' at')
+        return ('This page is not yet available.  '
+                'It will become available on %s.') % reltime
+
+    if 'submit' in perms or 'submit_all' in perms:
+        # only log an entry for users who can submit
+        log_action(context, {'action': 'view',
+                             'score': lastlog.get('score', 0.0)})
+
+    page = ''
+    num_questions = len(context[_n('name_map')])
+    if (num_questions > 0 and _get(context, 'cs_show_due', True, bool) and
+            context.get('cs_due_date', 'NEVER') != 'NEVER'):
+        duetime = context['csm_time'].long_timestamp(due)
+        page += ('<tutoronly><center>'
+                 'The questions below are due on %s.'
+                 '<br/><hr><br/></center></tutoronly>') % duetime
+
+    for elt in context['cs_problem_spec']:
+        if isinstance(elt, str):
+            page += elt
+        else:
+            # this is a question
+            page += render_question(elt, context, lastsubmit)
+
+    page += default_javascript(context)
+    page += default_timer(context)
+    context['cs_template'] = 'BASE/templates/empty.template'
+    return page
+
+
+def handle_content_only(context):
+    # base function: display the problem
+    uname = context[_n('uname')]
+    perms = context[_n('perms')]
+
+    lastlog = context[_n('last_log')]
+    lastsubmit = lastlog.get('last_submit', {})
+
+    if (_get(context, 'cs_auth_required', True, bool) and
+            'view' not in perms and 'view_all' not in perms):
+        return 'You are not allowed to view this page.'
+
+    if (_get(context, 'cs_require_activation', False, bool) and
+            not lastlog.get('activated', False)):
+        return 'You must activate this page first.'
+
+    due = context[_n('due')]
+    timing = context[_n('timing')]
+
+    if timing == -1 and ('view_all' not in perms):
+        reltime = context['csm_time'].long_timestamp(context[_n('rel')])
+        reltime = reltime.replace(';', ' at')
+        return ('This page is not yet available.  '
+                'It will become available on %s.') % reltime
+
+    if 'submit' in perms or 'submit_all' in perms:
+        # only log an entry for users who can submit
+        log_action(context, {'action': 'view',
+                             'score': lastlog.get('score', 0.0)})
+
+    page = ''
+    num_questions = len(context[_n('name_map')])
+    if (num_questions > 0 and _get(context, 'cs_show_due', True, bool) and
+            context.get('cs_due_date', 'NEVER') != 'NEVER'):
+        duetime = context['csm_time'].long_timestamp(due)
+        page += ('<tutoronly><center>'
+                 'The questions below are due on %s.'
+                 '<br/><hr><br/></center></tutoronly>') % duetime
+
+    for elt in context['cs_problem_spec']:
+        if isinstance(elt, str):
+            page += elt
+        else:
+            # this is a question
+            page += render_question(elt, context, lastsubmit)
+
+    page += default_javascript(context)
+    page += default_timer(context)
+    context['cs_template'] = 'BASE/templates/noborder.template'
+    return page
 
 def handle_view(context):
     # base function: display the problem
