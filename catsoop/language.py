@@ -192,6 +192,8 @@ def remove_common_leading_whitespace(x):
     for j in {0, -1}:
         while len(lines) > 0 and lines[j].strip() == '':
             lines.pop(j)
+    if len(lines) == 0:
+        return ''
     candidate = re.match(r'^(\s*)', lines[0])
     if candidate is None:
         return x
