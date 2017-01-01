@@ -63,7 +63,7 @@ catsoop.doFiles = function (lastDeferred, into, files){
 }
 
 
-catsoop.ajaxrequest = function (names, action){
+catsoop.ajaxrequest = function (names, action, done_function){
     var fileD = new $.Deferred();
     var FILES = [];
     var num = names.length;
@@ -101,7 +101,7 @@ catsoop.ajaxrequest = function (names, action){
             out[name] = field.val();
         }
     }
-    fileD.done(function(){sendRequest(names, action, out);});
+    fileD.done(function(){sendRequest(names, action, out, done_function);});
     catsoop.doFiles(fileD, out, FILES);
 }
 
@@ -176,7 +176,7 @@ catsoop.ajaxErrorCallback = function(name) {return function(jqXHR, textStatus, m
     $('#'+name+'_message').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+msg+'\n'+jqXHR.responseText+'</textarea>'+'</div>');
 }}
 
-function sendRequest(names,action,send){
+function sendRequest(names,action,send,done_function){
     var form = {};
     for (var key in send){if (send.hasOwnProperty(key)){form[key] = send[key];}}
     var d = {action: action,
@@ -184,10 +184,23 @@ function sendRequest(names,action,send){
              api_token: catsoop.api_token,
              data: JSON.stringify(form)};
     if (catsoop.imp != '') d['as'] = catsoop.imp;
+    if (done_function !== undefined){
+        var success_callback = function(msg, textStatus, jqXHR){
+            catsoop.ajaxDoneCallback(d, catsoop.this_path, 0)(msg, textStatus,jqXHR);
+            done_function(true);
+        }
+        var error_callback = function(msg, textStatus, jqXHR){
+            catsoop.ajaxErrorCallback(names[0])(msg, textStatus, jqXHR);
+            done_function(false);
+        }
+    }else{
+        var success_callback = catsoop.ajaxDoneCallback(d, catsoop.this_path, 0);
+        var error_callback = catsoop.ajaxErrorCallback(names[0]);
+    }
     $.ajax({type:'POST',
             url: catsoop.this_path,
             async: 'false',
-            data: d}).done(catsoop.ajaxDoneCallback(d, catsoop.this_path, 0)).fail(catsoop.ajaxErrorCallback(names[0]));
+            data: d}).done(success_callback).fail(error_callback);
 };
 catsoop.submit = function (name){catsoop.ajaxrequest([name],'submit');};
 catsoop.check = function (name){catsoop.ajaxrequest([name],'check');};
