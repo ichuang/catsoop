@@ -320,7 +320,7 @@ def render_html_upload(last_log, **info):
     params = {
         'name': name,
         'init': str(init),
-        'safeinit': init.replace('<', '&lt;'),
+        'safeinit': (init or '').replace('<', '&lt;'),
         'b64init': b64encode(make_initial_display(info).encode()),
         'dl': (' download="%s"' % info['csq_skeleton_name'])
         if 'csq_skeleton_name' in info else 'download',
@@ -403,7 +403,7 @@ def render_html(last_log, **info):
 
 
 def answer_display(**info):
-    out = ('Here is the solution we wrote:<p>'
+    out = ('Here is the solution we wrote:<br/>'
            '<pre><code id="%s_soln_highlight" class="lang-python">%s</code></pre>'
-           '<script type="text/javascript">hljs.highlightBlock($("#%s_soln_highlight")[0]);</script>') % (info['csq_name'], html_format(info['csq_soln']), info['csq_name'])
+           '<script type="text/javascript">hljs.highlightBlock($("#%s_soln_highlight")[0]);</script>') % (info['csq_name'], info['csq_soln'], info['csq_name'])
     return out
