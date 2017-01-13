@@ -62,14 +62,7 @@ def handle_submission(submissions, **info):
         fname, out, err = info['sandbox_run_code'](info, code, opts)
         sub = eval(out, info)
     except:
-        try:
-            assert err != ''
-            _m = info['fix_error_msg'](fname, err, 0, code)
-            e = info['csm_errors']
-            _m = e.html_format(e.clear_info(info, _m))
-            msg = '<p><font color="red"><b>ERROR RUNNING CODE:</b><pre>%s</pre></font></p>' % _m
-        except:
-            msg = ''
+        msg = ''
         mfunc = info['csq_msg_function']
         try:
             msg += mfunc(sub, soln)
