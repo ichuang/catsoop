@@ -1303,8 +1303,9 @@ def render_question(elt, context, lastsubmit, wrap=True):
         lastscore = lastlog.get('score', '')
         lastcomments = lastlog.get('comments', '')
         tpoints = q['total_points'](**args)
-        comments = context['csm_language']._md_format_string(context, (get_manual_grading_entry(context, name) or
-                    {}).get('comments',''))
+        comments = (get_manual_grading_entry(context, name) or {}).get('comments',None)
+        if comments is not None:
+            comments = context['csm_language']._md_format_string(context, comments)
         try:
             score_output = lastscore * tpoints
         except:
