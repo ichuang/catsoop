@@ -283,6 +283,7 @@ def display_page(context):
     temp = _real_url_helper(context, context['cs_template'])
     if '__STATIC__' in temp:
         default = static_file_location(context, temp[2:])
+    loader.run_plugins(context, context['cs_course'], 'post_render', context)
     f = open(default)
     template = f.read()
     f.close()
