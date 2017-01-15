@@ -84,7 +84,7 @@ class DataURI(str):
         mimetype = match.group('mimetype') or None
         charset = match.group('charset') or None
         if match.group('base64'):
-            data = b64.b64decode(match.group('data').encode()).decode()
+            data = b64.b64decode(match.group('data').encode())
         else:
             data = urllib.unquote(match.group('data'))
         return mimetype, charset, bool(match.group('base64')), data
