@@ -52,7 +52,7 @@ def available_plugins(context, course):
     out = []
     for loc in plugin_locations(context, course):
         try:
-            p = os.listdir(loc)
+            p = list(sorted(os.listdir(loc)))
         except:
             p = []
         for i in p:
