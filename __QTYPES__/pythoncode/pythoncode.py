@@ -59,6 +59,7 @@ defaults = {
     'csq_interface': 'ace',
     'csq_rows': 14,
     'csq_font_size': 16,
+    'csq_always_show_tests': False,
 }
 
 test_defaults = {
@@ -190,10 +191,15 @@ def handle_submission(submissions, **info):
     get_sandbox(info)
 
     score = 0
-    msg = ('\n<br/><button onclick="$(\'#%s_result_showhide\').toggle()">'
-           'Show/Hide Detailed Results</button>') % info['csq_name']
-    msg += ('<div class="response" id="%s_result_showhide" '
-            'style="display:none"><h2>Test Results:</h2>') % info['csq_name']
+    if info['csq_always_show_tests']:
+        msg = ''
+    else:
+        msg = ('\n<br/><button onclick="$(\'#%s_result_showhide\').toggle()">'
+               'Show/Hide Detailed Results</button>') % info['csq_name']
+    msg += ('<div class="response" id="%s_result_showhide" %s>'
+            '<h2>Test Results:</h2>') % (info['csq_name'], 'style="display:none">'
+                                                             if not info['csq_always_show_tests']
+                                                             else '')
     count = 1
     for test in info['csq_tests']:
         out, err, log = info['sandbox_run_test'](info, code, test)
