@@ -606,8 +606,8 @@ def handle_grade(context):
                            'comments': comments,
                            'timestamp': context['cs_timestamp']})
         outdict[name] = {
-            'score_display': make_score_display(context, name, None),
-            'message': "<b>Grader's Comments:</b><br/><br/>%s" % comments,
+            'score_display': make_score_display(context, name, score),
+            'message': "<b>Grader's Comments:</b><br/><br/>%s" % context['csm_language']._md_format_string(context, comments),
             'score': score,
         }
 
