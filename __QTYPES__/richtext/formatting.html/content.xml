@@ -77,8 +77,8 @@ table, th, td {
 </tr>
 
 <tr>
-<td><pre>![Image](http://cat-soop.org/images/logo.png)</pre></td>
-<td><p><img alt="Image" src="BASE/images/logo.png" /></p></td>
+<td><pre>![Image](https://cat-soop.org/logo.svg)</pre></td>
+<td><p><img alt="Image" src="https://cat-soop.org/logo.svg" /></p></td>
 </tr>
 
 </table>
