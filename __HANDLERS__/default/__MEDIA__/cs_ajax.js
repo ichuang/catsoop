@@ -144,6 +144,7 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, te
                                     $('#'+name).val(thisone['val']);
                                 }
                                 catsoop.switch_buttons(name, true);
+                                catsoop.render_all_math($('#cs_qdiv_'+name)[0]);
                             }
                         }else{
                             catsoop.switch_buttons(name, true);
