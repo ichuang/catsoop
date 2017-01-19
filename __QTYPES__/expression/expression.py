@@ -321,6 +321,7 @@ def handle_submission(submissions, **info):
         msg = ''
     n = info['csq_name']
     msg += info['csq_msg_function'](submissions[info['csq_name']])
+    msg = info['csm_language'].source_transform_string(info, msg)
     msg = ("""\n<script type="text/javascript">"""
            """$('#image%s').html(%r);</script>\n""") % (n, msg)
     if info['csq_render_result']:
