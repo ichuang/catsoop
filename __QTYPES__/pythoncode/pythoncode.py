@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2016 Adam Hartz <hartz@mit.edu>
+# Copyright (c) 2011-2017 Adam Hartz <hartz@mit.edu>
 
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the Soopycat License, version 2.
@@ -164,7 +164,7 @@ def handle_check(submissions, **info):
 def handle_submission(submissions, **info):
     code = submissions[info['csq_name']]
     if info['csq_interface'] == 'upload':
-        code = csm_tools.data_uri.DataURI(code[1]).data
+        code = csm_tools.data_uri.DataURI(code[1]).data.decode()
     code = code.replace('\r\n', '\n')
     tests = [dict(test_defaults) for i in info['csq_tests']]
     for (i, j) in zip(tests, info['csq_tests']):

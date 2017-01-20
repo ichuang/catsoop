@@ -1,4 +1,4 @@
-/* This file is part of CAT-SOOP Copyright (c) 2011-2016 Adam Hartz
+/* This file is part of CAT-SOOP Copyright (c) 2011-2017 Adam Hartz
  * <hartz@mit.edu>
  *
  * This program is free software: you can redistribute it and/or modify it
