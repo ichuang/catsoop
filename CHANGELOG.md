@@ -6,20 +6,48 @@ _Work toward next release.  Currently under development._
 
 * Default handler now logs scores of all questions in the `problemactions` log
     on `'submit'` actions.
+* Added the `csq_always_show_tests` option to `pythoncode` questions, to
+    enable/disable the "Show/Hide Detailed Results" button.
+* New plugin infrastructure.
+* `catsoop.ajaxrequest` now accepts a callback function that can be executed
+    once the request has completed.
+* More options for rendering pages (`content_only` and `raw_html`).
 
 **Changed:**
 
 * Code is now released under version 2 of the Soopycat License.
+* Math expressions are now rerendered in all responses to AJAX calls.
+* Updated KaTeX to version 0.7.0
+* Updated MathJax to version 2.7.0
+* Python syntax highlighting updated.
 
 **Deprecated:**
 
 **Removed:**
 
+* Errors related to evaluating the expression are no longer displayed in the `pythonic` question type.
+
 **Fixed:**
 
+* Switched to different CDN for loading Ace editor code.
+* Fixed an issue related to automatic locking when no answers have been viewed.
+* Fixed a regression related to rendering the answers to `multiplechoice` questions using the `"checkbox"` renderer.
+* Fixed issue related to handling empty `<python>` or `<question>` tags.
+* Fixed issue related to incorrectly filtering user information when generating API tokens.
+* Fixed issues with type errors from decoding data URI's in the `pythoncode` and `fileupload` question types.
+* Fixed several issues related to invalid HTML output in response to `pythoncode` submission.
+* Fixed `source.zip` generation to be more pedantic about when to install.
 * Fixed rendering of questions via `'rerender'` in the default handler.
+* Fixed problem with trying to render a template from a context where not all variables are defined.
+* Fixed rendering of check/cross images in `expression` question type.
+* Manual grading interface now displays more relevant feedback to the grader after submission (exactly the score and comments as the student will see them).
+* Fixed the display of answers to `pythoncode` questions so that syntax highlights properly.
 
 **Security:**
+
+**Documentation:**
+
+* Use Americanized spelling in documentation.
 
 # Version 9.2.0
 
