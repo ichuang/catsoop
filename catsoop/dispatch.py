@@ -17,6 +17,7 @@ import mimetypes
 import urllib.parse
 
 from email.utils import formatdate
+from collections import defaultdict
 
 from . import auth
 from . import tutor
@@ -287,7 +288,8 @@ def display_page(context):
     f = open(default)
     template = f.read()
     f.close()
-    out = language.handle_custom_tags(context, template.format(**context)) + '\n'
+    safe_context = defaultdict(lambda: '', context)
+    out = language.handle_custom_tags(context, template.format(**safe_context)) + '\n'
     headers.update(context.get('cs_additional_headers', {}))
     headers.update({'Last-Modified': formatdate()})
     return ('200', 'OK'), headers, out
