@@ -124,6 +124,10 @@ def sandbox_run_test(context, code, test):
         out = ''
         log = ''
         err = "BAD CODE - this will be logged"
+    outlines = out.split('\n')
+    if len(outlines) > 10:
+        outlines = outlines[:10] + ['...OUTPUT TRUNCATED...']
+    out = '\n'.join(outlines)
     if len(out) >= 5000:
         out = out[:5000] + "\n\n...OUTPUT TRUNCATED..."
 
