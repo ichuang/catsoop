@@ -29,6 +29,7 @@ _Work toward next release.  Currently under development._
 
 **Fixed:**
 
+* Fixed issue with `expression` question type, with `csq_ratio_check = True` and `csq_soln = 0`.
 * Switched to different CDN for loading Ace editor code.
 * Fixed an issue related to automatic locking when no answers have been viewed.
 * Fixed a regression related to rendering the answers to `multiplechoice` questions using the `"checkbox"` renderer.

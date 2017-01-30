@@ -177,10 +177,15 @@ def _run_one_test(context, sub, soln, funcs, threshold, ratio=True):
         except:
             return False
         sol = eval_expr(context, m, funcs, soln)
-        if ratio and abs(subm/sol - 1) > threshold:
-            return False
-        elif (not ratio) and abs(subm - sol) > threshold:
-            return False
+        if ratio and sol == 0:
+            if subm != 0:
+                return False
+        elif ratio:
+            if abs(subm/sol - 1) > threshold:
+                return False
+        else:
+            if abs(subm - sol) > threshold:
+                return False
     return True
 
 
