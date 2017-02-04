@@ -72,7 +72,7 @@ hljs.initHighlightingOnLoad();
   <div class="row">
     <div class="col-md-2"></div>
     <div class="col-md-8">
-      {cs_content}
+      <div id="page_content">{cs_content}</div>
       {cs_footnotes}
     </div>
     <div class="col-md-2"></div>
@@ -85,7 +85,7 @@ hljs.initHighlightingOnLoad();
 </div>
 <div id="footer">
     {cs_footer}
-    Powered by <a href='https://cat-soop.org'>CAT-SOOP</a> v{cs_version}<br/>
+    Powered by <a target='_blank' href='https://cat-soop.org'>CAT-SOOP</a> v{cs_version}<br/>
     (<a href="BASE/cs_util/license" target="_blank">View License</a>, <a href="BASE/cs_util/source.zip{cs_source_qstring}" download>Download Source Code</a>)
 <pre class="catsooplogo" style="font-size:50%;">{cs_base_logo_text}</pre>
     </div>
