@@ -326,6 +326,9 @@ def _top_menu_html(topmenu, header=True):
     else:
         out = ''
     for i in topmenu:
+        if i == 'divider':
+            out += '\n<li class="divider"></li>'
+            continue
         link = i['link']
         if isinstance(link, str):
             out += '\n<li><a href="%s">%s</a></li>' % (link, i['text'])
