@@ -14,6 +14,7 @@
 import os
 import cgi
 import mimetypes
+import string
 import urllib.parse
 
 from email.utils import formatdate
@@ -26,6 +27,13 @@ from . import errors
 from . import session
 from . import language
 from . import base_context
+
+class CSFormatter(string.Formatter):
+    def get_value(self, key, args, kwargs):
+        try:
+            return super().get_value(key, args, kwargs)
+        except (IndexError, KeyError):
+            return ''
 
 def redirect(location):
     '''
@@ -288,8 +296,7 @@ def display_page(context):
     f = open(default)
     template = f.read()
     f.close()
-    safe_context = defaultdict(lambda: '', context)
-    out = language.handle_custom_tags(context, template.format(**safe_context)) + '\n'
+    out = language.handle_custom_tags(context, CSFormatter().format(template, **context)) + '\n'
     headers.update(context.get('cs_additional_headers', {}))
     headers.update({'Last-Modified': formatdate()})
     return ('200', 'OK'), headers, out
