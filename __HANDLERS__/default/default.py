@@ -1698,6 +1698,9 @@ def handle_stats(context):
     if 'whdw' not in perms:
         return 'You are not allowed to view this page.'
 
+    section = str(context.get('cs_form', {}).get('section',
+            context.get('cs_user_info').get('section', 'default')))
+
     questions = context[_n('name_map')]
     stats = collections.OrderedDict()
     total_students = 0
@@ -1734,7 +1737,7 @@ def handle_stats(context):
         tr = soup.new_tag('tr')
         td = soup.new_tag('td')
         a = soup.new_tag('a',
-            href = '?action=whdw&question={}'.format(name),
+            href = '?section={}&action=whdw&question={}'.format(section, name),
         )
         qargs = questions[name][1]
         a.string = qargs.get('csq_display_name', name)
