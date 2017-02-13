@@ -1665,10 +1665,11 @@ def get_scores(context):
         util.read_user_file(context, context['cs_course'], username, {})
         for username in usernames
     ]
+    no_section = context.get('cs_whdw_no_section', False)
     students = [
         user
         for user in users
-        if user.get('role', None) in ['Student', 'SLA'] and str(user.get('section', 'default')) == section
+        if user.get('role', None) in ['Student', 'SLA'] and (no_section or str(user.get('section', 'default')) == section)
     ]
 
     questions = context[_n('name_map')]
