@@ -95,7 +95,7 @@ def handle_check(submissions, **info):
 
     code = submissions[info['csq_name']]
     if info['csq_interface'] == 'upload':
-        code = csm_tools.data_uri.DataURI(code[1]).data
+        code = csm_tools.data_uri.DataURI(code[1]).data.decode()
     code = code.replace('\r\n', '\n')
 
     if py3k:
