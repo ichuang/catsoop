@@ -136,11 +136,6 @@ def _get_user_information(context, into, course, username, do_preload=False):
         defaults = context.get('cs_default_permissions', ['view'])
         into['permissions'] = plist.get(into['role'], defaults)
 
-    if 'username' not in into:
-        if 'view' in into['permissions']:
-            into['permissions'] = ['view']
-        else:
-            into['permissions'] = []
 
     loader.clean_builtins(into)
 
@@ -166,4 +161,10 @@ def _get_user_information(context, into, course, username, do_preload=False):
         into.update(logininfo)
         extra_info = cslog.most_recent(None, 'extra_info', into['username'], {})
         into.update(extra_info)
+
+    if str(username) == 'None':
+        if 'view' in into['permissions']:
+            into['permissions'] = ['view']
+        else:
+            into['permissions'] = []
     return into
