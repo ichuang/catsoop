@@ -1654,7 +1654,7 @@ def exc_message(context):
             '<b>CAT-SOOP ERROR:</b>'
             '<pre>%s</pre></font>') % exc
 
-def get_scores(context):
+def _get_scores(context):
     section = str(context.get('cs_form', {}).get('section',
             context.get('cs_user_info').get('section', 'default')))
 
@@ -1665,10 +1665,11 @@ def get_scores(context):
         util.read_user_file(context, context['cs_course'], username, {})
         for username in usernames
     ]
+    no_section = context.get('cs_whdw_no_section', False)
     students = [
         user
         for user in users
-        if user.get('role', None) in ['Student', 'SLA'] and str(user.get('section', 'default')) == section
+        if user.get('role', None) in ['Student', 'SLA'] and (no_section or str(user.get('section', 'default')) == section)
     ]
 
     questions = context[_n('name_map')]
@@ -1698,33 +1699,68 @@ def handle_stats(context):
     if 'whdw' not in perms:
         return 'You are not allowed to view this page.'
 
+    section = str(context.get('cs_form', {}).get('section',
+            context.get('cs_user_info').get('section', 'default')))
+
     questions = context[_n('name_map')]
     stats = collections.OrderedDict()
-    total_students = 0
-    for name, scores in get_scores(context).items():
-        counts = {
-            'completed': 0,
-            'attempted': 0,
-            'not-tried': 0,
-        }
 
-        for score in scores.values():
-            if score is None:
-                counts['not-tried'] += 1
-            elif score == 1:
-                counts['completed'] += 1
-            else:
-                counts['attempted'] += 1
+    groups = context['csm_groups'].list_groups(
+        context,
+        context['cs_course'],
+        context['cs_path_info'][1:],
+    ).get(section, None)
 
-        stats[name] = counts
-        total_students = max(total_students, sum(counts.values()))
+    if groups:
+        total = len(groups)
+        for name, scores in _get_scores(context).items():
+            counts = {
+                'completed': 0,
+                'attempted': 0,
+                'not tried': 0,
+            }
+
+            for members in groups.values():
+                score = min(
+                    (scores.get(member, None) for member in members),
+                    key=lambda x: -1 if x is None else x,
+                )
+
+                if score is None:
+                    counts['not tried'] += 1
+                elif score == 1:
+                    counts['completed'] += 1
+                else:
+                    counts['attempted'] += 1
+
+            stats[name] = counts
+    else:
+        total = 0
+        for name, scores in _get_scores(context).items():
+            counts = {
+                'completed': 0,
+                'attempted': 0,
+                'not tried': 0,
+            }
+
+            for score in scores.values():
+                if score is None:
+                    counts['not tried'] += 1
+                elif score == 1:
+                    counts['completed'] += 1
+                else:
+                    counts['attempted'] += 1
+
+            stats[name] = counts
+            total = max(total, sum(counts.values()))
 
     BeautifulSoup = context['csm_tools'].bs4.BeautifulSoup
     soup = BeautifulSoup('')
     table = soup.new_tag('table')
+    table['class'] = 'table table-bordered'
 
     header = soup.new_tag('tr')
-    for heading in ['name', 'completed', 'attempted', 'not-tried']:
+    for heading in ['name', 'completed', 'attempted', 'not tried']:
         th = soup.new_tag('th')
         th.string = heading
         header.append(th)
@@ -1734,16 +1770,20 @@ def handle_stats(context):
         tr = soup.new_tag('tr')
         td = soup.new_tag('td')
         a = soup.new_tag('a',
-            href = '?action=whdw&question={}'.format(name),
+            href = '?section={}&action=whdw&question={}'.format(section, name),
         )
         qargs = questions[name][1]
         a.string = qargs.get('csq_display_name', name)
         td.append(a)
         td['class'] = 'text-left'
         tr.append(td)
-        for key in ['completed', 'attempted', 'not-tried']:
+        for key in ['completed', 'attempted', 'not tried']:
             td = soup.new_tag('td')
-            td.string = '{:.2%}'.format((counts[key] / total_students) if total_students != 0 else 0)
+            td.string = '{count}/{total} ({percent:.2%})'.format(
+                    count = counts[key],
+                    total = total,
+                    percent = (counts[key] / total) if total != 0 else 0,
+            )
             td['class'] = 'text-right'
             tr.append(td)
         table.append(tr)
@@ -1781,7 +1821,7 @@ def handle_whdw(context):
     display_name = qargs.get('csq_display_name', qargs['csq_name'])
     context['cs_content_header'] += ' | {}'.format(display_name)
 
-    scores = get_scores(context)[question]
+    scores = _get_scores(context)[question]
 
     groups = context['csm_groups'].list_groups(
         context,
@@ -1863,12 +1903,12 @@ def handle_whdw(context):
         states = {
             'completed': [],
             'attempted': [],
-            'not-tried': [],
+            'not tried': [],
         }
 
         for username, score in scores.items():
             if score is None:
-                state = 'not-tried'
+                state = 'not tried'
             elif score == 1:
                 state = 'completed'
             else:
@@ -1876,7 +1916,7 @@ def handle_whdw(context):
 
             states[state].append(username)
 
-        for state in ['not-tried', 'attempted', 'completed']:
+        for state in ['not tried', 'attempted', 'completed']:
             usernames = states[state]
             h3 = soup.new_tag('h3')
             h3.string = '{} ({})'.format(state, len(states[state]))
