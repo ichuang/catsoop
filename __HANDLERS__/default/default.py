@@ -1798,7 +1798,7 @@ def _real_name(context, username):
 def _whdw_name(context, username):
     real_name = _real_name(context, username)
     if real_name:
-        return '{} ({})'.format(real_name, username)
+        return '{} (<a href="?as={}" target="_blank">{}</a>)'.format(real_name, username, username)
     else:
         return username
 
@@ -1886,7 +1886,7 @@ def handle_whdw(context):
             for member in members:
                 m = soup.new_tag('li')
                 name = soup.new_tag('span')
-                name.string = _whdw_name(context, member)
+                name.insert(1, BeautifulSoup(_whdw_name(context, member)))
                 m.append(name)
 
                 score = soup.new_tag('span')
@@ -1926,7 +1926,7 @@ def handle_whdw(context):
             grid['class'] = 'row'
             for username in sorted(usernames):
                 cell = soup.new_tag('div')
-                cell.string = _whdw_name(context, username)
+                cell.insert(1, BeautifulSoup(_whdw_name(context, username)))
                 cell['class'] = 'col-sm-2'
                 grid.append(cell)
             soup.append(grid)

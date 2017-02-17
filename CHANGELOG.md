@@ -20,6 +20,7 @@ _Work toward next release.  Currently under development._
 * Updated KaTeX to version 0.7.0
 * Updated MathJax to version 2.7.0
 * Python syntax highlighting updated.
+* Several improvements to WHDW and stats displays.
 
 **Deprecated:**
 
