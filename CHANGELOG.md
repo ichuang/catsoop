@@ -33,6 +33,7 @@ _Work toward next release.  Currently under development._
 * Switched to different CDN for loading Ace editor code.
 * Fixed an issue related to automatic locking when no answers have been viewed.
 * Fixed a regression related to rendering the answers to `multiplechoice` questions using the `"checkbox"` renderer.
+* Fixed a regression related to answer checking in `multiplechoice` questions.
 * Fixed issue related to handling empty `<python>` or `<question>` tags.
 * Fixed issue related to incorrectly filtering user information when generating API tokens.
 * Fixed issues with type errors from decoding data URI's in the `pythoncode` and `fileupload` question types.

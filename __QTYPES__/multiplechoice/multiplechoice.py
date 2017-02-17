@@ -53,7 +53,7 @@ def handle_submission(submissions, **info):
     else:
         sub = int(sub)
         if info['csq_multiplechoice_soln_mode'] == 'value':
-            sub = info['csq_options'][sub]
+            sub = info['csq_options'][sub] if sub >= 0 else '--'
     check_result = check(sub, soln)
     if isinstance(check_result, collections.abc.Mapping):
         score = check_result['score']
@@ -202,7 +202,5 @@ def answer_display(**info):
         out += '</table>'
     else:
         soln = info['csq_soln']
-        if info['csq_multiplechoice_soln_mode'] != 'value':
-            soln = info['csq_options'][soln]
         out = "Solution: %s" % (soln, )
     return out
