@@ -30,6 +30,7 @@ _Work toward next release.  Currently under development._
 
 **Fixed:**
 
+* Allowed `pythonic` question type to accept tuples without parentheses.
 * Fixed issue with `expression` question type, with `csq_ratio_check = True` and `csq_soln = 0`.
 * Switched to different CDN for loading Ace editor code.
 * Fixed an issue related to automatic locking when no answers have been viewed.

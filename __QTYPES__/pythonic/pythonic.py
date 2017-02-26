@@ -31,6 +31,14 @@ defaults.update({
     'csq_size': 50
 })
 
+def gensym(code=''):
+    pre = n = '___'
+    count = 0
+    while n in code:
+        n = '%s%s' % (pre, count)
+        count += 1
+    return n
+
 def handle_submission(submissions, **info):
     py3k = info.get('csq_python3', True)
     sub = submissions[info['csq_name']]
@@ -44,20 +52,25 @@ def handle_submission(submissions, **info):
         soln = info['csq_soln']
     else:
         code = info['csq_code_pre']
+        s = info['csq_soln']
+        varname = gensym(code + s)
+        code += '\n%s = %s' % (varname, s)
         if py3k:
-            code += '\nprint(repr(%s))' % info['csq_soln']
+            code += '\nprint(repr(%s))' % varname
         else:
-            code += '\nprint repr(%s)' % info['csq_soln']
+            code += '\nprint repr(%s)' % varname
         opts = info.get('csq_options', {})
         soln = eval(info['sandbox_run_code'](info, code, opts)[1], info)
     try:
         code = info['csq_code_pre']
         if sub == '':
             return {'score': 0.0, 'msg': ''}
+        varname = gensym(code + sub)
+        code += '\n%s = %s' % (varname, sub)
         if py3k:
-            code += '\nprint(repr(%s))' % sub
+            code += '\nprint(repr(%s))' % varname
         else:
-            code += '\nprint repr(%s)' % sub
+            code += '\nprint repr(%s)' % varname
         opts = info.get('csq_options', {})
         fname, out, err = info['sandbox_run_code'](info, code, opts)
         sub = eval(out, info)
