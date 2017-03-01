@@ -49,6 +49,8 @@ _Work toward next release.  Currently under development._
 
 **Security:**
 
+* Fix a regression that opened a XSS vulnerability in `pythoncode` questions.
+
 **Documentation:**
 
 * Use Americanized spelling in documentation.

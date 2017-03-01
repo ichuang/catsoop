@@ -74,7 +74,7 @@ test_defaults = {
     'show_description': True,
     'show_code': True,
     'check_function': lambda sub, soln: (sub == soln != '') * 1.0,
-    'transform_output': lambda x: '<tt>%s</tt>' % (x, ),
+    'transform_output': lambda x: '<tt>%s</tt>' % (html_format(x), ),
 }
 
 
