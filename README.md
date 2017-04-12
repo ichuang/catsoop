@@ -8,9 +8,11 @@
 
 # CAT-SOOP
 
-[https://cat-soop.org](https://cat-soop.org)
-
-No animals were harmed in the making of this CAT-SOOP.
+* Web Site: https://cat-soop.org (or as a Tor "onion service" at http://catsoopsurzgtnkt.onion)
+* Repository Web Access: https://gitlab.com/cat-soop/cat-soop
+* IRC: `#cat-soop` on [OFTC](https://www.oftc.net/) (`irc.oftc.net`)
+* Mailing List: `users@lists.cat-soop.org` ([subscribe](https://lists.cat-soop.org/postorius/lists/users.lists.cat-soop.org/))
+* No animals were harmed in the making of this CAT-SOOP.
 
 ## WHAT IS IT?
 
@@ -20,26 +22,26 @@ Electrical Engineering and Computer Science via Robotics).
 
 CAT-SOOP is [free/libre software](https://www.gnu.org/philosophy/free-sw.html),
 available under the terms of the Soopycat License version 2
-(see [LICENSE](https://notabug.org/cat-soop/cat-soop/src/master/LICENSE)
+(see [LICENSE](https://gitlab.com/cat-soop/cat-soop/blob/master/LICENSE)
 file for details).  Please note that the terms of this license apply only to the
 CAT-SOOP system itself and any plugins in use, but not to any course material
 hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
 
 ## HOW DO I GET IT?
 
-The source code is hosted on [Notabug.org](https://notabug.org).
+The source code is hosted on [Gitlab](https://gitlab.com/cat-soop/cat-soop).
 You can also clone the most recent (potentially
 unstable) version with the following:
 ```nohighlight
-$ git clone https://notabug.org/cat-soop/cat-soop.git
+$ git clone https://gitlab.com/cat-soop/cat-soop.git
 ```
 
-If you have SSH keys on Notabug.org, you can clone instead with:
+If you have SSH keys on Gitlab, you can clone instead with:
 ```nohighlight
-$ git clone git@notabug.org:cat-soop/cat-soop.git
+$ git clone git@gitlab.com:cat-soop/cat-soop.git
 ```
 
-You can also browse the source code online at [https://notabug.org/cat-soop/cat-soop](https://notabug.org/cat-soop/cat-soop).
+You can also browse the source code online at [https://gitlab.com/cat-soop/cat-soop](https://gitlab.com/cat-soop/cat-soop).
 
 ## HOW DO I INSTALL IT?
 
