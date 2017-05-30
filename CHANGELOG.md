@@ -1,6 +1,4 @@
-# Current Developments
-
-_Work toward next release.  Currently under development._
+# Version 9.3.0
 
 **Added:**
 
@@ -21,8 +19,6 @@ _Work toward next release.  Currently under development._
 * Updated MathJax to version 2.7.0
 * Python syntax highlighting updated.
 * Several improvements to WHDW and stats displays.
-
-**Deprecated:**
 
 **Removed:**
 
