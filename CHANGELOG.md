@@ -26,31 +26,42 @@ _Work toward next release.  Currently under development._
 
 **Removed:**
 
-* Errors related to evaluating the expression are no longer displayed in the `pythonic` question type.
+* Errors related to evaluating the expression are no longer displayed in the
+    `pythonic` question type.
 
 **Fixed:**
 
 * Allowed `pythonic` question type to accept tuples without parentheses.
-* Fixed issue with `expression` question type, with `csq_ratio_check = True` and `csq_soln = 0`.
+* Fixed issue with `expression` question type, with `csq_ratio_check = True`
+    and `csq_soln = 0`.
 * Switched to different CDN for loading Ace editor code.
 * Fixed an issue related to automatic locking when no answers have been viewed.
-* Fixed a regression related to rendering the answers to `multiplechoice` questions using the `"checkbox"` renderer.
+* Fixed a regression related to rendering the answers to `multiplechoice`
+    questions using the `"checkbox"` renderer.
 * Fixed a regression related to answer checking in `multiplechoice` questions.
 * Fixed issue related to handling empty `<python>` or `<question>` tags.
-* Fixed issue related to incorrectly filtering user information when generating API tokens.
-* Fixed issues with type errors from decoding data URI's in the `pythoncode` and `fileupload` question types.
-* Fixed several issues related to invalid HTML output in response to `pythoncode` submission.
+* Fixed issue related to incorrectly filtering user information when generating
+    API tokens.
+* Fixed issues with type errors from decoding data URI's in the `pythoncode`
+    and `fileupload` question types.
+* Fixed several issues related to invalid HTML output in response to
+    `pythoncode` submission.
 * Fixed `source.zip` generation to be more pedantic about when to install.
 * Fixed rendering of questions via `'rerender'` in the default handler.
-* Fixed problem with trying to render a template from a context where not all variables are defined.
+* Fixed problem with trying to render a template from a context where not all
+    variables are defined.
 * Fixed rendering of check/cross images in `expression` question type.
-* Manual grading interface now displays more relevant feedback to the grader after submission (exactly the score and comments as the student will see them).
-* Fixed the display of answers to `pythoncode` questions so that syntax highlights properly.
-* Fixed issue with processes not being properly closed with the `python` sandbox.
+* Manual grading interface now displays more relevant feedback to the grader
+    after submission (exactly the score and comments as the student will see
+    them).
+* Fixed the display of answers to `pythoncode` questions so that syntax
+    highlights properly.
+* Fixed issue with processes not being properly closed with the `python`
+    sandbox.
 
 **Security:**
 
-* Fix a regression that opened a XSS vulnerability in `pythoncode` questions.
+* Fixed a regression that opened a XSS vulnerability in `pythoncode` questions.
 
 **Documentation:**
 
