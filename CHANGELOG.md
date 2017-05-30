@@ -46,6 +46,7 @@ _Work toward next release.  Currently under development._
 * Fixed rendering of check/cross images in `expression` question type.
 * Manual grading interface now displays more relevant feedback to the grader after submission (exactly the score and comments as the student will see them).
 * Fixed the display of answers to `pythoncode` questions so that syntax highlights properly.
+* Fixed issue with processes not being properly closed with the `python` sandbox.
 
 **Security:**
 

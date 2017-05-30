@@ -39,8 +39,10 @@ class PKiller(threading.Thread):
             time.sleep(0.1)
             if self.proc.poll() is not None:
                 return
-        if self.proc.poll() is not None:
+        try:
             os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
+        except:
+            pass
 
 
 def run_code(context, code, options):
