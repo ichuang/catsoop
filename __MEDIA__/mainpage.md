@@ -37,7 +37,7 @@ def link(url, text=None):
 CAT-SOOP is a tool for automatic collection and assessment of online exercises.
 CAT-SOOP is @{link("https://www.fsf.org/about/what-is-free-software", "free software")},
 available under the terms of the
-@{link("BASE/cs_util/license", "Soopycat License, version 2")}.
+@{link("BASE/cs_util/license", "GNU Affero General Public License, version 3+")}.
 In accordance with the terms of this license, the source code of the base
 system that generated this page is available @{link("BASE/cs_util/source.zip",
 "here")} as a zip archive.
@@ -56,13 +56,13 @@ material hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
 * Python coding questions can optionally make use of the @{link("http://ace.ajax.org/#nav=about", "ACE")} code editor.
 * CAT-SOOP's default theme uses @{link("http://getbootstrap.com", "Bootstrap")} and the following fonts: Montserrat by Julieta Ulanovsky, Lato by Łukasz Dziedzic, and Computer Modern Typewriter by Donald Knuth.
 
+## Courses
 
 <python>
 courses = csm_tutor.available_courses()
 if len(courses) == 0:
     cs_print("There are currently no courses hosted on this system.")
 else:
-    cs_print("## Courses")
     cs_print("""
 The following courses are hosted on this system:
 """)
