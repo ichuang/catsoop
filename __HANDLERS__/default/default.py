@@ -1195,8 +1195,11 @@ def submit_msg(context, perms, name):
             error = ('You are not allowed to submit to this question '
                      'because you have already viewed the answer.')
         elif not _get(qargs, 'csq_allow_submit', True, bool):
-            # ...submissions are not allowed
-            error = 'Submissions are not allowed for this question.'
+            # ...submissions are not allowed (custom message)
+            if 'cs_nosubmit_message' in context:
+                error = context['cs_nosubmit_message'](context)
+            else:
+                error = 'Submissions are not allowed for this question.'
         elif (not _get(qargs, 'csq_grading_mode', 'auto', str) == 'manual' and
               get_manual_grading_entry(context, name) is not None):
             # ...prior submission has been graded
