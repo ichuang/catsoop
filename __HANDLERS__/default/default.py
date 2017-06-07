@@ -1351,7 +1351,7 @@ def nsubmits_left(context, name):
     for (regex, nchecks) in context['cs_user_info'].get('nsubmits_extra', []):
         if re.match(regex, '.'.join(context['cs_path_info'][1:] + [name])):
             nleft += nchecks
-    nmsg = context.get('cs_nsubmits_message', None)
+    nmsg = info.get('csq_nsubmits_message', None)
     if nmsg is None:
         if nleft < float('inf'):
             msg = "<i>You have %d submission%s remaining.</i>" % (nleft, 's'
