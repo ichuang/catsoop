@@ -85,8 +85,9 @@
     </div>
     <div id="footer">
       {cs_footer}
-      Powered by <a target='_blank' href='https://cat-soop.org'>CAT-SOOP</a> v{cs_version}<br/>
-      (<a href="BASE/cs_util/license" target="_blank">View License</a>, <a href="BASE/cs_util/source.zip{cs_source_qstring}" download>Download Source Code</a>)
+      Powered by <a target='_blank' href='https://cat-soop.org'>CAT-SOOP</a> v{cs_version}.<br/>
+      CAT-SOOP is <a href="http://www.fsf.org/about/what-is-free-software">free/libre software</a>, available under the terms<br/>of the <a href="BASE/cs_util/license" target="_blank">GNU Affero General Public License, version 3</a>.<br/>
+      (<a href="BASE/cs_util/source.zip{cs_source_qstring}" download>Download Source Code</a>)
       <pre class="catsooplogo" style="font-size:50%;">{cs_base_logo_text}</pre>
     </div>
   </body>
