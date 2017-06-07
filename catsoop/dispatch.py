@@ -408,7 +408,7 @@ def main(environment):
 
         # SET SOME CONSTANTS FOR THE TEMPLATE (may be changed later)
         course = context['cs_course']
-        if course is None:
+        if course is None or course == 'cs_util':
             context['cs_home_link'] = 'BASE'
             context['cs_source_qstring'] = ''
         else:
