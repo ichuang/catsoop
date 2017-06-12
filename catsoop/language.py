@@ -20,6 +20,7 @@
 
 import os
 import re
+import copy
 import random
 import string
 import importlib
@@ -348,8 +349,9 @@ def handle_custom_tags(context, text):
                            'number': num,
                            'title': i.string,
                            'link': '#%s' % linkname}
-        sec = tree.new_tag(tag)
-        sec.string = '%s) %s' % (num, i.string)
+        sec = copy.copy(i)
+        sec.name = tag
+        sec.insert(0, '%s) ' % num)
         if lbl is not None:
             sec.attrs['id'] = 'catsoop_label_%s' % lbl
         i.replace_with(sec)
