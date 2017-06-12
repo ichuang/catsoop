@@ -31,7 +31,7 @@
     <!-- load in katex and mathjax, and CAT-SOOP-specific math rendering  -->
     <script type="text/javascript" src="BASE/scripts/katex/katex.min.js"></script>
     <link rel="stylesheet" type="text/css" href="BASE/scripts/katex/katex.min.css" />
-    <script type="text/javascript" src="BASE/scripts/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="BASE/scripts/mathjax/MathJax.js?config=TeX-AMS_CHTML"></script>
     <script type="text/javascript" src="BASE/scripts/cs_math.js"></script>
 
     <!-- CAT-SOOP Hashing -->

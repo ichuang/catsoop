@@ -22,7 +22,7 @@
 MathJax.Hub.Config({skipStartupTypeset:true,
                     imageFont: null,
                     MathMenu: { showLocale: false, showRenderer: false },
-                    TeX: { extensions: ["color.js"] }});
+                    TeX: { extensions: ["color.js", "[a11y]/accessibility-menu.js"] }});
 
 // render math
 // try to render with katex (fast, but limited support), and

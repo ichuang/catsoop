@@ -12,10 +12,15 @@ _Work toward next release.  Currently under development._
 * Code is now licensed under the GNU Affero General Public License, v3+.
     Footer text has been updated to reflect this change.
 * `cs_nsubmits_message` was replaced by `csq_nsubmits_message`.
+* Updated MathJax to version 2.7.1, and updated it to use a future-proof
+    renderer.
 
 **Deprecated:**
 
 **Removed:**
+
+* Removed large pieces of the default MathJax install because they will not be
+    used.
 
 **Fixed:**
 
