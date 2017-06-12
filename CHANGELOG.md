@@ -20,6 +20,7 @@ _Work toward next release.  Currently under development._
 **Fixed:**
 
 * Fixed broken "home" link for pages in the `cs_util` "pseudo-course."
+* Fixed issue with HTML tags not rendering inside of `<section>` tags.
 
 **Security:**
 
