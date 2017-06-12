@@ -4,13 +4,22 @@ _Work toward next release.  Currently under development._
 
 **Added:**
 
+* Added support for custom "submissions not allowed" messages via
+    `cs_nosubmit_message`.
+
 **Changed:**
+
+* Code is now licensed under the GNU Affero General Public License, v3+.
+    Footer text has been updated to reflect this change.
+* `cs_nsubmits_message` was replaced by `csq_nsubmits_message`.
 
 **Deprecated:**
 
 **Removed:**
 
 **Fixed:**
+
+* Fixed broken "home" link for pages in the `cs_util` "pseudo-course."
 
 **Security:**
 
