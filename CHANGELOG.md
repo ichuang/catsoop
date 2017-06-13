@@ -29,6 +29,8 @@ _Work toward next release.  Currently under development._
 
 * Fixed broken "home" link for pages in the `cs_util` "pseudo-course."
 * Fixed issue with HTML tags not rendering inside of `<section>` tags.
+* Fixed error messages for expressions that can't be parsed in the `expression`
+    question type.
 
 **Security:**
 

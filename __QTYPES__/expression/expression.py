@@ -283,7 +283,11 @@ def handle_submission(submissions, **info):
     funcs = dict(default_funcs)
     funcs.update(info.get('csq_funcs', {}))
 
-    sub = parser.parse(sub)
+    try:
+        sub = parser.parse(sub)
+    except:
+        return {'score': 0.0, 'msg': '<font color="red">Error: '
+                                     'could not parse input.</font>'}
     _m = None
     if sub is None:
         result = False
