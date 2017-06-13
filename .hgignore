@@ -13,6 +13,7 @@ nohup.out
 
 # Mercurial
 *.orig
+*.bak
 
 # htaccess
 .htaccess
