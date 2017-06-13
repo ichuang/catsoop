@@ -14,6 +14,9 @@ _Work toward next release.  Currently under development._
 * `cs_nsubmits_message` was replaced by `csq_nsubmits_message`.
 * Updated MathJax to version 2.7.1, and updated it to use a future-proof
     renderer.
+* Updated PLY to version 3.10.
+* Updated Markdown to version 2.6.8.
+* Updated BeautifulSoup to version 4.6.0.
 
 **Deprecated:**
 
