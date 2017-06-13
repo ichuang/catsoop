@@ -1358,7 +1358,7 @@ def nsubmits_left(context, name):
                                                                   if nleft != 1
                                                                   else '')
         else:
-            msg = "<i>You have infinitely-many submissions remaining.</i>"
+            msg = "<i>You have infinitely many submissions remaining.</i>"
     else:
         msg = nmsg(nsubmits, nused, nleft)
 
