@@ -32,43 +32,82 @@ table, th, td {
 
 <table style="">
 <tr>
-<th>Syntax</th>
-<th>Processed</th>
+<th width=50%>Syntax</th>
+<th width=50%>Processed</th>
 </tr>
 
 <tr>
-<td><pre>This text is _emphasized_.</pre></td>
-<td><p>This text is <em>emphasized</em>.</p></td>
+<td><pre>Text between underscores is _emphasized_.</pre></td>
+<td><p>Text between underscores is <em>emphasized</em>.</p></td>
 </tr>
 
 <tr>
-<td><pre>This is **bold** text.</pre></td>
-<td><p>This is <strong>bold</strong> text.</p></td>
+<td><pre>Text between double asterisks is **bold**.</pre></td>
+<td><p>Text between double asterisks is <strong>bold</strong>.</p></td>
 </tr>
 
 <tr>
-<td><pre>math (LaTeX): $x^2$</pre></td>
-<td><p>math (LaTeX): <math>x^2</math></p></td>
+<td><pre>Text between backticks is formatted as `code`.</pre></td>
+<td><p>Text between backticks is formatted as <code>code</code>.</p></td>
 </tr>
 
 <tr>
-<td><pre>display math (LaTeX): $$\sum_{a=0}^\infty a^n$$</pre></td>
-<td><p>display math (LaTeX): <displaymath>\sum_{a=0}^\infty a^n</displaymath></p></td>
+<td><pre>For a larger block of code, surround the code with three backticks:
+
+```
+def foo(x):
+    print(x + 2)
+```</pre></td>
+<td><p>For a larger block of code, surround the code with three backticks:
+
+<pre><code>def foo(x):
+    print(x + 2)</code></pre></p></td>
+</tr>
+
+
+<tr>
+<td><pre>To enable syntax highlighting on a large code block, include the name of the programming language after the first set of three backticks:
+
+```python
+def foo(x):
+    print(x + 2)
+```</pre></td>
+<td><p>To enable syntax highlighting on a large code block, include the name of the programming language after the first set of three backticks:
+
+<pre><code class='lang-python'>def foo(x):
+    print(x + 2)</code></pre></p></td>
+</tr>
+
+
+<tr>
+<td><pre>Text between dollar signs is formatted as math (LaTeX): $x^2$</pre></td>
+<td><p>Text between dollar signs is formatted as math (LaTeX): <math>x^2</math></p></td>
 </tr>
 
 <tr>
-<td><pre>* bulleted
+<td><pre>Text between double dollar signs is formatted as display math (LaTeX): $$\sum_{a=0}^\infty a^n$$</pre></td>
+<td><p>Text between double dollar signs is formatted as display math (LaTeX): <displaymath>\sum_{a=0}^\infty a^n</displaymath></p></td>
+</tr>
+
+<tr>
+<td><pre>Asterisks denote a
+
+* bulleted
 * list</pre></td>
-<td><ul>
+<td>Asterisks denote a
+<ul>
 <li>bulleted</li>
 <li>list</li>
 </ul></td>
 </tr>
 
 <tr>
-<td><pre>1. numbered
+<td><pre>A number followed by a period denotes a
+
+1. numbered
 1. list</pre></td>
-<td><ol>
+<td>A number followed by a period denotes a
+<ol>
 <li>numbered</li>
 <li>list</li>
 </ol></td>
