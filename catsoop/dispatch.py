@@ -356,7 +356,9 @@ def _top_menu_html(topmenu, header=True):
             out += '\n<li><a href="%s">%s</a></li>' % (link, i['text'])
         else:
             out += '\n<li class="dropdown">'
-            out += '<a href="#" data-toggle="dropdown" class="dropdown-toggle" role="button" aria-expanded="false">'
+            out += ('<a href="#" data-toggle="dropdown" '
+                    'class="dropdown-toggle" role="button" '
+                    'aria-expanded="false">')
             out += i['text']
             out += '<span class="caret"></span></a>'
             out += '<ul class="dropdown-menu">'
