@@ -31,6 +31,8 @@ _Work toward next release.  Currently under development._
 * Fixed issue with HTML tags not rendering inside of `<section>` tags.
 * Fixed error messages for expressions that can't be parsed in the `expression`
     question type.
+* Fixed a crash when the <cs_data_root>/courses directory did not exist or was
+    not writeable by the web server.
 
 **Security:**
 

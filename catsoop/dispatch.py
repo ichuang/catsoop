@@ -420,7 +420,7 @@ def main(environment):
             path_info = path_info[1:]
 
         # SET SOME CONSTANTS FOR THE TEMPLATE (may be changed later)
-        course = context['cs_course']
+        course = context.get('cs_course', None)
         if course is None or course == 'cs_util':
             context['cs_home_link'] = 'BASE'
             context['cs_source_qstring'] = ''

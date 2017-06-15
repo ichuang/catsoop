@@ -67,5 +67,8 @@ else:
 The following courses are hosted on this system:
 """)
     for course_id, title in courses:
-        cs_print('* [%s](BASE/%s/)' % (title, course_id))
+        if title == course_id:
+            cs_print('* [%s](BASE/%s/)' % (course_id, course_id))
+        else:
+            cs_print('* [%s](BASE/%s/): %s' % (course_id, course_id, title))
 </python>
