@@ -367,7 +367,7 @@ def handle_custom_tags(context, text):
         else:
             lbl = i.attrs['label']
 
-        body = i.string or '<a href="{link}">{type} {number}</a>'
+        body = i.innerHTML or '<a href="{link}">{type} {number}</a>'
         body = body.format(**labels[lbl])
         new = BeautifulSoup(body, 'html.parser')
         i.replace_with(new)
