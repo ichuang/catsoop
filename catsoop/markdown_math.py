@@ -27,6 +27,7 @@ _ESCAPED_DOLLAR_RE = r'\\(\$)'
 
 class RawHtmlPattern(HtmlPattern):
     """Store raw inline html and return a placeholder."""
+
     def __init__(self, endtag, *args, **kwargs):
         self._hz_tag = endtag
         HtmlPattern.__init__(self, *args, **kwargs)
@@ -34,9 +35,11 @@ class RawHtmlPattern(HtmlPattern):
     def handleMatch(self, m):
         pre = m.group(2)
         body = self.unescape(m.group(4))
-        rawhtml = '%(pre)s<%(tag)s>%(body)s</%(tag)s>' % {'tag': self._hz_tag,
-                                                          'body': body,
-                                                          'pre': pre}
+        rawhtml = '%(pre)s<%(tag)s>%(body)s</%(tag)s>' % {
+            'tag': self._hz_tag,
+            'body': body,
+            'pre': pre
+        }
         place_holder = self.markdown.htmlStash.store(rawhtml)
         return place_holder
 
@@ -50,8 +53,6 @@ class MathExtension(Extension):
                               RawHtmlPattern('displaymath', _DMATH_RE, md),
                               '<entity')
         md.inlinePatterns.add('math',
-                              RawHtmlPattern('math', _MATH_RE, md),
-                              '>dmath')
+                              RawHtmlPattern('math', _MATH_RE, md), '>dmath')
         md.inlinePatterns.add('emath',
-                              SimpleTextPattern(_ESCAPED_DOLLAR_RE),
-                              '>math')
+                              SimpleTextPattern(_ESCAPED_DOLLAR_RE), '>math')

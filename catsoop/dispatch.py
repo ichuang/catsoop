@@ -31,12 +31,14 @@ from . import session
 from . import language
 from . import base_context
 
+
 class CSFormatter(string.Formatter):
     def get_value(self, key, args, kwargs):
         try:
             return super().get_value(key, args, kwargs)
         except (IndexError, KeyError):
             return ''
+
 
 def redirect(location):
     '''
@@ -54,27 +56,25 @@ def static_file_location(context, path):
     rest = path[2:]
     if path[0] == '__BASE__':
         # serving from base
-        loc = os.path.join(context.get('cs_fs_root',
-                                       base_context.cs_fs_root),
-                           '__MEDIA__')
+        loc = os.path.join(
+            context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__')
         rest = path[1:]
     elif path[0] == '__PLUGIN__':
         # serving from plugin
         course = context.get('cs_course', '')
-        loc = os.path.join(context.get('cs_data_root',
-                                       base_context.cs_data_root),
-                           'courses', course, '__PLUGINS__', path[1],
-                           '__MEDIA__')
+        loc = os.path.join(
+            context.get('cs_data_root', base_context.cs_data_root), 'courses',
+            course, '__PLUGINS__', path[1], '__MEDIA__')
     elif path[0] == '__HANDLER__':
         # serving from handler
-        loc = os.path.join(context.get('cs_fs_root',
-                                       base_context.cs_fs_root),
-                           '__HANDLERS__', path[1], '__MEDIA__')
+        loc = os.path.join(
+            context.get('cs_fs_root', base_context.cs_fs_root), '__HANDLERS__',
+            path[1], '__MEDIA__')
     elif path[0] == '__QTYPE__':
         # serving from qtype
-        loc = os.path.join(context.get('cs_fs_root',
-                                       base_context.cs_fs_root),
-                           '__QTYPES__', path[1], '__MEDIA__')
+        loc = os.path.join(
+            context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__',
+            path[1], '__MEDIA__')
     else:
         # preprocess the path to prune out 'dots' and 'double-dots'
         course = path[0]
@@ -93,9 +93,9 @@ def static_file_location(context, path):
 
         # trace up the path to find the lowest point that has a
         # __MEDIA__ directory
-        basepath = os.path.join(context.get('cs_data_root',
-                                            base_context.cs_data_root),
-                                'courses', course)
+        basepath = os.path.join(
+            context.get('cs_data_root', base_context.cs_data_root), 'courses',
+            course)
         for ix in range(len(newpath) - 1, -1, -1):
             loc = os.path.join(*([basepath] + newpath[:ix] + ['__MEDIA__']))
             rest = newpath[ix:]
@@ -125,7 +125,8 @@ def content_file_location(context, path):
             newpath = newpath[:-1]
         else:
             try:
-                dname = loader.get_directory_name(context, course, path[:ix], cur)
+                dname = loader.get_directory_name(context, course, path[:ix],
+                                                  cur)
             except FileNotFoundError:
                 return None
             if dname is None:
@@ -154,7 +155,11 @@ def content_file_location(context, path):
     return None
 
 
-def serve_static_file(context, fname, environment=None, stream=False, streamchunk=4096):
+def serve_static_file(context,
+                      fname,
+                      environment=None,
+                      stream=False,
+                      streamchunk=4096):
     """
     Generate HTTP response to serve up a static file, or a 404 error if the
     file does not exist.  Makes use of the browser's cache when possible.
@@ -174,12 +179,14 @@ def serve_static_file(context, fname, environment=None, stream=False, streamchun
         headers['Content-length'] = os.path.getsize(fname)
         f = open(fname, 'rb')
         if stream or headers['Content-length'] > 1024 * 1024:
+
             def streamer():
                 r = f.read(streamchunk)
                 while len(r) > 0:
                     yield r
                     r = f.read(streamchunk)
                 f.close()
+
             out = streamer()
         else:
             out = f.read()
@@ -231,8 +238,7 @@ def _real_url_helper(context, url):
             pre = u2 + new
         else:
             pre = u + new
-    elif (url.startswith('__HANDLER__') or
-          url.startswith('__QTYPE__') or
+    elif (url.startswith('__HANDLER__') or url.startswith('__QTYPE__') or
           url.startswith('__PLUGIN__')):
         pre = u
         end = [url]
@@ -286,12 +292,15 @@ def display_page(context):
         impmsg = ('<center><b><font color="red">'
                   'You are viewing this page as <i>%(u)s</i>.<br/>'
                   "Actions you take may affect <i>%(u)s</i>\'s account."
-                  '</font></b></center><p>') % {'u': context['cs_username']}
+                  '</font></b></center><p>') % {
+                      'u': context['cs_username']
+                  }
         context['cs_content'] = impmsg + context['cs_content']
-    context['cs_content'] = language.handle_custom_tags(context, context['cs_content'])
+    context['cs_content'] = language.handle_custom_tags(
+        context, context['cs_content'])
     default = os.path.join(
-        context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__', 'templates',
-        "main.template")
+        context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__',
+        'templates', "main.template")
     temp = _real_url_helper(context, context['cs_template'])
     if '__STATIC__' in temp:
         default = static_file_location(context, temp[2:])
@@ -299,7 +308,8 @@ def display_page(context):
     f = open(default)
     template = f.read()
     f.close()
-    out = language.handle_custom_tags(context, CSFormatter().format(template, **context)) + '\n'
+    out = language.handle_custom_tags(
+        context, CSFormatter().format(template, **context)) + '\n'
     headers.update(context.get('cs_additional_headers', {}))
     headers.update({'Last-Modified': formatdate()})
     return ('200', 'OK'), headers, out
@@ -310,20 +320,22 @@ def _breadcrumbs_html(context):
     if callable(_defined):
         return _defined(context)
     if len(context.get('cs_loader_states', [])) < 2:
-            return ''
+        return ''
     out = '<ol class="breadcrumb">'
     to_skip = context.get('cs_breadcrumbs_skip_paths', [])
     link = 'BASE'
     for ix, elt in enumerate(context['cs_loader_states']):
         link = link + '/' + context['cs_path_info'][ix]
-        if '/'.join(context['cs_path_info'][1:ix+1]) in to_skip:
+        if '/'.join(context['cs_path_info'][1:ix + 1]) in to_skip:
             continue
         if context.get('cs_breadcrumbs_skip', False):
             continue
-        name = elt.get('cs_long_name', context['cs_path_info'][ix]) if ix != 0 else 'Home'
+        name = elt.get('cs_long_name',
+                       context['cs_path_info'][ix]) if ix != 0 else 'Home'
         name = language.source_transform_string(context, name)
         extra = '-active' if ix == len(context['cs_loader_states']) - 1 else ''
-        out += '<li class="breadcrumb-item%s"><a href="%s">%s</a></li>' % (extra, link, name)
+        out += '<li class="breadcrumb-item%s"><a href="%s">%s</a></li>' % (
+            extra, link, name)
     return out + '</ol>'
 
 
@@ -379,15 +391,16 @@ def main(environment):
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
         if len(path_info) > 0 and path_info[0] == '__STATIC__':
             return serve_static_file(context,
-                                     static_file_location(context, path_info[1:]),
-                                     environment)
+                                     static_file_location(
+                                         context, path_info[1:]), environment)
 
         # LOAD FORM DATA
         if 'wsgi.input' in environment:
             # need to read post variables from wsgi.input
-            fields = cgi.FieldStorage(fp=environment['wsgi.input'],
-                                      environ=environment,
-                                      keep_blank_values=True)
+            fields = cgi.FieldStorage(
+                fp=environment['wsgi.input'],
+                environ=environment,
+                keep_blank_values=True)
         else:
             fields = cgi.FieldStorage()
         form_data = dict_from_cgi_form(fields)
@@ -419,9 +432,10 @@ def main(environment):
 
         # CHECK FOR VALID CONFIGURATION
         if e is not None:
-            return (('500', 'Internal Server Error'),
-                    {'Content-type': 'text/plain',
-                     'Content-length': str(len(e))}, e)
+            return (('500', 'Internal Server Error'), {
+                'Content-type': 'text/plain',
+                'Content-length': str(len(e))
+            }, e)
         if len(context['_cs_config_errors']) > 0:
             m = ('The following errors occurred while '
                  'loading global configuration:\n\n')
@@ -437,7 +451,8 @@ def main(environment):
             url_root = urllib.parse.urlparse(context['cs_url_root'])
             domain = url_root.netloc.rsplit(':', 1)[0]
             path = url_root.path or '/'
-            hdr['Set-Cookie'] = 'sid=%s; Domain=%s; Path=%s' % (context['cs_sid'], domain, path)
+            hdr['Set-Cookie'] = 'sid=%s; Domain=%s; Path=%s' % (
+                context['cs_sid'], domain, path)
         session_data = session.get_session_data(context, context['cs_sid'])
         context['cs_session_data'] = session_data
 
@@ -463,7 +478,8 @@ def main(environment):
                     return display_page(context)
                 redir = None
                 if user_info.get('cs_reload', False):
-                    redir = '/'.join([base_context.cs_url_root] + context['cs_path_info'])
+                    redir = '/'.join([base_context.cs_url_root] +
+                                     context['cs_path_info'])
                 if redir is None:
                     redir = user_info.get('cs_redirect', None)
                 if redir is not None:
@@ -473,7 +489,6 @@ def main(environment):
 
                 # ONCE WE HAVE THAT, GET USER INFORMATION
                 context['cs_user_info'] = auth.get_user_information(context)
-
 
             # MAKE SURE LATE LOAD EXISTS; 404 IF NOT
             if context.get('cs_course', None):
@@ -488,14 +503,15 @@ def main(environment):
         else:
             default_course = context.get('cs_default_course', None)
             if default_course is not None:
-                return redirect('/'.join([base_context.cs_url_root,
-                                          default_course]))
+                return redirect(
+                    '/'.join([base_context.cs_url_root, default_course]))
             else:
                 root = context.get('cs_fs_root', base_context.cs_fs_root)
                 path = os.path.join(root, '__MEDIA__', 'mainpage.md')
                 with open(path) as f:
                     context['cs_content'] = f.read()
-                context['cs_content'] = language.handle_python_tags(context, context['cs_content'])
+                context['cs_content'] = language.handle_python_tags(
+                    context, context['cs_content'])
                 context['csm_language']._md_pre_handle(context)
                 context['cs_handler'] = 'passthrough'
 
@@ -509,12 +525,12 @@ def main(environment):
             return res
         if 'cs_post_handle' in context:
             context['cs_post_handle'](context)
-        loader.run_plugins(context, context['cs_course'],
-                           'post_handle', context)
-
+        loader.run_plugins(context, context['cs_course'], 'post_handle',
+                           context)
 
         # SET SOME MORE TEMPLATE-SPECIFIC CONSTANTS, AND RENDER THE PAGE
-        context['cs_top_menu_html'] = _top_menu_html(context['cs_top_menu'], True)
+        context['cs_top_menu_html'] = _top_menu_html(context['cs_top_menu'],
+                                                     True)
         context['cs_breadcrumbs_html'] = _breadcrumbs_html(context)
 
         out = display_page(context)  # tweak and display HTML

@@ -89,15 +89,14 @@ def get_logged_in_user(context):
     if 'username' in regular_user:
         # successful login.  check for existing token
         cslog = logging.get_logger(context)
-        tok = cslog.most_recent(None, 'api_users',
-                                regular_user['username'], None)
+        tok = cslog.most_recent(None, 'api_users', regular_user['username'],
+                                None)
         if tok is None:
             # if no token found, create a new one.
             tok = api.initialize_api_token(context, regular_user)
         regular_user['api_token'] = tok
 
     return regular_user
-
 
 
 def get_user_information(context):
@@ -125,8 +124,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
                              context['cs_course'], '__USERS__',
                              "%s.py" % username)
     else:
-        fname = os.path.join(context['cs_data_root'], '__LOGS__',
-                             username)
+        fname = os.path.join(context['cs_data_root'], '__LOGS__', username)
     if os.path.exists(fname):
         text = open(fname).read()
         exec(text, into)
@@ -138,7 +136,6 @@ def _get_user_information(context, into, course, username, do_preload=False):
         plist = context.get('cs_permissions', {})
         defaults = context.get('cs_default_permissions', ['view'])
         into['permissions'] = plist.get(into['role'], defaults)
-
 
     loader.clean_builtins(into)
 
@@ -153,16 +150,19 @@ def _get_user_information(context, into, course, username, do_preload=False):
         into['username'] = into['name'] = context['cs_username']
         into['role'] = None
         into['permissions'] = []
-        into['api_token'] = context['csm_cslog'].most_recent(None, 'api_tokens',
-                                                             into['username'],
-                                                             None)
+        into['api_token'] = context['csm_cslog'].most_recent(
+            None, 'api_tokens', into['username'], None)
         into = get_user_information(context)
     cslog = context['csm_cslog']
     if 'username' in into:
         logininfo = cslog.most_recent(None, 'logininfo', into['username'], {})
-        logininfo = {k:v for k,v in logininfo.items() if k in ('username', 'name', 'email')}
+        logininfo = {
+            k: v
+            for k, v in logininfo.items() if k in ('username', 'name', 'email')
+        }
         into.update(logininfo)
-        extra_info = cslog.most_recent(None, 'extra_info', into['username'], {})
+        extra_info = cslog.most_recent(None, 'extra_info', into['username'],
+                                       {})
         into.update(extra_info)
 
     if str(username) == 'None':

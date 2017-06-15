@@ -18,6 +18,7 @@ import os
 
 from . import loader
 
+
 def _hide(n):
     return n[0] in ('_', '.') or not n.endswith('.py')
 

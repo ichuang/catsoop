@@ -20,6 +20,7 @@ from . import loader
 from . import dispatch
 from . import base_context
 
+
 def html_format(string):
     """
     Returns an HTML-escaped version of the input string, suitable for
@@ -67,14 +68,15 @@ def do_error_message(context, msg=None):
         new['cs_username'] = None
     if 'cs_handler' in new:
         del new['cs_handler']
-    m = msg if msg is not None else error_message_content(context, html=(not plain))
+    m = msg if msg is not None else error_message_content(
+        context, html=(not plain))
     if plain:
-        return ((500, 'Internal Server Error'),
-                {'Content-type': 'text/plain', 'Content-length': len(m.encode())},
-                m)
+        return ((500, 'Internal Server Error'), {
+            'Content-type': 'text/plain',
+            'Content-length': len(m.encode())
+        }, m)
     new['cs_original_path'] = ''
-    new['cs_content'] = ('<pre>ERROR:\n'
-                         '%s</pre>') % ( m)
+    new['cs_content'] = ('<pre>ERROR:\n' '%s</pre>') % (m)
     e = ': <font color="red">ERROR</font>'
     new['cs_header'] = new.get('cs_header', '') + e
     new['cs_content_header'] = 'An Error Occurred:'
@@ -99,8 +101,9 @@ def do_404_message(context):
         new['cs_username'] = None
     if 'cs_handler' in new:
         del new['cs_handler']
-    new['cs_content'] = ('<pre>CAT-SOOP could not find the specified file or resource:\n'
-                         '%r</pre>') % (new['cs_original_path'])
+    new['cs_content'] = (
+        '<pre>CAT-SOOP could not find the specified file or resource:\n'
+        '%r</pre>') % (new['cs_original_path'])
     new['cs_original_path'] = ''
     e = ': <font color="red">404</font>'
     new['cs_header'] = new.get('cs_header', '') + e
@@ -111,6 +114,7 @@ def do_404_message(context):
     s, h, o = dispatch.display_page(new)
     o = o.replace(new['cs_base_logo_text'], error_404_logo)
     return ('404', 'File Not Found'), h, o
+
 
 error_404_logo = ("\   ???????? "
                 "\n/    /\__/\  "

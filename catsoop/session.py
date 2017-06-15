@@ -31,7 +31,6 @@ from .tools import filelock
 
 importlib.reload(base_context)
 
-
 VALID_SESSION_RE = re.compile(r"^[A-Fa-f0-9]{32}$")
 """
 Regular expression matching a valid session id name (32 hexadecimal characters)

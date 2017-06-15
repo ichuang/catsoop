@@ -25,12 +25,8 @@ def realize_time(context, timestring):
     Return an appropriate datetimebased on timestring
     """
     if timestring == 'NEVER':
-        return datetime(year=MAXYEAR,
-                        month=12,
-                        day=31,
-                        hour=23,
-                        minute=59,
-                        second=59)
+        return datetime(
+            year=MAXYEAR, month=12, day=31, hour=23, minute=59, second=59)
     elif timestring == 'ALWAYS':
         return datetime(year=1900, month=1, day=1, hour=0, minute=0, second=0)
     elif timestring[0].isdigit():
@@ -52,10 +48,11 @@ def realize_time(context, timestring):
                 wknum -= 1
             day = day[:-1]
         start = realize_time(context, start_date)
-        return start + timedelta(weeks=(wknum - 1),
-                                 days=days.index(day),
-                                 hours=int(hour),
-                                 minutes=int(minute))
+        return start + timedelta(
+            weeks=(wknum - 1),
+            days=days.index(day),
+            hours=int(hour),
+            minutes=int(minute))
     else:
         raise Exception("invalid time style: %s" % timestring)
 

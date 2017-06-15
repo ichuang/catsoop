@@ -31,8 +31,8 @@ def list_groups(context, course, path):
     Returns a dictionary mapping group names to lists of group members
     """
     log = context['csm_cslog']
-    return log.most_recent(None, 'groups',
-                           get_group_log_name(course, path), {})
+    return log.most_recent(None, 'groups', get_group_log_name(course, path),
+                           {})
 
 
 def get_section(context, course, username):
@@ -64,15 +64,18 @@ def add_to_group(context, course, path, username, group):
     section = get_section(context, course, username)
     preexisting_group = get_group(context, course, path, username)
     if preexisting_group != (None, None, None):
-        return "%s is already assigned to a group (section %s group %s)" % ((username,) + preexisting_group[:2])
+        return "%s is already assigned to a group (section %s group %s)" % (
+            (username, ) + preexisting_group[:2])
+
     def _transformer(x):
         x[section] = x.get(section, {})
         x[section][group] = x[section].get(group, []) + [username]
         return x
+
     try:
         log.modify_most_recent(None, 'groups',
-                               get_group_log_name(course, path),
-                               {}, _transformer)
+                               get_group_log_name(course, path), {},
+                               _transformer)
     except:
         return 'An error occured when assigning to group.'
 
@@ -86,18 +89,22 @@ def remove_from_group(context, course, path, username, group):
     section = get_section(context, course, username)
     preexisting_group = get_group(context, course, path, username)
     if preexisting_group[:-1] != (section, group):
-        return "%s is not assigned to section %s group %s." % (username, section, group)
+        return "%s is not assigned to section %s group %s." % (username,
+                                                               section, group)
+
     def _transformer(x):
         x[section] = x.get(section, {})
-        x[section][group] = [i for i in x[section].get(group, [])
-                             if i != username]
+        x[section][group] = [
+            i for i in x[section].get(group, []) if i != username
+        ]
         if len(x[section][group]) == 0:
             del x[section][group]
         return x
+
     try:
         log.modify_most_recent(None, 'groups',
-                               get_group_log_name(course, path),
-                               {}, _transformer)
+                               get_group_log_name(course, path), {},
+                               _transformer)
     except:
         return 'An error occured when removing from group.'
 
@@ -108,13 +115,15 @@ def overwrite_groups(context, course, path, section, newdict):
     provided in newdict
     """
     log = context['csm_cslog']
+
     def _transformer(x):
         x[section] = newdict
         return x
+
     try:
         log.modify_most_recent(None, 'groups',
-                               get_group_log_name(course, path),
-                               {}, _transformer)
+                               get_group_log_name(course, path), {},
+                               _transformer)
     except:
         return 'An error occured when overwriting groups.'
 
@@ -125,15 +134,19 @@ def make_all_groups(context, course, path, section):
     """
     util = context['csm_util']
     size = context.get('cs_group_size', 2)
+
     def cat(uname):
         f = context.get('cs_group_category', lambda path, uname: 'all')
         return f(path, uname)
+
     group_names = context.get('cs_group_names', list(map(str, range(1000))))
     group_names = list(group_names)
     students = util.list_all_users(context, course)
+
     def filt(uinfo):
         return (uinfo.get('role', None) == 'Student' and
                 str(uinfo.get('section', None)) == str(section))
+
     cats = {}
     for s in students:
         if not filt(util.read_user_file(context, course, s, {})):

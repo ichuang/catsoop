@@ -34,19 +34,21 @@ def new_api_token(context, username):
 
 
 def initialize_api_token(context, user_info):
-    user_info = {k:v for (k,v) in user_info.items() if k in {'username','name','email'}}
+    user_info = {
+        k: v
+        for (k, v) in user_info.items() if k in {'username', 'name', 'email'}
+    }
     token = new_api_token(context, user_info['username'])
-    context['csm_cslog'].overwrite_log(None, 'api_tokens',
-                                       '%s' % token,
+    context['csm_cslog'].overwrite_log(None, 'api_tokens', '%s' % token,
                                        user_info)
-    context['csm_cslog'].update_log(None, 'api_users',
-                                    user_info['username'], token)
+    context['csm_cslog'].update_log(None, 'api_users', user_info['username'],
+                                    token)
     return token
 
 
 def userinfo_from_token(context, tok):
-        return context['csm_cslog'].most_recent(None, 'api_tokens',
-                                                '%s' % tok, None)
+    return context['csm_cslog'].most_recent(None, 'api_tokens', '%s' % tok,
+                                            None)
 
 
 def get_logged_in_user(context):
@@ -60,7 +62,12 @@ def get_logged_in_user(context):
     return None
 
 
-def get_user_information(context, uname=None, passwd=None, api_token=None, course=None, _as=None):
+def get_user_information(context,
+                         uname=None,
+                         passwd=None,
+                         api_token=None,
+                         course=None,
+                         _as=None):
     login = context['csm_auth'].get_auth_type_by_name(context, 'login')
 
     user = None
@@ -74,19 +81,21 @@ def get_user_information(context, uname=None, passwd=None, api_token=None, cours
             error = "Invalid API token: %s" % api_token
         else:
             user['api_token'] = api_token
-            extra_info = log.most_recent(None, 'extra_info',
-                                           user['username'], {})
+            extra_info = log.most_recent(None, 'extra_info', user['username'],
+                                         {})
             user.update(extra_info)
     else:
         if uname is not None and passwd is not None:
             # if no API token was given, but username and password were, check
             # those.
             hash_iters = context.get('cs_password_hash_iterations', 250000)
-            pwd_check = login.check_password(context, passwd, uname, hash_iters)
+            pwd_check = login.check_password(context, passwd, uname,
+                                             hash_iters)
             if not pwd_check:
                 error = 'Invalid username or password.'
             else:
-                user = log.most_recent(None, 'logininfo', user['username'], None)
+                user = log.most_recent(None, 'logininfo', user['username'],
+                                       None)
         else:
             error = 'API token or username and password hash required.'
 
@@ -108,9 +117,8 @@ def get_user_information(context, uname=None, passwd=None, api_token=None, cours
         if os.path.isdir(base_loc):
             uname = user['username']
             ctx['cs_user_info'] = user
-            user = context['csm_auth']._get_user_information(ctx, user,
-                                                             course, uname,
-                                                             do_preload=True)
+            user = context['csm_auth']._get_user_information(
+                ctx, user, course, uname, do_preload=True)
         else:
             error = 'No such course: %s' % course
 

@@ -42,12 +42,15 @@ def clean_builtins(d):
 
 
 def plugin_locations(context, course):
-    out = [os.path.join(context.get('cs_fs_root', base_context.cs_fs_root),
-                            '__PLUGINS__')]
+    out = [
+        os.path.join(
+            context.get('cs_fs_root', base_context.cs_fs_root), '__PLUGINS__')
+    ]
     if course is not None:
-        out.append(os.path.join(context.get('cs_data_root',
-                                            base_context.cs_data_root),
-                                'courses', course, '__PLUGINS__'))
+        out.append(
+            os.path.join(
+                context.get('cs_data_root', base_context.cs_data_root),
+                'courses', course, '__PLUGINS__'))
     return out
 
 
@@ -106,7 +109,8 @@ def load_global_data(into, check_values=True):
         exec(c, into)
         into['cs_random'] = random.Random()
         into['csm_base_context'] = into['base_context'] = base_context
-        into['csm_cslog'] = into['cslog'] = into['csm_logging'].get_logger(into)
+        into['csm_cslog'] = into['cslog'] = into['csm_logging'].get_logger(
+            into)
         clean_builtins(into)
         into['csm_loader'] = sys.modules[__name__]
     except Exception as e:
@@ -207,11 +211,11 @@ def cs_compile(fname, pre_code='', post_code=''):
         # make some modifications to the code, and compile
         code = '\n\n'.join([pre_code, open(fname).read(), post_code])
         code = code.replace('tutor.question(', 'tutor.question(globals(),')
-        code = code.replace('tutor.qtype_inherit(', 'tutor.qtype_inherit(globals(),')
+        code = code.replace('tutor.qtype_inherit(',
+                            'tutor.qtype_inherit(globals(),')
         x = compile(
             code.replace('tutor.init_random()',
-                         'tutor.init_random(globals())').strip(),
-            fname,
+                         'tutor.init_random(globals())').strip(), fname,
             'exec')
         try:
             # write the compiled code to disk
@@ -235,7 +239,7 @@ def get_directory_name(context, course, path, name):
     s = get_subdirs(context, course, path)
     for i in s:
         if ((i == name and not i.startswith('_') and not i.startswith('.')) or
-                ('.' in i and '.'.join(i.split('.')[1:]) == name)):
+            ('.' in i and '.'.join(i.split('.')[1:]) == name)):
             return i
     return None
 
@@ -251,9 +255,11 @@ def get_subdirs(context, course, path):
             return []
         path_pieces.append(d)
     directory = os.path.join(*path_pieces)
-    return [i for i in os.listdir(directory)
-            if os.path.isdir(os.path.join(directory, i)) and re.match(
-                '[^_\.].*', i) is not None]
+    return [
+        i for i in os.listdir(directory)
+        if os.path.isdir(os.path.join(directory, i)) and
+        re.match('[^_\.].*', i) is not None
+    ]
 
 
 def do_late_load(context, course, path, into, content_file=None):
@@ -282,7 +288,8 @@ def do_late_load(context, course, path, into, content_file=None):
     into['cs_source_format'] = content_file.rsplit('.', 1)[-1]
     into['cs_content'] = open(content_file).read()
     if into['cs_source_format'] != 'py':
-        into['cs_content'] = language.handle_python_tags(into, into['cs_content'])
+        into['cs_content'] = language.handle_python_tags(
+            into, into['cs_content'])
     else:
         exec(context['cs_content'], context)
     if 'cs_post_load' in into:

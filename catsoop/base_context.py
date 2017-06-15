@@ -21,7 +21,6 @@ the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
 
-
 cs_version = '10.0.0+develop'
 """
 CAT-SOOP's version number
@@ -189,6 +188,7 @@ def cs_debug(*values, tag=''):
     with open(cs_debug_log_location, 'a') as myfile:
         print(datetime.now().time(), tag, *values, file=myfile)
 
+
 import os
 import stat
 import traceback
@@ -206,20 +206,21 @@ except Exception as e:
 
 # Import all CAT-SOOP modules/subpackages
 
-cs_all_pieces = ['api', 'auth', 'base_context', 'dispatch', 'errors', 'groups',
-                 'language', 'loader', 'logging', 'mail', 'session', 'time',
-                 'tools', 'tutor', 'util']
+cs_all_pieces = [
+    'api', 'auth', 'base_context', 'dispatch', 'errors', 'groups', 'language',
+    'loader', 'logging', 'mail', 'session', 'time', 'tools', 'tutor', 'util'
+]
 
 cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4']
 
 for i in cs_all_pieces:
     if i != 'base_context':
         exec('from . import %s' % i)
-        exec('csm_%s = %s' % (i,i))
+        exec('csm_%s = %s' % (i, i))
 
 for i in cs_all_tools:
     exec('from .tools import %s' % i)
-    exec('csm_tools.%s = %s' % (i,i))
+    exec('csm_tools.%s = %s' % (i, i))
 
 # Checks for valid Configuration
 

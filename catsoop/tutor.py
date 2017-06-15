@@ -37,8 +37,9 @@ importlib.reload(base_context)
 def compute_page_stats(context, user, course, path, keys=None):
     logging = logging_import.get_logger(context)
     if keys is None:
-        keys = ['context', 'question_points', 'state', 'actions',
-                'manual_grades']
+        keys = [
+            'context', 'question_points', 'state', 'actions', 'manual_grades'
+        ]
     keys = list(keys)
 
     out = {}
@@ -63,7 +64,8 @@ def compute_page_stats(context, user, course, path, keys=None):
     new = dict(context)
     loader.load_global_data(new)
     new['cs_path_info'] = [course] + path
-    cfile = context['csm_dispatch'].content_file_location(context, new['cs_path_info'])
+    cfile = context['csm_dispatch'].content_file_location(
+        context, new['cs_path_info'])
     loader.do_early_load(context, course, path, new, cfile)
     new['cs_course'] = course
     new['cs_username'] = user
@@ -83,8 +85,10 @@ def compute_page_stats(context, user, course, path, keys=None):
     if 'question_points' in keys:
         keys.remove('question_points')
         items = new['cs_defaulthandler_name_map'].items()
-        out['question_points'] = {n: q['total_points'](**a)
-                                  for (n, (q, a)) in items}
+        out['question_points'] = {
+            n: q['total_points'](**a)
+            for (n, (q, a)) in items
+        }
     for k in keys:
         out[k] = None
     return out
@@ -117,10 +121,9 @@ def question(context, qtype, **kwargs):
     """
     try:
         course = context['cs_course']
-        qtypes_folder = os.path.join(context.get('cs_data_root',
-                                                 base_context.cs_data_root),
-                                                 'courses', course,
-                                                '__QTYPES__')
+        qtypes_folder = os.path.join(
+            context.get('cs_data_root', base_context.cs_data_root), 'courses',
+            course, '__QTYPES__')
         loc = os.path.join(qtypes_folder, qtype)
         fname = os.path.join(loc, '%s.py' % qtype)
         assert os.path.isfile(fname)
@@ -138,12 +141,13 @@ def question(context, qtype, **kwargs):
                 "_orig_path = sys.path\n"
                 "if %r not in sys.path:\n"
                 "    sys.path = [%r] + sys.path\n\n") % (loc, loc)
-    x = loader.cs_compile(fname,
-                          pre_code=pre_code,
-                          post_code="sys.path = _orig_path")
+    x = loader.cs_compile(
+        fname, pre_code=pre_code, post_code="sys.path = _orig_path")
     exec(x, new)
-    for i in {'total_points', 'handle_submission', 'handle_check',
-              'render_html', 'answer_display'}:
+    for i in {
+            'total_points', 'handle_submission', 'handle_check', 'render_html',
+            'answer_display'
+    }:
         if i in new:
             new[i] = _wrapped_defaults_maker(new, i)
     new['qtype'] = qtype
@@ -164,18 +168,16 @@ def handler(context, handler, check_course=True):
     try:
         assert check_course
         course = context['cs_course']
-        qtypes_folder = os.path.join(context.get('cs_data_root',
-                                                 base_context.cs_data_root),
-                                                 'courses', course,
-                                                '__HANDLERS__')
+        qtypes_folder = os.path.join(
+            context.get('cs_data_root', base_context.cs_data_root), 'courses',
+            course, '__HANDLERS__')
         loc = os.path.join(qtypes_folder, handler)
         fname = os.path.join(loc, '%s.py' % handler)
         assert os.path.isfile(fname)
     except:
-        fname = os.path.join(context.get('cs_fs_root',
-                                         base_context.cs_fs_root),
-                             '__HANDLERS__', handler,
-                             '%s.py' % handler)
+        fname = os.path.join(
+            context.get('cs_fs_root', base_context.cs_fs_root), '__HANDLERS__',
+            handler, '%s.py' % handler)
     code = loader.cs_compile(fname)
     exec(code, new)
     return new

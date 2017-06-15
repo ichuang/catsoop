@@ -41,6 +41,7 @@ from .tools.bs4 import BeautifulSoup
 
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
+
 def _xml_pre_handle(context):
     text = context['cs_content']
     text = re.sub(_environment_matcher('comment'), '', text)
@@ -62,15 +63,15 @@ def _xml_pre_handle(context):
         try:
             code = remove_common_leading_whitespace(code)
             if isinstance(code, int):
-                raise IndentationError('Inconsistent indentation on line %d' % code)
+                raise IndentationError(
+                    'Inconsistent indentation on line %d' % code)
             exec(code, e)
             if 'csq_name' not in e:
                 e['csq_name'] = 'q%06d' % qcount
                 qcount += 1
             o.append(tutor.question(context, type, **e))
         except:
-            err = html_format(clear_info(context, traceback.format_exc(
-            )))
+            err = html_format(clear_info(context, traceback.format_exc()))
             ret = ("<div><font color='red'>"
                    "<b>A Python Error Occurred:</b>"
                    "<p><pre>%s</pre><p>"
@@ -84,10 +85,12 @@ def _xml_pre_handle(context):
 def _md(x):
     o = markdown.markdown(
         x,
-        extensions=[tables.TableExtension(),
-                    fenced_code.FencedCodeExtension(),
-                    sane_lists.SaneListExtension(),
-                    markdown_math.MathExtension()])
+        extensions=[
+            tables.TableExtension(),
+            fenced_code.FencedCodeExtension(),
+            sane_lists.SaneListExtension(),
+            markdown_math.MathExtension()
+        ])
     return o
 
 
@@ -111,8 +114,8 @@ def _md_format_string(context, s, xml=True):
     # generate a unique string to split around
     splitter = None
     while splitter is None or splitter in s:
-        splitter = ''.join(random.choice(string.ascii_letters)
-                           for i in range(20))
+        splitter = ''.join(
+            random.choice(string.ascii_letters) for i in range(20))
 
     # extract tags, replace with splitter
     tag_contents = []
@@ -122,8 +125,8 @@ def _md_format_string(context, s, xml=True):
         return splitter
 
     tags_to_replace = context.get('cs_markdown_ignore_tags', tuple())
-    tags = ('pre', 'question', '(?:display)?math', 'script'
-            ) + tuple(tags_to_replace)
+    tags = ('pre', 'question', '(?:display)?math',
+            'script') + tuple(tags_to_replace)
     checker = re.compile(r'<(%s)(.*?)>(.*?)</\1>' % '|'.join(tags),
                          re.MULTILINE | re.DOTALL)
 
@@ -174,9 +177,10 @@ def source_transform_string(context, s):
 
 # Handling of custom XML tags
 
+
 def _environment_matcher(tag):
-    return re.compile("""<%s>(?P<body>.*?)</%s>""" % (tag, tag), re.MULTILINE |
-                      re.DOTALL | re.IGNORECASE)
+    return re.compile("""<%s>(?P<body>.*?)</%s>""" % (tag, tag),
+                      re.MULTILINE | re.DOTALL | re.IGNORECASE)
 
 
 _matcher = r'[\#0\- +]*\d*(?:.\d+)?[hlL]?[diouxXeEfFgGcrs]'
@@ -209,7 +213,6 @@ def remove_common_leading_whitespace(x):
     return '\n'.join(i[lc:] for i in lines)
 
 
-
 def get_python_output(context, code, variables):
     '''
     Get output from Python code.
@@ -225,7 +228,8 @@ def get_python_output(context, code, variables):
     try:
         code = remove_common_leading_whitespace(code)
         if isinstance(code, int):
-            raise IndentationError('Inconsistent indentation on line %d' % code)
+            raise IndentationError(
+                'Inconsistent indentation on line %d' % code)
         code = 'def cs_print(*args):\n    print(*args, file=cs___WEBOUT)\n\n' + code
         code = code.replace('tutor.init_random()',
                             'tutor.init_random(globals())')
@@ -290,8 +294,9 @@ def handle_python_tags(context, text):
 
     def printf_handler(x):
         g = x.groupdict()
-        return '%s<printf %s>%s</printf>' % (
-            g.get('lead', ''), g.get('fmt', None) or '%s', g['body'])
+        return '%s<printf %s>%s</printf>' % (g.get('lead', ''),
+                                             g.get('fmt', None) or '%s',
+                                             g['body'])
 
     text = re.sub(PYVAR_REGEX, printf_handler, text)
     text = re.sub(PYTHON_REGEX, _make_python_handler(context), text)
@@ -345,10 +350,12 @@ def handle_custom_tags(context, text):
 
         lbl = i.attrs.get('label', None)
         if lbl is not None:
-            labels[lbl] = {'type': i.name,
-                           'number': num,
-                           'title': i.string,
-                           'link': '#%s' % linkname}
+            labels[lbl] = {
+                'type': i.name,
+                'number': num,
+                'title': i.string,
+                'link': '#%s' % linkname
+            }
         sec = copy.copy(i)
         sec.name = tag
         sec.insert(0, '%s) ' % num)
@@ -403,22 +410,21 @@ def handle_custom_tags(context, text):
     # hints (<showhide>)
 
     for ix, i in enumerate(tree.find_all('showhide')):
-            i.name = 'div'
-            i.attrs['id'] = "cs_showhide_%06d" % ix
-            i.attrs['style'] = "display:none;"
-            wrap = tree.new_tag('div')
-            wrap['class'] = ['response']
-            i.wrap(wrap)
-            button = tree.new_tag('button',
-                               onclick="$('#%s').toggle();" % i.attrs['id'])
-            button.string = 'Show/Hide'
-            i.insert_before(button)
-
+        i.name = 'div'
+        i.attrs['id'] = "cs_showhide_%06d" % ix
+        i.attrs['style'] = "display:none;"
+        wrap = tree.new_tag('div')
+        wrap['class'] = ['response']
+        i.wrap(wrap)
+        button = tree.new_tag(
+            'button', onclick="$('#%s').toggle();" % i.attrs['id'])
+        button.string = 'Show/Hide'
+        i.insert_before(button)
 
     # custom URL handling in img, a, script, link
 
-    URL_FIX_LIST = [('img', 'src'), ('a', 'href'),
-                    ('script', 'src'),('link', 'href')]
+    URL_FIX_LIST = [('img', 'src'), ('a', 'href'), ('script', 'src'), ('link',
+                                                                       'href')]
 
     for (tag, field) in URL_FIX_LIST:
         for i in tree.find_all(tag):
@@ -434,9 +440,8 @@ def handle_custom_tags(context, text):
         for i in tree.find_all('code'):
             if i.parent.name != 'pre':
                 continue
-            if ('class' in i.attrs and
-                    (isinstance(i.attrs['class'], str) or
-                    len(i.attrs['class']) > 0)):
+            if ('class' in i.attrs and (isinstance(i.attrs['class'], str) or
+                                        len(i.attrs['class']) > 0)):
                 # this already has a class; skip!
                 continue
             i.attrs['class'] = [default_code_class]

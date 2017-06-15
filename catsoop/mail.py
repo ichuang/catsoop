@@ -94,7 +94,8 @@ def can_send_email(context, smtp=-1):
     return smtp is not None and get_from_address(context) is not None
 
 
-def send_email(context, to_addr, subject, body, html_body=None, from_addr=None):
+def send_email(context, to_addr, subject, body, html_body=None,
+               from_addr=None):
     """
     Send an e-mail.
 
@@ -116,7 +117,8 @@ def send_email(context, to_addr, subject, body, html_body=None, from_addr=None):
         msg.attach(_m)
         msg.attach(MIMEText(html_body, 'html'))
     msg['To'] = ', '.join(to_addr)
-    msg['From'] = _from = get_from_address(context) if from_addr is None else from_addr
+    msg['From'] = _from = get_from_address(
+        context) if from_addr is None else from_addr
     msg['Subject'] = subject
     smtp = get_smtp_object(context)
     try:
@@ -128,12 +130,14 @@ def send_email(context, to_addr, subject, body, html_body=None, from_addr=None):
     return out
 
 
-def internal_message(context, course, recipient, subject, body, from_addr=None):
+def internal_message(context, course, recipient, subject, body,
+                     from_addr=None):
     if recipient not in context['csm_util'].list_all_users(context, course):
         return '%s is not a user in %s.' % (recipient, course)
     into = {'username': recipient}
     ctx = context['csm_loader'].spoof_early_load([course])
-    uinfo = context['csm_auth']._get_user_information(ctx, into, course, recipient)
+    uinfo = context['csm_auth']._get_user_information(ctx, into, course,
+                                                      recipient)
     if 'email' not in uinfo:
         return 'No e-mail address found for %s' % recipient
     email = uinfo['email']
