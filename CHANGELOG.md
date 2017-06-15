@@ -33,6 +33,7 @@ _Work toward next release.  Currently under development._
     question type.
 * Fixed a crash when the <cs_data_root>/courses directory did not exist or was
     not writeable by the web server.
+* Fixed a bug with HTML tags being ignored inside `<ref>` tags.
 
 **Security:**
 
