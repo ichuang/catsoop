@@ -221,8 +221,13 @@ def handle_submission(submissions, **info):
             msg += "\n<i>%s</i>" % test['description']
         msg += "</center><p></p>"
         if test['show_code']:
-            html_code = html_format(test['code'])
-            msg += "\nThe test case was:<br/>\n<tt>%s</tt>" % html_code
+            html_code_pre = html_format(test['code_pre'])
+            html_code_post = html_format(test['code'])
+            html_code_pieces = [i for i in map(lambda x: html_format(test[x]),
+                                               ['code_pre', 'code'])]
+            html_code_pieces.insert(1, '#Your Code Here')
+            html_code = '<br/>'.join(i for i in html_code_pieces if i)
+            msg += "\nThe test case was:<br/>\n<p><tt>%s</tt></p>" % html_code
 
         try:
             percentage = test['check_function'](log, log_s)

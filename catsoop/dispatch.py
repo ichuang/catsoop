@@ -24,6 +24,7 @@ from email.utils import formatdate
 from collections import defaultdict
 
 from . import auth
+from . import time
 from . import tutor
 from . import loader
 from . import errors
@@ -382,6 +383,7 @@ def main(environment):
     context = {}
     context['cs_env'] = environment
     context['cs_ip'] = environment['REMOTE_ADDR']
+    context['cs_now'] = time.now()
     force_error = False
     try:
         # DETERMINE WHAT PAGE WE ARE LOADING
