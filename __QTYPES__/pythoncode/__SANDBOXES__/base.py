@@ -40,8 +40,8 @@ def prep_code(code, test, **kwargs):
         footer = ('print "!LOGOUTPUT(o_O)!"\n'
                   'print repr(%s)\n') % test['variable']
 
-    code = '\n\n'.join((kwargs['csq_code_pre'], code, kwargs['csq_code_post'],
-                        test['code'], footer))
+    code = '\n\n'.join((kwargs['csq_code_pre'], test['code_pre'], code,
+                        kwargs['csq_code_post'], test['code'], footer))
     return code
 
 
@@ -109,8 +109,8 @@ def sandbox_run_test(context, code, test):
     safe = safety_check(code, options['BADIMPORT'], options['BADVAR'])
     if isinstance(safe, tuple):
         return ('', ('On line %d: ' % safe[0]) + safe[1], '')
-    fname, out, err = sandbox_run_code(context, prep_code(code, test, **
-                                                          context), options)
+    fname, out, err = sandbox_run_code(context, prep_code(code, test,
+                                                          **context), options)
     err = fix_error_msg(fname, err, context['csq_code_pre'].count('\n') + 2,
                         code)
     n = out.split("!LOGOUTPUT(o_O)!")

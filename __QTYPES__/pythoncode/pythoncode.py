@@ -67,7 +67,8 @@ defaults = {
 
 test_defaults = {
     'npoints': 1,
-    'code': "ans = 3",
+    'code': '',
+    'code_pre': '',
     'variable': 'ans',
     'description': '',
     'include': False,
@@ -200,7 +201,7 @@ def handle_submission(submissions, **info):
         msg = ('\n<br/><button onclick="$(\'#%s_result_showhide\').toggle()">'
                'Show/Hide Detailed Results</button>') % info['csq_name']
     msg += ('<div class="response" id="%s_result_showhide" %s>'
-            '<h2>Test Results:</h2>') % (info['csq_name'], 'style="display:none">'
+            '<h2>Test Results:</h2>') % (info['csq_name'], 'style="display:none"'
                                                              if not info['csq_always_show_tests']
                                                              else '')
     count = 1
