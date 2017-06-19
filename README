@@ -22,19 +22,21 @@ CAT-SOOP
 
 WHAT IS IT?
 
-CAT-SOOP is a tool for automatic collection and assessment of online exercises, originally
-developed primarily for use in MIT's 6.01 (Introduction to Electrical Engineering and
-Computer Science via Robotics).
+CAT-SOOP is a tool for automatic collection and assessment of online
+exercises, originally developed primarily for use in MIT's 6.01 (Introduction
+to Electrical Engineering and Computer Science via Robotics).
 
-CAT-SOOP is free/libre software, available under the terms of the GNU Affero General
-Public License, version 3+.  Please note that the terms of this license apply to the
-CAT-SOOP system itself and any plugins in use, but not to any course material hosted on a
-CAT-SOOP instance, unless explicitly stated otherwise.
+CAT-SOOP is free/libre software, available under the terms of the GNU Affero
+General Public License, version 3+.  Please note that the terms of this
+license apply to the CAT-SOOP system itself and any plugins in use, but not to
+any course material hosted on a CAT-SOOP instance, unless explicitly stated
+otherwise.
 
 
 HOW DO I INSTALL IT?
 
-See the "installation quick-start guide" at https://cat-soop.org/docs/installing.
+See the "installation quick-start guide" at:
+    https://cat-soop.org/website/docs/installing
 
 
 IS IT ANY GOOD?
