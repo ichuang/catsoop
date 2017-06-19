@@ -4,8 +4,27 @@ _Work toward next release.  Currently under development._
 
 **Added:**
 
+**Changed:**
+
+**Deprecated:**
+
+**Removed:**
+
+**Fixed:**
+
+**Security:**
+
+**Documentation:**
+
+# Version 9.4.0
+
+**Added:**
+
 * Added support for custom "submissions not allowed" messages via
     `cs_nosubmit_message`.
+* Added the `cs_now` variable to page load contexts.
+* Added the `code_pre` option to tests in the `pythoncode` question type, for
+    code to be run before submitted code.
 
 **Changed:**
 
@@ -17,8 +36,8 @@ _Work toward next release.  Currently under development._
 * Updated PLY to version 3.10.
 * Updated Markdown to version 2.6.8.
 * Updated BeautifulSoup to version 4.6.0.
-
-**Deprecated:**
+* Fixed several issues with rendering of `pythoncode` question types.
+* Updated the "Formatting Help" page of the `richtext` question type.
 
 **Removed:**
 
@@ -34,10 +53,6 @@ _Work toward next release.  Currently under development._
 * Fixed a crash when the <cs_data_root>/courses directory did not exist or was
     not writeable by the web server.
 * Fixed a bug with HTML tags being ignored inside `<ref>` tags.
-
-**Security:**
-
-**Documentation:**
 
 
 # Version 9.3.0
