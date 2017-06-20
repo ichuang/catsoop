@@ -262,7 +262,7 @@ def handle_submission(submissions, **info):
             m = test['transform_output'](log)
             msg += "\n<br/><font color='blue'>%s</font>%s</p>" % (m, image)
         elif log != '':
-            msg += "\n<br/><center>%s</center></p>" % (image)
+            msg += "\n<p><center>%s</center></p>" % (image)
 
         if out != '' and test['show_code']:
             msg += "\n<p>Your code produced the following output:"
