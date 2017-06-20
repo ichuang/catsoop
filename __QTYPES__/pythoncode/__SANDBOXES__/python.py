@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 import time
+import fcntl
 import shutil
 import signal
 import hashlib
@@ -48,6 +50,13 @@ class PKiller(threading.Thread):
             pass
 
 
+def safe_close(fd):
+    try:
+        os.close(fd)
+    except:
+        pass
+
+
 def run_code(context, code, options):
     rlimits = [(resource.RLIMIT_NPROC, (0, 0))]
     for key, val in _resource_mapper.items():
@@ -78,18 +87,43 @@ def run_code(context, code, options):
 
     interp = context.get('csq_python_interpreter', '/usr/local/bin/python3')
 
+    inr, inw = os.pipe()
+    outr, outw = os.pipe()
+    errr, errw = os.pipe()
+    for i in (outr, outw, errr, errw):
+        # this is kind of a hack; it sets the size of all of the
+        # newly-opened pipes to the max that is allowable.  without this,
+        # the buffers fill up and the process hangs, even with outputs as
+        # small as ~16KB!!!!
+        fcntl.fcntl(i, 1031, 1048576)  # 1031 is F_SETPIPE_SZ (not included in fcntl module)
+
     p = subprocess.Popen([interp, '-E', '-B', fname],
                          cwd=tmpdir,
                          preexec_fn=limiter,
-                         stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+                         bufsize=0,
+                         stdin=inr,
+                         stdout=outw,
+                         stderr=errw)
+
+    with open(inw, 'w') as f:
+        f.write(options['STDIN'])
+    safe_close(inw)
+
     killer = PKiller(p, options['CLOCKTIME'])
     killer.start()
 
-    out, err = p.communicate(options['STDIN'])
-    out = out.decode()
-    err = err.decode()
+    while p.poll() is None:
+        time.sleep(0.1)
+
+    safe_close(inr)
+    safe_close(outw)
+    safe_close(errw)
+
+    out = open(outr).read()
+    err = open(errr).read()
+
+    safe_close(outr)
+    safe_close(errr)
 
     shutil.rmtree(tmpdir, True)
 

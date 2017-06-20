@@ -79,9 +79,11 @@ def fix_error_msg(fname, err, offset, sub):
     error_regex = re.compile('(.*?)File "%s", line ([0-9]+)(,?[\n]*)' % fname)
     err = error_regex.sub(subber, err)
 
+    err = err.replace(fname, 'TEST FILE')
+
     e = err.split('\n')
-    if len(e) > 10:
-        err = '...ERROR MESSAGE TRUNCATED...\n\n' + '\n'.join(e[-10:])
+    if len(e) > 15:
+        err = '...ERROR OUTPUT TRUNCATED...\n\n' + '\n'.join(e[-10:])
 
     err = err.replace('[Subprocess exit code: 1]', '')
     err = re.compile('(.*?)File "app_main.py", line ([0-9]+)(,?[^\n]*)\n').sub(
@@ -102,6 +104,17 @@ DEFAULT_OPTIONS = {
 }
 
 
+def truncate(out, name='OUTPUT'):
+    outlines = out.split('\n')
+    if len(outlines) > 15:
+        outlines = outlines[:15] + ['...%s TRUNCATED...' % name]
+    out = '\n'.join(outlines)
+    if len(out) >= 5000:
+        out = out[:5000] + "\n\n...%s TRUNCATED..." % name
+
+    return out
+
+
 def sandbox_run_test(context, code, test):
     options = dict(DEFAULT_OPTIONS)
     options.update(context.get('csq_sandbox_options', {}))
@@ -111,6 +124,7 @@ def sandbox_run_test(context, code, test):
         return ('', ('On line %d: ' % safe[0]) + safe[1], '')
     fname, out, err = sandbox_run_code(context, prep_code(code, test,
                                                           **context), options)
+    err = truncate(err, 'ERROR OUTPUT')
     err = fix_error_msg(fname, err, context['csq_code_pre'].count('\n') + 2,
                         code)
     n = out.split("!LOGOUTPUT(o_O)!")
@@ -127,12 +141,8 @@ def sandbox_run_test(context, code, test):
         out = ''
         log = ''
         err = "BAD CODE - this will be logged"
-    outlines = out.split('\n')
-    if len(outlines) > 10:
-        outlines = outlines[:10] + ['...OUTPUT TRUNCATED...']
-    out = '\n'.join(outlines)
-    if len(out) >= 5000:
-        out = out[:5000] + "\n\n...OUTPUT TRUNCATED..."
+
+    out = truncate(out, 'OUTPUT')
 
     return out.strip(), err.strip(), log.strip()
 
