@@ -1,20 +1,13 @@
-# Current Developments
-
-_Work toward next release.  Currently under development._
-
-**Added:**
-
-**Changed:**
-
-**Deprecated:**
-
-**Removed:**
+# Version 9.4.1
 
 **Fixed:**
 
-**Security:**
-
-**Documentation:**
+* Fixed an issue with rendering of certain test cases in the `pythoncode`
+    question type.
+* Modified the handling of streams in the Python sandbox to avoid buffers
+    filling up.
+* Modified error message handling in the Python sandbox to avoid long-running
+    regex searches.
 
 # Version 9.4.0
 
