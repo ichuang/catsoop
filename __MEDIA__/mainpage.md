@@ -32,7 +32,12 @@ def link(url, text=None):
 @{link("https://cat-soop.org")}
 </center>
 
-## About
+<python>
+if cs_main_page_text:
+    cs_print(cs_main_page_text)
+</python>
+
+## About CAT-SOOP
 
 CAT-SOOP is a tool for automatic collection and assessment of online exercises.
 CAT-SOOP is @{link("https://www.fsf.org/about/what-is-free-software", "free software")},
@@ -67,6 +72,7 @@ else:
 The following courses are hosted on this system:
 """)
     for course_id, title in courses:
+        title = title.replace('<br>', ' ').replace('<br/>', ' ').replace('</br>', ' ')
         if title == course_id:
             cs_print('* [%s](BASE/%s/)' % (course_id, course_id))
         else:

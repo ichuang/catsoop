@@ -68,6 +68,11 @@ cs_base_logo_text = ('\            '
 Special: Text representing the CAT-SOOP Logo
 """
 
+cs_main_page_text = ""
+"""
+Special: Text to be added to the main page
+"""
+
 cs_base_color = "#0000CC"
 """
 Special: The base color to use to customize the main theme.
