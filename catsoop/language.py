@@ -335,6 +335,26 @@ def handle_custom_tags(context, text):
     if 'cs_course_handle_custom_tags' in context:
         text = context['cs_course_handle_custom_tags'](text)
 
+
+    section = r"((?:chapter)|(?:(?:sub){0,2}section))"
+    section_star = r"<(?P<tag>%s)\*>(?P<body>.*?)</(?P=tag)\*?>" % section
+    section_star = re.compile(section_star,
+                              re.MULTILINE | re.DOTALL | re.IGNORECASE)
+
+    tag_map = {
+        'section': ('h2', 1),
+        'subsection': ('h3', 2),
+        'subsubsection': ('h4', 3),
+    }
+
+    def _section_star_matcher(x):
+        d = x.groupdict()
+        t = d['tag'].rstrip('*')
+        b = d['body']
+        t = tag_map[t][0]
+        return '<%s>%s</%s>' % (t, b, t)
+    text = re.sub(section_star, _section_star_matcher, text)
+
     tree = BeautifulSoup(text, 'html.parser')
 
     # handle sections, etc.
@@ -343,19 +363,8 @@ def handle_custom_tags(context, text):
     textsections = [0, 0, 0]
     chapter = None
 
-    tag_map = {
-        'section': ('h2', 1),
-        'subsection': ('h3', 2),
-        'subsubsection': ('h4', 3),
-    }
-    for i in tree.find_all(re.compile(r"((?:chapter)|(?:(?:sub){0,2}section))\*")):
-        x = i.name[:-1]
-        if x == 'chapter':
-            i.name = 'h1'
-        else:
-            i.name = tag_map[x][0]
 
-    for i in tree.find_all(re.compile(r"(?:chapter)|(?:(?:sub){0,2}section)")):
+    for i in tree.find_all(re.compile(section)):
         if i.name == 'chapter':
             chapter = i.attrs.get('num', '0')
             tag = 'h1'
