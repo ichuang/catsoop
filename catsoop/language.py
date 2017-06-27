@@ -348,6 +348,12 @@ def handle_custom_tags(context, text):
         'subsection': ('h3', 2),
         'subsubsection': ('h4', 3),
     }
+    for i in tree.find_all(re.compile(r"((?:chapter)|(?:(?:sub){0,2}section))\*")):
+        x = i.name[:-1]
+        if x == 'chapter':
+            i.name = 'h1'
+        else:
+            i.name = tag_map[x][0]
 
     for i in tree.find_all(re.compile(r"(?:chapter)|(?:(?:sub){0,2}section)")):
         if i.name == 'chapter':
