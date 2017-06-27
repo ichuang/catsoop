@@ -288,6 +288,7 @@ def do_late_load(context, course, path, into, content_file=None):
     into['cs_source_format'] = content_file.rsplit('.', 1)[-1]
     into['cs_content'] = open(content_file).read()
     if into['cs_source_format'] != 'py':
+        into['cs_content'] = language.handle_includes(into, into['cs_content'])
         into['cs_content'] = language.handle_python_tags(
             into, into['cs_content'])
     else:

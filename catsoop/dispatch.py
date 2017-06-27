@@ -514,6 +514,7 @@ def main(environment):
                 path = os.path.join(root, '__MEDIA__', 'mainpage.md')
                 with open(path) as f:
                     context['cs_content'] = f.read()
+                context['cs_content'] = language.handle_includes(context, context['cs_content'])
                 context['cs_content'] = language.handle_python_tags(
                     context, context['cs_content'])
                 context['csm_language']._md_pre_handle(context)

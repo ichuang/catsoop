@@ -287,6 +287,30 @@ def _make_python_handler(context):
     return python_tag_handler
 
 
+def handle_includes(context, text):
+    # we'll handle paths relative to here unless given an absolute path
+    def _include_handler(match):
+        base_dir = dispatch.content_file_location(context, context['cs_path_info'])
+        base_dir = os.path.realpath(os.path.dirname(base_dir))
+        b = match.groupdict()['body']
+        replacements = []
+        for fname in b.splitlines():
+            fname = fname.strip()
+            if not fname:
+                continue  # skip blank lines
+            fname = os.path.join(base_dir, fname)
+            fname = os.path.realpath(fname)
+            if os.path.commonprefix([fname, base_dir]) != base_dir:
+                # tried to escape the course
+                continue
+            if not os.path.isfile(fname):
+                continue
+            with open(fname) as f:
+                replacements.append(f.read())
+        return '\n\n'.join(replacements)
+    return re.sub(_environment_matcher('include'), _include_handler, text)
+
+
 def handle_python_tags(context, text):
     '''
     Process <python> and <printf> tags.
