@@ -26,6 +26,10 @@ REMOVED:
 
 FIXED:
 
+  * Fixed an issue whereby expressions utilizing binary subtraction were not
+    properly parenthesized in the "Check Syntax" rendering of expression
+    questions.
+
 SECURITY:
 
 DOCUMENTATION:

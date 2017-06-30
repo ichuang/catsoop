@@ -427,21 +427,23 @@ def name2tex(context, funcs, n):
 def plus2tex(context, funcs, n):
     prec = 1
     left, lprec = tree2tex(context, funcs, n[1])
-    right, lprec = tree2tex(context, funcs, n[2])
+    right, rprec = tree2tex(context, funcs, n[2])
     return "%s + %s" % (left, right), prec
 
 
 def minus2tex(context, funcs, n):
     prec = 1
     left, lprec = tree2tex(context, funcs, n[1])
-    right, lprec = tree2tex(context, funcs, n[2])
+    right, rprec = tree2tex(context, funcs, n[2])
+    if rprec <= prec:
+        right = r"\left(%s\right)" % right
     return "%s - %s" % (left, right), prec
 
 
 def div2tex(context, funcs, n):
     prec = 2
     left, lprec = tree2tex(context, funcs, n[1])
-    right, lprec = tree2tex(context, funcs, n[2])
+    right, rprec = tree2tex(context, funcs, n[2])
     return (r"\frac{%s}{%s}" % (left, right)), prec
 
 
@@ -461,7 +463,7 @@ def exp2tex(context, funcs, n):
     left, lprec = tree2tex(context, funcs, n[1])
     if lprec < prec:
         left = r"\left(%s\right)" % left
-    right, lprec = tree2tex(context, funcs, n[2])
+    right, rprec = tree2tex(context, funcs, n[2])
     return (r"%s ^ {%s}" % (left, right)), prec
 
 
