@@ -218,8 +218,8 @@ def _get_all_mappings(context, soln_names, sub_names):
 
     # map each name to a list of values to test
     for n in names:
-        if callable(n):
-            names[n] = n()
+        if callable(names[n]):
+            names[n] = names[n]()
         try:
             names[n] = [i for i in names[n]]
         except:
