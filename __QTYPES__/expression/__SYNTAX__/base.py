@@ -49,7 +49,7 @@ def parser(lex=None, yacc=None):
                    | expression TIMES expression
                    | expression DIVIDE expression
                    | expression EXP expression
-                   | number name
+                   | number expression
         """
         if len(t) == 4:
             t[0] = [t[2], t[1], t[3]]
