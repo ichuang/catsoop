@@ -461,7 +461,7 @@ def times2tex(context, funcs, n):
 def exp2tex(context, funcs, n):
     prec = 4
     left, lprec = tree2tex(context, funcs, n[1])
-    if lprec < prec:
+    if lprec <= prec:
         left = r"\left(%s\right)" % left
     right, rprec = tree2tex(context, funcs, n[2])
     return (r"%s ^ {%s}" % (left, right)), prec
