@@ -49,12 +49,13 @@ def parser(lex=None, yacc=None):
                    | expression TIMES expression
                    | expression DIVIDE expression
                    | expression EXP expression
-                   | number expression
+                   | number name EXP expression
+                   | number name
         """
         if len(t) == 4:
             t[0] = [t[2], t[1], t[3]]
         elif len(t) == 5:
-            t[0] = ['*', t[1], t[3]]
+            t[0] = ['*', t[1], ['^', t[2], t[4]]]
         else:
             t[0] = ['*', t[1], t[2]]
 
