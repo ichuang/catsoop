@@ -20,7 +20,29 @@ import imp
 import math
 import cmath
 import random
-from collections import Sequence
+from collections import Sequence, defaultdict
+
+numpy = None
+
+def check_numpy():
+    global numpy
+    if numpy is not None:
+        return True
+    try:
+        import numpy
+        default_funcs.update({
+            'transpose': (numpy.transpose, _render_transpose),
+            'norm': (numpy.linalg.norm, _render_norm),
+        })
+        return True
+    except:
+        return False
+
+def _render_transpose(x):
+    return r'{%s}^T' % x[0]
+
+def _render_norm(x):
+    return r'\left\|{%s}\right\|' % x[0]
 
 smallbox, _ = csm_tutor.question('smallbox')
 
@@ -35,7 +57,8 @@ defaults = {
     'csq_soln': ['6', 'sqrt(2)'],
     'csq_npoints': 1,
     'csq_msg_function': lambda sub: (''),
-    'csq_show_check': False
+    'csq_show_check': False,
+    'csq_variable_dimensions': {},
 }
 
 default_names = {'pi': [math.pi], 'e': [math.e], 'j': [1j], 'i': [1j]}
@@ -101,7 +124,6 @@ default_funcs = {
     'sqrt': (cmath.sqrt, _draw_sqrt),
     '_default': (_default_func, _draw_default)
 }
-
 
 def _contains(l, test):
     if not isinstance(l, list):
@@ -181,9 +203,22 @@ def _run_one_test(context, sub, soln, funcs, threshold, ratio=True):
             return False
         sol = eval_expr(context, m, funcs, soln)
 
+        context['cs_debug'](subm, sol)
+
+        mag = abs
+        if check_numpy():
+            subnum = isinstance(subm, numpy.ndarray)
+            solnum = isinstance(sol, numpy.ndarray)
+            if subnum and solnum:
+                mag = numpy.linalg.norm
+            elif subnum or solnum:
+                return False
         scale_factor = sol if ratio else 1
-        if abs(subm-sol)>abs(threshold*scale_factor):
-            return False
+        try:
+            if mag(subm-sol) > mag(threshold*scale_factor):
+                return False
+        except:
+            pass
 
     return True
 
@@ -207,23 +242,36 @@ def _get_random_value():
 def _get_all_mappings(context, soln_names, sub_names):
     names = dict(default_names)
     names.update(context.get('csq_names', {}))
+    dimensions = context['csq_variable_dimensions']
+    dim_vars = defaultdict(lambda: random.randint(2, 30))
 
     for n in soln_names:
         if n not in names:
-            names[n] = _get_random_value()
+            if n in dimensions:
+                d = [i if isinstance(i, int) else dim_vars[i] for i in dimensions[n]]
+                names[n] = numpy.random.rand(*d)
+            else:
+                names[n] = _get_random_value()
 
     for n in sub_names or []:
         if n not in names:
-            names[n] = _get_random_value()
+            if n in dimensions:
+                d = [i if isinstance(i, int) else dim_vars[i] for i in dimensions[n]]
+                names[n] = numpy.random.rand(*d)
+            else:
+                names[n] = _get_random_value()
 
     # map each name to a list of values to test
     for n in names:
         if callable(names[n]):
             names[n] = names[n]()
-        try:
-            names[n] = [i for i in names[n]]
-        except:
+        if numpy is not None and isinstance(names[n], numpy.ndarray):
             names[n] = [names[n]]
+        else:
+            try:
+                names[n] = [i for i in names[n]]
+            except:
+                names[n] = [names[n]]
 
     # get a list of dictionaries, each representing one mapping to test
     return _all_mappings_helper(names)
@@ -273,6 +321,9 @@ def _get_parser(context):
 
 
 def handle_submission(submissions, **info):
+    if len(info['csq_variable_dimensions']) > 0:
+        assert check_numpy()
+
     _sub = sub = submissions[info['csq_name']]
     solns = info['csq_soln']
 
@@ -343,11 +394,16 @@ checktext = "Check Syntax"
 
 
 def handle_check(submission, **info):
+    if len(info['csq_variable_dimensions']) > 0:
+        assert check_numpy()
     last = submission.get(info['csq_name'])
     return get_display(info, info['csq_name'], last)
 
 
 def render_html(last_log, **info):
+    if len(info['csq_variable_dimensions']) > 0:
+        if not check_numpy():
+            return '<font color="red">Error: the <tt>numpy</tt> module is required for nonscalar values'
     name = info['csq_name']
     out = smallbox['render_html'](last_log, **info)
     out += "\n<span id='image%s'></span>" % (name, )
@@ -374,6 +430,9 @@ def get_display(info, name, last, reparse=True, extra_msg=''):
 
 
 def answer_display(**info):
+    if len(info['csq_variable_dimensions']) > 0:
+        if not check_numpy:
+            return '<font color="red">Error: the <tt>numpy</tt> module is required for nonscalar values'
     parser = _get_parser(info)
     funcs = dict(default_funcs)
     funcs.update(info.get('csq_funcs', {}))
@@ -417,6 +476,8 @@ def name2tex(context, funcs, n):
         n, s = n.split('_')
     if n in GREEK_DICT:
         n = GREEK_DICT[n]
+    if n in context['csq_variable_dimensions']:
+        n = r'\mathbf{%s}' % n
     if s is not None:
         if s in GREEK_DICT:
             s = GREEK_DICT[s]
