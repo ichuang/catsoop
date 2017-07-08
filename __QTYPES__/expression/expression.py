@@ -71,6 +71,13 @@ def _draw_sqrt(x):
     return out
 
 
+def _draw_abs(x):
+    out = r"\left|%s\right|" % x[0]
+    if len(x) != 1:
+        return out, "abs takes exactly one argument"
+    return out
+
+
 def _draw_default(context, c):
     out = r"%s(%s)" % (c[1], ', '.join(c[2]))
     if len(c[2]) == 1 and _implicit_multiplication(context):
@@ -122,6 +129,7 @@ default_funcs = {
     'cos': (cmath.cos, _draw_func(r'\text{cos}')),
     'log': (cmath.log, _draw_log),
     'sqrt': (cmath.sqrt, _draw_sqrt),
+    'abs': (abs, _draw_abs),
     '_default': (_default_func, _draw_default)
 }
 
@@ -185,6 +193,7 @@ _eval_map = {
     '-': eval_binop(lambda x, y: x - y),
     '*': eval_binop(lambda x, y: x * y),
     '/': eval_binop(_div),
+    '@': eval_binop(lambda x, y: x @ y),
     '^': eval_binop(lambda x, y: x**y),
     'u-': eval_uminus,
     'u+': eval_uplus,
@@ -431,7 +440,7 @@ def get_display(info, name, last, reparse=True, extra_msg=''):
 
 def answer_display(**info):
     if len(info['csq_variable_dimensions']) > 0:
-        if not check_numpy:
+        if not check_numpy():
             return '<font color="red">Error: the <tt>numpy</tt> module is required for nonscalar values'
     parser = _get_parser(info)
     funcs = dict(default_funcs)
@@ -470,13 +479,13 @@ for i in GREEK_LETTERS:
 
 def name2tex(context, funcs, n):
     prec = 5
-    n = n[1]
+    on = n = n[1]
     s = None
     if '_' in n:
         n, s = n.split('_')
     if n in GREEK_DICT:
         n = GREEK_DICT[n]
-    if n in context['csq_variable_dimensions']:
+    if on in context['csq_variable_dimensions']:
         n = r'\mathbf{%s}' % n
     if s is not None:
         if s in GREEK_DICT:
@@ -517,6 +526,17 @@ def times2tex(context, funcs, n):
     if rprec < prec:
         right = r"\left(%s\right)" % right
     return r"%s \cdot %s" % (left, right), prec
+
+
+def matmul2tex(context, funcs, n):
+    prec = 2
+    left, lprec = tree2tex(context, funcs, n[1])
+    if lprec < prec:
+        left = r"\left(%s\right)" % left
+    right, rprec = tree2tex(context, funcs, n[2])
+    if rprec < prec:
+        right = r"\left(%s\right)" % right
+    return r"%s%s" % (left, right), prec
 
 
 def exp2tex(context, funcs, n):
@@ -582,6 +602,7 @@ _tree_map = {
     '*': times2tex,
     '/': div2tex,
     '^': exp2tex,
+    '@': matmul2tex,
     'u-': uminus2tex,
     'u+': uplus2tex,
     'CALL': call2tex,

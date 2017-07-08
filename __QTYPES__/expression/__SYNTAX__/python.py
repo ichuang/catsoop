@@ -21,6 +21,7 @@ def parser(lex=None, yacc=None):
     tokens = ("PLUS",
               "MINUS",
               "TIMES",
+              "MATMUL",
               "DIVIDE",
               "EXP",
               "COMMA",
@@ -37,6 +38,7 @@ def parser(lex=None, yacc=None):
     t_PLUS = r"\+"
     t_MINUS = r"-"
     t_TIMES = r"\*"
+    t_MATMUL = r"@"
     t_DIVIDE = r"/"
     t_EXP = r"\*\*"
     t_CARET = r"\^"
@@ -52,7 +54,7 @@ def parser(lex=None, yacc=None):
     lex.lex()
 
     precedence = (('left', 'PLUS', 'MINUS'),
-                  ('left', 'TIMES', 'DIVIDE'),
+                  ('left', 'TIMES', 'DIVIDE', 'MATMUL'),
                   ('left', 'EXP'),
                   ('right', 'UMINUS'), )
 
@@ -61,6 +63,7 @@ def parser(lex=None, yacc=None):
         expression : expression PLUS expression
                    | expression MINUS expression
                    | expression TIMES expression
+                   | expression MATMUL expression
                    | expression DIVIDE expression
                    | expression EXP expression
         """
