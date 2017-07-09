@@ -1,13 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
-
-Version 10.0.0 will represent a significant change to CAT-SOOP.  The goal is
-to implement the changes in question in a way that is backward compatible (or
-at least mostly so), and then to remove the old ways of doing things in a
-subsequent version.
+#################
+# Version 9.4.3 #
+#################
 
 ADDED:
 
@@ -20,10 +13,6 @@ CHANGED:
   * Changed exponentiation to be right-associative in the expression question
     type.
 
-DEPRECATED:
-
-REMOVED:
-
 FIXED:
 
   * Fixed a bug with rendering implicit multiplication in expression questions.
@@ -33,10 +22,6 @@ FIXED:
 
   * Fixed a bug with order of operations when using the Python syntax in
     expression questions.
-
-SECURITY:
-
-DOCUMENTATION:
 
 
 #################
