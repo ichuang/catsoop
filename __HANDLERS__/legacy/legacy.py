@@ -22,7 +22,7 @@ import string
 import traceback
 import collections
 
-_prefix = 'cs_asynchandler_'
+_prefix = 'cs_legacyhandler_'
 
 
 def _n(n):
@@ -1015,7 +1015,7 @@ def manage_groups(context):
         all_group_names = sorted(all_group_names)
     all_group_names = list(all_group_names)
     out += '\n<script type="text/javascript">catsoop.group_names = %s</script>' % all_group_names
-    out += '\n<script type="text/javascript" src="__HANDLER__/async/cs_groups.js"></script>'
+    out += '\n<script type="text/javascript" src="__HANDLER__/legacy/cs_groups.js"></script>'
     return out + default_javascript(context)
 
 
@@ -1592,7 +1592,7 @@ def default_javascript(context):
         skip_alert = [name for (name, (q, args)) in list(namemap.items())
                       if _get(args, skipper, False, bool)]
     out = '''
-<script type="text/javascript" src="__HANDLER__/async/cs_ajax.js"></script>
+<script type="text/javascript" src="__HANDLER__/legacy/cs_ajax.js"></script>
 <script type="text/javascript">
 catsoop.all_questions = %(allqs)r;
 catsoop.api_token = %(secret)s;
@@ -1649,7 +1649,7 @@ def default_timer(context):
                     context['cs_url_root'] + '/cs_util/time')
         out += '\n</script>'
         out += ('<script type="text/javascript" '
-                'src="__HANDLER__/async/cs_timer.js"></script>')
+                'src="__HANDLER__/legacy/cs_timer.js"></script>')
     return out
 
 
