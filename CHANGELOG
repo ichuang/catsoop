@@ -13,13 +13,26 @@ ADDED:
 
   * Added the circuit question type.
 
+  * Added support for nonscalar values in expression questions.
+
 CHANGED:
+
+  * Changed exponentiation to be right-associative in the expression question
+    type.
 
 DEPRECATED:
 
 REMOVED:
 
 FIXED:
+
+  * Fixed a bug with rendering implicit multiplication in expression questions.
+
+  * Fixed a bug with rendering of chained exponentiation in expression
+    questions.
+
+  * Fixed a bug with order of operations when using the Python syntax in
+    expression questions.
 
 SECURITY:
 
