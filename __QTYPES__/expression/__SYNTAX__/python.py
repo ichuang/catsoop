@@ -55,8 +55,8 @@ def parser(lex=None, yacc=None):
 
     precedence = (('left', 'PLUS', 'MINUS'),
                   ('left', 'TIMES', 'DIVIDE', 'MATMUL'),
-                  ('right', 'EXP'),
-                  ('right', 'UMINUS'), )
+                  ('right', 'UMINUS'),
+                  ('right', 'EXP'),)
 
     def p_expression_binop(t):
         """
