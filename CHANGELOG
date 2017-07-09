@@ -1,3 +1,29 @@
+########################
+# Current Developments #
+########################
+
+Work toward next release.  Currently under development.
+
+Version 10.0.0 will represent a significant change to CAT-SOOP.  The goal is
+to implement the changes in question in a way that is backward compatible (or
+at least mostly so), and then to remove the old ways of doing things in a
+subsequent version.
+
+ADDED:
+
+CHANGED:
+
+DEPRECATED:
+
+REMOVED:
+
+FIXED:
+
+SECURITY:
+
+DOCUMENTATION:
+
+
 #################
 # Version 9.4.3 #
 #################
