@@ -101,7 +101,7 @@ def handle_copy_seed(context):
         impersonated = context[_n('uname')]
         uname = context[_n('real_uname')]
         course = context['cs_course']
-        logname = '.'.join(['random.seed'] + context['cs_path_info'])
+        logname = '.'.join(context['cs_path_info'][1:] + ['random_seed'])
         stored = context['csm_cslog'].most_recent(course, impersonated,
                                                   logname, None)
         context['csm_cslog'].update_log(course, uname, logname, stored)
@@ -118,7 +118,7 @@ def _new_random_seed(n=100):
 def handle_new_seed(context):
     uname = context[_n('uname')]
     course = context['cs_course']
-    logname = '.'.join(['random.seed'] + context['cs_path_info'])
+    logname = '.'.join(context['cs_path_info'][1:] + ['random_seed'])
     context['csm_cslog'].update_log(course, uname, logname, _new_random_seed())
 
     # Rerender the questions

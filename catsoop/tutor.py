@@ -274,7 +274,7 @@ def _new_random_seed(n=100):
 def _get_random_seed(context, n=100, force_new=False):
     uname = context['cs_username']
     course = context['cs_course']
-    logname = '.'.join(['random.seed'] + context['cs_path_info'])
+    logname = '.'.join(context['cs_path_info'][1:] + ['random_seed'])
     if force_new:
         stored = None
     else:
