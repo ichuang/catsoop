@@ -16,10 +16,12 @@
 
 from . import sqlite
 from . import catsoopdb
+from . import rethinkdb
 
 _db_type_map = {
     'catsoopdb': catsoopdb,
     'sqlite': sqlite,
+    'rethinkdb': rethinkdb,
 }
 
 def get_logger(context):

@@ -1553,9 +1553,9 @@ def pre_handle(context):
     context[_n('logname_group')] = grp_name
     context[_n('logname_groups')] = '%ss' % grp_name
 
-    context[_n('locked')] = ll.get('locked', set())
-    context[_n('answer_viewed')] = ll.get('answer_viewed', set())
-    context[_n('explanation_viewed')] = ll.get('explanation_viewed', set())
+    context[_n('locked')] = set(ll.get('locked', set()))
+    context[_n('answer_viewed')] = set(ll.get('answer_viewed', set()))
+    context[_n('explanation_viewed')] = set(ll.get('explanation_viewed', set()))
     context[_n('nsubmits_used')] = ll.get('nsubmits_used', {})
 
     # what is the user trying to do?

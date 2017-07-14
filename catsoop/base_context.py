@@ -48,7 +48,7 @@ Which authentication type to use ('login' to use a form, 'cert' to read client
 certificates).
 """
 
-cs_log_type = 'catsoopdb'
+cs_log_type = 'rethinkdb'
 """
 Which backend to use for storing logs ('catsoopdb' and 'sqlite' are supported)
 """

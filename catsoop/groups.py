@@ -23,7 +23,7 @@ def get_group_log_name(course, path):
     """
     Returns the relevant log name for groups associated with the given path
     """
-    return '.'.join([course] + path)
+    return '___'.join([course] + path[1:])
 
 
 def list_groups(context, course, path):

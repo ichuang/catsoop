@@ -21,7 +21,6 @@ import os
 import zlib
 import pickle
 import sqlite3
-import importlib
 
 from .. import base_context
 
