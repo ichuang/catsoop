@@ -101,7 +101,7 @@ def handle_copy_seed(context):
         impersonated = context[_n('uname')]
         uname = context[_n('real_uname')]
         course = context['cs_course']
-        logname = '.'.join(context['cs_path_info'][1:] + ['random_seed'])
+        logname = '___'.join(context['cs_path_info'][1:] + ['random_seed'])
         stored = context['csm_cslog'].most_recent(course, impersonated,
                                                   logname, None)
         context['csm_cslog'].update_log(course, uname, logname, stored)
@@ -118,7 +118,7 @@ def _new_random_seed(n=100):
 def handle_new_seed(context):
     uname = context[_n('uname')]
     course = context['cs_course']
-    logname = '.'.join(context['cs_path_info'][1:] + ['random_seed'])
+    logname = '___'.join(context['cs_path_info'][1:] + ['random_seed'])
     context['csm_cslog'].update_log(course, uname, logname, _new_random_seed())
 
     # Rerender the questions
@@ -1523,11 +1523,11 @@ def pre_handle(context):
         context[_n('activation_password')] = pwd
 
     # determine the right log name to look up, and grab the most recent entry
-    loghead = '.'.join(context['cs_path_info'][1:])
-    ps_name = '%s.problemstate' % loghead
-    pa_name = '%s.problemactions' % loghead
-    pg_name = '%s.problemgrades' % loghead
-    grp_name = '%s.group' % loghead
+    loghead = '___'.join(context['cs_path_info'][1:])
+    ps_name = '%s___problemstate' % loghead
+    pa_name = '%s___problemactions' % loghead
+    pg_name = '%s___problemgrades' % loghead
+    grp_name = '%s___group' % loghead
     ll = context['csm_cslog'].most_recent(context['cs_course'],
                                           uname,
                                           ps_name,
@@ -1690,7 +1690,7 @@ def _get_scores(context):
             log = context['csm_cslog'].most_recent(
                 context['cs_course'],
                 username,
-                '.'.join(context['cs_path_info'][1:] + ['problemstate']),
+                '___'.join(context['cs_path_info'][1:] + ['problemstate']),
                 {},
             )
             score = log.get('scores', {}).get(name, None)

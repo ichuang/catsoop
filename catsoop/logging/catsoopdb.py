@@ -64,7 +64,7 @@ def get_log_filename(course, db_name, log_name):
     '''
     Returns the filename where a given log is stored on disk.
     '''
-    base = os.path.join('__LOGS__', db_name, *(log_name.split('.'))) + '.log'
+    base = os.path.join('__LOGS__', db_name, *(log_name.split('___'))) + '.log'
     if course is not None:
         return os.path.join(base_context.cs_data_root, 'courses', course, base)
     else:

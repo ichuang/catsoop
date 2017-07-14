@@ -43,18 +43,18 @@ def compute_page_stats(context, user, course, path, keys=None):
     keys = list(keys)
 
     out = {}
-    logtail = '.'.join(path)
+    logtail = '___'.join(path)
     if 'state' in keys:
         keys.remove('state')
-        state_name = '%s.problemstate' % logtail
+        state_name = '%s___problemstate' % logtail
         out['state'] = logging.most_recent(course, user, state_name, {})
     if 'actions' in keys:
         keys.remove('actions')
-        actions_name = '%s.problemactions' % logtail
+        actions_name = '%s___problemactions' % logtail
         out['actions'] = logging.read_log(course, user, actions_name)
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
-        grades_name = '%s.problemgrades' % logtail
+        grades_name = '%s___problemgrades' % logtail
         out['manual_grades'] = logging.read_log(course, user, grades_name)
 
     if len(keys) == 0:
@@ -186,9 +186,9 @@ def handler(context, handler, check_course=True):
 def get_canonical_name(path):
     """
     Return the canonical name of the resource at path.  This name is
-    the cdr of path, joined by '__'.
+    the cdr of path, joined by '___'.
     """
-    return '.'.join(path[1:])
+    return '___'.join(path[1:])
 
 
 def get_release_date(context):
@@ -274,7 +274,7 @@ def _new_random_seed(n=100):
 def _get_random_seed(context, n=100, force_new=False):
     uname = context['cs_username']
     course = context['cs_course']
-    logname = '.'.join(context['cs_path_info'][1:] + ['random_seed'])
+    logname = '___'.join(context['cs_path_info'][1:] + ['random_seed'])
     if force_new:
         stored = None
     else:
@@ -295,7 +295,7 @@ def init_random(context, prefix=''):
     try:
         seed = _get_random_seed(context)
     except:
-        seed = '.'.join([context['cs_username']] + context['cs_path_info'])
+        seed = '___'.join([context['cs_username']] + context['cs_path_info'])
     context['cs_random_seed'] = seed
     context['cs_random'].seed(seed)
     context['cs_random_inited'] = True
