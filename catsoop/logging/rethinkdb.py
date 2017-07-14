@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Logging mechanisms in SQLite
+Logging mechanisms using RethinkDB
 """
 
 import os
@@ -34,10 +34,10 @@ def update_log(course, db_name, logname, new):
     Adds a new entry to the specified log.
     """
     course = course or '__no_course__'
-    conn = r.connect()
-    r.table('catsoop_logs').insert({'course': course, 'username': db_name,
-                                    'logname': logname, 'data': new,
-                                    'time': r.now()}).run(conn)
+    conn = r.connect(db='catsoop')
+    r.table('logs').insert({'course': course, 'username': db_name,
+                            'logname': logname, 'data': new,
+                            'time': r.now()}).run(conn)
     conn.close()
 
 
@@ -46,13 +46,13 @@ def overwrite_log(course, db_name, logname, new):
     Overwrites the most recent entry in the specified log.
     """
     course = course or '__no_course__'
-    conn = r.connect()
-    r.table('catsoop_logs').filter((r.row['course'] == course) &
-                                   (r.row['username'] == db_name) &
-                                   (r.row['logname'] == logname)).delete().run(conn)
-    r.table('catsoop_logs').insert({'course': course, 'username': db_name,
-                                    'logname': logname, 'data': new,
-                                    'time': r.now()}).run(conn)
+    conn = r.connect(db='catsoop')
+    r.table('logs').filter((r.row['course'] == course) &
+                           (r.row['username'] == db_name) &
+                           (r.row['logname'] == logname)).delete().run(conn)
+    r.table('logs').insert({'course': course, 'username': db_name,
+                            'logname': logname, 'data': new,
+                            'time': r.now()}).run(conn)
     conn.close()
 
 
@@ -61,8 +61,8 @@ def read_log(course, db_name, logname):
     Reads all entries of a log.
     """
     course = course or '__no_course__'
-    conn = r.connect()
-    res = r.table('catsoop_logs').get_all([db_name, course, logname], index='log').run(conn)
+    conn = r.connect(db='catsoop')
+    res = r.table('logs').get_all([db_name, course, logname], index='log').run(conn)
     out = [i['data'] for i in res]
     conn.close()
     return out
@@ -73,8 +73,8 @@ def most_recent(course, db_name, logname, default=None):
     Reads the most recent entry from a log.
     """
     course = course or '__no_course__'
-    conn = r.connect()
-    res = r.table('catsoop_logs').get_all([db_name, course, logname], index='log').order_by(r.desc('time')).limit(1).run(conn)
+    conn = r.connect(db='catsoop')
+    res = r.table('logs').get_all([db_name, course, logname], index='log').order_by(r.desc('time')).limit(1).run(conn)
     if len(res) == 0:
         out = default
     else:
@@ -85,13 +85,13 @@ def most_recent(course, db_name, logname, default=None):
 
 def modify_most_recent(course, db_name, log, default=None, transform_func=lambda x: x, method='update'):
     course = course or '__no_course__'
-    conn = r.connect()
+    conn = r.connect(db='catsoop')
     if method == 'overwrite':
-        r.table('catsoop_logs').get_all([db_name, course, logname], index='log').order_by(r.desc('time')).limit(1).update(lambda post: {'data': transform_func(post['data'])}).run(conn)
+        r.table('logs').get_all([db_name, course, logname], index='log').order_by(r.desc('time')).limit(1).update(lambda post: {'data': transform_func(post['data'])}).run(conn)
     else:
-        res = r.table('catsoop_logs').get_all([db_name, course, logname], index='log').order_by(r.desc('time')).limit(1).run(conn)
+        res = r.table('logs').get_all([db_name, course, logname], index='log').order_by(r.desc('time')).limit(1).run(conn)
         for row in res:
-            r.table('catsoop_logs').insert({'course': course, 'username': db_name,
-                                            'logname': logname, 'data': transform_func(row['data']),
-                                            'time': r.now()}).run(conn)
+            r.table('logs').insert({'course': course, 'username': db_name,
+                                    'logname': logname, 'data': transform_func(row['data']),
+                                    'time': r.now()}).run(conn)
     conn.close()
