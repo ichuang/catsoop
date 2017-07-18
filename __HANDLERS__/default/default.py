@@ -1894,7 +1894,7 @@ $('#%(name)s_buttons button').prop("disabled", true);
 var ws_%(name)s = new WebSocket(%(websocket)r);
 
 ws_%(name)s.onopen = function(){
-    ws_%(name)s.send(JSON.stringify({magic: magic_%(name)s}));
+    ws_%(name)s.send(JSON.stringify({type: "hello", magic: magic_%(name)s}));
 }
 
 ws_%(name)s.onmessage = function(event){
