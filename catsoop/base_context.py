@@ -36,7 +36,7 @@ cs_data_root = r'/home/cat-soop/data'
 The directory where CAT-SOOP's data files are located.
 """
 
-cs_url_root = 'http://cat-soop.org/try'
+cs_url_root = 'http://localhost:3000'
 """
 The URL root (without trailing slash).  Going to this URL should lead the user
 to CAT-SOOP's information page.
@@ -173,6 +173,11 @@ try:
         cs_url_root = 'http' + cs_url_root[cs_url_root.find(':'):]
 except:
     pass
+
+
+# WebSockets
+
+cs_checker_websocket = 'ws://localhost:3001'
 
 # Debugging Function
 

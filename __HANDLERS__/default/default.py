@@ -22,6 +22,8 @@ import string
 import traceback
 import collections
 
+import rethinkdb as r
+
 _prefix = 'cs_defaulthandler_'
 
 
@@ -824,12 +826,18 @@ def handle_submit(context):
 
     names_done = set()
     outdict = {}  # dictionary containing the responses for each question
+
+    # here, we don't do a whole lot.  we log a submission and add it to the
+    # checker's queue.
+
+    c = r.connect(db='catsoop')
+
+
     for name in names:
         if name.startswith('__'):
             name = name[2:].rsplit('_', 1)[0]
         if name in names_done:
             continue
-
 
         names_done.add(name)
         newstate['last_submit_times'][name] = context['cs_timestamp']
@@ -846,98 +854,29 @@ def handle_submit(context):
         nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
         newstate['last_submit'][name] = sub
 
-        question, args = namemap[name]
+        res = r.table('checker').insert({
+                  'path': context['cs_path_info'],
+                  'username': context.get('cs_username', 'None'),
+                  'names': [name],
+                  'form': {k: v for k,v in context[_n('form')].items() if name in k},
+                  'time': r.now(),
+                  'progress': 0,
+                  'action': 'submit',
+              }).run(c)
 
-        grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
-        if grading_mode == 'auto':
-            try:
-                resp = question['handle_submission'](context[_n('form')], **
-                                                     args)
-                scores[name] = resp['score']
-                msg = resp['msg']
-            except:
-                resp = {}
-                scores[name] = 0.0
-                msg = exc_message(context)
-        elif grading_mode == 'manual':
-            resp = {}
-            msg = 'Submission received for manual grading.'
-            scores[name] = None
-        else:
-            resp = {}
-            scores[name] = 0.0
-            msg = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
+        entry_id = res['generated_keys'][0]
 
-        out['score_display'] = make_score_display(
-            context, name, scores[name],
-            assume_submit=True)
-        out['message'] = context['csm_language'].handle_custom_tags(context,
-                                                                    msg)
-        out['score'] = scores[name]
-
-        rerender = resp.get('rerender', False) or question.get(
-            'always_rerender', False)
-        if rerender is True:
-            out['rerender'] = question['render_html'](newstate['last_submit'],
-                                                      **args)
-        elif rerender:
-            out['rerender'] = rerender
+        out['message'] = WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
+        # out['message'] = '<pre>%s</pre>' % out['message'].replace('<','&lt;').replace('>','&gt;')
+        out['score_display'] = ''
 
         outdict[name] = out
-
-        if resp.get('lock', False):
-            c = dict(context)
-            c[_n('question_names')] = [name]
-            o = json.loads(handle_lock(c)[2])
-            ll = context['csm_cslog'].most_recent(
-                context['cs_course'], context.get('cs_username', 'None'),
-                context[_n('logname_state')], {})
-            newstate['locked'] = ll.get('locked', set())
-            outdict[name].update(o[name])
-
-        # auto view answer if the option is set
-        if 'submit_all' not in context[_n('orig_perms')]:
-            x = nsubmits_left(context, name)
-            if (question.get('allow_viewanswer', True) and (((out['score'] == 1 and 'perfect' in _get_auto_view(args)) or
-                 (x[0] == 0 and 'nosubmits' in _get_auto_view(args))) and
-                    _get(args, 'csq_allow_viewanswer', True, bool))):
-                # this is a hack...
-                c = dict(context)
-                c[_n('question_names')] = [name]
-                o = json.loads(handle_viewanswer(c)[2])
-                ll = context['csm_cslog'].most_recent(
-                    context['cs_course'], context.get('cs_username', 'None'),
-                    context[_n('logname_state')], {})
-                newstate['answer_viewed'] = ll.get('answer_viewed', set())
-                newstate['explanation_viewed'] = ll.get('explanation_viewed',
-                                                        set())
-                outdict[name].update(o[name])
 
         # cache responses
         newstate['%s_score_display' % name] = out['score_display']
         newstate['%s_message' % name] = out['message']
 
-    # update score
-    if any(scores[i] is None for i in scores):
-        newstate['score'] = None
-    else:
-        num = 0.0
-        denom = 0.0
-        for n in namemap:
-            q, args = namemap[n]
-            d = q['total_points'](**args)
-
-            denom += d
-            num += scores.get(n, 0.0) * d
-            newstate['score'] = 0.0 if num == denom == 0.0 else num / denom
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
-    newstate['scores'] = scores
-
-    # update problemstate log
-    course = context['cs_course']
-    uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -1938,3 +1877,54 @@ def handle_whdw(context):
             soup.append(grid)
 
         return str(soup)
+
+
+WEBSOCKET_JS = """
+<script type="text/javascript">
+var magic_%(name)s = %(magic)r;
+if (typeof ws_%(name)s != 'undefined'){
+    ws_%(name)s.close();
+    var ws_%(name)s = undefined;
+}
+
+$('#%(name)s_score_display').html('working...');
+
+$('#%(name)s_buttons button').prop("disabled", true);
+
+var ws_%(name)s = new WebSocket(%(websocket)r);
+
+ws_%(name)s.onopen = function(){
+    ws_%(name)s.send(JSON.stringify({magic: magic_%(name)s}));
+}
+
+ws_%(name)s.onmessage = function(event){
+    var m = event.data;
+    var j = JSON.parse(m);
+    var thediv = $('#cs_partialresults_%(name)s')
+    var themessage = $('#cs_partialresults_%(name)s_message');
+    if (j.type == 'inqueue'){
+        thediv[0].className = '';
+        thediv.addClass('bs-callout');
+        thediv.addClass('bs-callout-warning');
+        themessage.html('Your submission is queued to be checked (position ' + j.position + ').');
+        $('#%(name)s_buttons button').prop("disabled", false);
+    }else if (j.type == 'running'){
+        thediv[0].className = '';
+        thediv.addClass('bs-callout');
+        thediv.addClass('bs-callout-info');
+        themessage.html('Your submission is currently being checked.');
+        $('#%(name)s_buttons button').prop("disabled", false);
+    }else if (j.type == 'newresult'){
+        var res = JSON.parse(j.result);
+        $('#%(name)s_score_display').html(res.score_box);
+        $('#%(name)s_message').html(res.response);
+        ws_%(name)s.close();
+        $('#%(name)s_buttons button').prop("disabled", false);
+    }
+}
+
+ws_%(name)s.onerror = function(event){
+    console.log(event);
+}
+</script>
+"""
