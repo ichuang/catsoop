@@ -871,7 +871,7 @@ def handle_submit(context):
 
             entry_id = res['generated_keys'][0]
 
-            out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Looking up your submission (id <code>%s</code>).  Watch here for updates.</span><br/><center><img src="%s"/></div>\n' % (name, name, entry_id, context['cs_loading_image'])
+            out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Looking up your submission (id <code>%s</code>).  Watch here for updates.</span><br/><center><img src="%s"/></center></div>\n' % (name, name, entry_id, context['cs_loading_image'])
             out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
             out['score_display'] = ''
         elif grading_mode == 'manual':
@@ -1238,7 +1238,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += '<div>'
     out += (('\n<span id="%s_buttons">' % name) + make_buttons(context, name) +
             "</span>")
-    out += ('\n<div id="%s_loading" style="display:none;"><img src="%s"'
+    out += ('\n<div id="%s_loading" style="display:none;"><img src="%s"/>'
             '</div>') % (name, context['cs_loading_image'])
     out += (('\n<span id="%s_score_display">' % args['csq_name']) +
             make_score_display(context, name, lastlog.get('scores', {}).get(
