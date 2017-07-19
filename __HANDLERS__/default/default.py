@@ -866,7 +866,7 @@ def handle_submit(context):
 
         entry_id = res['generated_keys'][0]
 
-        out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Your submission has been received and queued for testing.  Watch here for updates.</span><br/><center><img src="%s/__STATIC__/__BASE__/images/loading.gif"/></div>\n' % (name, name, context['cs_url_root'])
+        out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Your submission (id <code>%s</code>) has been received and queued for testing.  Watch here for updates.</span><br/><center><img src="%s/__STATIC__/__BASE__/images/loading.gif"/></div>\n' % (name, name, entry_id, context['cs_url_root'])
         out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
         out['score_display'] = ''
 
@@ -1912,13 +1912,13 @@ ws_%(name)s.onmessage = function(event){
         thediv[0].className = '';
         thediv.addClass('bs-callout');
         thediv.addClass('bs-callout-warning');
-        themessage.html('Your submission is queued to be checked (position ' + j.position + ').');
+        themessage.html('Your submission (id <code>%(magic)s</code>) is queued to be checked (position ' + j.position + ').');
         $('#%(name)s_buttons button').prop("disabled", false);
     }else if (j.type == 'running'){
         thediv[0].className = '';
         thediv.addClass('bs-callout');
         thediv.addClass('bs-callout-info');
-        themessage.html('Your submission is currently being checked.');
+        themessage.html('Your submission (id <code>%(magic)s</code>) is currently being checked.');
         $('#%(name)s_buttons button').prop("disabled", false);
     }else if (j.type == 'newresult'){
         var res = JSON.parse(j.result);
