@@ -856,21 +856,45 @@ def handle_submit(context):
         nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
         newstate['last_submit'][name] = sub
 
-        res = r.table('checker').insert({
-                  'path': context['cs_path_info'],
-                  'username': context.get('cs_username', 'None'),
-                  'names': [name],
-                  'form': {k: v for k,v in context[_n('form')].items() if name in k},
-                  'time': r.now(),
-                  'progress': 0,
-                  'action': 'submit',
-              }).run(c)
+        question, args = namemap[name]
+        grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
+        if grading_mode == 'auto':
+            res = r.table('checker').insert({
+                      'path': context['cs_path_info'],
+                      'username': context.get('cs_username', 'None'),
+                      'names': [name],
+                      'form': {k: v for k,v in context[_n('form')].items() if name in k},
+                      'time': r.now(),
+                      'progress': 0,
+                      'action': 'submit',
+                  }).run(c)
 
-        entry_id = res['generated_keys'][0]
+            entry_id = res['generated_keys'][0]
 
-        out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Looking up your submission (id <code>%s</code>).  Watch here for updates.</span><br/><center><img src="%s"/></div>\n' % (name, name, entry_id, context['cs_loading_image'])
-        out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
-        out['score_display'] = ''
+            out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Looking up your submission (id <code>%s</code>).  Watch here for updates.</span><br/><center><img src="%s"/></div>\n' % (name, name, entry_id, context['cs_loading_image'])
+            out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
+            out['score_display'] = ''
+        elif grading_mode == 'manual':
+            resp = {}
+            msg = 'Submission received for manual grading.'
+            scores[name] = None
+            out['message'] = context['csm_language'].handle_custom_tags(context,
+                                                                        msg)
+            out['score'] = scores[name]
+            out['score_display'] = make_score_display(
+                context, name, scores[name],
+                assume_submit=True)
+            newstate['scores'][name] = None
+        else:
+            resp = {}
+            scores[name] = 0.0
+            msg = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
+            out['message'] = context['csm_language'].handle_custom_tags(context,
+                                                                        msg)
+            out['score'] = scores[name]
+            out['score_display'] = make_score_display(
+                context, name, scores[name],
+                assume_submit=True)
 
         outdict[name] = out
 
@@ -1909,6 +1933,7 @@ ws_%(name)s.onopen = function(){
 
 ws_%(name)s.onmessage = function(event){
     var m = event.data;
+    console.log(m);
     var j = JSON.parse(m);
     var thediv = $('#cs_partialresults_%(name)s')
     var themessage = $('#cs_partialresults_%(name)s_message');
@@ -1925,9 +1950,8 @@ ws_%(name)s.onmessage = function(event){
         themessage.html('Your submission (id <code>%(magic)s</code>) is currently being checked.');
         $('#%(name)s_buttons button').prop("disabled", false);
     }else if (j.type == 'newresult'){
-        var res = JSON.parse(j.result);
-        $('#%(name)s_score_display').html(res.score_box);
-        $('#%(name)s_message').html(res.response);
+        $('#%(name)s_score_display').html(j.score_box);
+        $('#%(name)s_message').html(j.response);
         ws_%(name)s.close();
         $('#%(name)s_buttons button').prop("disabled", false);
     }

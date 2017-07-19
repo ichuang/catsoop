@@ -186,9 +186,14 @@ except:
     pass
 
 
-# WebSockets
+# Checker
 
 cs_checker_websocket = 'ws://localhost:3001'
+
+cs_checker_global_timeout = 30
+
+cs_checker_parallel_checks = 5
+
 
 # Debugging Function
 

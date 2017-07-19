@@ -40,10 +40,10 @@ r.connect({db: 'catsoop'}, function (err, conn){
     if (err) throw err;
     rconn = conn;
     // initialize our queue
-    r.table('checker').filter(r.row('progress').eq(0)).changes({squash: false, includeInitial: true}).run(rconn, function(err, cursor){
+    r.table('checker').changes({squash: false, includeInitial: true}).run(rconn, function(err, cursor){
         cursor.each(function(e, r){
-            if (r.new_val == null || r.new_val.progress == 2){
-                // element deleted, or element switched to "complete" 
+            if (r.old_val != null && (r.new_val == null || r.new_val.progress == 2)){
+                // element deleted, or element switched to "complete"
                 var t = r.old_val.time;
                 // remove it
                 delete positions[r.old_val.id];
@@ -58,13 +58,18 @@ r.connect({db: 'catsoop'}, function (err, conn){
                         }
                     }
                 }
-                //TODO: notify this user of their result
-                var c = allConnections[r.new_val.id];
-                if (c){
-                    c.sendUTF(JSON.stringify({type: 'newresult', score_box: r.new_val.score_box, response: r.new_val.response}));
+                //TODO: notify this user of their result if they're alive?
+                if (r.new_val !== null){
+                    var c = allConnections[r.new_val.id];
+                    if (c){
+                        c.sendUTF(JSON.stringify({type: 'newresult', score_box: r.new_val.score_box, response: r.new_val.response}));
+                    }
                 }
             }else if (r.old_val == null){
                 // new entry
+                if (r.new_val.progress != 0){
+                    return;
+                }
                 // find its position
                 var pos = 1;
                 for(var i in positions){
@@ -84,10 +89,10 @@ r.connect({db: 'catsoop'}, function (err, conn){
                 if (c){
                     c.sendUTF(JSON.stringify({type: 'inqueue', position: pos}));
                 }
-            }else if (r.new_val.id == 1){
+            }else if (r.new_val.progress == 1){
                 // we just started processing this entry
                 positions[r.new_val.id] = [null, r.new_val.time, 1];
-                var c = r.new_val.id;
+                var c = allConnections[r.new_val.id];
                 if (c){
                     c.sendUTF(JSON.stringify({type: 'running'}));
                 }
@@ -110,7 +115,7 @@ var wsServer = new webSocketServer({httpServer: server});
 // when we receive a connection request, just add that connection to the
 // mapping.
 wsServer.on('request', function(request) {
-   
+
     var connection = request.accept(null, request.origin);
 
     connection.on('message', function(message) {
