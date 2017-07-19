@@ -866,7 +866,7 @@ def handle_submit(context):
 
         entry_id = res['generated_keys'][0]
 
-        out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Your submission (id <code>%s</code>) has been received and queued for testing.  Watch here for updates.</span><br/><center><img src="%s"/></div>\n' % (name, name, entry_id % context['cs_loading_image'])
+        out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Your submission (id <code>%s</code>) has been received and queued for testing.  Watch here for updates.</span><br/><center><img src="%s"/></div>\n' % (name, name, entry_id, context['cs_loading_image'])
         out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
         out['score_display'] = ''
 
