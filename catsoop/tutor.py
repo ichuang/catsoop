@@ -41,8 +41,12 @@ def _get(context, key, default, cast=lambda x: x):
 
 
 def make_score_display(context, args, name, score, assume_submit=False):
+    last_log = context['csm_cslog'].most_recent(context['cs_course'],
+                                                context['cs_username'],
+                                                '___'.join(context['cs_path_info'] + ['problemstate']),
+                                                {})
     if not _get(args, 'csq_show_score', True, bool):
-        if name in context[_n('last_log')].get('scores', {}) or assume_submit:
+        if name in last_log.get('scores', {}) or assume_submit:
             return 'Submission received.'
         else:
             return ''
@@ -52,7 +56,7 @@ def make_score_display(context, args, name, score, assume_submit=False):
         if log is not None:
             score = log['score']
     if score is None:
-        if name in context[_n('last_log')].get('scores', {}) or assume_submit:
+        if name in last_log.get('scores', {}) or assume_submit:
             return 'Grade not available.'
         else:
             return ''
