@@ -17,6 +17,9 @@ DEPRECATED:
 
 REMOVED:
 
+  * Removed CSS-only spinner, replaced with data URI for image in the base context.
+  * Removed images for check/cross/favicon, replaced with data URI's in the base context.
+
 FIXED:
 
 SECURITY:

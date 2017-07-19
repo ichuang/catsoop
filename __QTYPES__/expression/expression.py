@@ -382,9 +382,9 @@ def handle_submission(submissions, **info):
 
     if info['csq_show_check']:
         if result:
-            msg = '<img src="BASE/images/check.png" />'
+            msg = '<img src="%s" />' % info['cs_check_image']
         else:
-            msg = '<img src="BASE/images/cross.png" />'
+            msg = '<img src="%s" />' % info['cs_cross_image']
     else:
         msg = ''
     n = info['csq_name']

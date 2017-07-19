@@ -235,16 +235,16 @@ def handle_submission(submissions, **info):
             percentage = 0.0
         imfile = None
         if percentage == 1.0:
-            imfile = "check.png"
+            imfile = info['cs_check_image']
         elif percentage == 0.0:
-            imfile = "cross.png"
+            imfile = info['cs_cross_image']
 
         score += percentage * test['npoints']
 
         if imfile is None:
             image = ''
         else:
-            image = "<img src='BASE/images/%s' />" % imfile
+            image = "<img src='%s' />" % imfile
 
         if log_s != '' and test['show_code']:  # Our solution ran successfully
             msg += ("\n<p>Our solution produced the following "
