@@ -77,17 +77,16 @@ def do_check(row):
             names_done.add(name)
 
             question, args = namemap[name]
-            #try:
-            resp = question['handle_submission'](row['form'],
-                                                 **args)
-            score = resp['score']
-            msg = resp['msg']
-            #except:
-            #    resp = {}
-            #    score = 0.0
-            #    msg = exc_message(context)
+            try:
+                resp = question['handle_submission'](row['form'],
+                                                     **args)
+                score = resp['score']
+                msg = resp['msg']
+            except:
+                resp = {}
+                score = 0.0
+                msg = exc_message(context)
 
-            #TODO: render scores...
             r.table('checker').filter(r.row['id'] == row['id']).update({
                 'progress': 2,
                 'score': score,
