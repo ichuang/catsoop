@@ -122,7 +122,6 @@ while True:
     # check for entries to run
     cursor = r.table('checker').filter(r.row['progress'] == 0).order_by(r.asc(r.row['time'])).limit(1).run(c)
     if len(cursor) == 0:
-        print('NOPE!')
         # nothing to be run.
         # we can afford a longer delay here.
         time.sleep(.2)
