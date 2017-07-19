@@ -1,5 +1,9 @@
 syntax: glob
 
+# rethink logs and node modules
+scripts/node_modules/
+scripts/rethinkdb_data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
