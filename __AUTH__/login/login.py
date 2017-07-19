@@ -28,7 +28,7 @@ from itertools import starmap
 def get_logged_in_user(context):
     # form-based login
     base_context = context['csm_base_context']
-    logging = context['csm_logging'].get_logger(context)
+    logging = context['csm_cslog']
     loader = context['csm_loader']
     form = context.get('cs_form', {})
     mail = context['csm_mail']
@@ -505,7 +505,7 @@ def check_password(context, provided, uname, iterations=250000):
     """
     Compare the provided password against a stored hash.
     """
-    logging = context['csm_logging'].get_logger(context)
+    logging = context['csm_cslog']
     user_login_info = logging.most_recent(None, 'logininfo', uname, {})
     pass_hash = user_login_info.get('password_hash', None)
     if pass_hash is not None:

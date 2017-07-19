@@ -21,7 +21,7 @@ import importlib
 
 from . import api
 from . import loader
-from . import logging
+from . import cslog
 from . import base_context
 importlib.reload(base_context)
 
@@ -88,7 +88,6 @@ def get_logged_in_user(context):
     regular_user = get_auth_type(context)['get_logged_in_user'](context)
     if 'username' in regular_user:
         # successful login.  check for existing token
-        cslog = logging.get_logger(context)
         tok = cslog.most_recent(None, 'api_users', regular_user['username'],
                                 None)
         if tok is None:

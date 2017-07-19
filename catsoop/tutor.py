@@ -26,7 +26,7 @@ import importlib
 from . import auth
 from . import time
 from . import loader
-from . import logging as logging_import
+from . import cslog
 from . import base_context
 
 from datetime import timedelta
@@ -35,7 +35,7 @@ importlib.reload(base_context)
 
 
 def compute_page_stats(context, user, course, path, keys=None):
-    logging = logging_import.get_logger(context)
+    logging = cslog
     if keys is None:
         keys = [
             'context', 'question_points', 'state', 'actions', 'manual_grades'

@@ -25,7 +25,7 @@ import importlib
 
 from http.cookies import SimpleCookie
 
-from . import logging
+from . import cslog
 from . import base_context
 from .tools import filelock
 
@@ -112,7 +112,7 @@ def get_session_data(context, sid):
     with filelock.FileLock(fname) as lock:
         try:
             with open(fname, 'rb') as f:
-                out = logging.get_logger(context).unprep(f.read())
+                out = cslog.unprep(f.read())
         except:
             out = {}  # default to returning empty session
     return out
@@ -129,5 +129,5 @@ def set_session_data(context, sid, data):
     fname = os.path.join(SESSION_DIR, sid)
     with filelock.FileLock(fname) as lock:
         with open(fname, 'wb') as f:
-            f.write(logging.get_logger(context).prep(data))
+            f.write(cslog.prep(data))
     expire_sessions()
