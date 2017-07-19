@@ -866,7 +866,8 @@ def handle_submit(context):
 
         entry_id = res['generated_keys'][0]
 
-        out['message'] = WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
+        out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Your submission has been received and queued for testing.  Watch here for updates.</span><br/><center><img src="%s/__STATIC__/__BASE__/images/loading.gif"/></div>\n' % (name, name, context['cs_url_root'])
+        out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
         # out['message'] = '<pre>%s</pre>' % out['message'].replace('<','&lt;').replace('>','&gt;')
         out['score_display'] = ''
 
@@ -877,6 +878,12 @@ def handle_submit(context):
         newstate['%s_message' % name] = out['message']
 
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
+    
+    # update problemstate log
+    course = context['cs_course']
+    uname = context[_n('uname')]
+    logname = context[_n('logname_state')]
+    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -1900,6 +1907,7 @@ ws_%(name)s.onopen = function(){
 ws_%(name)s.onmessage = function(event){
     var m = event.data;
     var j = JSON.parse(m);
+    console.log('hey', m);
     var thediv = $('#cs_partialresults_%(name)s')
     var themessage = $('#cs_partialresults_%(name)s_message');
     if (j.type == 'inqueue'){

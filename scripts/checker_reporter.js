@@ -125,12 +125,34 @@ wsServer.on('request', function(request) {
             if (data.type == 'hello'){
                 connection.catsoop_magic = data.magic;
                 allConnections[data.magic] = connection;
+                // check for current status in db
+                r.table('checker').filter(r.row('id').eq(data.magic)).run(rconn, function(err, curs){
+                    if (err) throw err;
+                    curs.toArray(function (err, res){
+                        if (err) throw err;
+                        if (res.length > 0){
+                            var o = res[res.length-1]; // most recent?
+                            if (o.progress == 0){
+                                // in queue.
+                                if(data.magic in positions){
+                                    connection.sendUTF(JSON.stringify({type: 'inqueue', position: positions[data.magic][0]}));
+                                }
+                            }else if (o.progress == 1){
+                                connection.sendUTF(JSON.stringify({type: 'running'}));
+                            }else if (o.progress == 2){
+                                // already done.
+                                connection.sendUTF(JSON.stringify({type: 'newresult', score_box: o.score_box, response: o.response}));
+
+                            }
+                        }
+                    });
+                });
             }
         }
     });
 
     connection.on('close', function(connection) {
-            delete allConnections[data.magic];
+            delete allConnections[connection.catsoop_magic];
     });
 
 });
