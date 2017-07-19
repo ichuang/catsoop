@@ -344,35 +344,6 @@ def get_manual_grading_entry(context, name):
     return out
 
 
-def make_score_display(context, name, score, assume_submit=False):
-    _, args = context[_n('name_map')][name]
-    if not _get(args, 'csq_show_score', True, bool):
-        if name in context[_n('last_log')].get('scores', {}) or assume_submit:
-            return 'Submission received.'
-        else:
-            return ''
-    gmode = _get(args, 'csq_grading_mode', 'auto', str)
-    if gmode == 'manual':
-        log = get_manual_grading_entry(context, name)
-        if log is not None:
-            score = log['score']
-    if score is None:
-        if name in context[_n('last_log')].get('scores', {}) or assume_submit:
-            return 'Grade not available.'
-        else:
-            return ''
-    c = context.get('cs_score_message', None)
-    try:
-        return c(score)
-    except:
-        colorthing = 255 * score
-        r = max(0, 200 - colorthing)
-        g = min(200, colorthing)
-        s = score * 100
-        return ('<span style="color:rgb(%d,%d,0);font-weight:bolder;">'
-                '%.02f%%</span>') % (r, g, s)
-
-
 def handle_clearanswer(context):
     names = context[_n('question_names')]
     timing = context[_n('timing')]
@@ -610,8 +581,9 @@ def handle_grade(context):
                            'score': score / npoints,
                            'comments': comments,
                            'timestamp': context['cs_timestamp']})
+        _, args = context[_n('name_map')][name]
         outdict[name] = {
-            'score_display': make_score_display(context, name, score),
+            'score_display': context['csm_tutor'].make_score_display(context, args, name, score),
             'message': "<b>Grader's Comments:</b><br/><br/>%s" % context['csm_language']._md_format_string(context, comments),
             'score': score,
         }
@@ -881,8 +853,8 @@ def handle_submit(context):
             out['message'] = context['csm_language'].handle_custom_tags(context,
                                                                         msg)
             out['score'] = scores[name]
-            out['score_display'] = make_score_display(
-                context, name, scores[name],
+            out['score_display'] = context['csm_tutor'].make_score_display(
+                context, args, name, scores[name],
                 assume_submit=True)
             newstate['scores'][name] = None
         else:
@@ -892,8 +864,8 @@ def handle_submit(context):
             out['message'] = context['csm_language'].handle_custom_tags(context,
                                                                         msg)
             out['score'] = scores[name]
-            out['score_display'] = make_score_display(
-                context, name, scores[name],
+            out['score_display'] = context['csm_tutor'].make_score_display(
+                context, args, name, scores[name],
                 assume_submit=True)
 
         outdict[name] = out
@@ -1241,7 +1213,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += ('\n<div id="%s_loading" style="display:none;"><img src="%s"/>'
             '</div>') % (name, context['cs_loading_image'])
     out += (('\n<span id="%s_score_display">' % args['csq_name']) +
-            make_score_display(context, name, lastlog.get('scores', {}).get(
+            context['csm_tutor'].make_score_display(context, args, name, lastlog.get('scores', {}).get(
                 name, None)) + '</span>')
     out += (('\n<div id="%s_nsubmits_left" class="nsubmits_left">' % name) +
             nsubmits_left(context, name)[1] + "</div>")

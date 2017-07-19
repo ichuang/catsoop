@@ -91,7 +91,7 @@ def do_check(row):
             r.table('checker').filter(r.row['id'] == row['id']).update({
                 'progress': 2,
                 'score': score,
-                'score_box': str(score*100) + '%',
+                'score_box': context['csm_tutor'].make_score_display(context, args, name, score, True),
                 'response': language.handle_custom_tags(context, msg),
             }).run(c)
 

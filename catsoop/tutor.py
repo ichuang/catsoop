@@ -22,6 +22,7 @@ import sys
 import random
 import string
 import importlib
+import collections
 
 from . import auth
 from . import time
@@ -32,6 +33,39 @@ from . import base_context
 from datetime import timedelta
 
 importlib.reload(base_context)
+
+
+def _get(context, key, default, cast=lambda x: x):
+    v = context.get(key, default)
+    return cast(v(context) if isinstance(v, collections.Callable) else v)
+
+
+def make_score_display(context, args, name, score, assume_submit=False):
+    if not _get(args, 'csq_show_score', True, bool):
+        if name in context[_n('last_log')].get('scores', {}) or assume_submit:
+            return 'Submission received.'
+        else:
+            return ''
+    gmode = _get(args, 'csq_grading_mode', 'auto', str)
+    if gmode == 'manual':
+        log = get_manual_grading_entry(context, name)
+        if log is not None:
+            score = log['score']
+    if score is None:
+        if name in context[_n('last_log')].get('scores', {}) or assume_submit:
+            return 'Grade not available.'
+        else:
+            return ''
+    c = context.get('cs_score_message', None)
+    try:
+        return c(score)
+    except:
+        colorthing = 255 * score
+        r = max(0, 200 - colorthing)
+        g = min(200, colorthing)
+        s = score * 100
+        return ('<span style="color:rgb(%d,%d,0);font-weight:bolder;">'
+                '%.02f%%</span>') % (r, g, s)
 
 
 def compute_page_stats(context, user, course, path, keys=None):
