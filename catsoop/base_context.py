@@ -228,8 +228,8 @@ except Exception as e:
 # Import all CAT-SOOP modules/subpackages
 
 cs_all_pieces = [
-    'api', 'auth', 'base_context', 'dispatch', 'errors', 'groups', 'language',
-    'loader', 'logging', 'mail', 'session', 'time', 'tools', 'tutor', 'util'
+    'api', 'auth', 'base_context', 'cslog', 'dispatch', 'errors', 'groups',
+    'language', 'loader', 'mail', 'session', 'time', 'tools', 'tutor', 'util',
 ]
 
 cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4']

@@ -23,7 +23,7 @@ import rethinkdb as r
 
 from datetime import datetime
 
-from .. import base_context
+from . import base_context
 
 prep = lambda x: repr(x).encode()
 unprep = lambda x: ast.literal_eval(x.decode())
