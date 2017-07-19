@@ -24,9 +24,9 @@ var wsPort = 3001;
 process.title = 'catsoop_checker_reporter';
 
 // keep going in the face of adversity
-//process.on('uncaughtException', function (err) {
-//    console.log('Caught exception: ' + err);
-//});
+process.on('uncaughtException', function (err) {
+    console.log('Caught exception: ' + err);
+});
 
 var webSocketServer = require('websocket').server;
 var http = require('http');
@@ -49,7 +49,6 @@ r.connect({db: 'catsoop'}, function (err, conn){
                 delete positions[r.old_val.id];
                 // slide everyone else down
                 for(var i in positions){
-                    console.log(positions[i]);
                     if (positions[i][2] == 0 && positions[i][1] > t){
                         positions[i][0]--;
                         var c = allConnections[i];
@@ -97,9 +96,7 @@ r.connect({db: 'catsoop'}, function (err, conn){
                     c.sendUTF(JSON.stringify({type: 'running'}));
                 }
             }else{
-                console.log('WTF', r);
             }
-            console.log('hey', positions);
         });
     });
 });

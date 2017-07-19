@@ -43,7 +43,6 @@ def exc_message(context):
             '<pre>%s</pre></font>') % exc
 
 def do_check(row):
-    time.sleep(2)
     c = r.connect(db='catsoop')
 
     process = multiprocessing.current_process()

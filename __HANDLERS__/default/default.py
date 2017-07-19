@@ -1933,7 +1933,6 @@ ws_%(name)s.onopen = function(){
 
 ws_%(name)s.onmessage = function(event){
     var m = event.data;
-    console.log(m);
     var j = JSON.parse(m);
     var thediv = $('#cs_partialresults_%(name)s')
     var themessage = $('#cs_partialresults_%(name)s_message');
