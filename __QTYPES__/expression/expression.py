@@ -33,16 +33,30 @@ def check_numpy():
         default_funcs.update({
             'transpose': (numpy.transpose, _render_transpose),
             'norm': (numpy.linalg.norm, _render_norm),
+            'dot': (numpy.dot, _render_dot),
         })
         return True
     except:
         return False
 
 def _render_transpose(x):
-    return r'{%s}^T' % x[0]
+    out = r'{%s}^T' % x[0]
+    if len(x) != 1:
+        return out, "transpose takes exactly one argument"
+    return out
 
 def _render_norm(x):
-    return r'\left\|{%s}\right\|' % x[0]
+    out = r'\left\|{%s}\right\|' % x[0]
+    if len(x) != 1:
+        return out, "norm takes exactly one argument"
+    return out
+
+def _render_dot(x):
+    if len(x) == 0:
+        return '\cdot', "dot takes exactly two arguments"
+    if len(x) != 2:
+        return '\cdot '.join(x), "dot takes exactly two arguments"
+    return r'\left(%s\right)\cdot \left(%s\right)' % (x[0], x[1])
 
 smallbox, _ = csm_tutor.question('smallbox')
 
@@ -182,7 +196,6 @@ def eval_call(context, names, funcs, c):
 
 
 def _div(x, y):
-    x = complex(float(x.real), float(x.imag))
     return x / y
 
 
@@ -525,7 +538,7 @@ def times2tex(context, funcs, n):
     right, rprec = tree2tex(context, funcs, n[2])
     if rprec < prec:
         right = r"\left(%s\right)" % right
-    return r"%s \cdot %s" % (left, right), prec
+    return r"%s \times %s" % (left, right), prec
 
 
 def matmul2tex(context, funcs, n):
