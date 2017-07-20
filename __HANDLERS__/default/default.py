@@ -843,7 +843,7 @@ def handle_submit(context):
 
             entry_id = res['generated_keys'][0]
 
-            out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><span id="cs_partialresults_%s_message">Looking up your submission (id <code>%s</code>).  Watch here for updates.</span><br/><center><img src="%s"/></center></div>\n' % (name, name, entry_id, context['cs_loading_image'])
+            out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><div id="cs_partialresults_%s_body"><span id="cs_partialresults_%s_message">Looking up your submission (id <code>%s</code>).  Watch here for updates.</span><br/><center><img src="%s"/></center></div></div><small>Last submission ID: <code>%s</code></small>\n' % (name, name, name, entry_id, context['cs_loading_image'], entry_id)
             out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
             out['score_display'] = ''
         elif grading_mode == 'manual':
@@ -1210,8 +1210,8 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += '<div>'
     out += (('\n<span id="%s_buttons">' % name) + make_buttons(context, name) +
             "</span>")
-    out += ('\n<div id="%s_loading" style="display:none;"><img src="%s"/>'
-            '</div>') % (name, context['cs_loading_image'])
+    out += ('\n<span id="%s_loading" style="display:none;"><img src="%s"/>'
+            '</span>') % (name, context['cs_loading_image'])
     out += (('\n<span id="%s_score_display">' % args['csq_name']) +
             context['csm_tutor'].make_score_display(context, args, name, lastlog.get('scores', {}).get(
                 name, None)) + '</span>')
@@ -1918,11 +1918,14 @@ ws_%(name)s.onmessage = function(event){
         thediv[0].className = '';
         thediv.addClass('bs-callout');
         thediv.addClass('bs-callout-info');
-        themessage.html('Your submission (id <code>%(magic)s</code>) is currently being checked.');
+        themessage.html('Your submission is currently being checked.');
         $('#%(name)s_buttons button').prop("disabled", false);
     }else if (j.type == 'newresult'){
         $('#%(name)s_score_display').html(j.score_box);
-        $('#%(name)s_message').html(j.response);
+        thediv[0].className = '';
+        thediv.addClass('bs-callout');
+        thediv.addClass('bs-callout-default');
+        $('#cs_partialresults_%(name)s_body').html(j.response);
         ws_%(name)s.close();
         $('#%(name)s_buttons button').prop("disabled", false);
     }
