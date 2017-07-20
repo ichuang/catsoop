@@ -792,6 +792,7 @@ def handle_submit(context):
 
     newstate['last_submit_time'] = context['cs_timestamp']
     newstate['last_submit_times'] = newstate.get('last_submit_times', {})
+    newstate['scores'] = scores
     newstate['timestamp'] = context['cs_timestamp']
     if 'last_submit' not in newstate:
         newstate['last_submit'] = {}
@@ -806,6 +807,7 @@ def handle_submit(context):
 
     c = r.connect(db='catsoop')
 
+    entry_ids = {}
 
     for name in names:
         if name.startswith('__'):
@@ -842,9 +844,10 @@ def handle_submit(context):
                   }).run(c)
 
             entry_id = res['generated_keys'][0]
+            entry_ids[name] = entry_id
 
             out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><div id="cs_partialresults_%s_body"><span id="cs_partialresults_%s_message">Looking up your submission (id <code>%s</code>).  Watch here for updates.</span><br/><center><img src="%s"/></center></div></div><small>Last submission ID: <code>%s</code></small>\n' % (name, name, name, entry_id, context['cs_loading_image'], entry_id)
-            out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket']}
+            out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
             out['score_display'] = ''
         elif grading_mode == 'manual':
             resp = {}
@@ -889,9 +892,8 @@ def handle_submit(context):
     log_action(context, {'action': 'submit',
                          'names': names,
                          'submitted': subbed,
-                         'score': newstate['score'],
                          'scores': newstate['scores'],
-                         'checker_id': entry_id,
+                         'checker_ids': entry_ids,
                          'response': outdict,
                          'due_date': duetime})
 
@@ -1893,7 +1895,7 @@ if (typeof ws_%(name)s != 'undefined'){
     var ws_%(name)s = undefined;
 }
 
-$('#%(name)s_score_display').html('working...');
+$('#%(name)s_score_display').html('<img src="%(loading)s"/>');
 
 $('#%(name)s_buttons button').prop("disabled", true);
 
