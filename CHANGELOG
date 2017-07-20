@@ -11,20 +11,28 @@ subsequent version.
 
 ADDED:
 
+  * Added the dot product operator to expression question type.
+
 CHANGED:
+
+  * Submissions are now handled asynchronously, and results are retrieved via
+    web sockets.
 
 DEPRECATED:
 
 REMOVED:
 
-  * Removed CSS-only spinner, replaced with data URI for image in the base context.
-  * Removed images for check/cross/favicon, replaced with data URI's in the base context.
+  * Removed CSS-only spinner, replaced with data URI for image in the base
+    context.
+
+  * Removed images for check/cross/favicon, replaced with data URI's in the
+    base context.
+
+  * Removed SQLite and catsoopdb as backends for logging.
 
 FIXED:
 
 SECURITY:
-
-DOCUMENTATION:
 
 
 #################
