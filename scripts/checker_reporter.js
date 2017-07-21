@@ -20,7 +20,7 @@
 
 "use strict";
 
-var wsPort = 6011;
+var wsPort = parseInt(process.argv[2]);
 process.title = 'catsoop_checker_reporter';
 
 // keep going in the face of adversity
