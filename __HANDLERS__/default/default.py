@@ -1925,9 +1925,7 @@ ws_%(name)s.onmessage = function(event){
     }else if (j.type == 'newresult'){
         $('#%(name)s_score_display').html(j.score_box);
         thediv[0].className = '';
-        thediv.addClass('bs-callout');
-        thediv.addClass('bs-callout-default');
-        $('#cs_partialresults_%(name)s_body').html(j.response);
+        thediv.html(j.response);
         ws_%(name)s.close();
         $('#%(name)s_buttons button').prop("disabled", false);
     }
