@@ -47,10 +47,9 @@ def do_check(row):
 
     process = multiprocessing.current_process()
 
-    # spoof a page load.
     context = loader.spoof_early_load(row['path'])
     context['cs_course'] = row['path'][0]
-    context['cs_path_info'] = row['path'][1:]
+    context['cs_path_info'] = row['path']
     context['cs_username'] = row['username']
     context['cs_user_info'] = {'username': row['username']}
     context['cs_user_info'] = auth.get_user_information(context)
