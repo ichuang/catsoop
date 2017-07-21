@@ -14,15 +14,28 @@
     <link rel="stylesheet" href="BASE/themes/sweetalert2.css" />
     <script src="BASE/scripts/sweetalert2.js"></script>
 
-    <!-- automatically adjust the top padding so that the whole page is visible even if the navbar's height changes -->
+    <!-- set up JS namespace for catsoop -->
     <script type="text/javascript">
-      var set_top_margin = function(){{
-      $("#myPage").css('padding-top', $('#cs_main_navbar').height());
+    var catsoop = {{plugins: {{}}}};
+    </script>
+
+    <!-- automatically adjust the top padding so that the whole page is visible even if the navbar's height changes -->
+    <!-- also move the target for anchors so the navbar doesn't hide them -->
+    <script type="text/javascript">
+      catsoop.scroll_header = function(){{
+          scrollBy(0, -$('#cs_main_navbar').height());
       }}
 
-      $(document).ready(set_top_margin);
-      $('#cs_main_navbar').resize(set_top_margin);
-      var catsoop = {{plugins: {{}}}};
+      catsoop.set_top_margin = function(){{
+          $("#myPage").css('padding-top', $('#cs_main_navbar').height());
+      }}
+
+      $(document).ready(function(){{
+        catsoop.set_top_margin();
+        if (location.hash) catsoop.scroll_header();
+        window.addEventListener("hashchange", catsoop.scroll_header);
+      }});
+      $(window).resize(catsoop.set_top_margin);
     </script>
 
     <!-- Additional styling specific for course-->
