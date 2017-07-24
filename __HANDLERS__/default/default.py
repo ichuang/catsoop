@@ -483,7 +483,7 @@ def handle_viewanswer(context):
 
     # update problemstate log
     uname = context[_n('uname')]
-    context['csm_cslog'].overwrite_log(course, context['cs_path_info'],
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
                                        'problemstate', newstate)
 
     # log submission in problemactions
@@ -1458,15 +1458,14 @@ def pre_handle(context):
     pg_name = '%s___problemgrades' % loghead
     grp_name = '%s___group' % loghead
     ll = context['csm_cslog'].most_recent(uname,
-                                          context['cs_path_info']
+                                          context['cs_path_info'],
                                           'problemstate',
                                           {})
     _cs_group_path = context.get('cs_groups_to_use', context['cs_path_info'])
+    print(repr(_cs_group_path))
     context[_n('all_groups')] = context['csm_groups'].list_groups(context,
-                                                                  context['cs_course'],
                                                                   _cs_group_path)
     context[_n('group')] = context['csm_groups'].get_group(context,
-                                                           context['cs_course'],
                                                            _cs_group_path,
                                                            uname,
                                                            context[_n('all_groups')])
@@ -1619,7 +1618,7 @@ def _get_scores(context):
             log = context['csm_cslog'].most_recent(
                 username,
                 context['cs_path_info'],
-                'problemstate'),
+                'problemstate',
                 {},
             )
             score = log.get('scores', {}).get(name, None)
@@ -1642,8 +1641,7 @@ def handle_stats(context):
 
     groups = context['csm_groups'].list_groups(
         context,
-        context['cs_course'],
-        context['cs_path_info'][1:],
+        context['cs_path_info'],
     ).get(section, None)
 
     if groups:
@@ -1760,8 +1758,7 @@ def handle_whdw(context):
 
     groups = context['csm_groups'].list_groups(
         context,
-        context['cs_course'],
-        context['cs_path_info'][1:],
+        context['cs_path_info'],
     ).get(section, None)
 
     BeautifulSoup = context['csm_tools'].bs4.BeautifulSoup

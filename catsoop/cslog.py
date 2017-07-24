@@ -46,11 +46,11 @@ def overwrite_log(username, path, logname, new):
     # if it's empty, add a new entry
     # otherwise, modify the existing entry
     conn = r.connect(db='catsoop')
-    r.table('logs').get_all([username, path, logname], index='log').isEmpty().do(
+    r.table('logs').get_all([username, path, logname], index='log').is_empty().do(
         lambda empty: r.branch(empty,
                                r.table('logs').insert({'path': path, 'username': username, 'logname': logname, 'data': new, 'time': r.now()}),
                                r.table('logs').get_all([username, path, logname], index='log').order_by(r.desc('time')).limit(1).update({'data': new, 'time': r.now()}))
-    ).run(conn)
+    ).run(conn, non_atomic=True)
     conn.close()
 
 
@@ -82,11 +82,11 @@ def most_recent(username, path, logname, default=None):
 def modify_most_recent(username, path, log, default=None, transform_func=lambda x: x, method='update'):
     conn = r.connect(db='catsoop')
     if method == 'overwrite':
-        r.table('logs').get_all([username, path, logname], index='log').isEmpty().do(
+        r.table('logs').get_all([username, path, logname], index='log').is_empty().do(
             lambda empty: r.branch(empty,
                                    [],
                                    r.table('logs').get_all([username, path, logname], index='log').order_by(r.desc('time')).limit(1).update(lambda post: {'data': transform_func(post['data']), 'time': r.now()}))
-        ).run(conn)
+        ).run(conn, non_atomic=True)
     else:
         res = r.table('logs').get_all([username, path, logname], index='log').order_by(r.desc('time')).limit(1).run(conn)
         for row in res:
