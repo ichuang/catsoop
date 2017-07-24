@@ -1132,7 +1132,7 @@ def submit_msg(context, perms, name):
             else:
                 error = 'Submissions are not allowed for this question.'
         elif (not _get(qargs, 'csq_grading_mode', 'auto', str) == 'manual' and
-              get_manual_grading_entry(context, name) is not None):
+              context['csm_tutor'].get_manual_grading_entry(context, name) is not None):
             # ...prior submission has been graded
             error = 'You are not allowed to submit after a previous submission has been graded.'
         else:
@@ -1234,11 +1234,11 @@ def render_question(elt, context, lastsubmit, wrap=True):
     ll = context[_n('last_log')].get('%s_message' % name, '')
     if gmode == 'manual':
         q, args = context[_n('name_map')][name]
-        lastlog = get_manual_grading_entry(context, name) or {}
+        lastlog = context['csm_tutor'].get_manual_grading_entry(context, name) or {}
         lastscore = lastlog.get('score', '')
         lastcomments = lastlog.get('comments', '')
         tpoints = q['total_points'](**args)
-        comments = (get_manual_grading_entry(context, name) or {}).get('comments',None)
+        comments = (context['csm_tutor'].get_manual_grading_entry(context, name) or {}).get('comments',None)
         if comments is not None:
             comments = context['csm_language']._md_format_string(context, comments)
         try:
@@ -1373,7 +1373,7 @@ def make_buttons(context, name):
         # in manual grading mode, add a box and button for grading
         gmode = _get(args, 'csq_grading_mode', 'auto', str)
         if gmode == 'manual':
-            lastlog = get_manual_grading_entry(context, name) or {}
+            lastlog = context['csm_tutor'].get_manual_grading_entry(context, name) or {}
             lastscore = lastlog.get('score', '')
             lastcomments = lastlog.get('comments', '')
             tpoints = q['total_points'](**args)

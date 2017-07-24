@@ -40,6 +40,17 @@ def _get(context, key, default, cast=lambda x: x):
     return cast(v(context) if isinstance(v, collections.Callable) else v)
 
 
+def get_manual_grading_entry(context, name):
+    uname = context['cs_user_info'].get('username', 'None')
+    log = context['csm_cslog'].read_log(uname, context['cs_path_info'],
+                                        'problemgrades')
+    out = None
+    for i in log:
+        if i['qname'] == name:
+            out = i
+    return out
+
+
 def make_score_display(context, args, name, score, assume_submit=False):
     last_log = context['csm_cslog'].most_recent(context['cs_username'],
                                                 context['cs_path_info'],
