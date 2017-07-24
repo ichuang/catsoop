@@ -102,11 +102,11 @@ def handle_copy_seed(context):
     if context[_n('impersonating')]:
         impersonated = context[_n('uname')]
         uname = context[_n('real_uname')]
-        course = context['cs_course']
-        logname = '___'.join(context['cs_path_info'][1:] + ['random_seed'])
-        stored = context['csm_cslog'].most_recent(course, impersonated,
+        path = context['cs_path_info']
+        logname = 'random_seed'
+        stored = context['csm_cslog'].most_recent(impersonated, path,
                                                   logname, None)
-        context['csm_cslog'].update_log(course, uname, logname, stored)
+        context['csm_cslog'].update_log(uname, path, logname, stored)
     return handle_save(context)
 
 
@@ -119,9 +119,8 @@ def _new_random_seed(n=100):
 
 def handle_new_seed(context):
     uname = context[_n('uname')]
-    course = context['cs_course']
-    logname = '___'.join(context['cs_path_info'][1:] + ['random_seed'])
-    context['csm_cslog'].update_log(course, uname, logname, _new_random_seed())
+    context['csm_cslog'].update_log(uname, context['cs_path_info'],
+                                    'random_seed', _new_random_seed())
 
     # Rerender the questions
     names = context[_n('question_names')]
@@ -138,10 +137,9 @@ def handle_activate(context):
         newstate = dict(context[_n('last_log')])
         newstate['activated'] = True
 
-        course = context['cs_course']
         uname = context[_n('uname')]
-        logname = context[_n('logname_state')]
-        context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+        context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                           'problemstate', newstate)
         context[_n('last_log')] = newstate
     return handle_view(context)
 
@@ -149,9 +147,9 @@ def handle_activate(context):
 def handle_copy(context):
     if context[_n('impersonating')]:
         context[_n('uname')] = context[_n('real_uname')]
-        ll = context['csm_cslog'].most_recent(context['cs_course'],
-                                              context[_n('uname')],
-                                              context[_n('logname_state')], {})
+        ll = context['csm_cslog'].most_recent(context[_n('uname')],
+                                              context['cs_path_info'],
+                                              'problemstate', {})
         context[_n('last_log')] = ll
     return handle_save(context)
 
@@ -336,7 +334,8 @@ def handle_view(context):
 def get_manual_grading_entry(context, name):
     pg_name = context[_n('logname_grades')]
     uname = context['cs_user_info'].get('username', 'None')
-    log = context['csm_cslog'].read_log(context['cs_course'], uname, pg_name)
+    log = context['csm_cslog'].read_log(uname, context['cs_path_info'],
+                                        'problemgrades')
     out = None
     for i in log:
         if i['qname'] == name:
@@ -379,10 +378,9 @@ def handle_clearanswer(context):
     newstate['explanation_viewed'] = explanationviewed
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -433,10 +431,9 @@ def handle_viewexplanation(context):
     newstate['explanation_viewed'] = explanationviewed
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -485,10 +482,9 @@ def handle_viewanswer(context):
     newstate['answer_viewed'] = answerviewed
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(course, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -526,8 +522,9 @@ def handle_lock(context):
                 c[_n('question_names')] = [name]
                 o = json.loads(handle_viewanswer(c)[2])
                 ll = context['csm_cslog'].most_recent(
-                    context['cs_course'], context.get('cs_username', 'None'),
-                    context[_n('logname_state')], {})
+                    context.get('cs_username', 'None'),
+                    context['cs_path_info'],
+                    'problemstate', {})
                 newstate['answer_viewed'] = ll.get('answer_viewed', set())
                 newstate['explanation_viewed'] = ll.get('explanation_viewed',
                                                         set())
@@ -536,10 +533,9 @@ def handle_lock(context):
     newstate['locked'] = locked
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -589,11 +585,10 @@ def handle_grade(context):
         }
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_grades')]
     for i in newentries:
-        context['csm_cslog'].update_log(course, uname, logname, i)
+        context['csm_cslog'].update_log(uname, context['cs_path_info'],
+                                        'problemgrades', i)
 
     # log submission in problemactions
     log_action(context, {'action': 'grade',
@@ -625,10 +620,9 @@ def handle_unlock(context):
     newstate['locked'] = locked
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -695,10 +689,9 @@ def handle_save(context):
 
     # update problemstate log
     if len(saved_names) > 0:
-        course = context['cs_course']
         uname = context[_n('uname')]
-        logname = context[_n('logname_state')]
-        context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+        context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                           'problemstate', newstate)
 
         # log submission in problemactions
         duetime = context['csm_time'].detailed_timestamp(due)
@@ -758,10 +751,9 @@ def handle_check(context):
         newstate['%s_message' % name] = out['message']
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -783,7 +775,6 @@ def handle_submit(context):
     lastlog = context[_n('last_log')]
     nsubmits_used = context[_n('nsubmits_used')]
     answer_viewed = context[_n('answer_viewed')]
-    scores = lastlog.get('scores', {})
 
     namemap = context[_n('name_map')]
     timing = context[_n('timing')]
@@ -792,7 +783,6 @@ def handle_submit(context):
 
     newstate['last_submit_time'] = context['cs_timestamp']
     newstate['last_submit_times'] = newstate.get('last_submit_times', {})
-    newstate['scores'] = scores
     newstate['timestamp'] = context['cs_timestamp']
     if 'last_submit' not in newstate:
         newstate['last_submit'] = {}
@@ -852,23 +842,19 @@ def handle_submit(context):
         elif grading_mode == 'manual':
             resp = {}
             msg = 'Submission received for manual grading.'
-            scores[name] = None
             out['message'] = context['csm_language'].handle_custom_tags(context,
                                                                         msg)
-            out['score'] = scores[name]
             out['score_display'] = context['csm_tutor'].make_score_display(
-                context, args, name, scores[name],
+                context, args, name, None,
                 assume_submit=True)
             newstate['scores'][name] = None
         else:
             resp = {}
-            scores[name] = 0.0
             msg = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
             out['message'] = context['csm_language'].handle_custom_tags(context,
                                                                         msg)
-            out['score'] = scores[name]
             out['score_display'] = context['csm_tutor'].make_score_display(
-                context, args, name, scores[name],
+                context, args, name, 0.0,
                 assume_submit=True)
 
         outdict[name] = out
@@ -881,10 +867,9 @@ def handle_submit(context):
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
     
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -892,7 +877,6 @@ def handle_submit(context):
     log_action(context, {'action': 'submit',
                          'names': names,
                          'submitted': subbed,
-                         'scores': newstate['scores'],
                          'checker_ids': entry_ids,
                          'response': outdict,
                          'due_date': duetime})
@@ -1161,16 +1145,15 @@ def submit_msg(context, perms, name):
 
 
 def log_action(context, log_entry):
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_actions')]
     entry = {'action': context[_n('action')],
              'timestamp': context['cs_timestamp'],
              'ip': context['cs_ip'],
              'user_info': context['cs_user_info'],
              'form': context['cs_form']}
     entry.update(log_entry)
-    context['csm_cslog'].update_log(course, uname, logname, entry)
+    context['csm_cslog'].update_log(uname, context['cs_path_info'],
+                                    'problemactions', entry)
 
 
 def simple_return_json(val):
@@ -1215,8 +1198,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += ('\n<span id="%s_loading" style="display:none;"><img src="%s"/>'
             '</span>') % (name, context['cs_loading_image'])
     out += (('\n<span id="%s_score_display">' % args['csq_name']) +
-            context['csm_tutor'].make_score_display(context, args, name, lastlog.get('scores', {}).get(
-                name, None)) + '</span>')
+            context['csm_tutor'].make_score_display(context, args, name, None) + '</span>')
     out += (('\n<div id="%s_nsubmits_left" class="nsubmits_left">' % name) +
             nsubmits_left(context, name)[1] + "</div>")
     out += '</div>'
@@ -1475,9 +1457,9 @@ def pre_handle(context):
     pa_name = '%s___problemactions' % loghead
     pg_name = '%s___problemgrades' % loghead
     grp_name = '%s___group' % loghead
-    ll = context['csm_cslog'].most_recent(context['cs_course'],
-                                          uname,
-                                          ps_name,
+    ll = context['csm_cslog'].most_recent(uname,
+                                          context['cs_path_info']
+                                          'problemstate',
                                           {})
     _cs_group_path = context.get('cs_groups_to_use', context['cs_path_info'])
     context[_n('all_groups')] = context['csm_groups'].list_groups(context,
@@ -1635,9 +1617,9 @@ def _get_scores(context):
         for student in students:
             username = student.get('username', 'None')
             log = context['csm_cslog'].most_recent(
-                context['cs_course'],
                 username,
-                '___'.join(context['cs_path_info'][1:] + ['problemstate']),
+                context['cs_path_info'],
+                'problemstate'),
                 {},
             )
             score = log.get('scores', {}).get(name, None)
@@ -1746,7 +1728,7 @@ def handle_stats(context):
     return str(soup)
 
 def _real_name(context, username):
-    return (context['csm_cslog'].most_recent(None, 'extra_info', username, None) or {}).get('name', None)
+    return (context['csm_cslog'].most_recent('_extra_info', [], username, None) or {}).get('name', None)
 
 def _whdw_name(context, username):
     real_name = _real_name(context, username)
