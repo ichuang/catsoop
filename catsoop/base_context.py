@@ -36,7 +36,7 @@ cs_data_root = r'/home/cat-soop/data'
 The directory where CAT-SOOP's data files are located.
 """
 
-cs_url_root = 'http://localhost:3000'
+cs_url_root = 'http://localhost:6010'
 """
 The URL root (without trailing slash).  Going to this URL should lead the user
 to CAT-SOOP's information page.
