@@ -25,12 +25,11 @@ if api_token is None:
 
 try:
     path = opath = json.loads(path)
-    course, path = path[0], path[1:]
 except:
     error = "invalid path: %s" % path
 
 if error is None:
-    output = csm_api.get_user_information(globals(), api_token=api_token, course=course)
+    output = csm_api.get_user_information(globals(), api_token=api_token, course=path[0])
     if output['ok']:
         uinfo = output['user_info']
         if 'groups' not in uinfo['permissions'] and 'admin' not in uinfo['permissions']:
@@ -40,9 +39,9 @@ if error is not None:
     output = {'ok': False, 'error': error}
 else:
     ctx = csm_loader.spoof_early_load(opath)
-    groups = csm_groups.list_groups(ctx, course, path)
-    all_students = {i: csm_util.read_user_file(globals(), course, i, {})
-                    for i in csm_util.list_all_users(globals(), course)}
+    groups = csm_groups.list_groups(ctx, path)
+    all_students = {i: csm_util.read_user_file(globals(), path[0], i, {})
+                    for i in csm_util.list_all_users(globals(), path[0])}
     if section is not None:
         groups = groups.get(section, {})
         all_partnered = sum(groups.values(), [])

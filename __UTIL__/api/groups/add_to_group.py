@@ -32,12 +32,11 @@ elif group is None:
 
 try:
     path = opath = json.loads(path)
-    course, path = path[0], path[1:]
 except:
     error = "invalid path: %s" % path
 
 if error is None:
-    output = csm_api.get_user_information(globals(), api_token=api_token, course=course)
+    output = csm_api.get_user_information(globals(), api_token=api_token, course=path[0])
     if output['ok']:
         uinfo = output['user_info']
         if 'groups' not in uinfo['permissions'] and 'admin' not in uinfo['permissions']:
@@ -45,7 +44,7 @@ if error is None:
 
 if error is None:
     ctx = csm_loader.spoof_early_load(opath)
-    error = csm_groups.add_to_group(ctx, course, path, username, group)
+    error = csm_groups.add_to_group(ctx, path, username, group)
 
 if error is not None:
     output = {'ok': False, 'error': error}

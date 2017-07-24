@@ -19,20 +19,12 @@ import random
 from . import util
 
 
-def get_group_log_name(course, path):
-    """
-    Returns the relevant log name for groups associated with the given path
-    """
-    return '___'.join([course] + path[1:])
-
-
-def list_groups(context, course, path):
+def list_groups(context, path):
     """
     Returns a dictionary mapping group names to lists of group members
     """
     log = context['csm_cslog']
-    return log.most_recent(None, 'groups', get_group_log_name(course, path),
-                           {})
+    return log.most_recent('_groups', path, 'groups', {})
 
 
 def get_section(context, course, username):
@@ -40,13 +32,14 @@ def get_section(context, course, username):
     return str(uinfo.get('section', 'default'))
 
 
-def get_group(context, course, path, username, groups=None, secnum=None):
+def get_group(context, path, username, groups=None, secnum=None):
     """
     Returns the section number and group to which the given user belongs, or
     None if they have not been assigned a group.
     """
+    course = path[0]
     if groups is None:
-        groups = list_groups(context, course, path)
+        groups = list_groups(context, path)
     if secnum is None:
         secnum = get_section(context, course, username)
     for group in groups.get(secnum, {}):
@@ -55,14 +48,15 @@ def get_group(context, course, path, username, groups=None, secnum=None):
     return None, None, None
 
 
-def add_to_group(context, course, path, username, group):
+def add_to_group(context, path, username, group):
     """
     Adds the given user to the given group.  Returns None on success, or an
     error message on failure.
     """
+    course = path[0]
     log = context['csm_cslog']
     section = get_section(context, course, username)
-    preexisting_group = get_group(context, course, path, username)
+    preexisting_group = get_group(context, path, username)
     if preexisting_group != (None, None, None):
         return "%s is already assigned to a group (section %s group %s)" % (
             (username, ) + preexisting_group[:2])
@@ -73,18 +67,17 @@ def add_to_group(context, course, path, username, group):
         return x
 
     try:
-        log.modify_most_recent(None, 'groups',
-                               get_group_log_name(course, path), {},
-                               _transformer)
+        log.modify_most_recent('_groups', path, 'groups', {}, _transformer)
     except:
         return 'An error occured when assigning to group.'
 
 
-def remove_from_group(context, course, path, username, group):
+def remove_from_group(context, path, username, group):
     """
     Removes the given user to the given group.  Returns None on success, or an
     error message on failure.
     """
+    course = path[0]
     log = context['csm_cslog']
     section = get_section(context, course, username)
     preexisting_group = get_group(context, course, path, username)
@@ -102,14 +95,12 @@ def remove_from_group(context, course, path, username, group):
         return x
 
     try:
-        log.modify_most_recent(None, 'groups',
-                               get_group_log_name(course, path), {},
-                               _transformer)
+        log.modify_most_recent('_groups', path, 'groups', {}, _transformer)
     except:
         return 'An error occured when removing from group.'
 
 
-def overwrite_groups(context, course, path, section, newdict):
+def overwrite_groups(context, path, section, newdict):
     """
     Overwrites group assignments for the given group and section to be those
     provided in newdict
@@ -121,17 +112,16 @@ def overwrite_groups(context, course, path, section, newdict):
         return x
 
     try:
-        log.modify_most_recent(None, 'groups',
-                               get_group_log_name(course, path), {},
-                               _transformer)
+        log.modify_most_recent('_groups', path, 'groups', {}, _transformer)
     except:
         return 'An error occured when overwriting groups.'
 
 
-def make_all_groups(context, course, path, section):
+def make_all_groups(context, path, section):
     """
     Randomly assigns groups within the given section.
     """
+    course = path[0]
     util = context['csm_util']
     size = context.get('cs_group_size', 2)
 
