@@ -41,9 +41,9 @@ def _get(context, key, default, cast=lambda x: x):
 
 
 def make_score_display(context, args, name, score, assume_submit=False):
-    last_log = context['csm_cslog'].most_recent(context['cs_course'],
-                                                context['cs_username'],
-                                                '___'.join(context['cs_path_info'] + ['problemstate']),
+    last_log = context['csm_cslog'].most_recent(context['cs_username'],
+                                                context['cs_path_info'],
+                                                'problemstate',
                                                 {})
     if not _get(args, 'csq_show_score', True, bool):
         if name in last_log.get('scores', {}) or assume_submit:
@@ -72,7 +72,7 @@ def make_score_display(context, args, name, score, assume_submit=False):
                 '%.02f%%</span>') % (r, g, s)
 
 
-def compute_page_stats(context, user, course, path, keys=None):
+def compute_page_stats(context, user, path, keys=None):
     logging = cslog
     if keys is None:
         keys = [
@@ -84,16 +84,13 @@ def compute_page_stats(context, user, course, path, keys=None):
     logtail = '___'.join(path)
     if 'state' in keys:
         keys.remove('state')
-        state_name = '%s___problemstate' % logtail
-        out['state'] = logging.most_recent(course, user, state_name, {})
+        out['state'] = logging.most_recent(user, path, 'problemstate', {})
     if 'actions' in keys:
         keys.remove('actions')
-        actions_name = '%s___problemactions' % logtail
-        out['actions'] = logging.read_log(course, user, actions_name)
+        out['actions'] = logging.read_log(user, path, 'problemactions')
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
-        grades_name = '%s___problemgrades' % logtail
-        out['manual_grades'] = logging.read_log(course, user, grades_name)
+        out['manual_grades'] = logging.read_log(user, path, 'problemgrades')
 
     if len(keys) == 0:
         return out
@@ -311,15 +308,17 @@ def _new_random_seed(n=100):
 
 def _get_random_seed(context, n=100, force_new=False):
     uname = context['cs_username']
-    course = context['cs_course']
-    logname = '___'.join(context['cs_path_info'][1:] + ['random_seed'])
     if force_new:
         stored = None
     else:
-        stored = context['csm_cslog'].most_recent(course, uname, logname, None)
+        stored = context['csm_cslog'].most_recent(uname,
+                                                  context['cs_path_info'],
+                                                  'random_seed',
+                                                  None)
     if stored is None:
         stored = _new_random_seed(n)
-        context['csm_cslog'].update_log(course, uname, logname, stored)
+        context['csm_cslog'].update_log(uname, context['cs_path_info'],
+                                        'random_seed', stored)
     return stored
 
 
