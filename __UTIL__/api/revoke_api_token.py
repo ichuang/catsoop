@@ -33,10 +33,10 @@ if error is None:
 if error is not None:
     output = {'ok': False, 'error': error}
 else:
-    tok = cslog.most_recent(None, 'api_users',
+    tok = cslog.most_recent('api_users', [],
                             uinfo['username'], None)
     if tok is not None:
-        cslog.overwrite_log(None, 'api_tokens',
+        cslog.overwrite_log('api_tokens', [],
                             tok, None)
     newtok = csm_api.initialize_api_token(globals(), uinfo)
     output = {'ok': True, 'new_token': newtok}
