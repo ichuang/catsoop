@@ -96,16 +96,16 @@ def do_check(row):
     killer.start()
 
     # now, depending on the action we want, take the appropriate steps
-    if row['action'] == 'submit':
-        names_done = set()
-        for name in row['names']:
-            if name.startswith('__'):
-                name = name[2:].rsplit('_', 1)[0]
-            if name in names_done:
-                continue
-            names_done.add(name)
 
-            question, args = namemap[name]
+    names_done = set()
+    for name in row['names']:
+        if name.startswith('__'):
+            name = name[2:].rsplit('_', 1)[0]
+        if name in names_done:
+            continue
+        names_done.add(name)
+        question, args = namemap[name]
+        if row['action'] == 'submit':
             try:
                 resp = question['handle_submission'](row['form'],
                                                      **args)
@@ -116,14 +116,25 @@ def do_check(row):
                 score = 0.0
                 msg = exc_message(context)
 
-            r.table('checker').filter(r.row['id'] == row['id']).update({
-                'progress': 2,
-                'score': score,
-                'score_box': context['csm_tutor'].make_score_display(context, args, name, score, True),
-                'response': language.handle_custom_tags(context, msg),
-            }).run(c)
-    elif row['action'] == 'check':
-        pass  # TODO: implement check as async
+            score_box = context['csm_tutor'].make_score_display(context, args,
+                                                                name, score,
+                                                                True)
+
+        elif row['action'] == 'check':
+            try:
+                msg = question['handle_check'](row['form'], **args)
+            except:
+                msg = exc_message(context)
+
+            score = None
+            score_box = ''
+
+        r.table('checker').filter(r.row['id'] == row['id']).update({
+            'progress': 2,
+            'score': score,
+            'score_box': score_box,
+            'response': language.handle_custom_tags(context, msg),
+        }).run(c)
 
     killer.going = False
     c.close()

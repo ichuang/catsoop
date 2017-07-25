@@ -719,8 +719,20 @@ def handle_check(context):
     if 'last_submit' not in newstate:
         newstate['last_submit'] = {}
 
+    names_done = set()
     outdict = {}  # dictionary containing the responses for each question
+
+    c = r.connect(db='catsoop')
+
+    entry_ids = {}
+    if 'last_checker_id' not in newstate:
+        newstate['last_checker_id'] = {}
+
     for name in names:
+        if name.startswith('__'):
+            name = name[2:].rsplit('_', 1)[0]
+        if name in names_done:
+            continue
         out = {}
         sub = context[_n('form')].get(name, '')
 
@@ -728,14 +740,18 @@ def handle_check(context):
         newstate['last_submit'][name] = sub
         question, args = namemap[name]
 
-        try:
-            response = question['handle_check'](context[_n('form')], **args)
-        except:
-            response = exc_message(context)
+        res = r.table('checker').insert({
+                  'path': context['cs_path_info'],
+                  'username': context.get('cs_username', 'None'),
+                  'names': [name],
+                  'form': {k: v for k,v in context[_n('form')].items() if name in k},
+                  'time': r.now(),
+                  'progress': 0,
+                  'action': 'check',
+              }).run(c)
 
-        out['score_display'] = ''
-        out['message'] = context['csm_language'].handle_custom_tags(context,
-                                                                    response)
+        entry_id = res['generated_keys'][0]
+        entry_ids[name] = entry_id
 
         rerender = question.get('always_rerender', False)
         if rerender is True:
@@ -744,11 +760,19 @@ def handle_check(context):
         elif rerender:
             out['rerender'] = rerender
 
+        out['score_display'] = ''
+        out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
+        out['magic'] = entry_id
+
         outdict[name] = out
 
         # cache responses
-        newstate['%s_score_display' % name] = out['score_display']
-        newstate['%s_message' % name] = out['message']
+        newstate['last_checker_id'][name] = entry_id
+        newstate['%s_score_display' % name] = ''
+        msg_key = '%s_message' % name
+        if msg_key in newstate:
+            del newstate[msg_key]
+        newstate['%s_magic' % name] = entry_id
 
     # update problemstate log
     uname = context[_n('uname')]
@@ -761,8 +785,7 @@ def handle_check(context):
     log_action(context, {'action': 'check',
                          'names': names,
                          'submitted': subbed,
-                         'score': newstate.get('score', 0.0),
-                         'response': outdict,
+                         'checker_ids': entry_ids,
                          'due_date': duetime})
 
     return make_return_json(context, outdict)
@@ -788,6 +811,8 @@ def handle_submit(context):
         newstate['last_submit'] = {}
     if 'last_checker_id' not in newstate:
         newstate['last_checker_id'] = {}
+    if 'last_submit_checker_id' not in newstate:
+        newstate['last_submit_checker_id'] = {}
 
     names_done = set()
     outdict = {}  # dictionary containing the responses for each question
@@ -816,7 +841,7 @@ def handle_submit(context):
             outdict[name] = out
             continue
 
-        # if we are here, no errors occurred.  go ahead with checking.
+        # if we are here, no errors occurred.  go ahead with submitting.
         nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
         newstate['last_submit'][name] = sub
 
@@ -869,6 +894,7 @@ def handle_submit(context):
 
         # cache responses
         newstate['last_checker_id'][name] = entry_id
+        newstate['last_submit_checker_id'][name] = entry_id
         newstate['%s_score_display' % name] = out['score_display']
 
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
@@ -1882,7 +1908,7 @@ WEBSOCKET_RESPONSE = """
     <center><img src="%(loading)s"/></center>
   </div>
 </div>
-<small>Last submission ID: <code>%(magic)s</code></small>
+<small>ID: <code>%(magic)s</code></small>
 
 <script type="text/javascript">
 var magic_%(name)s = %(magic)r;
