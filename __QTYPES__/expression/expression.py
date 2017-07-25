@@ -20,7 +20,43 @@ import imp
 import math
 import cmath
 import random
-from collections import Sequence
+from collections import Sequence, defaultdict
+
+numpy = None
+
+def check_numpy():
+    global numpy
+    if numpy is not None:
+        return True
+    try:
+        import numpy
+        default_funcs.update({
+            'transpose': (numpy.transpose, _render_transpose),
+            'norm': (numpy.linalg.norm, _render_norm),
+            'dot': (numpy.dot, _render_dot),
+        })
+        return True
+    except:
+        return False
+
+def _render_transpose(x):
+    out = r'{%s}^T' % x[0]
+    if len(x) != 1:
+        return out, "transpose takes exactly one argument"
+    return out
+
+def _render_norm(x):
+    out = r'\left\|{%s}\right\|' % x[0]
+    if len(x) != 1:
+        return out, "norm takes exactly one argument"
+    return out
+
+def _render_dot(x):
+    if len(x) == 0:
+        return '\cdot', "dot takes exactly two arguments"
+    if len(x) != 2:
+        return '\cdot '.join(x), "dot takes exactly two arguments"
+    return r'\left(%s\right)\cdot \left(%s\right)' % (x[0], x[1])
 
 smallbox, _ = csm_tutor.question('smallbox')
 
@@ -35,7 +71,8 @@ defaults = {
     'csq_soln': ['6', 'sqrt(2)'],
     'csq_npoints': 1,
     'csq_msg_function': lambda sub: (''),
-    'csq_show_check': False
+    'csq_show_check': False,
+    'csq_variable_dimensions': {},
 }
 
 default_names = {'pi': [math.pi], 'e': [math.e], 'j': [1j], 'i': [1j]}
@@ -45,6 +82,13 @@ def _draw_sqrt(x):
     out = r"\sqrt{%s}" % (', '.join(x))
     if len(x) != 1:
         return out, "sqrt takes exactly one argument"
+    return out
+
+
+def _draw_abs(x):
+    out = r"\left|%s\right|" % x[0]
+    if len(x) != 1:
+        return out, "abs takes exactly one argument"
     return out
 
 
@@ -99,9 +143,9 @@ default_funcs = {
     'cos': (cmath.cos, _draw_func(r'\text{cos}')),
     'log': (cmath.log, _draw_log),
     'sqrt': (cmath.sqrt, _draw_sqrt),
+    'abs': (abs, _draw_abs),
     '_default': (_default_func, _draw_default)
 }
-
 
 def _contains(l, test):
     if not isinstance(l, list):
@@ -152,7 +196,6 @@ def eval_call(context, names, funcs, c):
 
 
 def _div(x, y):
-    x = complex(float(x.real), float(x.imag))
     return x / y
 
 
@@ -163,6 +206,7 @@ _eval_map = {
     '-': eval_binop(lambda x, y: x - y),
     '*': eval_binop(lambda x, y: x * y),
     '/': eval_binop(_div),
+    '@': eval_binop(lambda x, y: x @ y),
     '^': eval_binop(lambda x, y: x**y),
     'u-': eval_uminus,
     'u+': eval_uplus,
@@ -181,9 +225,22 @@ def _run_one_test(context, sub, soln, funcs, threshold, ratio=True):
             return False
         sol = eval_expr(context, m, funcs, soln)
 
+        context['cs_debug'](subm, sol)
+
+        mag = abs
+        if check_numpy():
+            subnum = isinstance(subm, numpy.ndarray)
+            solnum = isinstance(sol, numpy.ndarray)
+            if subnum and solnum:
+                mag = numpy.linalg.norm
+            elif subnum or solnum:
+                return False
         scale_factor = sol if ratio else 1
-        if abs(subm-sol)>abs(threshold*scale_factor):
-            return False
+        try:
+            if mag(subm-sol) > mag(threshold*scale_factor):
+                return False
+        except:
+            pass
 
     return True
 
@@ -207,23 +264,36 @@ def _get_random_value():
 def _get_all_mappings(context, soln_names, sub_names):
     names = dict(default_names)
     names.update(context.get('csq_names', {}))
+    dimensions = context['csq_variable_dimensions']
+    dim_vars = defaultdict(lambda: random.randint(2, 30))
 
     for n in soln_names:
         if n not in names:
-            names[n] = _get_random_value()
+            if n in dimensions:
+                d = [i if isinstance(i, int) else dim_vars[i] for i in dimensions[n]]
+                names[n] = numpy.random.rand(*d)
+            else:
+                names[n] = _get_random_value()
 
     for n in sub_names or []:
         if n not in names:
-            names[n] = _get_random_value()
+            if n in dimensions:
+                d = [i if isinstance(i, int) else dim_vars[i] for i in dimensions[n]]
+                names[n] = numpy.random.rand(*d)
+            else:
+                names[n] = _get_random_value()
 
     # map each name to a list of values to test
     for n in names:
-        if callable(n):
-            names[n] = n()
-        try:
-            names[n] = [i for i in names[n]]
-        except:
+        if callable(names[n]):
+            names[n] = names[n]()
+        if numpy is not None and isinstance(names[n], numpy.ndarray):
             names[n] = [names[n]]
+        else:
+            try:
+                names[n] = [i for i in names[n]]
+            except:
+                names[n] = [names[n]]
 
     # get a list of dictionaries, each representing one mapping to test
     return _all_mappings_helper(names)
@@ -273,6 +343,9 @@ def _get_parser(context):
 
 
 def handle_submission(submissions, **info):
+    if len(info['csq_variable_dimensions']) > 0:
+        assert check_numpy()
+
     _sub = sub = submissions[info['csq_name']]
     solns = info['csq_soln']
 
@@ -343,11 +416,16 @@ checktext = "Check Syntax"
 
 
 def handle_check(submission, **info):
+    if len(info['csq_variable_dimensions']) > 0:
+        assert check_numpy()
     last = submission.get(info['csq_name'])
     return get_display(info, info['csq_name'], last)
 
 
 def render_html(last_log, **info):
+    if len(info['csq_variable_dimensions']) > 0:
+        if not check_numpy():
+            return '<font color="red">Error: the <tt>numpy</tt> module is required for nonscalar values'
     name = info['csq_name']
     out = smallbox['render_html'](last_log, **info)
     out += "\n<span id='image%s'></span>" % (name, )
@@ -374,6 +452,9 @@ def get_display(info, name, last, reparse=True, extra_msg=''):
 
 
 def answer_display(**info):
+    if len(info['csq_variable_dimensions']) > 0:
+        if not check_numpy():
+            return '<font color="red">Error: the <tt>numpy</tt> module is required for nonscalar values'
     parser = _get_parser(info)
     funcs = dict(default_funcs)
     funcs.update(info.get('csq_funcs', {}))
@@ -411,12 +492,14 @@ for i in GREEK_LETTERS:
 
 def name2tex(context, funcs, n):
     prec = 5
-    n = n[1]
+    on = n = n[1]
     s = None
     if '_' in n:
         n, s = n.split('_')
     if n in GREEK_DICT:
         n = GREEK_DICT[n]
+    if on in context['csq_variable_dimensions']:
+        n = r'\mathbf{%s}' % n
     if s is not None:
         if s in GREEK_DICT:
             s = GREEK_DICT[s]
@@ -455,13 +538,24 @@ def times2tex(context, funcs, n):
     right, rprec = tree2tex(context, funcs, n[2])
     if rprec < prec:
         right = r"\left(%s\right)" % right
-    return r"%s \cdot %s" % (left, right), prec
+    return r"%s \times %s" % (left, right), prec
+
+
+def matmul2tex(context, funcs, n):
+    prec = 2
+    left, lprec = tree2tex(context, funcs, n[1])
+    if lprec < prec:
+        left = r"\left(%s\right)" % left
+    right, rprec = tree2tex(context, funcs, n[2])
+    if rprec < prec:
+        right = r"\left(%s\right)" % right
+    return r"%s%s" % (left, right), prec
 
 
 def exp2tex(context, funcs, n):
     prec = 4
     left, lprec = tree2tex(context, funcs, n[1])
-    if lprec < prec:
+    if lprec <= prec:
         left = r"\left(%s\right)" % left
     right, rprec = tree2tex(context, funcs, n[2])
     return (r"%s ^ {%s}" % (left, right)), prec
@@ -521,6 +615,7 @@ _tree_map = {
     '*': times2tex,
     '/': div2tex,
     '^': exp2tex,
+    '@': matmul2tex,
     'u-': uminus2tex,
     'u+': uplus2tex,
     'CALL': call2tex,

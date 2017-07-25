@@ -117,7 +117,7 @@ def total_points(**info):
 def handle_submission(submissions, **info):
     check = info['csq_check_function']
     sub = create_check_rep(json.loads(submissions[info['csq_name']]), info)
-    soln = create_check_rep(info['csq_soln'], info)
+    soln = info['csq_soln']
     check_result = check(sub, soln)
     if isinstance(check_result, collections.abc.Mapping):
         score = check_result['score']

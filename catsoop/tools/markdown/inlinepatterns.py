@@ -77,14 +77,14 @@ def build_inlinepatterns(md_instance, **kwargs):
         inlinePatterns["html"] = HtmlPattern(HTML_RE, md_instance)
     inlinePatterns["entity"] = HtmlPattern(ENTITY_RE, md_instance)
     inlinePatterns["not_strong"] = SimpleTextPattern(NOT_STRONG_RE)
-    inlinePatterns["em_strong"] = DoubleTagPattern(EM_STRONG_RE, 'strong,em')
-    inlinePatterns["strong_em"] = DoubleTagPattern(STRONG_EM_RE, 'em,strong')
-    inlinePatterns["strong"] = SimpleTagPattern(STRONG_RE, 'strong')
-    inlinePatterns["emphasis"] = SimpleTagPattern(EMPHASIS_RE, 'em')
+    inlinePatterns["em_strong"] = DoubleTagPattern(EM_STRONG_RE, 'b,i')
+    inlinePatterns["strong_em"] = DoubleTagPattern(STRONG_EM_RE, 'i,b')
+    inlinePatterns["strong"] = SimpleTagPattern(STRONG_RE, 'b')
+    inlinePatterns["emphasis"] = SimpleTagPattern(EMPHASIS_RE, 'i')
     if md_instance.smart_emphasis:
-        inlinePatterns["emphasis2"] = SimpleTagPattern(SMART_EMPHASIS_RE, 'em')
+        inlinePatterns["emphasis2"] = SimpleTagPattern(SMART_EMPHASIS_RE, 'i')
     else:
-        inlinePatterns["emphasis2"] = SimpleTagPattern(EMPHASIS_2_RE, 'em')
+        inlinePatterns["emphasis2"] = SimpleTagPattern(EMPHASIS_2_RE, 'i')
     return inlinePatterns
 
 
