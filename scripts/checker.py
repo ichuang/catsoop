@@ -17,6 +17,7 @@
 import os
 import sys
 import time
+import traceback
 import collections
 import rethinkdb as r
 import multiprocessing
