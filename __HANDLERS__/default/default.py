@@ -836,33 +836,40 @@ def handle_submit(context):
             entry_id = res['generated_keys'][0]
             entry_ids[name] = entry_id
 
-            out['message'] = '<div class="bs-callout bs-callout-default" id="cs_partialresults_%s"><div id="cs_partialresults_%s_body"><span id="cs_partialresults_%s_message">Looking up your submission (id <code>%s</code>).  Watch here for updates.</span><br/><center><img src="%s"/></center></div></div><small>Last submission ID: <code>%s</code></small>\n' % (name, name, name, entry_id, context['cs_loading_image'], entry_id)
-            out['message'] += WEBSOCKET_JS % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
+            out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
+            out['magic'] = entry_id
             out['score_display'] = ''
+            msg_key = '%s_message' % name
+            if msg_key in newstate:
+                del newstate[msg_key]
+            newstate['%s_magic' % name] = entry_id
         elif grading_mode == 'manual':
             resp = {}
-            msg = 'Submission received for manual grading.'
-            out['message'] = context['csm_language'].handle_custom_tags(context,
-                                                                        msg)
+            out['message'] = 'Submission received for manual grading.'
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, None,
                 assume_submit=True)
             newstate['scores'][name] = None
+            mag_key = '%s_magic' % name
+            if mag_key in newstate:
+                del newstate[mag_key]
+            newstate['%s_message' % name] = out['message']
         else:
             resp = {}
-            msg = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
-            out['message'] = context['csm_language'].handle_custom_tags(context,
-                                                                        msg)
+            out['message'] = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, 0.0,
                 assume_submit=True)
+            mag_key = '%s_magic' % name
+            if mag_key in newstate:
+                del newstate[mag_key]
+            newstate['%s_message' % name] = out['message']
 
         outdict[name] = out
 
         # cache responses
         newstate['last_checker_id'][name] = entry_id
         newstate['%s_score_display' % name] = out['score_display']
-        newstate['%s_message' % name] = out['message']
 
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
     
@@ -878,7 +885,6 @@ def handle_submit(context):
                          'names': names,
                          'submitted': subbed,
                          'checker_ids': entry_ids,
-                         'response': outdict,
                          'due_date': duetime})
 
     context['csm_loader'].run_plugins(context, context['cs_course'], 'post_submit', context)
@@ -1231,7 +1237,10 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += '\n<div id="%s_message">' % args['csq_name']
 
     gmode = _get(args, 'csq_grading_mode', 'auto', str)
-    ll = context[_n('last_log')].get('%s_message' % name, '')
+    message = context[_n('last_log')].get('%s_message' % name, '')
+    magic = context[_n('last_log')].get('%s_magic' % name, None)
+    if magic is not None:
+        message = WEBSOCKET_RESPONSE % {'name': name, 'magic': magic, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
     if gmode == 'manual':
         q, args = context[_n('name_map')][name]
         lastlog = context['csm_tutor'].get_manual_grading_entry(context, name) or {}
@@ -1247,9 +1256,9 @@ def render_question(elt, context, lastsubmit, wrap=True):
             score_output = ""
 
         if comments is not None:
-            ll = '<b>Score:</b> %s (out of %s)<br><br><b>Grader\'s Comments:</b><br/>%s' % (
+            message = '<b>Score:</b> %s (out of %s)<br><br><b>Grader\'s Comments:</b><br/>%s' % (
                 score_output, tpoints, comments)
-    out += ll + "</div>"
+    out += message + "</div>"
     if wrap and q.get('indiv', True) and args.get('csq_indiv', True):
         out += '\n</div>'
     if wrap:
@@ -1866,7 +1875,15 @@ def handle_whdw(context):
         return str(soup)
 
 
-WEBSOCKET_JS = """
+WEBSOCKET_RESPONSE = """
+<div class="bs-callout bs-callout-default" id="cs_partialresults_%(name)s">
+  <div id="cs_partialresults_%(name)s_body">
+    <span id="cs_partialresults_%(name)s_message">Looking up your submission (id <code>%(magic)s</code>).  Watch here for updates.</span><br/>
+    <center><img src="%(loading)s"/></center>
+  </div>
+</div>
+<small>Last submission ID: <code>%(magic)s</code></small>
+
 <script type="text/javascript">
 var magic_%(name)s = %(magic)r;
 if (typeof ws_%(name)s != 'undefined'){
