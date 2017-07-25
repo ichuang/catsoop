@@ -17,6 +17,8 @@
 import os
 import sys
 import time
+import signal
+import threading
 import traceback
 import collections
 import rethinkdb as r
@@ -36,6 +38,27 @@ import catsoop.dispatch as dispatch
 TIMEOUT = base_context.cs_checker_global_timeout
 c = r.connect(db='catsoop')
 
+
+class PKiller(threading.Thread):
+    def __init__(self, proc, timeout):
+        threading.Thread.__init__(self)
+        self.proc = proc
+        self.timeout = timeout
+        self.going = True
+
+    def run(self):
+        end = time.time() + self.timeout
+        while (time.time() < end):
+            time.sleep(0.1)
+            if (not self.proc.is_alive()) or (not self.going):
+                return
+        if self.going:
+            try:
+                os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
+            except:
+                pass
+
+
 def exc_message(context):
     exc = traceback.format_exc()
     exc = context['csm_errors'].clear_info(context, exc)
@@ -43,10 +66,14 @@ def exc_message(context):
             '<b>CAT-SOOP ERROR:</b>'
             '<pre>%s</pre></font>') % exc
 
+
 def do_check(row):
     c = r.connect(db='catsoop')
 
+    os.setpgrp()
+
     process = multiprocessing.current_process()
+    process._catsoop_check_id = row['id']
 
     context = loader.spoof_early_load(row['path'])
     context['cs_course'] = row['path'][0]
@@ -64,7 +91,9 @@ def do_check(row):
             m = elt[1]
             namemap[m['csq_name']] = elt
 
-    # TODO: start the process killer with the global timeout
+    # start the process killer with the global timeout so we don't run too long
+    killer = PKiller(process, TIMEOUT)
+    killer.start()
 
     # now, depending on the action we want, take the appropriate steps
     if row['action'] == 'submit':
@@ -93,9 +122,11 @@ def do_check(row):
                 'score_box': context['csm_tutor'].make_score_display(context, args, name, score, True),
                 'response': language.handle_custom_tags(context, msg),
             }).run(c)
-
     elif row['action'] == 'check':
-        pass
+        pass  # TODO: implement check as async
+
+    killer.going = False
+    c.close()
 
 running = []
 
@@ -106,9 +137,16 @@ while True:
     # check for dead processes
     dead = set()
     for i in range(len(running)):
-        if not running[i].is_alive():
-            # TODO: check if _we_ killed this process.  if so, need to adjust
-            # the log accordingly.
+        id_, p = running[i]
+        if not p.is_alive():
+            if p.exitcode < 0:  # this probably only happens if we killed it
+                r.table('checker').filter(r.row['id'] == id_).update({
+                    'progress': 3,  # 3 will be our error signal
+                    'score': 0.0,
+                    'score_box': '',
+                    'response': ('Your submission could not be checked because the '
+                                 'checker ran for longer than %s seconds.') % TIMEOUT,
+                }).run(c)
             dead.add(i)
     for i in sorted(dead, reverse=True):
         running.pop(i)
@@ -131,5 +169,5 @@ while True:
     # mark that we're checking this one now.
     r.table('checker').filter(r.row['id']==row['id']).update({'progress': 1}).run(c)
     p = multiprocessing.Process(target=do_check, args=(row, ))
-    running.append(p)
+    running.append((row['id'], p))
     p.start()

@@ -42,7 +42,7 @@ r.connect({db: 'catsoop'}, function (err, conn){
     // initialize our queue
     r.table('checker').changes({squash: false, includeInitial: true}).run(rconn, function(err, cursor){
         cursor.each(function(e, r){
-            if (r.old_val != null && (r.new_val == null || r.new_val.progress == 2)){
+            if (r.old_val != null && (r.new_val == null || r.new_val.progress == 2 || r.new_val.progress == 3)){
                 // element deleted, or element switched to "complete"
                 var t = r.old_val.time;
                 // remove it
@@ -57,11 +57,14 @@ r.connect({db: 'catsoop'}, function (err, conn){
                         }
                     }
                 }
-                //TODO: notify this user of their result if they're alive?
                 if (r.new_val !== null){
                     var c = allConnections[r.new_val.id];
                     if (c){
-                        c.sendUTF(JSON.stringify({type: 'newresult', score_box: r.new_val.score_box, response: r.new_val.response}));
+                        var msg = r.new_val.response;
+                        if(r.new_val.progress == 3){
+                            msg = '<font color="red">' + msg + '</font>';
+                        }
+                        c.sendUTF(JSON.stringify({type: 'newresult', score_box: r.new_val.score_box, response: msg}));
                     }
                 }
             }else if (r.old_val == null){
@@ -144,7 +147,9 @@ wsServer.on('request', function(request) {
                             }else if (o.progress == 2){
                                 // already done.
                                 connection.sendUTF(JSON.stringify({type: 'newresult', score_box: o.score_box, response: o.response}));
-
+                            }else if (o.progress == 3){
+                                // error!
+                                connection.sendUTF(JSON.stringify({type: 'newresult', score_box: o.score_box, response: '<font color="red">' + o.response + '</font>'}));
                             }
                         }
                     });
