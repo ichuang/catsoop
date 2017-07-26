@@ -45,6 +45,11 @@ procs = (
 
 running = []
 
+def check_wsgi_time():
+    return os.stat(os.path.join(base_dir, 'wsgi.py')).st_mtime
+
+WSGI_TIME = check_wsgi_time()
+
 libc = ctypes.CDLL("libc.so.6")
 def set_pdeathsig(sig = signal.SIGTERM):
     def callable():
@@ -88,11 +93,28 @@ c.close()
 
 # Finally, start the workers.
 
-for (wd, cmd, slp, name) in procs:
+CHECKER_IX = None
+
+for (ix, (wd, cmd, slp, name)) in enumerate(procs):
     print('Starting', name)
+    if 'checker.py' in cmd:
+        CHECKER_IX = ix
+    killsig = signal.SIGTERM if 'uwsgi' not in cmd else signal.SIGKILL
     running.append(subprocess.Popen(cmd, cwd=wd,
-                                    preexec_fn=set_pdeathsig(signal.SIGTERM)))
+                                    preexec_fn=set_pdeathsig(killsig)))
     time.sleep(slp)
 
 while True:
-    time.sleep(10)
+    t = check_wsgi_time()
+    if t != WSGI_TIME:
+        # if the wsgi.py file changed, reload the checker (uwsgi will reload itself)
+        print('wsgi.py changed.  reloading the checker.')
+        old_p = running[CHECKER_IX+1]
+        old_p.kill()
+        old_p.wait()
+        wd, cmd, _, _ = procs[CHECKER_IX]
+        running[CHECKER_IX] = subprocess.Popen(cmd, cwd=wd,
+                                               preexec_fn=set_pdeathsig(signal.SIGTERM))
+        WSGI_TIME = t
+    time.sleep(1)
+
