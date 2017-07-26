@@ -101,7 +101,7 @@ def compute_page_stats(context, user, path, keys=None):
         if out['state']:
             out['state']['scores'] = {}
             for k, v in out['state'].get('last_submit_checker_id', {}).items():
-                res = list(r.table('checker').get_all(k).run(c))
+                res = list(r.table('checker').get_all(v).run(c))
                 if len(res) == 1:
                     out['state']['scores'][k] = res[0].get('score', 0.0)
                 else:
