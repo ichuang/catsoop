@@ -24,13 +24,14 @@ import string
 import importlib
 import collections
 
+import rethinkdb as r
+from datetime import timedelta
+
 from . import auth
 from . import time
 from . import loader
 from . import cslog
 from . import base_context
-
-from datetime import timedelta
 
 importlib.reload(base_context)
 
@@ -87,21 +88,34 @@ def compute_page_stats(context, user, path, keys=None):
     logging = cslog
     if keys is None:
         keys = [
-            'context', 'question_points', 'state', 'actions', 'manual_grades'
+            'context', 'question_points', 'state', 'actions', 'manual_grades', 'submissions',
         ]
     keys = list(keys)
 
     out = {}
+    c = r.connect(db='catsoop')
     logtail = '___'.join(path)
     if 'state' in keys:
         keys.remove('state')
         out['state'] = logging.most_recent(user, path, 'problemstate', {})
+        if out['state']:
+            out['state']['scores'] = {}
+            for k, v in out['state'].get('last_submit_checker_id', {}).items():
+                res = list(r.table('checker').get_all(k).run(c))
+                if len(res) == 1:
+                    out['state']['scores'][k] = res[0].get('score', 0.0)
+                else:
+                    out['state']['scores'][k] = 0.0
     if 'actions' in keys:
         keys.remove('actions')
         out['actions'] = logging.read_log(user, path, 'problemactions')
+    if 'submissions' in keys:
+        out['submissions'] = list(r.table('checker').get_all([user, path], index='log').run(c))
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
         out['manual_grades'] = logging.read_log(user, path, 'problemgrades')
+
+    c.close()
 
     if len(keys) == 0:
         return out
@@ -109,16 +123,16 @@ def compute_page_stats(context, user, path, keys=None):
     # spoof loading the page for the user in question
     new = dict(context)
     loader.load_global_data(new)
-    new['cs_path_info'] = [course] + path
+    new['cs_path_info'] = path
     cfile = context['csm_dispatch'].content_file_location(
         context, new['cs_path_info'])
-    loader.do_early_load(context, course, path, new, cfile)
-    new['cs_course'] = course
+    loader.do_early_load(context, path[0], path[1:], new, cfile)
+    new['cs_course'] = path[0]
     new['cs_username'] = user
     new['cs_form'] = {'action': 'passthrough'}
     new['cs_user_info'] = {'username': user}
     new['cs_user_info'] = auth.get_user_information(new)
-    loader.do_late_load(context, course, path, new, cfile)
+    loader.do_late_load(context, path[0], path[1:], new, cfile)
     if 'cs_post_load' in new:
         new['cs_post_load'](new)
     handle_page(new)
