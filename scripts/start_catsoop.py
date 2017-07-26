@@ -81,6 +81,8 @@ if 'checker' not in tables:
     r.table_create('checker').run(c)
     r.table('checker').index_create('progress').run(c)
     r.table('checker').index_wait('progress').run(c)
+    r.table('checker').index_create('log', [r.row['username'], r.row['path']]).run(c)
+    r.table('checker').index_wait('log').run(c)
 
 c.close()
 
