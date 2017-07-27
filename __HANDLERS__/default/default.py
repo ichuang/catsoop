@@ -1927,29 +1927,45 @@ ws_%(name)s.onopen = function(){
     ws_%(name)s.send(JSON.stringify({type: "hello", magic: magic_%(name)s}));
 }
 
+var ws_%(name)s_interval = null;
+
+
 ws_%(name)s.onmessage = function(event){
     var m = event.data;
     var j = JSON.parse(m);
     var thediv = $('#cs_partialresults_%(name)s')
     var themessage = $('#cs_partialresults_%(name)s_message');
     if (j.type == 'inqueue'){
+        if (ws_%(name)s_interval !== null){
+            clearInterval(ws_%(name)s_interval);
+        }
         thediv[0].className = '';
         thediv.addClass('bs-callout');
         thediv.addClass('bs-callout-warning');
         themessage.html('Your submission (id <code>%(magic)s</code>) is queued to be checked (position ' + j.position + ').');
         $('#%(name)s_buttons button').prop("disabled", false);
     }else if (j.type == 'running'){
+        if (ws_%(name)s_interval !== null){
+            clearInterval(ws_%(name)s_interval);
+        }
         thediv[0].className = '';
         thediv.addClass('bs-callout');
         thediv.addClass('bs-callout-info');
-        themessage.html('Your submission is currently being checked.');
+        themessage.html('Your submission is currently being checked<span id="%(name)s_ws_running_time"></span>.');
         $('#%(name)s_buttons button').prop("disabled", false);
+        ws_%(name)s_interval = setInterval(function(){catsoop.setTimeSince("%(name)s", j.started/1000)}, 1000);
     }else if (j.type == 'newresult'){
+        if (ws_%(name)s_interval !== null){
+            clearInterval(ws_%(name)s_interval);
+        }
         $('#%(name)s_score_display').html(j.score_box);
         thediv[0].className = '';
         thediv.html(j.response);
         ws_%(name)s.close();
         $('#%(name)s_buttons button').prop("disabled", false);
+        if (ws_%(name)s_interval !== null){
+            clearInterval(ws_%(name)s_interval);
+        }
     }
 }
 

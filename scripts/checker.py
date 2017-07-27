@@ -35,7 +35,6 @@ import catsoop.loader as loader
 import catsoop.language as language
 import catsoop.dispatch as dispatch
 
-TIMEOUT = base_context.cs_checker_global_timeout
 c = r.connect(db='catsoop')
 
 
@@ -92,7 +91,7 @@ def do_check(row):
             namemap[m['csq_name']] = elt
 
     # start the process killer with the global timeout so we don't run too long
-    killer = PKiller(process, TIMEOUT)
+    killer = PKiller(process, context['cs_checker_global_timeout'])
     killer.start()
 
     # now, depending on the action we want, take the appropriate steps
@@ -156,7 +155,7 @@ while True:
                     'score': 0.0,
                     'score_box': '',
                     'response': ('Your submission could not be checked because the '
-                                 'checker ran for longer than %s seconds.') % TIMEOUT,
+                                 'checker ran for too long.'),
                 }).run(c)
             dead.add(i)
     for i in sorted(dead, reverse=True):
@@ -178,7 +177,7 @@ while True:
     # we have something to run.  so do it.
     row = cursor[0]
     # mark that we're checking this one now.
-    r.table('checker').filter(r.row['id']==row['id']).update({'progress': 1}).run(c)
+    r.table('checker').filter(r.row['id']==row['id']).update({'progress': 1, 'time_started': r.now()}, non_atomic=True).run(c)
     p = multiprocessing.Process(target=do_check, args=(row, ))
     running.append((row['id'], p))
     p.start()
