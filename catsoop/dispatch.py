@@ -382,7 +382,6 @@ def main(environment):
     """
     context = {}
     context['cs_env'] = environment
-    context['cs_ip'] = environment['REMOTE_ADDR']
     context['cs_now'] = time.now()
     force_error = False
     try:

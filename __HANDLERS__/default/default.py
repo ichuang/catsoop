@@ -1180,7 +1180,6 @@ def log_action(context, log_entry):
     uname = context[_n('uname')]
     entry = {'action': context[_n('action')],
              'timestamp': context['cs_timestamp'],
-             'ip': context['cs_ip'],
              'user_info': context['cs_user_info'],
              'form': context['cs_form']}
     entry.update(log_entry)
