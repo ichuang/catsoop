@@ -13,10 +13,26 @@ ADDED:
 
   * Added the dot product operator to expression question type.
 
+  * Added process.py, containing some common operations relating to process
+    management.
+
 CHANGED:
+
+  * rethinkdb is now a hard dependency.
+
+  * The API for logging functions was changed, to avoid a special character as
+    a separator.
 
   * Submissions are now handled asynchronously, and results are retrieved via
     web sockets.
+
+  * Markdown no longer outputs <em> or <strong>, preferring <i> and <b> to
+    improve browser compatibility.
+
+  * Many images are now included in pages as data URI's rather than being
+    loaded from a separate request.
+
+  * Replaced the CSS-based loading spinner with an image.
 
 DEPRECATED:
 
@@ -31,6 +47,9 @@ REMOVED:
   * Removed SQLite and catsoopdb as backends for logging.
 
 FIXED:
+
+  * Improved the Javascript code responsible for making sure the top menu
+    doesn't block text when moving around a page.
 
 SECURITY:
 
