@@ -237,7 +237,8 @@ except Exception as e:
 
 cs_all_pieces = [
     'api', 'auth', 'base_context', 'cslog', 'dispatch', 'errors', 'groups',
-    'language', 'loader', 'mail', 'session', 'time', 'tools', 'tutor', 'util',
+    'language', 'loader', 'mail', 'process', 'session', 'time', 'tools',
+    'tutor', 'util',
 ]
 
 cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4']

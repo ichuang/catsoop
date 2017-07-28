@@ -33,6 +33,7 @@ if base_dir not in sys.path:
     sys.path.append(base_dir)
 
 import catsoop.base_context as base_context
+from catsoop.process import set_pdeathsig
 
 procs = (
     (scripts_dir, ['node', 'checker_reporter.js',
@@ -49,12 +50,6 @@ def check_wsgi_time():
     return os.stat(os.path.join(base_dir, 'wsgi.py')).st_mtime
 
 WSGI_TIME = check_wsgi_time()
-
-libc = ctypes.CDLL("libc.so.6")
-def set_pdeathsig(sig = signal.SIGTERM):
-    def callable():
-        return libc.prctl(1, sig)
-    return callable
 
 # Start RethinkDB First
 

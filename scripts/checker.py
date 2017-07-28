@@ -35,28 +35,9 @@ import catsoop.loader as loader
 import catsoop.language as language
 import catsoop.dispatch as dispatch
 
+from catsoop.process import PKiller, set_pdeathsig
+
 c = r.connect(db='catsoop')
-
-
-class PKiller(threading.Thread):
-    def __init__(self, proc, timeout):
-        threading.Thread.__init__(self)
-        self.proc = proc
-        self.timeout = timeout
-        self.going = True
-
-    def run(self):
-        end = time.time() + self.timeout
-        while (time.time() < end):
-            time.sleep(0.1)
-            if (not self.proc.is_alive()) or (not self.going):
-                return
-        if self.going:
-            try:
-                os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
-            except:
-                pass
-
 
 def exc_message(context):
     exc = traceback.format_exc()
@@ -69,7 +50,8 @@ def exc_message(context):
 def do_check(row):
     c = r.connect(db='catsoop')
 
-    os.setpgrp()
+    os.setpgrp()  # make this part of its own process group
+    set_pdeathsig()()  # but make it die if the parent dies.  will this work?
 
     process = multiprocessing.current_process()
     process._catsoop_check_id = row['id']
