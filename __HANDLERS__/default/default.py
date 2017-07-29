@@ -1952,9 +1952,10 @@ ws_%(name)s.onmessage = function(event){
         thediv.addClass('bs-callout-info');
         themessage.html('Your submission is currently being checked<span id="%(name)s_ws_running_time"></span>.');
         $('#%(name)s_buttons button').prop("disabled", false);
+        var sync = ((new Date()).valueOf() - j.now)/1000
         ws_%(name)s_interval = setInterval(function(){catsoop.setTimeSince("%(name)s",
                                                                            j.started/1000,
-                                                                           ((new Date()).valueOf() - j.now)/1000);}, 1000);
+                                                                           sync);}, 1000);
     }else if (j.type == 'newresult'){
         if (ws_%(name)s_interval !== null){
             clearInterval(ws_%(name)s_interval);
