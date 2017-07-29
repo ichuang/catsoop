@@ -21,6 +21,33 @@ catsoop.switch_buttons = function (name, enabled){
     $(":button", $("#cs_qdiv_"+name)).prop("disabled", !enabled);
 }
 
+
+catsoop.setTimeSince = function (name, start){
+    var now = (new Date()).valueOf()/1000;
+    var diff = now - start;
+    var time = {};
+    time.days = (diff / 86400) | 0;
+    diff -= (time.days * 86400);
+    time.hours = (diff / 3600) | 0; 
+    diff -= (time.hours * 3600);
+    time.minutes = (diff / 60) | 0; 
+    diff -= (time.minutes * 60);
+    time.seconds = diff | 0;
+    var msg = '';
+    for (var i of ['days', 'hours', 'minutes', 'seconds']){
+        if (time[i] > 0){
+            if (msg !== ''){
+                msg += ', ';
+            }
+            msg = msg + ((time[i]).toString() + ' ' + i);
+            if (time[i] == 1){
+                msg = msg.slice(0, -1);
+            }
+        }
+    }
+    $('#' + name + '_ws_running_time').html(' (running for around ' + msg + ')');
+}
+
 catsoop.doFiles = function (lastDeferred, into, files){
     var name = null;
     var file = null;

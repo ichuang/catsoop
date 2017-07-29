@@ -22,6 +22,8 @@ import string
 import traceback
 import collections
 
+import rethinkdb as r
+
 _prefix = 'cs_defaulthandler_'
 
 
@@ -100,11 +102,11 @@ def handle_copy_seed(context):
     if context[_n('impersonating')]:
         impersonated = context[_n('uname')]
         uname = context[_n('real_uname')]
-        course = context['cs_course']
-        logname = '.'.join(['random.seed'] + context['cs_path_info'])
-        stored = context['csm_cslog'].most_recent(course, impersonated,
+        path = context['cs_path_info']
+        logname = 'random_seed'
+        stored = context['csm_cslog'].most_recent(impersonated, path,
                                                   logname, None)
-        context['csm_cslog'].update_log(course, uname, logname, stored)
+        context['csm_cslog'].update_log(uname, path, logname, stored)
     return handle_save(context)
 
 
@@ -117,9 +119,8 @@ def _new_random_seed(n=100):
 
 def handle_new_seed(context):
     uname = context[_n('uname')]
-    course = context['cs_course']
-    logname = '.'.join(['random.seed'] + context['cs_path_info'])
-    context['csm_cslog'].update_log(course, uname, logname, _new_random_seed())
+    context['csm_cslog'].update_log(uname, context['cs_path_info'],
+                                    'random_seed', _new_random_seed())
 
     # Rerender the questions
     names = context[_n('question_names')]
@@ -136,10 +137,9 @@ def handle_activate(context):
         newstate = dict(context[_n('last_log')])
         newstate['activated'] = True
 
-        course = context['cs_course']
         uname = context[_n('uname')]
-        logname = context[_n('logname_state')]
-        context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+        context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                           'problemstate', newstate)
         context[_n('last_log')] = newstate
     return handle_view(context)
 
@@ -147,9 +147,9 @@ def handle_activate(context):
 def handle_copy(context):
     if context[_n('impersonating')]:
         context[_n('uname')] = context[_n('real_uname')]
-        ll = context['csm_cslog'].most_recent(context['cs_course'],
-                                              context[_n('uname')],
-                                              context[_n('logname_state')], {})
+        ll = context['csm_cslog'].most_recent(context[_n('uname')],
+                                              context['cs_path_info'],
+                                              'problemstate', {})
         context[_n('last_log')] = ll
     return handle_save(context)
 
@@ -334,41 +334,13 @@ def handle_view(context):
 def get_manual_grading_entry(context, name):
     pg_name = context[_n('logname_grades')]
     uname = context['cs_user_info'].get('username', 'None')
-    log = context['csm_cslog'].read_log(context['cs_course'], uname, pg_name)
+    log = context['csm_cslog'].read_log(uname, context['cs_path_info'],
+                                        'problemgrades')
     out = None
     for i in log:
         if i['qname'] == name:
             out = i
     return out
-
-
-def make_score_display(context, name, score, assume_submit=False):
-    _, args = context[_n('name_map')][name]
-    if not _get(args, 'csq_show_score', True, bool):
-        if name in context[_n('last_log')].get('scores', {}) or assume_submit:
-            return 'Submission received.'
-        else:
-            return ''
-    gmode = _get(args, 'csq_grading_mode', 'auto', str)
-    if gmode == 'manual':
-        log = get_manual_grading_entry(context, name)
-        if log is not None:
-            score = log['score']
-    if score is None:
-        if name in context[_n('last_log')].get('scores', {}) or assume_submit:
-            return 'Grade not available.'
-        else:
-            return ''
-    c = context.get('cs_score_message', None)
-    try:
-        return c(score)
-    except:
-        colorthing = 255 * score
-        r = max(0, 200 - colorthing)
-        g = min(200, colorthing)
-        s = score * 100
-        return ('<span style="color:rgb(%d,%d,0);font-weight:bolder;">'
-                '%.02f%%</span>') % (r, g, s)
 
 
 def handle_clearanswer(context):
@@ -406,10 +378,9 @@ def handle_clearanswer(context):
     newstate['explanation_viewed'] = explanationviewed
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -460,10 +431,9 @@ def handle_viewexplanation(context):
     newstate['explanation_viewed'] = explanationviewed
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -512,10 +482,9 @@ def handle_viewanswer(context):
     newstate['answer_viewed'] = answerviewed
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -553,8 +522,9 @@ def handle_lock(context):
                 c[_n('question_names')] = [name]
                 o = json.loads(handle_viewanswer(c)[2])
                 ll = context['csm_cslog'].most_recent(
-                    context['cs_course'], context.get('cs_username', 'None'),
-                    context[_n('logname_state')], {})
+                    context.get('cs_username', 'None'),
+                    context['cs_path_info'],
+                    'problemstate', {})
                 newstate['answer_viewed'] = ll.get('answer_viewed', set())
                 newstate['explanation_viewed'] = ll.get('explanation_viewed',
                                                         set())
@@ -563,10 +533,9 @@ def handle_lock(context):
     newstate['locked'] = locked
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -608,18 +577,18 @@ def handle_grade(context):
                            'score': score / npoints,
                            'comments': comments,
                            'timestamp': context['cs_timestamp']})
+        _, args = context[_n('name_map')][name]
         outdict[name] = {
-            'score_display': make_score_display(context, name, score),
+            'score_display': context['csm_tutor'].make_score_display(context, args, name, score),
             'message': "<b>Grader's Comments:</b><br/><br/>%s" % context['csm_language']._md_format_string(context, comments),
             'score': score,
         }
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_grades')]
     for i in newentries:
-        context['csm_cslog'].update_log(course, uname, logname, i)
+        context['csm_cslog'].update_log(uname, context['cs_path_info'],
+                                        'problemgrades', i)
 
     # log submission in problemactions
     log_action(context, {'action': 'grade',
@@ -651,10 +620,9 @@ def handle_unlock(context):
     newstate['locked'] = locked
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -721,10 +689,9 @@ def handle_save(context):
 
     # update problemstate log
     if len(saved_names) > 0:
-        course = context['cs_course']
         uname = context[_n('uname')]
-        logname = context[_n('logname_state')]
-        context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+        context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                           'problemstate', newstate)
 
         # log submission in problemactions
         duetime = context['csm_time'].detailed_timestamp(due)
@@ -752,8 +719,20 @@ def handle_check(context):
     if 'last_submit' not in newstate:
         newstate['last_submit'] = {}
 
+    names_done = set()
     outdict = {}  # dictionary containing the responses for each question
+
+    c = r.connect(db='catsoop')
+
+    entry_ids = {}
+    if 'last_checker_id' not in newstate:
+        newstate['last_checker_id'] = {}
+
     for name in names:
+        if name.startswith('__'):
+            name = name[2:].rsplit('_', 1)[0]
+        if name in names_done:
+            continue
         out = {}
         sub = context[_n('form')].get(name, '')
 
@@ -761,14 +740,18 @@ def handle_check(context):
         newstate['last_submit'][name] = sub
         question, args = namemap[name]
 
-        try:
-            response = question['handle_check'](context[_n('form')], **args)
-        except:
-            response = exc_message(context)
+        res = r.table('checker').insert({
+                  'path': context['cs_path_info'],
+                  'username': context.get('cs_username', 'None'),
+                  'names': [name],
+                  'form': {k: v for k,v in context[_n('form')].items() if name in k},
+                  'time': r.now(),
+                  'progress': 0,
+                  'action': 'check',
+              }).run(c)
 
-        out['score_display'] = ''
-        out['message'] = context['csm_language'].handle_custom_tags(context,
-                                                                    response)
+        entry_id = res['generated_keys'][0]
+        entry_ids[name] = entry_id
 
         rerender = question.get('always_rerender', False)
         if rerender is True:
@@ -777,17 +760,24 @@ def handle_check(context):
         elif rerender:
             out['rerender'] = rerender
 
+        out['score_display'] = ''
+        out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
+        out['magic'] = entry_id
+
         outdict[name] = out
 
         # cache responses
-        newstate['%s_score_display' % name] = out['score_display']
-        newstate['%s_message' % name] = out['message']
+        newstate['last_checker_id'][name] = entry_id
+        newstate['%s_score_display' % name] = ''
+        msg_key = '%s_message' % name
+        if msg_key in newstate:
+            del newstate[msg_key]
+        newstate['%s_magic' % name] = entry_id
 
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -795,8 +785,7 @@ def handle_check(context):
     log_action(context, {'action': 'check',
                          'names': names,
                          'submitted': subbed,
-                         'score': newstate.get('score', 0.0),
-                         'response': outdict,
+                         'checker_ids': entry_ids,
                          'due_date': duetime})
 
     return make_return_json(context, outdict)
@@ -809,7 +798,6 @@ def handle_submit(context):
     lastlog = context[_n('last_log')]
     nsubmits_used = context[_n('nsubmits_used')]
     answer_viewed = context[_n('answer_viewed')]
-    scores = lastlog.get('scores', {})
 
     namemap = context[_n('name_map')]
     timing = context[_n('timing')]
@@ -821,15 +809,26 @@ def handle_submit(context):
     newstate['timestamp'] = context['cs_timestamp']
     if 'last_submit' not in newstate:
         newstate['last_submit'] = {}
+    if 'last_checker_id' not in newstate:
+        newstate['last_checker_id'] = {}
+    if 'last_submit_checker_id' not in newstate:
+        newstate['last_submit_checker_id'] = {}
 
     names_done = set()
     outdict = {}  # dictionary containing the responses for each question
+
+    # here, we don't do a whole lot.  we log a submission and add it to the
+    # checker's queue.
+
+    c = r.connect(db='catsoop')
+
+    entry_ids = {}
+
     for name in names:
         if name.startswith('__'):
             name = name[2:].rsplit('_', 1)[0]
         if name in names_done:
             continue
-
 
         names_done.add(name)
         newstate['last_submit_times'][name] = context['cs_timestamp']
@@ -842,102 +841,68 @@ def handle_submit(context):
             outdict[name] = out
             continue
 
-        # if we are here, no errors occurred.  go ahead with checking.
+        # if we are here, no errors occurred.  go ahead with submitting.
         nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
         newstate['last_submit'][name] = sub
 
         question, args = namemap[name]
-
         grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
         if grading_mode == 'auto':
-            try:
-                resp = question['handle_submission'](context[_n('form')], **
-                                                     args)
-                scores[name] = resp['score']
-                msg = resp['msg']
-            except:
-                resp = {}
-                scores[name] = 0.0
-                msg = exc_message(context)
+            res = r.table('checker').insert({
+                      'path': context['cs_path_info'],
+                      'username': context.get('cs_username', 'None'),
+                      'names': [name],
+                      'form': {k: v for k,v in context[_n('form')].items() if name in k},
+                      'time': r.now(),
+                      'progress': 0,
+                      'action': 'submit',
+                  }).run(c)
+
+            entry_id = res['generated_keys'][0]
+            entry_ids[name] = entry_id
+
+            out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
+            out['magic'] = entry_id
+            out['score_display'] = ''
+            msg_key = '%s_message' % name
+            if msg_key in newstate:
+                del newstate[msg_key]
+            newstate['%s_magic' % name] = entry_id
         elif grading_mode == 'manual':
             resp = {}
-            msg = 'Submission received for manual grading.'
-            scores[name] = None
+            out['message'] = 'Submission received for manual grading.'
+            out['score_display'] = context['csm_tutor'].make_score_display(
+                context, args, name, None,
+                assume_submit=True)
+            newstate['scores'][name] = None
+            mag_key = '%s_magic' % name
+            if mag_key in newstate:
+                del newstate[mag_key]
+            newstate['%s_message' % name] = out['message']
         else:
             resp = {}
-            scores[name] = 0.0
-            msg = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
-
-        out['score_display'] = make_score_display(
-            context, name, scores[name],
-            assume_submit=True)
-        out['message'] = context['csm_language'].handle_custom_tags(context,
-                                                                    msg)
-        out['score'] = scores[name]
-
-        rerender = resp.get('rerender', False) or question.get(
-            'always_rerender', False)
-        if rerender is True:
-            out['rerender'] = question['render_html'](newstate['last_submit'],
-                                                      **args)
-        elif rerender:
-            out['rerender'] = rerender
+            out['message'] = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
+            out['score_display'] = context['csm_tutor'].make_score_display(
+                context, args, name, 0.0,
+                assume_submit=True)
+            mag_key = '%s_magic' % name
+            if mag_key in newstate:
+                del newstate[mag_key]
+            newstate['%s_message' % name] = out['message']
 
         outdict[name] = out
 
-        if resp.get('lock', False):
-            c = dict(context)
-            c[_n('question_names')] = [name]
-            o = json.loads(handle_lock(c)[2])
-            ll = context['csm_cslog'].most_recent(
-                context['cs_course'], context.get('cs_username', 'None'),
-                context[_n('logname_state')], {})
-            newstate['locked'] = ll.get('locked', set())
-            outdict[name].update(o[name])
-
-        # auto view answer if the option is set
-        if 'submit_all' not in context[_n('orig_perms')]:
-            x = nsubmits_left(context, name)
-            if (question.get('allow_viewanswer', True) and (((out['score'] == 1 and 'perfect' in _get_auto_view(args)) or
-                 (x[0] == 0 and 'nosubmits' in _get_auto_view(args))) and
-                    _get(args, 'csq_allow_viewanswer', True, bool))):
-                # this is a hack...
-                c = dict(context)
-                c[_n('question_names')] = [name]
-                o = json.loads(handle_viewanswer(c)[2])
-                ll = context['csm_cslog'].most_recent(
-                    context['cs_course'], context.get('cs_username', 'None'),
-                    context[_n('logname_state')], {})
-                newstate['answer_viewed'] = ll.get('answer_viewed', set())
-                newstate['explanation_viewed'] = ll.get('explanation_viewed',
-                                                        set())
-                outdict[name].update(o[name])
-
         # cache responses
+        newstate['last_checker_id'][name] = entry_id
+        newstate['last_submit_checker_id'][name] = entry_id
         newstate['%s_score_display' % name] = out['score_display']
-        newstate['%s_message' % name] = out['message']
 
-    # update score
-    if any(scores[i] is None for i in scores):
-        newstate['score'] = None
-    else:
-        num = 0.0
-        denom = 0.0
-        for n in namemap:
-            q, args = namemap[n]
-            d = q['total_points'](**args)
-
-            denom += d
-            num += scores.get(n, 0.0) * d
-            newstate['score'] = 0.0 if num == denom == 0.0 else num / denom
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
-    newstate['scores'] = scores
-
+    
     # update problemstate log
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_state')]
-    context['csm_cslog'].overwrite_log(course, uname, logname, newstate)
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
     # log submission in problemactions
     duetime = context['csm_time'].detailed_timestamp(due)
@@ -945,9 +910,7 @@ def handle_submit(context):
     log_action(context, {'action': 'submit',
                          'names': names,
                          'submitted': subbed,
-                         'score': newstate['score'],
-                         'scores': newstate['scores'],
-                         'response': outdict,
+                         'checker_ids': entry_ids,
                          'due_date': duetime})
 
     context['csm_loader'].run_plugins(context, context['cs_course'], 'post_submit', context)
@@ -1201,7 +1164,7 @@ def submit_msg(context, perms, name):
             else:
                 error = 'Submissions are not allowed for this question.'
         elif (not _get(qargs, 'csq_grading_mode', 'auto', str) == 'manual' and
-              get_manual_grading_entry(context, name) is not None):
+              context['csm_tutor'].get_manual_grading_entry(context, name) is not None):
             # ...prior submission has been graded
             error = 'You are not allowed to submit after a previous submission has been graded.'
         else:
@@ -1214,16 +1177,14 @@ def submit_msg(context, perms, name):
 
 
 def log_action(context, log_entry):
-    course = context['cs_course']
     uname = context[_n('uname')]
-    logname = context[_n('logname_actions')]
     entry = {'action': context[_n('action')],
              'timestamp': context['cs_timestamp'],
-             'ip': context['cs_ip'],
              'user_info': context['cs_user_info'],
              'form': context['cs_form']}
     entry.update(log_entry)
-    context['csm_cslog'].update_log(course, uname, logname, entry)
+    context['csm_cslog'].update_log(uname, context['cs_path_info'],
+                                    'problemactions', entry)
 
 
 def simple_return_json(val):
@@ -1265,11 +1226,10 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += '<div>'
     out += (('\n<span id="%s_buttons">' % name) + make_buttons(context, name) +
             "</span>")
-    out += ('\n<div id="%s_loading" class="loader" style="display:none;">'
-            '</div>') % name
+    out += ('\n<span id="%s_loading" style="display:none;"><img src="%s"/>'
+            '</span>') % (name, context['cs_loading_image'])
     out += (('\n<span id="%s_score_display">' % args['csq_name']) +
-            make_score_display(context, name, lastlog.get('scores', {}).get(
-                name, None)) + '</span>')
+            context['csm_tutor'].make_score_display(context, args, name, None) + '</span>')
     out += (('\n<div id="%s_nsubmits_left" class="nsubmits_left">' % name) +
             nsubmits_left(context, name)[1] + "</div>")
     out += '</div>'
@@ -1302,14 +1262,17 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += '\n<div id="%s_message">' % args['csq_name']
 
     gmode = _get(args, 'csq_grading_mode', 'auto', str)
-    ll = context[_n('last_log')].get('%s_message' % name, '')
+    message = context[_n('last_log')].get('%s_message' % name, '')
+    magic = context[_n('last_log')].get('%s_magic' % name, None)
+    if magic is not None:
+        message = WEBSOCKET_RESPONSE % {'name': name, 'magic': magic, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
     if gmode == 'manual':
         q, args = context[_n('name_map')][name]
-        lastlog = get_manual_grading_entry(context, name) or {}
+        lastlog = context['csm_tutor'].get_manual_grading_entry(context, name) or {}
         lastscore = lastlog.get('score', '')
         lastcomments = lastlog.get('comments', '')
         tpoints = q['total_points'](**args)
-        comments = (get_manual_grading_entry(context, name) or {}).get('comments',None)
+        comments = (context['csm_tutor'].get_manual_grading_entry(context, name) or {}).get('comments',None)
         if comments is not None:
             comments = context['csm_language']._md_format_string(context, comments)
         try:
@@ -1318,9 +1281,9 @@ def render_question(elt, context, lastsubmit, wrap=True):
             score_output = ""
 
         if comments is not None:
-            ll = '<b>Score:</b> %s (out of %s)<br><br><b>Grader\'s Comments:</b><br/>%s' % (
+            message = '<b>Score:</b> %s (out of %s)<br><br><b>Grader\'s Comments:</b><br/>%s' % (
                 score_output, tpoints, comments)
-    out += ll + "</div>"
+    out += message + "</div>"
     if wrap and q.get('indiv', True) and args.get('csq_indiv', True):
         out += '\n</div>'
     if wrap:
@@ -1444,7 +1407,7 @@ def make_buttons(context, name):
         # in manual grading mode, add a box and button for grading
         gmode = _get(args, 'csq_grading_mode', 'auto', str)
         if gmode == 'manual':
-            lastlog = get_manual_grading_entry(context, name) or {}
+            lastlog = context['csm_tutor'].get_manual_grading_entry(context, name) or {}
             lastscore = lastlog.get('score', '')
             lastcomments = lastlog.get('comments', '')
             tpoints = q['total_points'](**args)
@@ -1523,21 +1486,20 @@ def pre_handle(context):
         context[_n('activation_password')] = pwd
 
     # determine the right log name to look up, and grab the most recent entry
-    loghead = '.'.join(context['cs_path_info'][1:])
-    ps_name = '%s.problemstate' % loghead
-    pa_name = '%s.problemactions' % loghead
-    pg_name = '%s.problemgrades' % loghead
-    grp_name = '%s.group' % loghead
-    ll = context['csm_cslog'].most_recent(context['cs_course'],
-                                          uname,
-                                          ps_name,
+    loghead = '___'.join(context['cs_path_info'][1:])
+    ps_name = '%s___problemstate' % loghead
+    pa_name = '%s___problemactions' % loghead
+    pg_name = '%s___problemgrades' % loghead
+    grp_name = '%s___group' % loghead
+    ll = context['csm_cslog'].most_recent(uname,
+                                          context['cs_path_info'],
+                                          'problemstate',
                                           {})
     _cs_group_path = context.get('cs_groups_to_use', context['cs_path_info'])
+    print(repr(_cs_group_path))
     context[_n('all_groups')] = context['csm_groups'].list_groups(context,
-                                                                  context['cs_course'],
                                                                   _cs_group_path)
     context[_n('group')] = context['csm_groups'].get_group(context,
-                                                           context['cs_course'],
                                                            _cs_group_path,
                                                            uname,
                                                            context[_n('all_groups')])
@@ -1553,9 +1515,9 @@ def pre_handle(context):
     context[_n('logname_group')] = grp_name
     context[_n('logname_groups')] = '%ss' % grp_name
 
-    context[_n('locked')] = ll.get('locked', set())
-    context[_n('answer_viewed')] = ll.get('answer_viewed', set())
-    context[_n('explanation_viewed')] = ll.get('explanation_viewed', set())
+    context[_n('locked')] = set(ll.get('locked', set()))
+    context[_n('answer_viewed')] = set(ll.get('answer_viewed', set()))
+    context[_n('explanation_viewed')] = set(ll.get('explanation_viewed', set()))
     context[_n('nsubmits_used')] = ll.get('nsubmits_used', {})
 
     # what is the user trying to do?
@@ -1688,9 +1650,9 @@ def _get_scores(context):
         for student in students:
             username = student.get('username', 'None')
             log = context['csm_cslog'].most_recent(
-                context['cs_course'],
                 username,
-                '.'.join(context['cs_path_info'][1:] + ['problemstate']),
+                context['cs_path_info'],
+                'problemstate',
                 {},
             )
             score = log.get('scores', {}).get(name, None)
@@ -1713,8 +1675,7 @@ def handle_stats(context):
 
     groups = context['csm_groups'].list_groups(
         context,
-        context['cs_course'],
-        context['cs_path_info'][1:],
+        context['cs_path_info'],
     ).get(section, None)
 
     if groups:
@@ -1799,7 +1760,7 @@ def handle_stats(context):
     return str(soup)
 
 def _real_name(context, username):
-    return (context['csm_cslog'].most_recent(None, 'extra_info', username, None) or {}).get('name', None)
+    return (context['csm_cslog'].most_recent('_extra_info', [], username, None) or {}).get('name', None)
 
 def _whdw_name(context, username):
     real_name = _real_name(context, username)
@@ -1831,8 +1792,7 @@ def handle_whdw(context):
 
     groups = context['csm_groups'].list_groups(
         context,
-        context['cs_course'],
-        context['cs_path_info'][1:],
+        context['cs_path_info'],
     ).get(section, None)
 
     BeautifulSoup = context['csm_tools'].bs4.BeautifulSoup
@@ -1938,3 +1898,78 @@ def handle_whdw(context):
             soup.append(grid)
 
         return str(soup)
+
+
+WEBSOCKET_RESPONSE = """
+<div class="bs-callout bs-callout-default" id="cs_partialresults_%(name)s">
+  <div id="cs_partialresults_%(name)s_body">
+    <span id="cs_partialresults_%(name)s_message">Looking up your submission (id <code>%(magic)s</code>).  Watch here for updates.</span><br/>
+    <center><img src="%(loading)s"/></center>
+  </div>
+</div>
+<small>ID: <code>%(magic)s</code></small>
+
+<script type="text/javascript">
+var magic_%(name)s = %(magic)r;
+if (typeof ws_%(name)s != 'undefined'){
+    ws_%(name)s.close();
+    var ws_%(name)s = undefined;
+}
+
+$('#%(name)s_score_display').html('<img src="%(loading)s"/>');
+
+$('#%(name)s_buttons button').prop("disabled", true);
+
+var ws_%(name)s = new WebSocket(%(websocket)r);
+
+ws_%(name)s.onopen = function(){
+    ws_%(name)s.send(JSON.stringify({type: "hello", magic: magic_%(name)s}));
+}
+
+var ws_%(name)s_interval = null;
+
+
+ws_%(name)s.onmessage = function(event){
+    var m = event.data;
+    var j = JSON.parse(m);
+    var thediv = $('#cs_partialresults_%(name)s')
+    var themessage = $('#cs_partialresults_%(name)s_message');
+    if (j.type == 'inqueue'){
+        if (ws_%(name)s_interval !== null){
+            clearInterval(ws_%(name)s_interval);
+        }
+        thediv[0].className = '';
+        thediv.addClass('bs-callout');
+        thediv.addClass('bs-callout-warning');
+        themessage.html('Your submission (id <code>%(magic)s</code>) is queued to be checked (position ' + j.position + ').');
+        $('#%(name)s_buttons button').prop("disabled", false);
+    }else if (j.type == 'running'){
+        if (ws_%(name)s_interval !== null){
+            clearInterval(ws_%(name)s_interval);
+        }
+        thediv[0].className = '';
+        thediv.addClass('bs-callout');
+        thediv.addClass('bs-callout-info');
+        themessage.html('Your submission is currently being checked<span id="%(name)s_ws_running_time"></span>.');
+        $('#%(name)s_buttons button').prop("disabled", false);
+        ws_%(name)s_interval = setInterval(function(){catsoop.setTimeSince("%(name)s", j.started/1000)}, 1000);
+    }else if (j.type == 'newresult'){
+        if (ws_%(name)s_interval !== null){
+            clearInterval(ws_%(name)s_interval);
+        }
+        $('#%(name)s_score_display').html(j.score_box);
+        thediv[0].className = '';
+        thediv.html(j.response);
+        ws_%(name)s.close();
+        $('#%(name)s_buttons button').prop("disabled", false);
+        if (ws_%(name)s_interval !== null){
+            clearInterval(ws_%(name)s_interval);
+        }
+    }
+}
+
+ws_%(name)s.onerror = function(event){
+    console.log(event);
+}
+</script>
+"""

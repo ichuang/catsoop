@@ -32,24 +32,6 @@ _resource_mapper = {
 }
 
 
-class PKiller(threading.Thread):
-    def __init__(self, proc, timeout):
-        threading.Thread.__init__(self)
-        self.proc = proc
-        self.timeout = timeout
-
-    def run(self):
-        end = time.time() + self.timeout
-        while (time.time() < end):
-            time.sleep(0.1)
-            if self.proc.poll() is not None:
-                return
-        try:
-            os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
-        except:
-            pass
-
-
 def safe_close(fd):
     try:
         os.close(fd)
@@ -109,7 +91,7 @@ def run_code(context, code, options):
         f.write(options['STDIN'])
     safe_close(inw)
 
-    killer = PKiller(p, options['CLOCKTIME'])
+    killer = context['csm_process'].PKiller(p, options['CLOCKTIME'])
     killer.start()
 
     while p.poll() is None:

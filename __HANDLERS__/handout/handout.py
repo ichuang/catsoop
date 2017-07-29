@@ -34,7 +34,7 @@ def handle(context):
     log_entry = {
         k: v
         for (k, v) in context.items()
-        if k in {'cs_timestamp', 'cs_path_info', 'cs_ip', 'cs_user_info'}
+        if k in {'cs_timestamp', 'cs_path_info', 'cs_user_info'}
     }
 
     m = None

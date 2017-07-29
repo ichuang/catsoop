@@ -27,12 +27,11 @@ if api_token is None:
 
 try:
     path = opath = json.loads(path)
-    course, path = path[0], path[1:]
 except:
     error = "invalid path: %s" % path
 
 if error is None:
-    output = csm_api.get_user_information(globals(), api_token=api_token, course=course, _as=_as)
+    output = csm_api.get_user_information(globals(), api_token=api_token, course=path[0], _as=_as)
     if output['ok']:
         uinfo = output['user_info']
     else:
@@ -40,7 +39,7 @@ if error is None:
 
 if error is None:
     ctx = csm_loader.spoof_early_load(opath)
-    section, group, members = csm_groups.get_group(ctx, course, path, uinfo['username'])
+    section, group, members = csm_groups.get_group(ctx, path, uinfo['username'])
     if section is None and group is None:
         error = "%s has not been assigned to a group" % uinfo['username']
         members = [uinfo['username']]

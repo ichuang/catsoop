@@ -22,40 +22,100 @@ import sys
 import random
 import string
 import importlib
+import collections
+
+import rethinkdb as r
+from datetime import timedelta
 
 from . import auth
 from . import time
 from . import loader
-from . import logging as logging_import
+from . import cslog
 from . import base_context
-
-from datetime import timedelta
 
 importlib.reload(base_context)
 
 
-def compute_page_stats(context, user, course, path, keys=None):
-    logging = logging_import.get_logger(context)
+def _get(context, key, default, cast=lambda x: x):
+    v = context.get(key, default)
+    return cast(v(context) if isinstance(v, collections.Callable) else v)
+
+
+def get_manual_grading_entry(context, name):
+    uname = context['cs_user_info'].get('username', 'None')
+    log = context['csm_cslog'].read_log(uname, context['cs_path_info'],
+                                        'problemgrades')
+    out = None
+    for i in log:
+        if i['qname'] == name:
+            out = i
+    return out
+
+
+def make_score_display(context, args, name, score, assume_submit=False):
+    last_log = context['csm_cslog'].most_recent(context['cs_username'],
+                                                context['cs_path_info'],
+                                                'problemstate',
+                                                {})
+    if not _get(args, 'csq_show_score', True, bool):
+        if name in last_log.get('scores', {}) or assume_submit:
+            return 'Submission received.'
+        else:
+            return ''
+    gmode = _get(args, 'csq_grading_mode', 'auto', str)
+    if gmode == 'manual':
+        log = get_manual_grading_entry(context, name)
+        if log is not None:
+            score = log['score']
+    if score is None:
+        if name in last_log.get('scores', {}) or assume_submit:
+            return 'Grade not available.'
+        else:
+            return ''
+    c = context.get('cs_score_message', None)
+    try:
+        return c(score)
+    except:
+        colorthing = 255 * score
+        r = max(0, 200 - colorthing)
+        g = min(200, colorthing)
+        s = score * 100
+        return ('<span style="color:rgb(%d,%d,0);font-weight:bolder;">'
+                '%.02f%%</span>') % (r, g, s)
+
+
+def compute_page_stats(context, user, path, keys=None):
+    logging = cslog
     if keys is None:
         keys = [
-            'context', 'question_points', 'state', 'actions', 'manual_grades'
+            'context', 'question_points', 'state', 'actions', 'manual_grades', 'submissions',
         ]
     keys = list(keys)
 
     out = {}
-    logtail = '.'.join(path)
+    c = r.connect(db='catsoop')
+    logtail = '___'.join(path)
     if 'state' in keys:
         keys.remove('state')
-        state_name = '%s.problemstate' % logtail
-        out['state'] = logging.most_recent(course, user, state_name, {})
+        out['state'] = logging.most_recent(user, path, 'problemstate', {})
+        if out['state']:
+            out['state']['scores'] = {}
+            for k, v in out['state'].get('last_submit_checker_id', {}).items():
+                res = list(r.table('checker').get_all(v).run(c))
+                if len(res) == 1:
+                    out['state']['scores'][k] = res[0].get('score', 0.0)
+                else:
+                    out['state']['scores'][k] = 0.0
     if 'actions' in keys:
         keys.remove('actions')
-        actions_name = '%s.problemactions' % logtail
-        out['actions'] = logging.read_log(course, user, actions_name)
+        out['actions'] = logging.read_log(user, path, 'problemactions')
+    if 'submissions' in keys:
+        out['submissions'] = list(r.table('checker').get_all([user, path], index='log').run(c))
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
-        grades_name = '%s.problemgrades' % logtail
-        out['manual_grades'] = logging.read_log(course, user, grades_name)
+        out['manual_grades'] = logging.read_log(user, path, 'problemgrades')
+
+    c.close()
 
     if len(keys) == 0:
         return out
@@ -63,16 +123,16 @@ def compute_page_stats(context, user, course, path, keys=None):
     # spoof loading the page for the user in question
     new = dict(context)
     loader.load_global_data(new)
-    new['cs_path_info'] = [course] + path
+    new['cs_path_info'] = path
     cfile = context['csm_dispatch'].content_file_location(
         context, new['cs_path_info'])
-    loader.do_early_load(context, course, path, new, cfile)
-    new['cs_course'] = course
+    loader.do_early_load(context, path[0], path[1:], new, cfile)
+    new['cs_course'] = path[0]
     new['cs_username'] = user
     new['cs_form'] = {'action': 'passthrough'}
     new['cs_user_info'] = {'username': user}
     new['cs_user_info'] = auth.get_user_information(new)
-    loader.do_late_load(context, course, path, new, cfile)
+    loader.do_late_load(context, path[0], path[1:], new, cfile)
     if 'cs_post_load' in new:
         new['cs_post_load'](new)
     handle_page(new)
@@ -186,9 +246,9 @@ def handler(context, handler, check_course=True):
 def get_canonical_name(path):
     """
     Return the canonical name of the resource at path.  This name is
-    the cdr of path, joined by '__'.
+    the cdr of path, joined by '___'.
     """
-    return '.'.join(path[1:])
+    return '___'.join(path[1:])
 
 
 def get_release_date(context):
@@ -273,15 +333,17 @@ def _new_random_seed(n=100):
 
 def _get_random_seed(context, n=100, force_new=False):
     uname = context['cs_username']
-    course = context['cs_course']
-    logname = '.'.join(['random.seed'] + context['cs_path_info'])
     if force_new:
         stored = None
     else:
-        stored = context['csm_cslog'].most_recent(course, uname, logname, None)
+        stored = context['csm_cslog'].most_recent(uname,
+                                                  context['cs_path_info'],
+                                                  'random_seed',
+                                                  None)
     if stored is None:
         stored = _new_random_seed(n)
-        context['csm_cslog'].update_log(course, uname, logname, stored)
+        context['csm_cslog'].update_log(uname, context['cs_path_info'],
+                                        'random_seed', stored)
     return stored
 
 
@@ -295,7 +357,7 @@ def init_random(context, prefix=''):
     try:
         seed = _get_random_seed(context)
     except:
-        seed = '.'.join([context['cs_username']] + context['cs_path_info'])
+        seed = '___'.join([context['cs_username']] + context['cs_path_info'])
     context['cs_random_seed'] = seed
     context['cs_random'].seed(seed)
     context['cs_random_inited'] = True

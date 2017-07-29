@@ -109,8 +109,6 @@ def load_global_data(into, check_values=True):
         exec(c, into)
         into['cs_random'] = random.Random()
         into['csm_base_context'] = into['base_context'] = base_context
-        into['csm_cslog'] = into['cslog'] = into['csm_logging'].get_logger(
-            into)
         clean_builtins(into)
         into['csm_loader'] = sys.modules[__name__]
     except Exception as e:
