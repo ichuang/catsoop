@@ -91,7 +91,7 @@ def run_code(context, code, options):
         f.write(options['STDIN'])
     safe_close(inw)
 
-    killer = info['csm_process'].PKiller(p, options['CLOCKTIME'])
+    killer = context['csm_process'].PKiller(p, options['CLOCKTIME'])
     killer.start()
 
     while p.poll() is None:
