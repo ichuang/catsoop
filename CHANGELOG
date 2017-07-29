@@ -34,6 +34,10 @@ CHANGED:
 
   * Replaced the CSS-based loading spinner with an image.
 
+  * Changed the password hashing scheme for the login authentication type to
+    one based on:
+    https://blogs.dropbox.com/tech/2016/09/how-dropbox-securely-stores-your-passwords/
+
 DEPRECATED:
 
 REMOVED:

@@ -24,6 +24,7 @@ from operator import xor
 from struct import Struct
 from itertools import starmap
 
+from .tools import pyaes
 
 def get_logged_in_user(context):
     # form-based login
@@ -37,8 +38,10 @@ def get_logged_in_user(context):
     action = form.get('loginaction', '')
     message = form.get('message', '')
 
-    hash_iterations = context.get('cs_password_hash_iterations', 250000)
+    hash_iterations = context.get('cs_password_hash_iterations', 500000)
     url = _get_base_url(context)
+
+    aes_key_loc = context.get('cs_login_aes_key_location', None)
 
     # if the user is trying to log out, do that.
     if action == 'logout':
@@ -93,7 +96,7 @@ def get_logged_in_user(context):
                 clear_session_vars(context, 'login_message')
                 # store new password.
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt, hash_iterations)
+                phash = compute_password_hash(passwd, salt, hash_iterations, aes_key_loc=aes_key_loc)
                 login_info['password_salt'] = salt
                 login_info['password_hash'] = phash
                 logging.update_log('_logininfo', [], uname, login_info)
@@ -233,7 +236,7 @@ def get_logged_in_user(context):
                 # store new password.
                 login_info = logging.most_recent('_logininfo', [], u, {})
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt, hash_iterations)
+                phash = compute_password_hash(passwd, salt, hash_iterations, aes_key_loc=aes_key_loc)
                 login_info['password_salt'] = salt
                 login_info['password_hash'] = phash
                 logging.update_log('_logininfo', [], u, login_info)
@@ -410,7 +413,7 @@ def get_logged_in_user(context):
                 clear_session_vars(context, 'login_message', 'last_form')
                 # generate new salt and password hash
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt, hash_iterations)
+                phash = compute_password_hash(passwd, salt, hash_iterations, aes_key_loc=aes_key_loc)
                 # if necessary, send confirmation e-mail
                 # otherwise, treat like already confirmed
                 if (mail.can_send_email(context) and
@@ -500,7 +503,7 @@ def clear_session_vars(context, *args):
             pass
 
 
-def check_password(context, provided, uname, iterations=250000):
+def check_password(context, provided, uname, iterations=500000):
     """
     Compare the provided password against a stored hash.
     """
@@ -509,7 +512,8 @@ def check_password(context, provided, uname, iterations=250000):
     pass_hash = user_login_info.get('password_hash', None)
     if pass_hash is not None:
         salt = user_login_info.get('password_salt', None)
-        hashed_pass = compute_password_hash(provided, salt, iterations)
+        hashed_pass = compute_password_hash(provided, salt, iterations,
+                                            aes_key_loc=context.get('cs_login_aes_key_location', None))
         if hashed_pass == pass_hash:
             return True
     return False
@@ -533,12 +537,23 @@ def _ensure_bytes(x):
         return x
 
 
-def compute_password_hash(password, salt=None, iterations=250000):
+def compute_password_hash(password, salt=None, iterations=500000, aes_key_loc=None):
     """
     Given a password, and (optionally) an associated salt, return a hash value.
     """
-    return hashlib.pbkdf2_hmac('sha512', _ensure_bytes(password),
-                               _ensure_bytes(salt), iterations)
+    hash_ = hashlib.pbkdf2_hmac('sha512', _ensure_bytes(password),
+                                _ensure_bytes(salt), iterations)
+    if aes_key_loc is not None:
+        if not os.path.isfile(aes_key_loc):
+            with open(aes_key_loc, 'wb') as f:
+                key = get_new_password_salt(32)
+                f.write(_ensure_bytes(key))
+        with open(aes_key_loc, 'rb') as f:
+            key = f.read()
+        aes = pyaes.AESModeOfOperationCTR(key)
+        hash_ = aes.encrypt(hash_)
+    return hash_
+
 
 
 def generate_confirmation_token(n=20):
