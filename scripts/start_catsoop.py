@@ -35,13 +35,22 @@ if base_dir not in sys.path:
 import catsoop.base_context as base_context
 from catsoop.process import set_pdeathsig
 
+nproc = '1'
+if '-p' in sys.argv:
+    _p_ix = sys.argv.index('-p')
+    if len(sys.argv) > _p_ix + 1:
+        # there's an argument here
+        _np = sys.argv[_p_ix + 1]
+        if _np.isdigit():
+            nproc = _np
+
 procs = (
     (scripts_dir, ['node', 'checker_reporter.js',
                    str(base_context.cs_websocket_server_port)], 0.1, 'Reporter'),
     (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
     (base_dir, ['uwsgi', '--http', ':%s' % base_context.cs_wsgi_server_port,
                 '--wsgi-file', 'wsgi.py',
-                '--touch-reload', 'wsgi.py'], 0.1, 'WSGI Server'),
+                '--touch-reload', 'wsgi.py', '-p', str(nproc)], 0.1, 'WSGI Server'),
 )
 
 running = []
