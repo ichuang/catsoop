@@ -96,7 +96,9 @@ r.connect({db: 'catsoop'}, function (err, conn){
                 positions[r.new_val.id] = [null, r.new_val.time, 1];
                 var c = allConnections[r.new_val.id];
                 if (c){
-                    c.sendUTF(JSON.stringify({type: 'running', started: r.new_val.time_started.valueOf()}));
+                    c.sendUTF(JSON.stringify({type: 'running',
+                                              started: r.new_val.time_started.valueOf(),
+                                              now: (new Date()).valueOf()}));
                 }
             }else{
             }
@@ -140,10 +142,13 @@ wsServer.on('request', function(request) {
                             if (o.progress == 0){
                                 // in queue.
                                 if(data.magic in positions){
-                                    connection.sendUTF(JSON.stringify({type: 'inqueue', position: positions[data.magic][0]}));
+                                    connection.sendUTF(JSON.stringify({type: 'inqueue',
+                                                                       position: positions[data.magic][0]}));
                                 }
                             }else if (o.progress == 1){
-                                connection.sendUTF(JSON.stringify({type: 'running', started: o.time_started.valueOf()}));
+                                connection.sendUTF(JSON.stringify({type: 'running',
+                                                                   started: o.time_started.valueOf(),
+                                                                   now: (new Date()).valueOf()}));
                             }else if (o.progress == 2){
                                 // already done.
                                 connection.sendUTF(JSON.stringify({type: 'newresult', score_box: o.score_box, response: o.response}));

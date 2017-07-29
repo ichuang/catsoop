@@ -22,8 +22,8 @@ catsoop.switch_buttons = function (name, enabled){
 }
 
 
-catsoop.setTimeSince = function (name, start){
-    var now = (new Date()).valueOf()/1000;
+catsoop.setTimeSince = function (name, start, sync){
+    var now = (new Date()).valueOf()/1000 - sync; // our estimate of the server's current time
     var diff = now - start;
     var time = {};
     time.days = (diff / 86400) | 0;
