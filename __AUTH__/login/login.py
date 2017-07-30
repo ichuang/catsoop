@@ -957,6 +957,11 @@ function check_form(){
         }
     }
     $("#pwd_check").html('<font color="red">' + p_msg + '</font>');
+    if (e_msg || u_msg || p_msg){
+        $('#regform_submitter').prop('disabled', true);
+    }else{
+        $('#regform_submitter').prop('disabled', false);
+    }
 }
 $(document).ready(check_form);
 $("#regform").keyup(check_form);
@@ -1059,6 +1064,7 @@ are receiving this message in error, please ignore or delete it.</p>"""
 
 def _submit_button(fields, username, preserve, form, value='Submit'):
    base = ('<input type="button"'
+           ' class="btn btn-catsoop"'
            ' id="%s_submitter"'
            ' value="%s"'
            ' onclick="catsoop.hashlib.hash_passwords(%r, %r, %r, %r)" />')

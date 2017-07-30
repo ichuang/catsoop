@@ -1400,8 +1400,7 @@ def make_buttons(context, name):
             if abuttons[k] is not None:
                 aout += (
                     '\n<button id="%(n)s_%(k)s" '
-                    'class="%(k)s" '
-                    'style="background-color: #FFD9D9; border-color: red;" '
+                    'class="%(k)s btn btn-danger" '
                     'onclick="catsoop.%(k)s(\'%(n)s\');">'
                     '%(b)s</button>') % x
         # in manual grading mode, add a box and button for grading
@@ -1446,7 +1445,8 @@ def make_buttons(context, name):
         x = {'b': buttons[k], 'k': k, 'n': name}
         if buttons[k] is not None:
             out += ('\n<button id="%(n)s_%(k)s" '
-                    'class="%(k)s" '
+                    'class="%(k)s btn btn-catsoop" '
+                    'style="margin-top: 10px;" '
                     'onclick="catsoop.%(k)s(\'%(n)s\');">'
                     '%(b)s</button>') % x
     return out + aout
@@ -1916,7 +1916,7 @@ if (typeof ws_%(name)s != 'undefined'){
     var ws_%(name)s = undefined;
 }
 
-$('#%(name)s_score_display').html('<img src="%(loading)s"/>');
+$('#%(name)s_score_display').html('<img src="%(loading)s" style="vertical-align: -6px; margin-left: 5px;"/>');
 
 $('#%(name)s_buttons button').prop("disabled", true);
 

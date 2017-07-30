@@ -353,7 +353,13 @@ def render_html_upload(last_log, **info):
         out += ('''<a href="%s" '''
                 '''target="_blank" id="%s_lastfile">'''
                 '''Your Last Submission</a><br />''') % (code[1], name)
-    out += '''<input type="file" id=%(name)s name="%(name)s" />''' % params
+    out += '''<input type="file" style="display: none" id=%(name)s name="%(name)s" />''' % params
+    out += ('''<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
+            '''<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)
+    out += ('''<script type="text/javascript">'''
+            '''$('#%s_select_button').click(function (){$("#%s").click();});'''
+            '''$('#%s').change(function (){$('#%s_selected_file').text($('#%s').val());});'''
+            '''</script>''') % (name, name, name, name, name)
     return out
 
 
