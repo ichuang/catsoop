@@ -985,6 +985,11 @@ function check_form(){
         }
     }
     $("#pwd_check").html('<font color="red">' + p_msg + '</font>');
+    if (p_msg){
+        $('#pwdform_submitter').prop('disabled', true);
+    }else{
+        $('#pwdform_submitter').prop('disabled', false);
+    }
 }
 $(document).ready(check_form);
 $("#pwdform").keyup(check_form);
