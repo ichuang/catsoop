@@ -192,9 +192,11 @@ cs_checker_websocket = 'ws://localhost:6011'
 
 cs_checker_global_timeout = 30
 
-cs_checker_parallel_checks = 5
+cs_checker_parallel_checks = 1
 
 cs_wsgi_server_port = 6010
+
+cs_wsgi_server_processes = 1
 
 cs_websocket_server_port = 6011
 
