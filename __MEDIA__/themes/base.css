@@ -429,6 +429,13 @@ a:hover {
   font-weight: normal;
   color: #FFFFFF;
   background-color: @{cs_base_color};
+  border-radius: 5px;
+}
+
+a>code:hover {
+    color: #FFFFFF;
+    background-color: transparent;
+    border-radius: 5px;
 }
 
 li {
