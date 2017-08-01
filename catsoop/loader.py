@@ -102,6 +102,7 @@ def load_global_data(into, check_values=True):
         sys.path.insert(0, thisdir)
         into['sys'] = sys
         fname = os.path.join(thisdir, 'base_context.py')
+        into['__file__'] = fname
         with open(fname) as f:
             t = f.read()
             t = '__name__ = "catsoop.base_context"\n' + t

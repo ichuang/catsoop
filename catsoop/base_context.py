@@ -176,16 +176,6 @@ cs_course = None
 The course associated with a request
 """
 
-try:
-    https = cs_env.get('HTTPS', '0')
-    scheme = cs_env.get('REQUEST_SCHEME', 'http').lower()
-    if (https not in {'1', 'on'} and scheme != 'https' and
-            cs_url_root.startswith('https')):
-        cs_url_root = 'http' + cs_url_root[cs_url_root.find(':'):]
-except:
-    pass
-
-
 # Checker
 
 cs_checker_websocket = 'ws://localhost:6011'
@@ -200,7 +190,14 @@ cs_wsgi_server_processes = 1
 
 cs_websocket_server_port = 6011
 
+
 # Debugging Function
+
+import os
+import stat
+import traceback
+
+from datetime import datetime
 
 cs_debug_log_location = '/tmp/catsoop.log'
 """
@@ -215,23 +212,17 @@ def cs_debug(*values, tag=''):
     """
     if cs_debug_log_location is None:
         return
-    from datetime import datetime
     with open(cs_debug_log_location, 'a') as myfile:
         print(datetime.now().time(), tag, *values, file=myfile)
 
 
-import os
-import stat
-import traceback
-
-from datetime import datetime
 
 _cs_config_errors = []
 
 # try to import configuration from config.py
 
 try:
-    from .config import *
+    exec(open(os.path.join(os.path.dirname(__file__), 'config.py')).read())
 except Exception as e:
     _cs_config_errors.append('error in config.py: %s' % (e, ))
 
