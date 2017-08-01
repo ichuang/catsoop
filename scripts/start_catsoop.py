@@ -53,13 +53,15 @@ WSGI_TIME = check_wsgi_time()
 
 if ((not os.path.exists(os.path.join(scripts_dir, 'node_modules', 'rethinkdb'))) or
         (not os.path.exists(os.path.join(scripts_dir, 'node_modules', 'websocket')))):
-    print('Node modules are missing.  Please run "npm install websocket rethinkdb" from within the scripts directory.')
+    print('Node modules are missing.  Please run "npm install websocket rethinkdb"'
+          'from within the scripts directory.')
     sys.exit(0)
 
 # Start RethinkDB First
 
 print('Starting RethinkDB Server')
-running.append(subprocess.Popen(['rethinkdb'], cwd=scripts_dir,
+running.append(subprocess.Popen(['rethinkdb', '-d', os.path.join(base_context.cs_data_root, '_rethinkdb_data')],
+                                cwd=scripts_dir,
                                 preexec_fn=set_pdeathsig(signal.SIGTERM)))
 
 # And give it some time
