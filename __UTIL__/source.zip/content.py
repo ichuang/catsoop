@@ -48,7 +48,7 @@ def add_files_to_zip(zipfile, base_dir, zip_base):
     for root, dirs, files in os.walk(base_dir):
         to_remove = set()
         for d in dirs:
-            if d.startswith('.'):
+            if d.startswith('.') or d == 'node_modules':
                 to_remove.add(d)
         for d in to_remove:
             dirs.remove(d)
