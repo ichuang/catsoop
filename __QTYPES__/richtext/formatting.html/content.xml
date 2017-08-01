@@ -114,13 +114,13 @@ def foo(x):
 </tr>
 
 <tr>
-<td><pre>[Link to Google](http://google.com)</pre></td>
-<td><p><a href="http://google.com">Link to Google</a></p></td>
+<td><pre>[Link to CAT-SOOP](https://catsoop.mit.edu)</pre></td>
+<td><p><a href="https://catsoop.mit.edu">Link to CAT-SOOP</a></p></td>
 </tr>
 
 <tr>
-<td><pre>![Image](https://cat-soop.org/logo.svg)</pre></td>
-<td><p><img alt="Image" src="https://cat-soop.org/logo.svg" /></p></td>
+<td><pre>![Image](https://catsoop.mit.edu/__STATIC__/__BASE__/images/logo.svg)</pre></td>
+<td><p><img alt="Image" src="https://catsoop.mit.edu/__STATIC__/__BASE__/images/logo.svg" /></p></td>
 </tr>
 
 </table>

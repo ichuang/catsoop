@@ -29,7 +29,7 @@ def link(url, text=None):
 </pre>
 
 <center>
-@{link("https://cat-soop.org")}
+@{link("https://catsoop.mit.edu")}
 </center>
 
 <python>

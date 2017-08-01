@@ -7,15 +7,15 @@
 
 CAT-SOOP
 
-* Web Site: https://cat-soop.org
+* Web Site: https://catsoop.mit.edu
       (or as a Tor "onion service" at http://catsoopsurzgtnkt.onion)
 
-* Repository Web Access: https://cat-soop.org/repo/cat-soop
+* Repository Web Access: https://catsoop.mit.edu/repo/cat-soop
 
 * IRC: #cat-soop on OFTC (irc.oftc.net)
 
-* Mailing List: users@lists.cat-soop.org
-      (subscribe at https://lists.cat-soop.org/postorius/lists/users.lists.cat-soop.org/)
+* Mailing List: catsoop-users@mit.edu
+      (subscribe at http://mailman.mit.edu/mailman/listinfo/catsoop-users)
 
 * No animals were harmed in the making of this CAT-SOOP.
 
@@ -36,7 +36,7 @@ otherwise.
 HOW DO I INSTALL IT?
 
 See the "installation quick-start guide" at:
-    https://cat-soop.org/website/docs/installing
+    https://catsoop.mit.edu/website/docs/installing
 
 
 IS IT ANY GOOD?
