@@ -320,6 +320,8 @@ def _breadcrumbs_html(context):
     _defined = context.get('cs_breadcrumbs_html', None)
     if callable(_defined):
         return _defined(context)
+    if context.get('cs_course', None) in {None, 'cs_util', '__QTYPE__', '__HANDLER__'}:
+        return ''
     if len(context.get('cs_loader_states', [])) < 2:
         return ''
     out = '<ol class="breadcrumb">'
@@ -424,7 +426,7 @@ def main(environment):
 
         # SET SOME CONSTANTS FOR THE TEMPLATE (may be changed later)
         course = context.get('cs_course', None)
-        if course is None or course == 'cs_util':
+        if course is None or course in {'cs_util', '__QTYPE__', '__HANDLER__'}:
             context['cs_home_link'] = 'BASE'
             context['cs_source_qstring'] = ''
         else:
