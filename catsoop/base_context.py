@@ -145,6 +145,7 @@ Special: The template file to use to render the page
 """
 
 # Default Look and Feel
+
 cs_theme = 'BASE/themes/base.css'
 """
 Special: A URL pointing to the page's CSS stylesheet
@@ -179,17 +180,48 @@ The course associated with a request
 # Checker
 
 cs_checker_websocket = 'ws://localhost:6011'
+"""
+The location to which the browser should connect to the checker's "reporter" process.
+"""
 
-cs_checker_global_timeout = 30
+cs_checker_global_timeout = 120
+"""
+The absolute maximum that a checker should be allowed to run before being
+killed.  This trumps any limits set by a [articular question so that if there
+is, for example, an infinite loop in a checker's code, it will still be killed
+eventually.
+"""
 
 cs_checker_parallel_checks = 1
+"""
+The number of checks the checker should run simultaneously.
+"""
 
 cs_wsgi_server_port = 6010
+"""
+The local port on which the WSGI server should run.
+"""
 
 cs_wsgi_server_processes = 1
+"""
+How many worker processes the UWSGI server should start
+"""
 
 cs_websocket_server_port = 6011
+"""
+The local port on which the websocket server should run
+"""
 
+# File Upload Type
+
+cs_upload_management = 'file'
+"""
+Defines how CAT-SOOP should handle file uploads.  Must be 'file' or 'db'.
+
+In 'file' mode, CAT-SOOP will store the uploaded files on disk, under <cs_data_root>/_uploads.
+
+In 'db' mode, CAT-SOOP will store the contents of the files directly in the database.
+"""
 
 # Debugging Function
 

@@ -40,17 +40,23 @@ def handle_submission(submissions, **info):
 
 
 def render_html(last_log, **info):
-    out = '''<input type="file" id=%(name)s name="%(name)s" />'''
-    out %= {'name': info['csq_name']}
-    ll = last_log.get(info['csq_name'], None)
+    name = info['csq_name']
+    out = '''<input type="file" style="display: none" id=%s name="%s" />''' % (name, name)
+    out += ('''<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
+            '''<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)
+    out += ('''<script type="text/javascript">'''
+            '''$('#%s_select_button').click(function (){$("#%s").click();});'''
+            '''$('#%s').change(function (){$('#%s_selected_file').text($('#%s').val());});'''
+            '''</script>''') % (name, name, name, name, name)
+    ll = last_log.get(name, None)
     if ll is not None:
         try:
-            name, data = ll
+            fname, _ = ll
+            data = info['csm_loader'].get_file_data(info, last_log, name)
             out += '<br/>'
-            name = '.'.join(info['cs_path_info'] + [info['cs_username'], name])
             out += ('<a href="%s" '
                     'download="%s">Download Most '
-                    'Recent Submission</a>') % (data, name)
+                    'Recent Submission</a>') % (data, fname)
         except:
             pass
     return out

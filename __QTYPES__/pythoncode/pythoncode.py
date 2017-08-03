@@ -166,10 +166,11 @@ def handle_check(submissions, **info):
 
 
 def handle_submission(submissions, **info):
-    code = submissions[info['csq_name']]
-    if info['csq_interface'] == 'upload':
-        code = csm_tools.data_uri.DataURI(code[1]).data.decode()
-    code = code.replace('\r\n', '\n')
+    try:
+        code = info['csm_loader'].get_file_data(info, submissions, info['csq_name'])
+        code = code.decode().replace('\r\n', '\n')
+    except:
+        return {'score': 0, 'msg': '<div class="bs-callout bs-callout-danger"><span class="text-danger"><b>Error:</b> Unable to decode the specified file.  Is this the file you intended to upload?</span></div>'}
     tests = [dict(test_defaults) for i in info['csq_tests']]
     for (i, j) in zip(tests, info['csq_tests']):
         i.update(j)
@@ -282,7 +283,10 @@ def handle_submission(submissions, **info):
     overall = float(score) / tp if tp != 0 else 0
     msg = (('\n<br/>&nbsp;Your score on your most recent '
             'submission was: %01.02f%%') % (overall * 100)) + msg
-    return {'score': overall, 'msg': msg}
+    out = {'score': overall, 'msg': msg}
+    if info['csq_interface'] == 'upload':
+        out['rerender'] = True
+    return out
 
 
 def make_initial_display(info):
@@ -337,22 +341,20 @@ def render_html_upload(last_log, **info):
         'init': str(init),
         'safeinit': (init or '').replace('<', '&lt;'),
         'b64init': b64encode(make_initial_display(info).encode()).decode(),
-        'dl': (' download="%s"' % info['csq_skeleton_name'])
-        if 'csq_skeleton_name' in info else 'download',
-        'dl2': (' download="%s"' % fname)
-        if 'csq_skeleton_name' in info else 'download',
+        'dl': (' download="%s"' % info['csq_skeleton_name']) if 'csq_skeleton_name' in info else 'download',
     }
     out = ''
     if info.get('csq_show_skeleton', True):
         out += ('''<a href="data:text/plain;base64,%(b64init)s" '''
                 '''target="_blank"%(dl)s>Code Skeleton</a><br />''') % params
     if last_log.get(name, None) is not None:
-        code = last_log[name]
-        if isinstance(code, str):
-            code = (None, "data:text/plain;base64,%s" % b64encode(code.encode()))
-        out += ('''<a href="%s" '''
-                '''target="_blank" id="%s_lastfile">'''
-                '''Your Last Submission</a><br />''') % (code[1], name)
+        code = b64encode(info['csm_loader'].get_file_data(info, last_log, name)).decode()
+        fname = ''
+        if isinstance(last_log[name], list):
+            fname = last_log[name][0]
+        out += ('''<a href="data:text/plain;base64,%s" '''
+                '''download=%r id="%s_lastfile">'''
+                '''Your Last Submission</a><br />''') % (code, fname, name)
     out += '''<input type="file" style="display: none" id=%(name)s name="%(name)s" />''' % params
     out += ('''<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
             '''<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)

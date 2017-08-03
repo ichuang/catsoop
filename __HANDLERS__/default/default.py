@@ -17,6 +17,7 @@
 import os
 import re
 import json
+import time
 import random
 import string
 import traceback
@@ -1531,6 +1532,22 @@ def pre_handle(context):
         names = context['cs_form'].get('names', "[]")
         context[_n('question_names')] = json.loads(names)
         context[_n('form')] = json.loads(context['cs_form'].get('data', '{}'))
+        if context['cs_upload_management'] == 'file':
+            for name, value in context[_n('form')].items():
+                if isinstance(value, list):
+                    data = csm_tools.data_uri.DataURI(value[1]).data
+                    dir_ = os.path.join(context['cs_data_root'], '_uploads', *context['cs_path_info'])
+                    os.makedirs(dir_, exist_ok=True)
+                    value[0] = value[0].replace('<', '').replace('>', '').replace('"', '').replace('"', '')
+                    fname = '%s___%.06f___%s' % (context['cs_username'], time.time(), value[0])
+                    fullname = os.path.join(dir_, fname)
+                    with open(fullname, 'wb') as f:
+                        f.write(data)
+                    value[1] = fullname
+        elif context['cs_upload_management'] == 'db':
+            pass
+        else:
+            raise Exception('unknown upload management style: %r' % context['cs_upload_management'])
 
 
 def _get_auto_view(context):

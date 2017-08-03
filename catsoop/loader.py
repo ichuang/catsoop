@@ -31,6 +31,24 @@ from . import base_context
 importlib.reload(base_context)
 
 
+def get_file_data(context, form, name):
+    data = form[name]
+    up = context['cs_upload_management']
+    if isinstance(data, list):
+        if up == 'file':
+            with open(os.path.join(data[1]), 'rb') as f:
+                data = f.read()
+            return data
+        elif up == 'db':
+            return csm_tools.data_uri.DataURI(data[1]).data
+        else:
+            raise Exception('unknown upload management style: %r' % up)
+    elif isinstance(data, str):
+        return data.encode()
+    else:  # bytes
+        return data
+
+
 def clean_builtins(d):
     """
     Cleans __builtins__ out of a dictionary to make it serializable

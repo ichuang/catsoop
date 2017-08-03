@@ -16,6 +16,9 @@ ADDED:
   * Added process.py, containing some common operations relating to process
     management.
 
+  * Added support for storing uploaded files on disk rather than in the
+    database directly.
+
 CHANGED:
 
   * rethinkdb is now a hard dependency.
