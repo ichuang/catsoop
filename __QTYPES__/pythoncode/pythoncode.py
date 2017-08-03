@@ -82,6 +82,11 @@ test_defaults = {
 }
 
 
+def init(info):
+    if info['csq_interface'] == 'upload':
+        info['csq_rerender'] = True
+
+
 def total_points(**info):
     bak = info['csq_tests']
     info['csq_tests'] = []
@@ -284,8 +289,6 @@ def handle_submission(submissions, **info):
     msg = (('\n<br/>&nbsp;Your score on your most recent '
             'submission was: %01.02f%%') % (overall * 100)) + msg
     out = {'score': overall, 'msg': msg}
-    if info['csq_interface'] == 'upload':
-        out['rerender'] = True
     return out
 
 
@@ -359,9 +362,10 @@ def render_html_upload(last_log, **info):
     out += ('''<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
             '''<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)
     out += ('''<script type="text/javascript">'''
+            '''$('#%s').val('');'''
             '''$('#%s_select_button').click(function (){$("#%s").click();});'''
             '''$('#%s').change(function (){$('#%s_selected_file').text($('#%s').val());});'''
-            '''</script>''') % (name, name, name, name, name)
+            '''</script>''') % (name, name, name, name, name, name)
     return out
 
 

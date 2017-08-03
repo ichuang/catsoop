@@ -671,7 +671,7 @@ def handle_save(context):
         # if we are here, no errors occurred.  go ahead with checking.
         newstate['last_submit'][name] = sub
 
-        rerender = question.get('always_rerender', False)
+        rerender = args.get('csq_rerender', question.get('always_rerender', False))
         if rerender is True:
             out['rerender'] = context['csm_language'].source_transform_string(context, args.get(
                                                                               'csq_prompt', ''))
@@ -754,7 +754,7 @@ def handle_check(context):
         entry_id = res['generated_keys'][0]
         entry_ids[name] = entry_id
 
-        rerender = question.get('always_rerender', False)
+        rerender = args.get('csq_rerender', question.get('always_rerender', False))
         if rerender is True:
             out['rerender'] = question['render_html'](newstate['last_submit'],
                                                       **args)
@@ -890,6 +890,13 @@ def handle_submit(context):
             if mag_key in newstate:
                 del newstate[mag_key]
             newstate['%s_message' % name] = out['message']
+
+        rerender = args.get('csq_rerender', question.get('always_rerender', False))
+        if rerender is True:
+            out['rerender'] = question['render_html'](newstate['last_submit'],
+                                                      **args)
+        elif rerender:
+            out['rerender'] = rerender
 
         outdict[name] = out
 
@@ -1461,6 +1468,8 @@ def pre_handle(context):
         if isinstance(elt, tuple):
             m = elt[1]
             context[_n('name_map')][m['csq_name']] = elt
+            if 'init' in elt[0]:
+                elt[0]['init'](elt[1])
 
     # who is the user (and, who is being impersonated?)
     user_info = context.get('cs_user_info', {})
