@@ -1,13 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
-
-Version 10.0.0 will represent a significant change to CAT-SOOP.  The goal is
-to implement the changes in question in a way that is backward compatible (or
-at least mostly so), and then to remove the old ways of doing things in a
-subsequent version.
+##################
+# Version 10.0.0 #
+##################
 
 ADDED:
 
@@ -43,8 +36,6 @@ CHANGED:
 
   * Re-styled buttons throughout the system.
 
-DEPRECATED:
-
 REMOVED:
 
   * Removed CSS-only spinner, replaced with data URI for image in the base
@@ -61,8 +52,6 @@ FIXED:
     doesn't block text when moving around a page.
 
   * Errors in the registration form now prevent submitting the form.
-
-SECURITY:
 
 
 #################
