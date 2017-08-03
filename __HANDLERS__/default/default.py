@@ -869,13 +869,14 @@ def handle_submit(context):
             if msg_key in newstate:
                 del newstate[msg_key]
             newstate['%s_magic' % name] = entry_id
+            newstate['last_checker_id'][name] = entry_id
+            newstate['last_submit_checker_id'][name] = entry_id
         elif grading_mode == 'manual':
             resp = {}
             out['message'] = 'Submission received for manual grading.'
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, None,
                 assume_submit=True)
-            newstate['scores'][name] = None
             mag_key = '%s_magic' % name
             if mag_key in newstate:
                 del newstate[mag_key]
@@ -901,8 +902,6 @@ def handle_submit(context):
         outdict[name] = out
 
         # cache responses
-        newstate['last_checker_id'][name] = entry_id
-        newstate['last_submit_checker_id'][name] = entry_id
         newstate['%s_score_display' % name] = out['score_display']
 
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
