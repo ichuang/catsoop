@@ -34,7 +34,8 @@ def handle_submission(submissions, **info):
     name = info['csq_name']
     ll = submissions.get(name, None)
     if ll is not None:
-        submissions[name] = csm_tools.data_uri.DataURI(ll[1]).data
+        fname, _ = ll
+        submissions[name] = info['csm_loader'].get_file_data(info, submissions, name)
         o.update(base['handle_submission'](submissions, **info))
     return o
 
@@ -53,10 +54,11 @@ def render_html(last_log, **info):
         try:
             fname, _ = ll
             data = info['csm_loader'].get_file_data(info, last_log, name)
+            typ = mimetypes.guess_type(fname)[0] or 'text/plain'
             out += '<br/>'
-            out += ('<a href="%s" '
+            out += ('<a href="data:%s;base64,%s" '
                     'download="%s">Download Most '
-                    'Recent Submission</a>') % (data, fname)
+                    'Recent Submission</a>') % (typ, base64.b64encode(data).decode(), fname.replace('<', '').replace('>', '').replace('"', '').replace("'", ''))
         except:
             pass
     return out
