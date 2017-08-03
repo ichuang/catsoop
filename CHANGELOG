@@ -8,6 +8,12 @@ ADDED:
 
 CHANGED:
 
+  * RethinkDB is now used to store session data, as opposed to the file-based
+    storage used in the past.
+
+  * Slight changes to the way version numbers are displayed in the default
+    template.
+
 DEPRECATED:
 
 REMOVED:
