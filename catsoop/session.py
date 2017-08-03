@@ -42,7 +42,7 @@ def new_session_id():
     @return: A string containing a new session ID
     """
     c = r.connect(db='catsoop')
-    r.table('sessions').filter(r.row['time'] < time.time() - EXPIRES).delete().run(c)
+    r.table('sessions').filter(r.row['time'] < time.time() - EXPIRES).delete(durability='soft').run(c)
     res = r.table('sessions').insert({'time': time.time(), 'data': {}}).run(c)
     out = res['generated_keys'][0]
     c.close()
