@@ -23,6 +23,8 @@ import time
 import uuid
 import importlib
 
+import rethinkdb as r
+
 from http.cookies import SimpleCookie
 
 from . import cslog
@@ -31,22 +33,7 @@ from .tools import filelock
 
 importlib.reload(base_context)
 
-VALID_SESSION_RE = re.compile(r"^[A-Fa-f0-9]{32}$")
-"""
-Regular expression matching a valid session id name (32 hexadecimal characters)
-"""
-
-EXPIRE = 24 * 3600
-"""
-Number of seconds since last action to keep a session as valid.
-Defaults to 24 hours
-"""
-
-SESSION_DIR = os.path.join(base_context.cs_data_root, "__SESSIONS__")
-"""
-The directory where sessions will be stored.
-"""
-
+EXPIRES = 60*60*24*2
 
 def new_session_id():
     """
@@ -54,7 +41,12 @@ def new_session_id():
 
     @return: A string containing a new session ID
     """
-    return uuid.uuid4().hex
+    c = r.connect(db='catsoop')
+    r.table('sessions').filter(r.row['time'] < time.time() - EXPIRES).delete().run(c)
+    res = r.table('sessions').insert({'time': time.time(), 'data': {}}).run(c)
+    out = res['generated_keys'][0]
+    c.close()
+    return out
 
 
 def get_session_id(environ):
@@ -69,35 +61,19 @@ def get_session_id(environ):
     """
     if 'HTTP_COOKIE' in environ:
         try:
+            c = r.connect(db='catsoop')
             cookie_sid = SimpleCookie(environ['HTTP_COOKIE'])['sid'].value
-            if VALID_SESSION_RE.match(cookie_sid) is None:
-                return new_session_id(), True
-            return cookie_sid, False
+            if len(list(r.table('sessions').filter(cookie_sid).run(c))) == 0:
+                out = new_session_id(), True
+            else:
+                r.table('sessions').filter(cookie_sid).update({'time': time.time()}).run(c)
+                out = cookie_sid, False
+            c.close()
+            return out
         except:
             return new_session_id(), True
     else:
         return new_session_id(), True
-
-
-def make_session_dir():
-    """
-    Create the session directory if it does not exist.
-    """
-    if not os.path.isdir(SESSION_DIR):
-        os.makedirs(SESSION_DIR)
-
-
-def expire_sessions():
-    """
-    Expire sessions that have not been accessed within L{EXPIRE} seconds.
-    """
-    for fname in os.listdir(SESSION_DIR):
-        fname = os.path.join(SESSION_DIR, fname)
-        try:
-            if os.stat(fname).st_atime < time.time() - EXPIRE:
-                os.remove(fname)
-        except:
-            pass
 
 
 def get_session_data(context, sid):
@@ -107,15 +83,14 @@ def get_session_data(context, sid):
     @param sid: The session ID to look up
     @return: A dictionary mapping session variables to their values
     """
-    make_session_dir()
-    fname = os.path.join(SESSION_DIR, sid)
-    with filelock.FileLock(fname) as lock:
-        try:
-            with open(fname, 'rb') as f:
-                out = cslog.unprep(f.read())
-        except:
-            out = {}  # default to returning empty session
-    return out
+    c = r.connect(db='catsoop')
+    out = list(r.table('sessions').filter(sid).run(c))
+    if len(out) == 0:
+        rtn = {}
+    else:
+        rtn = {k:v for k, v in out[0].get('data', {}).items() if k != 'id'}
+    c.close()
+    return rtn
 
 
 def set_session_data(context, sid, data):
@@ -125,9 +100,6 @@ def set_session_data(context, sid, data):
     @param sid: The session ID to replace
     @param data: A dictionary mapping session variables to values
     """
-    make_session_dir()
-    fname = os.path.join(SESSION_DIR, sid)
-    with filelock.FileLock(fname) as lock:
-        with open(fname, 'wb') as f:
-            f.write(cslog.prep(data))
-    expire_sessions()
+    c = r.connect(db='catsoop')
+    r.table('sessions').filter(sid).update({'data': data}).run(c)
+    c.close()

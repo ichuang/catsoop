@@ -91,6 +91,9 @@ if 'checker' not in tables:
     r.table('checker').index_create('log', [r.row['username'], r.row['path']]).run(c)
     r.table('checker').index_wait('log').run(c)
 
+if 'sessions' not in tables:
+    r.table_create('sessions').run(c)
+
 c.close()
 
 # Finally, start the workers.
