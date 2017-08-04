@@ -1,10 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
-
-ADDED:
+##################
+# Version 10.0.1 #
+##################
 
 CHANGED:
 
@@ -14,13 +10,11 @@ CHANGED:
   * Slight changes to the way version numbers are displayed in the default
     template.
 
-DEPRECATED:
-
-REMOVED:
-
 FIXED:
 
-SECURITY:
+  * Fixed multiple large issues with manually-graded submissions.
+
+  * Fixed multiple large issues with the FileUpload question type.
 
 
 ##################
