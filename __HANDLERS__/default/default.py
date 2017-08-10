@@ -1468,7 +1468,9 @@ def pre_handle(context):
             m = elt[1]
             context[_n('name_map')][m['csq_name']] = elt
             if 'init' in elt[0]:
-                elt[0]['init'](elt[1])
+                a = elt[0].get('defaults', {})
+                a.update(elt[1])
+                elt[0]['init'](a)
 
     # who is the user (and, who is being impersonated?)
     user_info = context.get('cs_user_info', {})
