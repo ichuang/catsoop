@@ -6,6 +6,9 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* cs_user_info and cs_username are now always defined, even on pages that don't
+  require authentication
+
 CHANGED:
 
 * The built-in print function can now be used instead of cs_print to inject

@@ -494,6 +494,9 @@ def main(environment):
 
                 # ONCE WE HAVE THAT, GET USER INFORMATION
                 context['cs_user_info'] = auth.get_user_information(context)
+            else:
+                context['cs_user_info'] = {}
+                context['cs_username'] = None
 
             # MAKE SURE LATE LOAD EXISTS; 404 IF NOT
             if context.get('cs_course', None):
