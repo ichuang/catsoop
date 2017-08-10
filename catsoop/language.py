@@ -28,6 +28,7 @@ import traceback
 
 from io import StringIO
 from collections import OrderedDict
+from contextlib import redirect_stdout
 
 from . import tutor
 from . import dispatch
@@ -234,7 +235,8 @@ def get_python_output(context, code, variables):
         code = code.replace('tutor.init_random()',
                             'tutor.init_random(globals())')
         code = code.replace('tutor.question(', 'tutor.question(globals(),')
-        exec(code, variables)
+        with redirect_stdout(variables['cs___WEBOUT']):
+            exec(code, variables)
         return variables['cs___WEBOUT'].getvalue()
     except:
         err = html_format(clear_info(context, traceback.format_exc()))
@@ -260,7 +262,7 @@ def _make_python_handler(context):
                 f = "%s"
             else:
                 f = opts[0]
-            body = "cs_print(%r %% (%s,))" % (f, body)
+            body = "print(%r %% (%s,))" % (f, body)
             opts = []
         out = ""
         # decide whether to show the code
