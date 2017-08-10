@@ -8,11 +8,22 @@ ADDED:
 
 CHANGED:
 
+* The built-in print function can now be used instead of cs_print to inject
+  page content from within <python> tags.
+
 DEPRECATED:
+
+* print should now be used instead of cs_print to inject page content from
+  within <python> tags.  cs_print will be removed in a future version.
 
 REMOVED:
 
 FIXED:
+
+* Fixed issue with clearing session data.
+
+* Fixed an issue with QTYPEs' "init" functions being called with incorrect
+  arguments.
 
 SECURITY:
 
