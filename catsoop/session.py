@@ -63,10 +63,10 @@ def get_session_id(environ):
         try:
             c = r.connect(db='catsoop')
             cookie_sid = SimpleCookie(environ['HTTP_COOKIE'])['sid'].value
-            if len(list(r.table('sessions').filter(cookie_sid).run(c))) == 0:
+            if len(list(r.table('sessions').get_all(cookie_sid).run(c))) == 0:
                 out = new_session_id(), True
             else:
-                r.table('sessions').filter(cookie_sid).update({'time': time.time()}).run(c)
+                r.table('sessions').get_all(cookie_sid).update({'time': time.time()}).run(c)
                 out = cookie_sid, False
             c.close()
             return out
@@ -84,7 +84,7 @@ def get_session_data(context, sid):
     @return: A dictionary mapping session variables to their values
     """
     c = r.connect(db='catsoop')
-    out = list(r.table('sessions').filter(sid).run(c))
+    out = list(r.table('sessions').get_all(sid).run(c))
     if len(out) == 0:
         rtn = {}
     else:
@@ -101,5 +101,5 @@ def set_session_data(context, sid, data):
     @param data: A dictionary mapping session variables to values
     """
     c = r.connect(db='catsoop')
-    r.table('sessions').filter(sid).update({'data': data}).run(c)
+    r.table('sessions').get_all(sid).replace({'id': r.row['id'], 'data': data, 'time': time.time()}, non_atomic=True).run(c)
     c.close()
