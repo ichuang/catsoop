@@ -762,7 +762,12 @@ def handle_check(context):
             out['rerender'] = rerender
 
         out['score_display'] = ''
-        out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
+        out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id,
+                                               'websocket': context['cs_checker_websocket'],
+                                               'loading': context['cs_loading_image'],
+                                               'id_css': (' style="display:none;"'
+                                                          if context.get('cs_show_submission_id', True)
+                                                          else '')}
         out['magic'] = entry_id
 
         outdict[name] = out
@@ -862,7 +867,12 @@ def handle_submit(context):
             entry_id = res['generated_keys'][0]
             entry_ids[name] = entry_id
 
-            out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
+            out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id,
+                                                   'websocket': context['cs_checker_websocket'],
+                                                   'loading': context['cs_loading_image'],
+                                                   'id_css': (' style="display:none;"'
+                                                              if context.get('cs_show_submission_id', True)
+                                                              else '')}
             out['magic'] = entry_id
             out['score_display'] = ''
             msg_key = '%s_message' % name
@@ -1272,7 +1282,12 @@ def render_question(elt, context, lastsubmit, wrap=True):
     message = context[_n('last_log')].get('%s_message' % name, '')
     magic = context[_n('last_log')].get('%s_magic' % name, None)
     if magic is not None:
-        message = WEBSOCKET_RESPONSE % {'name': name, 'magic': magic, 'websocket': context['cs_checker_websocket'], 'loading': context['cs_loading_image']}
+        message = WEBSOCKET_RESPONSE % {'name': name, 'magic': magic,
+                                        'websocket': context['cs_checker_websocket'],
+                                        'loading': context['cs_loading_image'],
+                                        'id_css': (' style="display:none;"'
+                                                   if context.get('cs_show_submission_id', True)
+                                                   else '')}
     if gmode == 'manual':
         q, args = context[_n('name_map')][name]
         lastlog = context['csm_tutor'].get_manual_grading_entry(context, name) or {}
@@ -1934,7 +1949,7 @@ WEBSOCKET_RESPONSE = """
     <center><img src="%(loading)s"/></center>
   </div>
 </div>
-<small>ID: <code>%(magic)s</code></small>
+<small%(id_css)s>ID: <code>%(magic)s</code></small>
 
 <script type="text/javascript">
 var magic_%(name)s = %(magic)r;
