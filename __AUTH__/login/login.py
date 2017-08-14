@@ -477,8 +477,11 @@ def get_logged_in_user(context):
         def new_postload(context):
             if old_postload is not None:
                 old_postload(context)
-            context['cs_content'] = ((LOGIN_BOX % _get_base_url(context)) +
-                                      context['cs_content'])
+            if 'cs_login_box' in context:
+                lbox = context['cs_login_box'](context)
+            else:
+                lbox = LOGIN_BOX % _get_base_url(context)
+            context['cs_content'] = lbox + context['cs_content']
         context['cs_post_load'] = new_postload
         return {}
     else:
@@ -1079,7 +1082,7 @@ def _submit_button(fields, username, preserve, form, value='Submit'):
    return base % (form, value, fields, username, preserve, form, form, form)
 
 LOGIN_BOX = """
-<div class="response">
+<div class="response" id="catsoop_login_box">
 <b><center>You are not logged in.</center></b><br/>
 If you are a current student, please <a href="%s?loginaction=login">Log In</a> for full access to this page.
 </div>

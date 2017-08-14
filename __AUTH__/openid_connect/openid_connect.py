@@ -44,14 +44,19 @@ def get_logged_in_user(context):
             def new_postload(context):
                 if old_postload is not None:
                     old_postload(context)
-                context['cs_content'] = ((LOGIN_BOX % (_get_base_url(context), context['cs_openid_server'])) +
-                                          context['cs_content'])
+                if 'cs_login_box' in context:
+                    lbox = context['cs_login_box'](context)
+                else:
+                    lbox = LOGIN_BOX % (_get_base_url(context),
+                                        context['cs_openid_server'])
+            context['cs_content'] = lbox + context['cs_content']
             context['cs_post_load'] = new_postload
             return {}
         else:
             context['cs_handler'] = 'passthrough'
             context['cs_content_header'] = 'Please Log In'
-            context['cs_content'] = LOGIN_PAGE % (_get_base_url(context), context['cs_openid_server'])
+            context['cs_content'] = LOGIN_PAGE % (_get_base_url(context),
+                                                  context['cs_openid_server'])
             return {'cs_render_now': True}
     elif action == 'redirect':
         redir_url = '%s/__AUTH__/openid_connect/callback' % context['cs_url_root']
@@ -83,7 +88,7 @@ will be redirected back to this page.
 """
 
 LOGIN_BOX = """
-<div class="response">
+<div class="response" id="catsoop_login_box">
 <b><center>You are not logged in.</center></b><br/>
 If you are a current student, please <a href="%s?loginaction=redirect">Log
 In</a> for full access to the web site.<br/>Note that this link will take you to
