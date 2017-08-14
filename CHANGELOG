@@ -6,7 +6,12 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* Added more options to modify the styling of the "login required" box.
+
 CHANGED:
+
+* Submission IDs are no longer visible by default, though they can be made
+  visible with cs_show_submission_id.
 
 DEPRECATED:
 
