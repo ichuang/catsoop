@@ -67,6 +67,10 @@ running.append(subprocess.Popen(['rethinkdb', '-d', os.path.join(base_context.cs
 # And give it some time
 time.sleep(5)
 
+if running[-1].poll() != None:
+    print('RethinkDB did not start successfully.  Quitting.')
+    sys.exit(1)
+
 # Now make sure the database is set up
 
 c = r.connect()
