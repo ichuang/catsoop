@@ -68,6 +68,7 @@ def get_session_id(environ):
     session ID is not new.
     """
     # clear out dead sessions first
+    make_session_dir()
     now = time.time()
     for i in os.listdir(SESSION_DIR):
         fullname = os.path.join(SESSION_DIR, i)
@@ -92,21 +93,7 @@ def make_session_dir():
     """
     Create the session directory if it does not exist.
     """
-    if not os.path.isdir(SESSION_DIR):
-        os.makedirs(SESSION_DIR)
-
-
-def expire_sessions():
-    """
-    Expire sessions that have not been accessed within L{EXPIRE} seconds.
-    """
-    for fname in os.listdir(SESSION_DIR):
-        fname = os.path.join(SESSION_DIR, fname)
-        try:
-            if os.stat(fname).st_atime < time.time() - EXPIRE:
-                os.remove(fname)
-        except:
-            pass
+    os.makedirs(SESSION_DIR, exist_ok=True)
 
 
 def get_session_data(context, sid):
