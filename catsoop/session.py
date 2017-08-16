@@ -126,4 +126,3 @@ def set_session_data(context, sid, data):
     with filelock.FileLock(fname) as lock:
         with open(fname, 'w') as f:
             f.write(json.dumps(data))
-    expire_sessions()
