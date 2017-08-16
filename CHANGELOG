@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
+##################
+# Version 10.2.0 #
+##################
 
 ADDED:
 
@@ -13,17 +11,15 @@ CHANGED:
 * Submission IDs are no longer visible by default, though they can be made
   visible with cs_show_submission_id.
 
-DEPRECATED:
+* Logs once again use SQLite instead of RethinkDB.
 
 REMOVED:
+
+* Removed RethinkDB completely.
 
 FIXED:
 
 * Updated the location of the default remote sandbox.
-
-SECURITY:
-
-DOCUMENTATION:
 
 
 ##################
