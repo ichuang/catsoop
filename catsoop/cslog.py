@@ -79,11 +79,9 @@ def get_log_filename(path, db_name):
         course = None
     if course is not None:
         d = os.path.join(base_context.cs_data_root, 'courses', course, '__LOGS__')
-        create_if_not_exists(d)
         fname = os.path.join(d, db_name + '.db')
     else:
         d = os.path.join(base_context.cs_data_root, '__LOGS__')
-        create_if_not_exists(d)
         fname = os.path.join(base_context.cs_data_root, '__LOGS__', db_name + '.db')
     if os.path.dirname(os.path.abspath(fname)) != os.path.abspath(d):
         raise Exception("Cannot access log at %s" % fname)
@@ -95,6 +93,7 @@ def sqlite_access(fname):
     Helper used to access a given SQLite database.
     Initializes database if appropriate.
     """
+    create_if_not_exists(os.path.dirname(fname))
     c = sqlite3.connect(fname)
     c.text_factory = str
     c.execute(MAKETABLE)
