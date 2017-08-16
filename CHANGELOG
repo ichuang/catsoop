@@ -12,7 +12,16 @@ DEPRECATED:
 
 REMOVED:
 
+* Removed several calls to the deprecated cs_print from the default "main"
+  page.
+
+* Removed Acknowledgments section from the default "main" page.
+
 FIXED:
+
+* Removed an extraneous print statement from the default handler.
+
+* Remove HTML formatting from course name in source.zip downloads.
 
 SECURITY:
 
