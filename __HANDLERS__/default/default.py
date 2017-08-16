@@ -1532,7 +1532,6 @@ def pre_handle(context):
                                           'problemstate',
                                           {})
     _cs_group_path = context.get('cs_groups_to_use', context['cs_path_info'])
-    print(repr(_cs_group_path))
     context[_n('all_groups')] = context['csm_groups'].list_groups(context,
                                                                   _cs_group_path)
     context[_n('group')] = context['csm_groups'].get_group(context,
