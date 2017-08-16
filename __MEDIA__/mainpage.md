@@ -34,7 +34,7 @@ def link(url, text=None):
 
 <python>
 if cs_main_page_text:
-    cs_print(cs_main_page_text)
+    print(cs_main_page_text)
 </python>
 
 ## About CAT-SOOP
@@ -66,15 +66,15 @@ material hosted on a CAT-SOOP instance, unless explicitly stated otherwise.
 <python>
 courses = csm_tutor.available_courses()
 if len(courses) == 0:
-    cs_print("There are currently no courses hosted on this system.")
+    print("There are currently no courses hosted on this system.")
 else:
-    cs_print("""
+    print("""
 The following courses are hosted on this system:
 """)
     for course_id, title in courses:
-        title = title.replace('<br>', ' ').replace('<br/>', ' ').replace('</br>', ' ')
+        title = title.replace('<br>', ' ').replace('<br/>', ' ').replace('</br>', ' ').replace('<br />', ' ')
         if title == course_id:
-            cs_print('* [%s](BASE/%s/)' % (course_id, course_id))
+            print('* [%s](BASE/%s/)' % (course_id, course_id))
         else:
-            cs_print('* [%s](BASE/%s/): %s' % (course_id, course_id, title))
+            print('* [%s](BASE/%s/): %s' % (course_id, course_id, title))
 </python>
