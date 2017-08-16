@@ -54,6 +54,13 @@ MOSTRECENT = 'SELECT * FROM log WHERE path=? AND logname=? ORDER BY ix DESC LIMI
 SQLite query to grab most recent entry from a log
 """
 
+def _ser(x):
+    if isinstance(x, set):
+        return list(x)
+    raise TypeError()
+
+def _dump(x):
+    return json.dumps(x, default=_ser)
 
 def create_if_not_exists(directory):
     '''
@@ -100,7 +107,7 @@ def update_log(db_name, path, logname, new):
     Adds a new entry to the specified log.
     """
     conn, c = sqlite_access(get_log_filename(path, db_name))
-    c.execute(UPDATE, (json.dumps(path), logname, json.dumps(new)))
+    c.execute(UPDATE, (_dump(path), logname, _dump(new)))
     conn.commit()
     conn.close()
 
@@ -110,12 +117,12 @@ def overwrite_log(db_name, path, logname, new):
     Overwrites the most recent entry in the specified log.
     """
     conn, c = sqlite_access(get_log_filename(path, db_name))
-    path = json.dumps(path)
+    path = _dump(path)
     c.execute(OVERWRITE, (path,
                           logname,
                           path,
                           logname,
-                          json.dumps(new), ))
+                          _dump(new), ))
     conn.commit()
     conn.close()
 
@@ -131,7 +138,7 @@ def read_log(db_name, path, logname):
     if not os.path.isfile(fname):
         return []
     conn, c = sqlite_access(fname)
-    c.execute(READ, (json.dumps(path), logname, ))
+    c.execute(READ, (_dump(path), logname, ))
     out = [json.loads(i[-1]) for i in c.fetchall()]
     conn.close()
     return out
@@ -148,7 +155,7 @@ def most_recent(db_name, path, logname, default=None):
     if not os.path.isfile(fname):
         return default
     conn, c = sqlite_access(fname)
-    c.execute(MOSTRECENT, (json.dumps(path), logname, ))
+    c.execute(MOSTRECENT, (_dump(path), logname, ))
     out = c.fetchone()
     conn.close()
     return json.loads(out[-1]) if out is not None else default
