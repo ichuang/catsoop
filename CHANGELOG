@@ -1,23 +1,20 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
-
-ADDED:
+##################
+# Version 10.2.1 #
+##################
 
 CHANGED:
 
-DEPRECATED:
+* Prevented the creation of extra directories when reading nonexistent logs.
 
 REMOVED:
 
+* Removed the defunct checker_reporter.js script.
+
 FIXED:
 
-SECURITY:
+* Fixed a number of issues with sessions.
 
-DOCUMENTATION:
-
+* Fixed an issue with serializing Python sets for logging.
 
 ##################
 # Version 10.2.0 #
