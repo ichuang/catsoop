@@ -111,6 +111,7 @@ if regenerate:
         else:
             ctx = csm_loader.spoof_early_load([course])
             course_name = ctx.get('cs_long_name', course)
+            course_name = course_name.replace('<br>', ' ').replace('<br/>', ' ').replace('</br>', ' ').replace('<br />', ' ')
             outfile.writestr('cat-soop-src/README.catsoop-source',
                              SOURCE_README % (cs_url_root, now,
                                               course_name,
