@@ -16,6 +16,7 @@
 
 import os
 import re
+import base64
 import random
 import string
 import hashlib
@@ -528,9 +529,10 @@ def get_new_password_salt(length=128):
     falls back on random if that doesn't work for some reason.
     """
     try:
-        return os.urandom(length)
+        out = os.urandom(length)
     except:
-        return ''.join(chr(random.randint(0, 255)) for i in range(length))
+        out = ''.join(chr(random.randint(0, 255)) for i in range(length))
+    return _encode(out)
 
 
 def _ensure_bytes(x):
@@ -539,13 +541,21 @@ def _ensure_bytes(x):
     except:
         return x
 
+def _encode(x):
+    return base64.b64encode(x).decode()
+
+
+def _decode(x):
+    return base64.b64decode(x.encode())
+
 
 def compute_password_hash(password, salt=None, iterations=500000, aes_key_loc=None):
     """
     Given a password, and (optionally) an associated salt, return a hash value.
     """
     hash_ = hashlib.pbkdf2_hmac('sha512', _ensure_bytes(password),
-                                _ensure_bytes(salt), iterations)
+                                _decode(salt) if salt is not None else salt,
+                                iterations)
     if aes_key_loc is not None:
         if not os.path.isfile(aes_key_loc):
             with open(aes_key_loc, 'wb') as f:
@@ -555,7 +565,7 @@ def compute_password_hash(password, salt=None, iterations=500000, aes_key_loc=No
             key = f.read()
         aes = pyaes.AESModeOfOperationCTR(key)
         hash_ = aes.encrypt(hash_)
-    return hash_
+    return _encode(hash_)
 
 
 
