@@ -19,12 +19,13 @@
 import os
 import re
 import sys
+import json
 import random
 import string
+import sqlite3
 import importlib
 import collections
 
-import rethinkdb as r
 from datetime import timedelta
 
 from . import auth
@@ -93,29 +94,35 @@ def compute_page_stats(context, user, path, keys=None):
     keys = list(keys)
 
     out = {}
-    c = r.connect(db='catsoop')
-    logtail = '___'.join(path)
     if 'state' in keys:
         keys.remove('state')
         out['state'] = logging.most_recent(user, path, 'problemstate', {})
         if out['state']:
             out['state']['scores'] = {}
+            conn = sqlite3.connect(os.path.join(context['cs_data_root'], '__LOGS__', '_checker.db'))
+            conn.row_factory = sqlite3.Row
+            c = conn.cursor()
             for k, v in out['state'].get('last_submit_checker_id', {}).items():
-                res = list(r.table('checker').get_all(v).run(c))
-                if len(res) == 1:
-                    out['state']['scores'][k] = res[0].get('score', 0.0)
-                else:
+                c.execute('SELECT * FROM checker WHERE magic=?', (v, ))
+                row = c.fetchone()
+                if row is None:
                     out['state']['scores'][k] = 0.0
+                else:
+                    out['state']['scores'][k] = row['score'] or 0.0
+            conn.close()
     if 'actions' in keys:
         keys.remove('actions')
         out['actions'] = logging.read_log(user, path, 'problemactions')
     if 'submissions' in keys:
-        out['submissions'] = list(r.table('checker').get_all([user, path], index='log').run(c))
+        conn = sqlite3.connect(os.path.join(context['cs_data_root'], '__LOGS__', '_checker.db'))
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('SELECT * FROM checker WHERE username=? AND path=?', (user, json.dumps(path)))
+        out['submissions'] = c.fetchall()
+        conn.close()
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
         out['manual_grades'] = logging.read_log(user, path, 'problemgrades')
-
-    c.close()
 
     if len(keys) == 0:
         return out

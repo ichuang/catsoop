@@ -18,14 +18,24 @@ import os
 import re
 import json
 import time
+import uuid
 import random
 import string
+import sqlite3
 import traceback
 import collections
 
 import rethinkdb as r
 
 _prefix = 'cs_defaulthandler_'
+
+NEWENTRY = ('INSERT INTO checker VALUES(?, ?, ?, ?, ?, ?, 0, ?, '
+                                       'NULL, NULL, NULL, NULL)')
+
+def checker_sqlite():
+    c = sqlite3.connect(CHECKER_DB_LOC)
+    c.text_factory = str
+    return c, c.cursor()
 
 
 def _n(n):
@@ -723,8 +733,6 @@ def handle_check(context):
     names_done = set()
     outdict = {}  # dictionary containing the responses for each question
 
-    c = r.connect(db='catsoop')
-
     entry_ids = {}
     if 'last_checker_id' not in newstate:
         newstate['last_checker_id'] = {}
@@ -741,18 +749,19 @@ def handle_check(context):
         newstate['last_submit'][name] = sub
         question, args = namemap[name]
 
-        res = r.table('checker').insert({
-                  'path': context['cs_path_info'],
-                  'username': context.get('cs_username', 'None'),
-                  'names': [name],
-                  'form': {k: v for k,v in context[_n('form')].items() if name in k},
-                  'time': r.now(),
-                  'progress': 0,
-                  'action': 'check',
-              }).run(c)
+        magic = str(uuid.uuid4())
+        conn, c = checker_sqlite()
+        c.execute(NEWENTRY, (magic,
+                             json.dumps(context['cs_path_info']),
+                             context.get('cs_username', 'None'),
+                             json.dumps([name]),
+                             json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
+                             time.time(),
+                             'check'))
+        conn.commit()
+        conn.close()
 
-        entry_id = res['generated_keys'][0]
-        entry_ids[name] = entry_id
+        entry_ids[name] = entry_id = magic
 
         rerender = args.get('csq_rerender', question.get('always_rerender', False))
         if rerender is True:
@@ -826,8 +835,6 @@ def handle_submit(context):
     # here, we don't do a whole lot.  we log a submission and add it to the
     # checker's queue.
 
-    c = r.connect(db='catsoop')
-
     entry_ids = {}
 
     for name in names:
@@ -854,18 +861,19 @@ def handle_submit(context):
         question, args = namemap[name]
         grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
         if grading_mode == 'auto':
-            res = r.table('checker').insert({
-                      'path': context['cs_path_info'],
-                      'username': context.get('cs_username', 'None'),
-                      'names': [name],
-                      'form': {k: v for k,v in context[_n('form')].items() if name in k},
-                      'time': r.now(),
-                      'progress': 0,
-                      'action': 'submit',
-                  }).run(c)
+            magic = str(uuid.uuid4())
+            conn, c = checker_sqlite()
+            c.execute(NEWENTRY, (magic,
+                                 json.dumps(context['cs_path_info']),
+                                 context.get('cs_username', 'None'),
+                                 json.dumps([name]),
+                                 json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
+                                 time.time(),
+                                 'submit'))
+            conn.commit()
+            conn.close()
 
-            entry_id = res['generated_keys'][0]
-            entry_ids[name] = entry_id
+            entry_ids[name] = entry_id = magic
 
             out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id,
                                                    'websocket': context['cs_checker_websocket'],
@@ -915,7 +923,7 @@ def handle_submit(context):
         newstate['%s_score_display' % name] = out['score_display']
 
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
-    
+
     # update problemstate log
     uname = context[_n('uname')]
     context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
@@ -1197,8 +1205,7 @@ def log_action(context, log_entry):
     uname = context[_n('uname')]
     entry = {'action': context[_n('action')],
              'timestamp': context['cs_timestamp'],
-             'user_info': context['cs_user_info'],
-             'form': context['cs_form']}
+             'user_info': context['cs_user_info']}
     entry.update(log_entry)
     context['csm_cslog'].update_log(uname, context['cs_path_info'],
                                     'problemactions', entry)
@@ -1476,6 +1483,9 @@ def make_buttons(context, name):
 
 def pre_handle(context):
     # enumerate the questions in this problem
+    global CHECKER_DB_LOC
+    CHECKER_DB_LOC = os.path.join(context['cs_data_root'], '__LOGS__',
+                                  '_checker.db')
     context[_n('name_map')] = collections.OrderedDict()
     qcount = 0
     for elt in context['cs_problem_spec']:
@@ -1954,6 +1964,8 @@ WEBSOCKET_RESPONSE = """
 <script type="text/javascript">
 var magic_%(name)s = %(magic)r;
 if (typeof ws_%(name)s != 'undefined'){
+    ws_%(name)s.onclose = function(){}
+    ws_%(name)s.onmessage = function(){}
     ws_%(name)s.close();
     var ws_%(name)s = undefined;
 }
@@ -1968,8 +1980,15 @@ ws_%(name)s.onopen = function(){
     ws_%(name)s.send(JSON.stringify({type: "hello", magic: magic_%(name)s}));
 }
 
-var ws_%(name)s_interval = null;
+ws_%(name)s.onclose = function(){
+    if (this !== ws_%(name)s) return;
+    if (ws_%(name)s_state != 2){
+        var thediv = $('#cs_partialresults_%(name)s')
+        thediv.html('Your connection to the server was lost.  Please reload the page.');
+    }
+}
 
+var ws_%(name)s_state = -1;
 
 ws_%(name)s.onmessage = function(event){
     var m = event.data;
@@ -1977,39 +1996,33 @@ ws_%(name)s.onmessage = function(event){
     var thediv = $('#cs_partialresults_%(name)s')
     var themessage = $('#cs_partialresults_%(name)s_message');
     if (j.type == 'inqueue'){
-        if (ws_%(name)s_interval !== null){
-            clearInterval(ws_%(name)s_interval);
-        }
+        ws_%(name)s_state = 0;
+        try{clearInterval(ws_%(name)s_interval);}catch(err){}
         thediv[0].className = '';
         thediv.addClass('bs-callout');
         thediv.addClass('bs-callout-warning');
         themessage.html('Your submission (id <code>%(magic)s</code>) is queued to be checked (position ' + j.position + ').');
         $('#%(name)s_buttons button').prop("disabled", false);
     }else if (j.type == 'running'){
-        if (ws_%(name)s_interval !== null){
-            clearInterval(ws_%(name)s_interval);
-        }
+        ws_%(name)s_state = 1;
+        try{clearInterval(ws_%(name)s_interval);}catch(err){}
         thediv[0].className = '';
         thediv.addClass('bs-callout');
         thediv.addClass('bs-callout-info');
         themessage.html('Your submission is currently being checked<span id="%(name)s_ws_running_time"></span>.');
         $('#%(name)s_buttons button').prop("disabled", false);
-        var sync = ((new Date()).valueOf() - j.now)/1000
+        var sync = ((new Date()).valueOf()/1000 - j.now)
         ws_%(name)s_interval = setInterval(function(){catsoop.setTimeSince("%(name)s",
-                                                                           j.started/1000,
+                                                                           j.started,
                                                                            sync);}, 1000);
     }else if (j.type == 'newresult'){
-        if (ws_%(name)s_interval !== null){
-            clearInterval(ws_%(name)s_interval);
-        }
+        ws_%(name)s_state = 2;
+        try{clearInterval(ws_%(name)s_interval);}catch(err){}
         $('#%(name)s_score_display').html(j.score_box);
         thediv[0].className = '';
         thediv.html(j.response);
         ws_%(name)s.close();
         $('#%(name)s_buttons button').prop("disabled", false);
-        if (ws_%(name)s_interval !== null){
-            clearInterval(ws_%(name)s_interval);
-        }
     }
 }
 

@@ -20,9 +20,9 @@ import time
 import atexit
 import ctypes
 import signal
+import sqlite3
 import subprocess
 
-import rethinkdb as r
 
 os.setpgrp()
 
@@ -36,8 +36,6 @@ import catsoop.base_context as base_context
 from catsoop.process import set_pdeathsig
 
 procs = (
-    (scripts_dir, ['node', 'checker_reporter.js',
-                   str(base_context.cs_websocket_server_port)], 0.1, 'Reporter'),
     (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
     (base_dir, ['uwsgi', '--http', ':%s' % base_context.cs_wsgi_server_port,
                 '--wsgi-file', 'wsgi.py',
@@ -51,56 +49,35 @@ def check_wsgi_time():
 
 WSGI_TIME = check_wsgi_time()
 
-if ((not os.path.exists(os.path.join(scripts_dir, 'node_modules', 'rethinkdb'))) or
-        (not os.path.exists(os.path.join(scripts_dir, 'node_modules', 'websocket')))):
-    print('Node modules are missing.  Please run "npm install websocket rethinkdb"'
-          'from within the scripts directory.')
-    sys.exit(0)
+# Make sure the checker database is set up
 
-# Start RethinkDB First
+checker_db_loc = os.path.join(base_context.cs_data_root,
+                              '__LOGS__',
+                              '_checker.db')
 
-print('Starting RethinkDB Server')
-running.append(subprocess.Popen(['rethinkdb', '-d', os.path.join(base_context.cs_data_root, '_rethinkdb_data')],
-                                cwd=scripts_dir,
-                                preexec_fn=set_pdeathsig(signal.SIGTERM)))
+checkertable = ('CREATE TABLE IF NOT EXISTS '
+                'checker (magic TEXT NOT NULL PRIMARY KEY, '
+                'path TEXT NOT NULL, '
+                'username TEXT NOT NULL, '
+                'names TEXT NOT NULL, '
+                'form TEXT NOT NULL, '
+                'time REAL NOT NULL, '
+                'progress INT NOT NULL, '
+                'action TEXT NOT NULL, '
+                'score REAL, '
+                'score_box TEXT, '
+                'response_zipped BLOB, '
+                'time_started REAL)')
 
-# And give it some time
-time.sleep(5)
+os.makedirs(os.path.dirname(checker_db_loc), exist_ok=True)
+conn = sqlite3.connect(checker_db_loc)
+conn.text_factory = str
+c = conn.cursor()
+c.execute(checkertable)
+conn.commit()
+conn.close()
 
-if running[-1].poll() != None:
-    print('RethinkDB did not start successfully.  Quitting.')
-    sys.exit(1)
-
-# Now make sure the database is set up
-
-c = r.connect()
-try:
-    r.db_create('catsoop').run(c)
-except:
-    pass
-c.close()
-
-c = r.connect(db='catsoop')
-
-tables = r.table_list().run(c)
-if 'logs' not in tables:
-    r.table_create('logs').run(c)
-    r.table('logs').index_create('log', [r.row['username'], r.row['path'], r.row['logname']]).run(c)
-    r.table('logs').index_wait('log').run(c)
-
-if 'checker' not in tables:
-    r.table_create('checker').run(c)
-    r.table('checker').index_create('progress').run(c)
-    r.table('checker').index_wait('progress').run(c)
-    r.table('checker').index_create('log', [r.row['username'], r.row['path']]).run(c)
-    r.table('checker').index_wait('log').run(c)
-
-if 'sessions' not in tables:
-    r.table_create('sessions').run(c)
-
-c.close()
-
-# Finally, start the workers.
+# Now start the workers.
 
 CHECKER_IX = None
 
