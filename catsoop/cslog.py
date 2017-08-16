@@ -14,83 +14,154 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Logging mechanisms using RethinkDB
+Logging mechanisms in SQLite
 """
 
 import os
-import ast
-import rethinkdb as r
+import json
+import sqlite3
 
-from datetime import datetime
+from . import base_context as base_context
+from .tools.filelock import FileLock
 
-from . import base_context
+MAKETABLE = ('CREATE TABLE IF NOT EXISTS '
+             'log (ix INTEGER PRIMARY KEY AUTOINCREMENT, '
+             'path TEXT NOT NULL, '
+             'logname TEXT NOT NULL, '
+             'data TEXT NOT NULL)')
+"""
+SQLite query to initialize logging table
+"""
 
-prep = lambda x: repr(x).encode()
-unprep = lambda x: ast.literal_eval(x.decode())
+UPDATE = 'INSERT INTO log VALUES(NULL,?,?,?)'
+"""
+SQLite query to add a new entry to a log
+"""
+
+OVERWRITE = ('INSERT OR REPLACE INTO log (ix,path,logname,data) '
+             'VALUES((SELECT max(ix) FROM log WHERE path=? AND logname=?), ?, ?, ?)')
+"""
+SQLite query to update the most recent entry to a log
+"""
+
+READ = 'SELECT * FROM log WHERE path=? AND logname=? ORDER BY ix ASC'
+"""
+SQLite query to grab all entries from a log
+"""
+
+MOSTRECENT = 'SELECT * FROM log WHERE path=? AND logname=? ORDER BY ix DESC LIMIT 1'
+"""
+SQLite query to grab most recent entry from a log
+"""
 
 
-def update_log(username, path, logname, new):
+def create_if_not_exists(directory):
+    '''
+    Helper; creates a directory if it does not already exist.
+    '''
+    os.makedirs(directory, exist_ok=True)
+
+
+def get_log_filename(path, db_name):
+    '''
+    Returns the filename where a given database is stored on disk.
+    '''
+    try:
+        course = path[0]
+    except:
+        course = None
+    if course is not None:
+        d = os.path.join(base_context.cs_data_root, 'courses', course, '__LOGS__')
+        create_if_not_exists(d)
+        fname = os.path.join(d, db_name + '.db')
+    else:
+        d = os.path.join(base_context.cs_data_root, '__LOGS__')
+        create_if_not_exists(d)
+        fname = os.path.join(base_context.cs_data_root, '__LOGS__', db_name + '.db')
+    if os.path.dirname(os.path.abspath(fname)) != os.path.abspath(d):
+        raise Exception("Cannot access log at %s" % fname)
+    return fname
+
+
+def sqlite_access(fname):
+    """
+    Helper used to access a given SQLite database.
+    Initializes database if appropriate.
+    """
+    c = sqlite3.connect(fname)
+    c.text_factory = str
+    c.execute(MAKETABLE)
+    c.commit()
+    return c, c.cursor()
+
+
+def update_log(db_name, path, logname, new):
     """
     Adds a new entry to the specified log.
     """
-    conn = r.connect(db='catsoop')
-    r.table('logs').insert({'path': path, 'username': username, 'logname': logname, 'data': new, 'time': r.now()}).run(conn)
+    conn, c = sqlite_access(get_log_filename(path, db_name))
+    c.execute(UPDATE, (json.dumps(path), logname, json.dumps(new)))
+    conn.commit()
     conn.close()
 
 
-def overwrite_log(username, path, logname, new):
+def overwrite_log(db_name, path, logname, new):
     """
     Overwrites the most recent entry in the specified log.
     """
-    # this is a gross query, but... branch on whether the given log is empty.
-    # if it's empty, add a new entry
-    # otherwise, modify the existing entry
-    conn = r.connect(db='catsoop')
-    r.table('logs').get_all([username, path, logname], index='log').is_empty().do(
-        lambda empty: r.branch(empty,
-                               r.table('logs').insert({'path': path, 'username': username, 'logname': logname, 'data': new, 'time': r.now()}),
-                               r.table('logs').get_all([username, path, logname], index='log').order_by(r.desc('time')).limit(1).update({'data': new, 'time': r.now()}))
-    ).run(conn, non_atomic=True)
+    conn, c = sqlite_access(get_log_filename(path, db_name))
+    path = json.dumps(path)
+    c.execute(OVERWRITE, (path,
+                          logname,
+                          path,
+                          logname,
+                          json.dumps(new), ))
+    conn.commit()
     conn.close()
 
 
-def read_log(username, path, logname):
+def read_log(db_name, path, logname):
     """
     Reads all entries of a log.
     """
-    conn = r.connect(db='catsoop')
-    res = r.table('logs').get_all([username, path, logname], index='log').run(conn)
-    out = [i['data'] for i in res]
+    try:
+        fname = get_log_filename(path, db_name)
+    except:
+        return []
+    if not os.path.isfile(fname):
+        return []
+    conn, c = sqlite_access(fname)
+    c.execute(READ, (json.dumps(path), logname, ))
+    out = [json.loads(i[-1]) for i in c.fetchall()]
     conn.close()
     return out
 
 
-def most_recent(username, path, logname, default=None):
+def most_recent(db_name, path, logname, default=None):
     """
     Reads the most recent entry from a log.
     """
-    conn = r.connect(db='catsoop')
-    res = r.table('logs').get_all([username, path, logname], index='log').order_by(r.desc('time')).limit(1).run(conn)
-    if len(res) == 0:
-        out = default
-    else:
-        out = res[0]['data']
+    try:
+        fname = get_log_filename(path, db_name)
+    except:
+        return default
+    if not os.path.isfile(fname):
+        return default
+    conn, c = sqlite_access(fname)
+    c.execute(MOSTRECENT, (json.dumps(path), logname, ))
+    out = c.fetchone()
     conn.close()
-    return out
+    return json.loads(out[-1]) if out is not None else default
 
 
-def modify_most_recent(username, path, log, default=None, transform_func=lambda x: x, method='update'):
-    conn = r.connect(db='catsoop')
-    if method == 'overwrite':
-        r.table('logs').get_all([username, path, logname], index='log').is_empty().do(
-            lambda empty: r.branch(empty,
-                                   [],
-                                   r.table('logs').get_all([username, path, logname], index='log').order_by(r.desc('time')).limit(1).update(lambda post: {'data': transform_func(post['data']), 'time': r.now()}))
-        ).run(conn, non_atomic=True)
-    else:
-        res = r.table('logs').get_all([username, path, logname], index='log').order_by(r.desc('time')).limit(1).run(conn)
-        for row in res:
-            r.table('logs').insert({'path': path, 'username': db_name,
-                                    'logname': logname, 'data': transform_func(row['data']),
-                                    'time': r.now()}).run(conn)
-    conn.close()
+def modify_most_recent(db_name, path, log, default=None, transform_func=lambda x: x, method='update'):
+    fname = get_log_filename(path, db_name)
+    with FileLock(fname) as lock:
+        old_val = most_recent(db_name, path, log, default)
+        new_val = transform_func(old_val)
+        if method == 'update':
+            updater = update_log
+        else:
+            updater = overwrite_log
+        updater(db_name, path, log, new_val)
+    return new_val
