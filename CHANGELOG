@@ -1,14 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
-
-ADDED:
-
-CHANGED:
-
-DEPRECATED:
+##################
+# Version 10.2.2 #
+##################
 
 REMOVED:
 
@@ -22,10 +14,6 @@ FIXED:
 * Removed an extraneous print statement from the default handler.
 
 * Remove HTML formatting from course name in source.zip downloads.
-
-SECURITY:
-
-DOCUMENTATION:
 
 
 ##################
