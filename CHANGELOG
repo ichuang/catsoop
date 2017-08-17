@@ -1,3 +1,26 @@
+########################
+# Current Developments #
+########################
+
+Work toward next release.  Currently under development.
+
+ADDED:
+
+CHANGED:
+
+* Moved all logs to one central location to make backups easier.
+
+DEPRECATED:
+
+REMOVED:
+
+FIXED:
+
+SECURITY:
+
+DOCUMENTATION:
+
+
 ##################
 # Version 10.2.2 #
 ##################
