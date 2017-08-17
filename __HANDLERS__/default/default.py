@@ -1570,7 +1570,7 @@ def pre_handle(context):
             for name, value in context[_n('form')].items():
                 if isinstance(value, list):
                     data = csm_tools.data_uri.DataURI(value[1]).data
-                    dir_ = os.path.join(context['cs_data_root'], '_uploads', *context['cs_path_info'])
+                    dir_ = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', *context['cs_path_info'])
                     os.makedirs(dir_, exist_ok=True)
                     value[0] = value[0].replace('<', '').replace('>', '').replace('"', '').replace('"', '')
                     fname = '%s___%.06f___%s' % (context['cs_username'], time.time(), value[0])

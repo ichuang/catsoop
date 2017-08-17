@@ -78,7 +78,7 @@ def get_log_filename(path, db_name):
     except:
         course = None
     if course is not None:
-        d = os.path.join(base_context.cs_data_root, 'courses', course, '__LOGS__')
+        d = os.path.join(base_context.cs_data_root, '__LOGS__', '_courses', course)
         fname = os.path.join(d, db_name + '.db')
     else:
         d = os.path.join(base_context.cs_data_root, '__LOGS__')
