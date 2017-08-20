@@ -77,14 +77,14 @@ def build_inlinepatterns(md_instance, **kwargs):
         inlinePatterns["html"] = HtmlPattern(HTML_RE, md_instance)
     inlinePatterns["entity"] = HtmlPattern(ENTITY_RE, md_instance)
     inlinePatterns["not_strong"] = SimpleTextPattern(NOT_STRONG_RE)
-    inlinePatterns["em_strong"] = DoubleTagPattern(EM_STRONG_RE, 'b,i')
-    inlinePatterns["strong_em"] = DoubleTagPattern(STRONG_EM_RE, 'i,b')
-    inlinePatterns["strong"] = SimpleTagPattern(STRONG_RE, 'b')
-    inlinePatterns["emphasis"] = SimpleTagPattern(EMPHASIS_RE, 'i')
+    inlinePatterns["em_strong"] = DoubleTagPattern(EM_STRONG_RE, 'strong,em')
+    inlinePatterns["strong_em"] = DoubleTagPattern(STRONG_EM_RE, 'em,strong')
+    inlinePatterns["strong"] = SimpleTagPattern(STRONG_RE, 'strong')
+    inlinePatterns["emphasis"] = SimpleTagPattern(EMPHASIS_RE, 'em')
     if md_instance.smart_emphasis:
-        inlinePatterns["emphasis2"] = SimpleTagPattern(SMART_EMPHASIS_RE, 'i')
+        inlinePatterns["emphasis2"] = SimpleTagPattern(SMART_EMPHASIS_RE, 'em')
     else:
-        inlinePatterns["emphasis2"] = SimpleTagPattern(EMPHASIS_2_RE, 'i')
+        inlinePatterns["emphasis2"] = SimpleTagPattern(EMPHASIS_2_RE, 'em')
     return inlinePatterns
 
 
@@ -140,7 +140,7 @@ REFERENCE_RE = NOIMG + BRK + r'\s?\[([^\]]*)\]'
 SHORT_REF_RE = NOIMG + r'\[([^\]]+)\]'
 
 # ![alt text][2]
-IMAGE_REFERENCE_RE = r'\!' + BRK + '\s?\[([^\]]*)\]'
+IMAGE_REFERENCE_RE = r'\!' + BRK + r'\s?\[([^\]]*)\]'
 
 # stand-alone * or _
 NOT_STRONG_RE = r'((^| )(\*|_)( |$))'
@@ -170,7 +170,7 @@ def dequote(string):
         return string
 
 
-ATTR_RE = re.compile("\{@([^\}]*)=([^\}]*)}")  # {@id=123}
+ATTR_RE = re.compile(r"\{@([^\}]*)=([^\}]*)}")  # {@id=123}
 
 
 def handleAttributes(text, parent):
@@ -351,7 +351,7 @@ class HtmlPattern(Pattern):
                 try:
                     return self.markdown.serializer(value)
                 except:
-                    return '\%s' % value
+                    return r'\%s' % value
 
         return util.INLINE_PLACEHOLDER_RE.sub(get_stash, text)
 
@@ -458,7 +458,7 @@ class ReferencePattern(LinkPattern):
         except IndexError:
             id = None
         if not id:
-            # if we got something like "[Google][]" or "[Goggle]"
+            # if we got something like "[Google][]" or "[Google]"
             # we'll use "google" as the id
             id = m.group(2).lower()
 
