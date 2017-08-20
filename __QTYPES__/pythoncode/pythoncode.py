@@ -348,24 +348,24 @@ def render_html_upload(last_log, **info):
     }
     out = ''
     if info.get('csq_show_skeleton', True):
-        out += ('''<a href="data:text/plain;base64,%(b64init)s" '''
+        out += ('''\n<a href="data:text/plain;base64,%(b64init)s" '''
                 '''target="_blank"%(dl)s>Code Skeleton</a><br />''') % params
     if last_log.get(name, None) is not None:
         code = b64encode(info['csm_loader'].get_file_data(info, last_log, name)).decode()
         fname = ''
         if isinstance(last_log[name], list):
             fname = last_log[name][0]
-        out += ('''<a href="data:text/plain;base64,%s" '''
+        out += ('''\n<a href="data:text/plain;base64,%s" '''
                 '''download=%r id="%s_lastfile">'''
                 '''Your Last Submission</a><br />''') % (code, fname, name)
-    out += '''<input type="file" style="display: none" id=%(name)s name="%(name)s" />''' % params
-    out += ('''<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
-            '''<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)
-    out += ('''<script type="text/javascript">'''
-            '''$('#%s').val('');'''
-            '''$('#%s_select_button').click(function (){$("#%s").click();});'''
-            '''$('#%s').change(function (){$('#%s_selected_file').text($('#%s').val());});'''
-            '''</script>''') % (name, name, name, name, name, name)
+    out += '''\n<input type="file" style="display: none" id=%(name)s name="%(name)s" />''' % params
+    out += ('''\n<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
+            '''\n<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)
+    out += ('''\n<script type="text/javascript">'''
+            '''\n$('#%s').val('');'''
+            '''\n$('#%s_select_button').click(function (){$("#%s").click();});'''
+            '''\n$('#%s').change(function (){$('#%s_selected_file').text($('#%s').val());});'''
+            '''\n</script>''') % (name, name, name, name, name, name)
     return out
 
 
