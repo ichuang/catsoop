@@ -18,6 +18,9 @@ REMOVED:
 
 FIXED:
 
+* Fixed an issue that caused an error message not to be shown when cs_form was
+  not defined.
+
 SECURITY:
 
 DOCUMENTATION:

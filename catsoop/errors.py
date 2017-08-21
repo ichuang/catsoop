@@ -59,7 +59,7 @@ def do_error_message(context, msg=None):
     """
     Display an error message
     """
-    plain = 'data' in context['cs_form']
+    plain = 'data' in context.get('cs_form', {})
     new = dict(context)
     loader.load_global_data(new)
     new['cs_home_link'] = 'BASE'
