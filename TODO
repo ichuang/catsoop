@@ -22,7 +22,14 @@ Feature Requests:
 
   * Implement Piazza replacement
 
+  * Consider removing .pycs files (with the current structure, I doubt they
+    save us much time; they may actually be slowing things down now...)
+
+
 Known Bugs:
+
+  * Python error messages coming from code in <python> tags tend to show
+    incorrect line numbers.
 
   * In ratio mode, checker for expression question type fails if solution
     evaluates to 0.
