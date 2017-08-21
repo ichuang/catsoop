@@ -22,10 +22,17 @@ DEPRECATED:
 
 REMOVED:
 
+* Removed lots of unused imports, unused local variables, etc, courtesy of
+  pyflakes.
+
 FIXED:
+
+* Fixed an issue with broken loading of uploaded files from the database.
 
 * Fixed an issue that caused an error message not to be shown when cs_form was
   not defined.
+
+* Fixed a lingering instance of xrange.
 
 SECURITY:
 
@@ -256,10 +263,10 @@ FIXED:
 
   * Fixed an issue with rendering of certain test cases in the pythoncode
     question type.
- 
+
   * Modified the handling of streams in the Python sandbox to avoid buffers
     filling up.
- 
+
   * Modified error message handling in the Python sandbox to avoid long-running
     regex searches.
 

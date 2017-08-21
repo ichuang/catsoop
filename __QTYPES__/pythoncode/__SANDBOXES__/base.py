@@ -17,8 +17,6 @@
 import os
 import re
 import ast
-import resource
-import subprocess
 
 
 def _execfile(*args):

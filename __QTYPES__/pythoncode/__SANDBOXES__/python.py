@@ -15,14 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import sys
 import time
 import fcntl
 import shutil
-import signal
 import hashlib
 import resource
-import threading
 import subprocess
 
 _resource_mapper = {

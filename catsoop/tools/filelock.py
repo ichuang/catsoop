@@ -23,7 +23,6 @@ http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python
 import os
 import time
 import errno
-import importlib
 import tempfile
 
 FILELOCK_DIR = os.path.join(tempfile.gettempdir(), 'catsoop_filelocks')

@@ -17,7 +17,6 @@
 # API authentication
 
 import os
-import time
 import uuid
 import random
 import string

@@ -15,9 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import re
 from base64 import b64encode
-import json
 
 
 def _execfile(*args):
@@ -227,8 +225,6 @@ def handle_submission(submissions, **info):
             msg += "\n<i>%s</i>" % test['description']
         msg += "</center><p></p>"
         if test['show_code']:
-            html_code_pre = html_format(test['code_pre'])
-            html_code_post = html_format(test['code'])
             html_code_pieces = [i for i in map(lambda x: html_format(test[x]),
                                                ['code_pre', 'code'])]
             html_code_pieces.insert(1, '#Your Code Here')
@@ -306,7 +302,7 @@ def make_initial_display(info):
         init += '\n# Test Case %d' % (ix + 1)
         if i['include_soln']:
             if 'cached_result' in i:
-                log_s = cached_result
+                log_s = i['cached_result']
             else:
                 out_s, err_s, log_s = info['sandbox_run_test'](
                     info, info['csq_soln'], i)

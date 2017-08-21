@@ -21,23 +21,17 @@ import random
 import string
 import hashlib
 
-from operator import xor
-from struct import Struct
-from itertools import starmap
-
 from .tools import pyaes
 
 def get_logged_in_user(context):
     # form-based login
     base_context = context['csm_base_context']
     logging = context['csm_cslog']
-    loader = context['csm_loader']
     form = context.get('cs_form', {})
     mail = context['csm_mail']
 
     session = context['cs_session_data']
     action = form.get('loginaction', '')
-    message = form.get('message', '')
 
     hash_iterations = context.get('cs_password_hash_iterations', 500000)
     url = _get_base_url(context)
@@ -745,7 +739,7 @@ def generate_login_form(context):
     out += ('<td>\n</tr>'
             '\n</table>')
     out += '<p>'
-    if mail.can_send_email(context):
+    if context['csm_mail'].can_send_email(context):
         base = _get_base_url(context)
         loc = base + '?loginaction=forgot_password'
         out += ('\nForgot your password?  '

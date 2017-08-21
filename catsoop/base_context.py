@@ -257,8 +257,6 @@ In 'db' mode, CAT-SOOP will store the contents of the files directly in the data
 # Debugging Function
 
 import os
-import stat
-import traceback
 
 from datetime import datetime
 

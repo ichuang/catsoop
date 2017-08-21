@@ -21,7 +21,6 @@ import string
 import urllib.parse
 
 from email.utils import formatdate
-from collections import defaultdict
 
 from . import auth
 from . import time
@@ -388,7 +387,6 @@ def main(environment):
     force_error = False
     try:
         # DETERMINE WHAT PAGE WE ARE LOADING
-        static = None
         path_info = environment.get('PATH_INFO', '/')
         context['cs_original_path'] = path_info[1:]
         path_info = [i for i in path_info.split('/') if i != '']

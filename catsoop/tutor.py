@@ -18,7 +18,6 @@
 
 import os
 import re
-import sys
 import json
 import random
 import string
@@ -335,7 +334,7 @@ def _new_random_seed(n=100):
     try:
         return os.urandom(n)
     except:
-        return ''.join(random.choice(string.ascii_letters) for i in xrange(n))
+        return ''.join(random.choice(string.ascii_letters) for i in range(n))
 
 
 def _get_random_seed(context, n=100, force_new=False):

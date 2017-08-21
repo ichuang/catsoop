@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import collections.abc
-
 defaults = {
     'csq_npoints': 1
 }
@@ -33,7 +31,6 @@ def handle_submission(submissions, **info):
         msg = 'You must receive this checkoff from a staff member.'
         l = False
     else:
-        import time
         un = submissions[info['csq_name']]
         new = dict(info)
         new['cs_form'] = {}

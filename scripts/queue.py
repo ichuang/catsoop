@@ -18,10 +18,6 @@ import os
 import sys
 import json
 import time
-import uuid
-import base64
-import random
-import hashlib
 import sqlite3
 import threading
 
@@ -32,7 +28,6 @@ if CATSOOP_LOC not in sys.path:
     sys.path.append(CATSOOP_LOC)
 
 import catsoop.api as api
-import catsoop.auth as auth
 import catsoop.loader as loader
 import catsoop.base_context as base_context
 
@@ -172,13 +167,6 @@ while True:
             for username in CONNECTED[key]:
                 for connection in CONNECTED[key][username]:
                     send_updated_message(connection, course, room, username, [dict(i) for i in rows])
-            for i in rows:
-                if not i['active']:
-                    # this entry is gone now.  clear the related salt
-                    try:
-                        del SALTS[(i['course'], i['room'], i['username'])]
-                    except:
-                        pass
         LAST_CHECK_TIME[key] = t
     conn.close()
     time.sleep(0.1)

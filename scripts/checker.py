@@ -33,7 +33,6 @@ if CATSOOP_LOC not in sys.path:
 
 import catsoop.base_context as base_context
 import catsoop.auth as auth
-import catsoop.cslog as cslog
 import catsoop.loader as loader
 import catsoop.language as language
 import catsoop.dispatch as dispatch
@@ -89,7 +88,6 @@ def do_check(row):
     loader.do_late_load(context, context['cs_course'], context['cs_path_info'], context, cfile)
 
     namemap = collections.OrderedDict()
-    qcount = 0
     for elt in context['cs_problem_spec']:
         if isinstance(elt, tuple):
             m = elt[1]

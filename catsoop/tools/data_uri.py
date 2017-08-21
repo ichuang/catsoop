@@ -1,10 +1,11 @@
 # https://gist.github.com/zacharyvoase/5538178
 
-import base64 as b64
-import mimetypes
 import re
 import urllib
+import textwrap
+import mimetypes
 
+import base64 as b64
 
 MIMETYPE_REGEX = r'[\w]+\/[\w\-\+\.]+'
 _MIMETYPE_RE = re.compile('^{}$'.format(MIMETYPE_REGEX))

@@ -2,9 +2,8 @@
 The MIT License (MIT)
 Copyright (c) 2013 Dave P.
 '''
-import socketserver
 from http.server import BaseHTTPRequestHandler
-from io import StringIO, BytesIO
+from io import BytesIO
 
 import hashlib
 import base64

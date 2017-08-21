@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import time
-from datetime import datetime, timedelta, MAXYEAR, MINYEAR
+from datetime import datetime, timedelta, MAXYEAR
 
 days = ['M', 'T', 'W', 'R', 'F', 'S', 'U']
 "List used for mapping weekday numbers to weekday letters"

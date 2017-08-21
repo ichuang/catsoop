@@ -25,8 +25,6 @@ import sqlite3
 import traceback
 import collections
 
-import rethinkdb as r
-
 _prefix = 'cs_defaulthandler_'
 
 NEWENTRY = ('INSERT INTO checker VALUES(?, ?, ?, ?, ?, ?, 0, ?, '
@@ -190,7 +188,6 @@ def handle_activation_form(context):
 
 def handle_raw_html(context):
     # base function: display the problem
-    uname = context[_n('uname')]
     perms = context[_n('perms')]
 
     lastlog = context[_n('last_log')]
@@ -242,7 +239,6 @@ def handle_raw_html(context):
 
 def handle_content_only(context):
     # base function: display the problem
-    uname = context[_n('uname')]
     perms = context[_n('perms')]
 
     lastlog = context[_n('last_log')]
@@ -293,7 +289,6 @@ def handle_content_only(context):
 
 def handle_view(context):
     # base function: display the problem
-    uname = context[_n('uname')]
     perms = context[_n('perms')]
 
     lastlog = context[_n('last_log')]
@@ -343,7 +338,6 @@ def handle_view(context):
 
 
 def get_manual_grading_entry(context, name):
-    pg_name = context[_n('logname_grades')]
     uname = context['cs_user_info'].get('username', 'None')
     log = context['csm_cslog'].read_log(uname, context['cs_path_info'],
                                         'problemgrades')
@@ -356,7 +350,6 @@ def get_manual_grading_entry(context, name):
 
 def handle_clearanswer(context):
     names = context[_n('question_names')]
-    timing = context[_n('timing')]
     due = context[_n('due')]
     lastlog = context[_n('last_log')]
     answerviewed = context[_n('answer_viewed')]
@@ -410,7 +403,6 @@ def explanation_display(x):
 
 def handle_viewexplanation(context):
     names = context[_n('question_names')]
-    timing = context[_n('timing')]
     due = context[_n('due')]
     lastlog = context[_n('last_log')]
     explanationviewed = context[_n('explanation_viewed')]
@@ -459,7 +451,6 @@ def handle_viewexplanation(context):
 
 def handle_viewanswer(context):
     names = context[_n('question_names')]
-    timing = context[_n('timing')]
     due = context[_n('due')]
     lastlog = context[_n('last_log')]
     answerviewed = context[_n('answer_viewed')]
@@ -510,7 +501,6 @@ def handle_viewanswer(context):
 
 def handle_lock(context):
     names = context[_n('question_names')]
-    timing = context[_n('timing')]
     due = context[_n('due')]
     lastlog = context[_n('last_log')]
     locked = context[_n('locked')]
@@ -612,7 +602,6 @@ def handle_grade(context):
 
 def handle_unlock(context):
     names = context[_n('question_names')]
-    timing = context[_n('timing')]
     due = context[_n('due')]
     lastlog = context[_n('last_log')]
     locked = context[_n('locked')]
@@ -648,7 +637,6 @@ def handle_unlock(context):
 
 def handle_save(context):
     names = context[_n('question_names')]
-    timing = context[_n('timing')]
     due = context[_n('due')]
 
     lastlog = context[_n('last_log')]
@@ -719,7 +707,6 @@ def handle_save(context):
 
 def handle_check(context):
     names = context[_n('question_names')]
-    timing = context[_n('timing')]
     due = context[_n('due')]
 
     lastlog = context[_n('last_log')]
@@ -812,10 +799,8 @@ def handle_submit(context):
 
     lastlog = context[_n('last_log')]
     nsubmits_used = context[_n('nsubmits_used')]
-    answer_viewed = context[_n('answer_viewed')]
 
     namemap = context[_n('name_map')]
-    timing = context[_n('timing')]
 
     newstate = dict(lastlog)
 
@@ -890,7 +875,6 @@ def handle_submit(context):
             newstate['last_checker_id'][name] = entry_id
             newstate['last_submit_checker_id'][name] = entry_id
         elif grading_mode == 'manual':
-            resp = {}
             out['message'] = 'Submission received for manual grading.'
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, None,
@@ -900,7 +884,6 @@ def handle_submit(context):
                 del newstate[mag_key]
             newstate['%s_message' % name] = out['message']
         else:
-            resp = {}
             out['message'] = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, 0.0,
@@ -948,7 +931,6 @@ def manage_groups(context):
     perms = context['cs_user_info'].get('permissions', [])
     if 'groups' not in perms and 'admin' not in perms:
         return 'You are not allowed to view this page.'
-    form = context['cs_form']
     # show the main partnering page
     section = context['cs_user_info'].get('section', None)
     default_section = context.get('cs_default_section', 'default')
@@ -1299,7 +1281,6 @@ def render_question(elt, context, lastsubmit, wrap=True):
         q, args = context[_n('name_map')][name]
         lastlog = context['csm_tutor'].get_manual_grading_entry(context, name) or {}
         lastscore = lastlog.get('score', '')
-        lastcomments = lastlog.get('comments', '')
         tpoints = q['total_points'](**args)
         comments = (context['csm_tutor'].get_manual_grading_entry(context, name) or {}).get('comments',None)
         if comments is not None:
@@ -1487,7 +1468,6 @@ def pre_handle(context):
     CHECKER_DB_LOC = os.path.join(context['cs_data_root'], '__LOGS__',
                                   '_checker.db')
     context[_n('name_map')] = collections.OrderedDict()
-    qcount = 0
     for elt in context['cs_problem_spec']:
         if isinstance(elt, tuple):
             m = elt[1]
@@ -1831,12 +1811,6 @@ def handle_whdw(context):
 
     section = str(context.get('cs_form', {}).get('section',
             context.get('cs_user_info').get('section', 'default')))
-
-    usernames = util.list_all_users(context, context['cs_course'])
-    users = [
-        util.read_user_file(context, context['cs_course'], username, {})
-        for username in usernames
-    ]
 
     question = context['cs_form']['question']
     qtype, qargs = context[_n('name_map')][question]

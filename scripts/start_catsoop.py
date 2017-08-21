@@ -17,8 +17,6 @@
 import os
 import sys
 import time
-import atexit
-import ctypes
 import signal
 import sqlite3
 import subprocess
