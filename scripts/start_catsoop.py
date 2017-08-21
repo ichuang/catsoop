@@ -86,7 +86,7 @@ queuetable = ('CREATE TABLE IF NOT EXISTS '
               'queues (id TEXT NOT NULL PRIMARY KEY, '
               'username TEXT NOT NULL, '
               'course TEXT NOT NULL, '
-              'room TEXT, '
+              'room TEXT NOT NULL, '
               'type TEXT NOT NULL, '
               'description TEXT NOT NULL, '
               'location TEXT NOT NULL, '
@@ -94,7 +94,9 @@ queuetable = ('CREATE TABLE IF NOT EXISTS '
               'updated_time REAL NOT NULL, '
               'active INTEGER NOT NULL, '
               'actions TEXT NOT NULL, '
-              'claimant TEXT)')
+              'claimant TEXT, '
+              'photo BLOB, '
+              'extra_data TEXT)')
 
 
 os.makedirs(os.path.dirname(queue_db_loc), exist_ok=True)

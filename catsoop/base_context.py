@@ -216,9 +216,15 @@ How many worker processes the UWSGI server should start
 
 # Queue Management
 
-cs_run_queue = True
+cs_queue_websocket = None
 """
-Whether the queue should be enabled.
+The location to which the browser should connect to the queue's process.  If
+set to None (the default), the queue worker will not be started.
+"""
+
+cs_queue_server_port = 6012
+"""
+The local port on which the queue server (if any) should run
 """
 
 cs_queue_enabled = False
@@ -228,17 +234,7 @@ a new websocket connection to be opened on page load, and some javascript to be
 loaded that keeps track of the current state of the queue.
 """
 
-cs_queue_websocket = None
-"""
-The location to which the browser should connect to the queue's process.
-"""
-
-cs_queue_server_port = 6012
-"""
-The local port on which the queue server (if any) should run
-"""
-
-cs_queue_room = None
+cs_queue_room = 'default'
 '''
 Special: The room to which queue requests on this page should be assigned.
 '''

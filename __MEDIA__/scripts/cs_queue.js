@@ -16,8 +16,16 @@
  */
 
 $(document).ready(function(){
-    if (catsoop.queue_location === null) return;
-    catsoop.queue = {}
+    if (!catsoop.queue_enabled ||
+           typeof catsoop.queue_location === 'undefined' ||
+           catsoop.queue_location === null ||
+           catsoop.api_token === null){
+        return;
+    }
+    catsoop.queue = {};
+    catsoop.queue.queue = null;
+    catsoop.queue.myentry = null;
+    catsoop.queue.known_keys = new Set();
     catsoop.queue.ws = new WebSocket(catsoop.queue_location);
     
     catsoop.queue.ws.onopen = function(){
@@ -30,6 +38,84 @@ $(document).ready(function(){
     }
     
     catsoop.queue.ws.onmessage = function(event){
-        console.log(event);
+        var m = JSON.parse(event.data);
+        console.log(m);
+        if (m.type === 'hello' && !m.ok){
+            // if we get this message, we weren't able to log in successfully,
+            // so we'll just close the connection.
+            catsoop.queue.ws.close();
+        }else if(m.type == 'ping'){
+            catsoop.queue.ws.send(JSON.stringify({type: 'pong'}));
+        }else if (m.type == 'queue'){
+            // this should happen near to when we first connect.  we receive
+            // the current state of the queue.
+            catsoop.queue.queue = m.queue;
+            catsoop.queue.known_keys = new Set();
+            for (var i = 0; i < m.queue.length; i ++){
+                catsoop.queue.known_keys.add(m.queue[i].username);
+            }
+        }else if (m.type == 'update'){
+            if (catsoop.queue.queue === null){
+                return;
+            }
+            console.log(catsoop.queue)
+            // we'll receive one of these every time something changes in the
+            // DB.  it's up to us to figure out what that means for what we're
+            // tracking.
+            var news = m.entries;
+            var curix = 0;
+            // we'll loop over all the new entries (probably just one, given
+            // the default queue timing)
+            for (var i = 0; i < news.length; i++){
+                var entry = news[i];
+                if (entry.active){
+                    if (catsoop.queue.known_keys.has(entry.username)){
+                        console.log('we know', entry.username);
+                        // we already know this key.  just replace its entry
+                        for (var j = 0; j < catsoop.queue.queue.length; j++){
+                            var oentry = catsoop.queue.queue[j];
+                            if (oentry.username === entry.username){
+                                catsoop.queue.queue[j] = entry;
+                                break;
+                            }
+                        }
+                    }else{
+                        // this is a new key.  find the right spot in the array
+                        // and add it in.
+                        console.log('new entry', entry.username);
+                        var j = 0;
+                        var broke = false;
+                        for (j = 0; j < catsoop.queue.queue.length; j++){
+                            var oentry = catsoop.queue.queue[j];
+                            if (oentry.started_time > entry.started_time){
+                                catsoop.queue.queue.splice(j, 0, entry);
+                                broke = true;
+                                break;
+                            }
+                        }
+                        if (!broke){
+                            catsoop.queue.queue.splice(j, 0, entry);
+                        }
+                    }
+                    // regardless of whether we added or replaced, we want to
+                    // update "myentry" and the currently know keys.
+                    if (entry.username === catsoop.username){
+                        catsoop.queue.myentry = entry;
+                    }
+                    catsoop.queue.known_keys.add(entry.username);
+                    console.log(catsoop.queue)
+                }else{
+                    // this thing is no longer active.  let's kill it.
+                    for (var j = 0; j < catsoop.queue.queue.length; j++){
+                        var oentry = catsoop.queue.queue[j];
+                        if (oentry.username === entry.username){
+                            catsoop.queue.queue.splice(j, 1);
+                            break;
+                        }
+                    }
+                    catsoop.queue.known_keys.delete(entry.username);
+                }
+            }
+        }
     }
 });

@@ -1588,11 +1588,13 @@ def default_javascript(context):
 <script type="text/javascript" src="__HANDLER__/default/cs_ajax.js"></script>
 <script type="text/javascript">
 catsoop.all_questions = %(allqs)r;
+catsoop.username = %(uname)s;
 catsoop.api_token = %(secret)s;
 catsoop.this_path = %(path)r;
 catsoop.path_info = %(pathinfo)r;
 catsoop.course = %(course)s;
 catsoop.url_root = %(root)r;
+catsoop.queue_enabled = %(queueon)s;
 catsoop.queue_location = %(queueloc)s;
 catsoop.queue_room = %(queueroom)s;
 '''
@@ -1605,9 +1607,13 @@ catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any fu
     out += '</script>'
 
     api_tok = 'null'
+    uname = 'null'
     given_tok = context.get('cs_user_info', {}).get('api_token', None)
     if given_tok is not None:
         api_tok = repr(given_tok)
+    given_uname = context.get('cs_user_info', {}).get('username', None)
+    if given_uname is not None:
+        uname = repr(given_uname)
 
     return out % {
         'skipalert': json.dumps(skip_alert),
@@ -1621,6 +1627,8 @@ catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any fu
         'root': context['cs_url_root'],
         'queueloc': 'null' if context['cs_queue_websocket'] is None else repr(context['cs_queue_websocket']),
         'queueroom': 'null' if context['cs_queue_room'] is None else repr(context['cs_queue_room']),
+        'queueon': str(context['cs_queue_enabled']).lower(),
+        'uname': uname,
     }
 
 
@@ -1972,7 +1980,9 @@ ws_%(name)s.onmessage = function(event){
     var j = JSON.parse(m);
     var thediv = $('#cs_partialresults_%(name)s')
     var themessage = $('#cs_partialresults_%(name)s_message');
-    if (j.type == 'inqueue'){
+    if (j.type == 'ping'){
+        ws_%(name)s.send(JSON.stringify({type: 'pong'}));
+    }else if (j.type == 'inqueue'){
         ws_%(name)s_state = 0;
         try{clearInterval(ws_%(name)s_interval);}catch(err){}
         thediv[0].className = '';

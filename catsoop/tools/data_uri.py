@@ -35,9 +35,11 @@ class DataURI(str):
             if not _CHARSET_RE.match(charset):
                 raise ValueError("Invalid charset: %r" % charset)
             parts.extend([';charset=', charset])
+        if isinstance(data, str):
+            data = data.encode()
         if base64:
             parts.append(';base64')
-            encoded_data = b64.b64encode(data.encode()).decode()
+            encoded_data = b64.b64encode(data).decode()
         else:
             encoded_data = urllib.quote(data)
         parts.extend([',', encoded_data])
@@ -46,7 +48,7 @@ class DataURI(str):
     @classmethod
     def from_file(cls, filename, charset=None, base64=True):
         mimetype, _ = mimetypes.guess_type(filename, strict=False)
-        with open(filename) as fp:
+        with open(filename, 'rb') as fp:
             data = fp.read()
         return cls.make(mimetype, charset, base64, data)
 

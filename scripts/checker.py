@@ -203,9 +203,19 @@ LASTMAX = 1
 POSITIONS = {}
 
 server = SimpleWebSocketServer('', PORTNUM, Reporter)
-
 reporter = threading.Thread(target=server.serveforever)
 reporter.start()
+
+PING = json.dumps({'type': 'ping'})
+def keeppingingall():
+    while True:
+        time.sleep(30)
+        for c in all_clients:
+            for sock in all_clients[c]:
+                sock.sendMessage(PING)
+pinger = threading.Thread(target=keeppingingall)
+pinger.start()
+
 
 # and now actually start running
 while True:

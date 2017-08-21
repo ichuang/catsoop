@@ -40,12 +40,12 @@ else:
     QUEUE_DB_LOC = os.path.join(base_context.cs_data_root,
                                 '__LOGS__', '_queue.db')
     QUEUE_QUERY = ('SELECT id,username,type,started_time,updated_time,claimant,'
-                          'description,location '
+                          'description,location,active '
                    'FROM queues WHERE '
                    'course=? AND room=? AND active=? '
                    'ORDER BY started_time ASC')
     ROW_QUERY = ('SELECT id,username,type,started_time,updated_time,claimant,'
-                         'description,location '
+                         'description,location,active '
                  'FROM queues WHERE '
                  'course=? AND room=? AND updated_time>? '
                  'ORDER BY started_time ASC')
@@ -66,6 +66,17 @@ else:
         conn.row_factory = dict_factory
         return conn, conn.cursor()
 
+    PING = json.dumps({'type': 'ping'})
+
+    def keeppingingall():
+        while True:
+            print('PING TIME')
+            time.sleep(30)
+            for key in CONNECTED:
+                for username in CONNECTED[key]:
+                    for sock in CONNECTED[key][username]:
+                        sock.sendMessage(PING)
+
 
     ## WEBSOCKET STUFF
 
@@ -75,12 +86,12 @@ else:
 
 
     def prep_row(row, course, room, uname, perms):
-        if i['username'] != uname and not perms:
-            i['username'] = i['id']
-            i['anon'] = True
+        if row['username'] != uname and not perms:
+            row['username'] = row['id']
+            row['anon'] = True
         else:
-            i['anon'] = False
-        del i['id']
+            row['anon'] = False
+        del row['id']
 
 
     def send_updated_message(sock, course, room, uname, rows):
@@ -110,9 +121,8 @@ else:
                 g = loader.spoof_early_load([x['course']])
                 user_info = api.get_user_information(g, api_token=self.api_token, course=x['course'])
                 if not user_info['ok']:
-                    self.sendMessage({'type': 'hello', 'ok': False,
-                                      'msg': 'Bad API Token: <tt>%s</tt>' % self.api_token})
-                    self.sendClose()
+                    self.sendMessage(json.dumps({'type': 'hello', 'ok': False,
+                                      'msg': 'Bad API Token: <tt>%s</tt>' % self.api_token}))
                     return
                 user_info = user_info['user_info']
                 self.sendMessage(json.dumps({'type': 'hello', 'ok': True}))
@@ -125,9 +135,12 @@ else:
 
         def handleClose(self):
             # need to remove this person
-            mine = CONNECTED[(self.course, self.room)][self.username]
+            room = CONNECTED[(self.course, self.room)]
+            mine = room[self.uname]
             mine.remove(self)
             if len(mine) == 0:
+                del room[self.uname]
+            if len(room) == 0:
                 del CONNECTED[(self.course, self.room)]
 
 
@@ -135,6 +148,8 @@ else:
 
     reporter = threading.Thread(target=server.serveforever)
     reporter.start()
+    pinger = threading.Thread(target=keeppingingall)
+    pinger.start()
 
     # and now actually start running
 
@@ -142,16 +157,15 @@ else:
     # against the database directly, instead of trying to keep a copy in memory.
     # In order to do this, we need to keep track of, for each room, when we last
     # looked for an update, and which IDs we were tracking.
-    LAST_CHECK_TIME = defaultdict((lambda x: lambda: x)(time.time()))
+    LAST_CHECK_TIME = defaultdict(lambda: -1)
 
     while True:
         # get all the queues we're currently watching (we don't need to care about
         # ones we're not watching).
-        print('here', CONNECTED)
+        print(CONNECTED)
         conn, c = _connect()
         for key in list(CONNECTED.keys()):
             course, room = key
-            t = time.time()
             c.execute(ROW_QUERY, (course, room, LAST_CHECK_TIME[key]))
             rows = c.fetchall()
             # send all the updates
@@ -159,6 +173,6 @@ else:
                 for username in CONNECTED[key]:
                     for connection in CONNECTED[key][username]:
                         send_updated_message(connection, course, room, username, [dict(i) for i in rows])
-            LAST_CHECK_TIME[key] = t
+                LAST_CHECK_TIME[key] = max(i['updated_time'] for i in rows)
         conn.close()
         time.sleep(0.1)
