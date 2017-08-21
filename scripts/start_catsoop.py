@@ -83,7 +83,7 @@ queue_db_loc = os.path.join(base_context.cs_data_root,
                               '_queue.db')
 
 queuetable = ('CREATE TABLE IF NOT EXISTS '
-              'queues (id INTEGER NOT NULL PRIMARY KEY, '
+              'queues (id TEXT NOT NULL PRIMARY KEY, '
               'username TEXT NOT NULL, '
               'course TEXT NOT NULL, '
               'room TEXT, '
@@ -94,8 +94,7 @@ queuetable = ('CREATE TABLE IF NOT EXISTS '
               'updated_time REAL NOT NULL, '
               'active INTEGER NOT NULL, '
               'actions TEXT NOT NULL, '
-              'claimant TEXT, '
-              'anonymous_name TEXT NOT NULL)')
+              'claimant TEXT)')
 
 
 os.makedirs(os.path.dirname(queue_db_loc), exist_ok=True)
