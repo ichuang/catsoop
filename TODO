@@ -1,0 +1,28 @@
+Feature Requests:
+
+  * Integrate the help queue
+
+  * Implement relative due dates
+
+  * Consider implementing "legacy" checker
+      For those who don't want to use the fancy new stuff, and nice to have for
+      things like surveys.
+
+  * Improve checker for expression QTYPE:
+      * Allow checking of integrals
+      * Allow checking of derivatives
+
+  * Implement Numeric Range QTYPE
+      (can probably adapt from CAT-SOOP 1.0)
+
+  * Implement Drag-and-Drop QTYPE
+      (based on edX)
+
+  * Improve infrastructure for giving hints
+
+  * Implement Piazza replacement
+
+Known Bugs:
+
+  * In ratio mode, checker for expression question type fails if solution
+    evaluates to 0.
