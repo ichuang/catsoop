@@ -212,6 +212,25 @@ cs_websocket_server_port = 6011
 The local port on which the websocket server should run
 """
 
+cs_queue_server_port = 6012
+"""
+The local port on which the queue server (if any) should run
+"""
+
+# Queue Management
+
+cs_run_queue = True
+"""
+Whether the queue should be enabled.
+"""
+
+cs_queue_enabled = False
+"""
+Per-page, whether the queue should be enabled.  If enabled, this will cause the
+a new websocket connection to be opened on page load, and some javascript to be
+loaded that keeps track of the current state of the queue.
+"""
+
 # File Upload Type
 
 cs_upload_management = 'file'

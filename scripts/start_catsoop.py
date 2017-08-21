@@ -77,6 +77,34 @@ c.execute(checkertable)
 conn.commit()
 conn.close()
 
+# Make sure the queue database is set up
+
+queue_db_loc = os.path.join(base_context.cs_data_root,
+                              '__LOGS__',
+                              '_queue.db')
+
+queuetable = ('CREATE TABLE IF NOT EXISTS '
+              'queues (id INTEGER NOT NULL PRIMARY KEY, '
+              'username TEXT NOT NULL, '
+              'course TEXT NOT NULL, '
+              'room TEXT, '
+              'type TEXT NOT NULL, '
+              'started_time REAL NOT NULL, '
+              'updated_time REAL NOT NULL, '
+              'active INTEGER NOT NULL, '
+              'actions TEXT NOT NULL, '
+              'claimant TEXT)')
+
+
+os.makedirs(os.path.dirname(queue_db_loc), exist_ok=True)
+conn = sqlite3.connect(queue_db_loc)
+conn.text_factory = str
+c = conn.cursor()
+c.execute(queuetable)
+conn.commit()
+conn.close()
+
+
 # Now start the workers.
 
 CHECKER_IX = None
