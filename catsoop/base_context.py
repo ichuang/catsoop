@@ -184,6 +184,11 @@ cs_checker_websocket = 'ws://localhost:6011'
 The location to which the browser should connect to the checker's "reporter" process.
 """
 
+cs_checker_server_port = 6011
+"""
+The local port on which the websocket server should run
+"""
+
 cs_checker_global_timeout = 120
 """
 The absolute maximum that a checker should be allowed to run before being
@@ -197,6 +202,8 @@ cs_checker_parallel_checks = 1
 The number of checks the checker should run simultaneously.
 """
 
+# UWSGI Server
+
 cs_wsgi_server_port = 6010
 """
 The local port on which the WSGI server should run.
@@ -205,16 +212,6 @@ The local port on which the WSGI server should run.
 cs_wsgi_server_processes = 1
 """
 How many worker processes the UWSGI server should start
-"""
-
-cs_websocket_server_port = 6011
-"""
-The local port on which the websocket server should run
-"""
-
-cs_queue_server_port = 6012
-"""
-The local port on which the queue server (if any) should run
 """
 
 # Queue Management
@@ -230,6 +227,21 @@ Per-page, whether the queue should be enabled.  If enabled, this will cause the
 a new websocket connection to be opened on page load, and some javascript to be
 loaded that keeps track of the current state of the queue.
 """
+
+cs_queue_websocket = None
+"""
+The location to which the browser should connect to the queue's process.
+"""
+
+cs_queue_server_port = 6012
+"""
+The local port on which the queue server (if any) should run
+"""
+
+cs_queue_room = None
+'''
+Special: The room to which queue requests on this page should be assigned.
+'''
 
 # File Upload Type
 

@@ -1613,6 +1613,8 @@ catsoop.this_path = %(path)r;
 catsoop.path_info = %(pathinfo)r;
 catsoop.course = %(course)s;
 catsoop.url_root = %(root)r;
+catsoop.queue_location = %(queueloc)s;
+catsoop.queue_room = %(queueroom)s;
 '''
 
     if len(namemap) > 0:
@@ -1637,6 +1639,8 @@ catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any fu
         'course': repr(context['cs_course']) if context['cs_course'] else 'null',
         'pathinfo': context['cs_path_info'],
         'root': context['cs_url_root'],
+        'queueloc': 'null' if context['cs_queue_websocket'] is None else repr(context['cs_queue_websocket']),
+        'queueroom': 'null' if context['cs_queue_room'] is None else repr(context['cs_queue_room']),
     }
 
 

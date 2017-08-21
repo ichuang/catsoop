@@ -43,7 +43,7 @@ from catsoop.tools.websocket import WebSocket, SimpleWebSocketServer
 
 CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, '__LOGS__', '_checker.db')
 
-PORTNUM = base_context.cs_websocket_server_port
+PORTNUM = base_context.cs_checker_server_port
 
 def dict_factory(cursor, row):
     d = {}

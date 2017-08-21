@@ -37,6 +37,7 @@ from catsoop.process import set_pdeathsig
 
 procs = (
     (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
+    (scripts_dir, ['python3', 'queue.py'], 0.1, 'Queue'),
     (base_dir, ['uwsgi', '--http', ':%s' % base_context.cs_wsgi_server_port,
                 '--wsgi-file', 'wsgi.py',
                 '--touch-reload', 'wsgi.py', '-p', str(int(base_context.cs_wsgi_server_processes))], 0.1, 'WSGI Server'),
@@ -89,11 +90,14 @@ queuetable = ('CREATE TABLE IF NOT EXISTS '
               'course TEXT NOT NULL, '
               'room TEXT, '
               'type TEXT NOT NULL, '
+              'description TEXT NOT NULL, '
+              'location TEXT NOT NULL, '
               'started_time REAL NOT NULL, '
               'updated_time REAL NOT NULL, '
               'active INTEGER NOT NULL, '
               'actions TEXT NOT NULL, '
-              'claimant TEXT)')
+              'claimant TEXT, '
+              'anonymous_name TEXT NOT NULL)')
 
 
 os.makedirs(os.path.dirname(queue_db_loc), exist_ok=True)

@@ -38,28 +38,31 @@ import catsoop.base_context as base_context
 
 from catsoop.tools.websocket import WebSocket, SimpleWebSocketServer
 
-QUEUE_DB_LOC = os.path.join(base_context.cs_data_root, '__LOGS__', '_queue.db')
-QUEUE_QUERY = ('SELECT (username, type, started_time, updated_time, claimant) '
+QUEUE_DB_LOC = os.path.join(base_context.cs_data_root,
+                            '__LOGS__', '_queue.db')
+QUEUE_QUERY = ('SELECT username,type,started_time,updated_time,claimant,'
+                      'anonymous_name,description,location '
                'FROM queues WHERE '
                'course=? AND room=? AND active=?')
-ROW_QUERY = ('SELECT (username, type, started_time, updated_time, claimant) '
+ROW_QUERY = ('SELECT username,type,started_time,updated_time,claimant,'
+                     'anonymous_name,description,location '
              'FROM queues WHERE '
-             'course=? AND room=? AND updated_time>?'
+             'course=? AND room=? AND updated_time>?')
 
 PORTNUM = base_context.cs_queue_server_port
 
-def weird_interleave(l, s):
-    if len(s) > len(l):
-        l, s = s, l
-    r = random.Random()
-    r.seed(l)
-    c = list(l+s)
-    r.shuffle(c)
-    return ''.join(c)
-
-
-def _sha256(x):
-    return base64.b64encode(hashlib.sha256(x.encode()))
+#def weird_interleave(l, s):
+#    if len(s) > len(l):
+#        l, s = s, l
+#    r = random.Random()
+#    r.seed(l)
+#    c = list(l+s)
+#    r.shuffle(c)
+#    return ''.join(c)
+#
+#
+#def _sha256(x):
+#    return base64.b64encode(hashlib.sha256(x.encode()))
 
 
 def dict_factory(cursor, row):
@@ -80,18 +83,17 @@ def _connect():
 
 # CONNECTED maps from (course, room) tuples to a mapping from usernames to a
 #           list of active connections for that user/course/room.
-# SALTS maps from (course, room, username) tuples to unique salts to make it
-#       harder to figure out what username is associated with a given hash
 CONNECTED = defaultdict(lambda: defaultdict(list))
-SALTS = defaultdict(lambda: ''.join(random.choice(string.ascii_characters) for i in range(random.randint(3, 20))))
 
 
 def prep_row(row, course, room, uname, perms):
     if i['username'] != uname and not perms:
-        i['username'] = _sha256(weird_interleave(uname, SALTS[(course, room, uname)]))
+#        i['username'] = _sha256(weird_interleave(uname, SALTS[(course, room, uname)]))
+        i['username'] = i['anonymous_name']
         i['anon'] = True
     else:
         i['anon'] = False
+    del i['anonymous_name']
 
 
 def send_updated_message(sock, course, room, uname, rows):
@@ -103,7 +105,7 @@ def send_updated_message(sock, course, room, uname, rows):
 def send_wholequeue_message(sock, course, room, uname):
     msg = {'type': 'queue'}
     conn2, c2 = _connect()
-    c2.execute(QUEUE_QUERY, (course, room, True))
+    c2.execute(QUEUE_QUERY, (course, room, 1))
     rows = c2.fetchall()
     conn2.close()
     for i in rows:
@@ -118,14 +120,15 @@ class Reporter(WebSocket):
         x = json.loads(self.data)
         if x['type'] == 'hello':
             self.api_token = x['api_token']
-            g = loader.spoof_early_load([x['course'])
-            user_info = api.get_user_information(g, api_token=self.api_token)
-            if str(user_info['username']) == 'None':
+            g = loader.spoof_early_load([x['course']])
+            user_info = api.get_user_information(g, api_token=self.api_token, course=x['course'])
+            if not user_info['ok']:
                 self.sendMessage({'type': 'hello', 'ok': False,
                                   'msg': 'Bad API Token: <tt>%s</tt>' % self.api_token})
                 self.sendClose()
                 return
-            self.sendMessage({'type': 'hello', 'ok': True})
+            user_info = user_info['user_info']
+            self.sendMessage(json.dumps({'type': 'hello', 'ok': True}))
             self.uname = user_info['username']
             self.course = x['course']
             self.room = x['room']
@@ -157,23 +160,25 @@ LAST_CHECK_TIME = defaultdict((lambda x: lambda: x)(time.time()))
 while True:
     # get all the queues we're currently watching (we don't need to care about
     # ones we're not watching).
+    print('here', CONNECTED)
     conn, c = _connect()
-    watched_queues = set(i[1:] for i in CONNECTED)
-    for key in watched_queues:
+    for key in list(CONNECTED.keys()):
+        course, room = key
         t = time.time()
         c.execute(ROW_QUERY, (course, room, LAST_CHECK_TIME[key]))
         rows = c.fetchall()
         # send all the updates
-        for username in CONNECTED[key]:
-            for connection in CONNECTED[key][username]:
-                send_updated_message(connection, course, room, username, [dict(i) for i in rows])
-        for i in rows:
-            if not i['active']:
-                # this entry is gone now.  clear the related salt
-                try:
-                    del SALTS[(i['course'], i['room'], i['username'])]
-                except:
-                    pass
+        if len(rows) > 0:
+            for username in CONNECTED[key]:
+                for connection in CONNECTED[key][username]:
+                    send_updated_message(connection, course, room, username, [dict(i) for i in rows])
+            for i in rows:
+                if not i['active']:
+                    # this entry is gone now.  clear the related salt
+                    try:
+                        del SALTS[(i['course'], i['room'], i['username'])]
+                    except:
+                        pass
         LAST_CHECK_TIME[key] = t
     conn.close()
     time.sleep(0.1)

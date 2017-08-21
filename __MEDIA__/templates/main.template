@@ -50,6 +50,9 @@
     <!-- CAT-SOOP Hashing -->
     <script type="text/javascript" src="BASE/scripts/cs_hash.js"></script>
 
+    <!-- Queue Management -->
+    <script type="text/javascript" src="BASE/scripts/cs_queue.js"></script>
+
     <!-- Syntax Highlighting -->
     <link rel="stylesheet" href="BASE/scripts/highlight/styles/catsoop.css" />
     <script type="text/javascript" src="BASE/scripts/highlight/highlight.pack.js"></script>
