@@ -70,7 +70,6 @@ else:
 
     def keeppingingall():
         while True:
-            print('PING TIME')
             time.sleep(30)
             for key in CONNECTED:
                 for username in CONNECTED[key]:
@@ -162,7 +161,6 @@ else:
     while True:
         # get all the queues we're currently watching (we don't need to care about
         # ones we're not watching).
-        print(CONNECTED)
         conn, c = _connect()
         for key in list(CONNECTED.keys()):
             course, room = key
