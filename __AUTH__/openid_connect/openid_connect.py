@@ -81,10 +81,12 @@ def get_logged_in_user(context):
 
 
 LOGIN_PAGE = """
+<div id="catsoop_login_box">
 Access to this page requires logging in via OpenID Connect.  Please <a
 href="%s?loginaction=redirect">Log In</a> to continue.<br/>Note that this link
 will take you to an external site (<tt>%s</tt>) to authenticate, and then you
 will be redirected back to this page.
+</div>
 """
 
 LOGIN_BOX = """

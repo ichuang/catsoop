@@ -18,6 +18,8 @@ CHANGED:
   cs_checker_location instead of cs_websocket_location (which is now
   ambiguous).
 
+* Added more options to modify the styling of the "login required" page.
+
 DEPRECATED:
 
 REMOVED:
