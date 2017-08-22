@@ -15,7 +15,7 @@ CHANGED:
 * Updated python-markdown to version 2.6.9.
 
 * The magic variable controlling the checker's location is now
-  cs_checker_location instead of cs_websocket_location (which is now
+  cs_checker_websocket instead of cs_websocket_location (which is now
   ambiguous).
 
 * Added more options to modify the styling of the "login required" page.
