@@ -10,6 +10,9 @@ Planned Features:
     avoid unfortunate naming issues like cs_multiplechoice_renderer by
     namespacing all the defaults.
 
+  * Make CAT-SOOP builtins work without jQuery (but still include jQuery in
+    case courses want to use it).
+
   * Allow pythoncode checkers to look at more than just the log entry (in
     particular, stdout).
 
