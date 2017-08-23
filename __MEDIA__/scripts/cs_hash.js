@@ -406,46 +406,9 @@ function str2array(s){
     return out;
 }
 exports.str2array = str2array;
-exports.random = function(seed=undefined){
-    this.m_w = typeof(seed) === 'undefined' ? (new Date()).valueOf() : seed;
-    this.m_z = 987654321;
-    this.mask = 0xffffffff;
-}
-exports.random.prototype.seed = function(i){
-    this.m_w = i;
-    this.m_z = 987654321;
-}
-exports.random.prototype.random = function(){
-    this.m_z = (36969 * (this.m_z & 65535) + (this.m_z >> 16)) & this.mask;
-    this.m_w = (18000 * (this.m_w & 65535) + (this.m_w >> 16)) & this.mask;
-    var result = ((this.m_z << 16) + this.m_w) & this.mask;
-    result /= 4294967296;
-    return result + 0.5;
-}
-exports.random.prototype.randid = function(n){
-    n = typeof(n) === 'undefined' ? 20 : n;
-    var out = '';
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (var i = 0; i < n; i++){
-        out += possible.charAt(Math.floor(this.random() * possible.length));
-    }
-    return out;
-}
-exports.strhash = function(s){
-  var hash = 0, i, chr;
-  if (s.length === 0) return hash;
-  for (i = 0; i < s.length; i++) {
-      chr = s.charCodeAt(i);
-      hash = ((hash << 5) - hash) + chr;
-      hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-}
 function catsoop_hash(username, pass){
-    pass = exports.hash(pass);
-    var r = new exports.random(exports.strhash(username+pass));
-    var salt = str2array(r.randid(128));
-    return ua2hex(pbkdf2(pass, salt, 250000, 32));
+    var salt = str2array(pass+username);
+    return ua2hex(pbkdf2(pass, salt, 100000, 32));
 }
 exports.catsoop_hash = catsoop_hash;
 function cs_hash_passwords(fields, username, preserve, formId){

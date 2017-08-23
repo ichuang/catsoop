@@ -29,6 +29,9 @@ REMOVED:
 
 FIXED:
 
+* Fixed an issue with the 'login' authentication type that caused false
+  negatives when checking passwords from different browsers.
+
 * Fixed an issue with broken loading of uploaded files from the database.
 
 * Fixed an issue that caused an error message not to be shown when cs_form was
