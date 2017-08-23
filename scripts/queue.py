@@ -72,9 +72,20 @@ else:
         while True:
             time.sleep(30)
             for key in CONNECTED:
-                for username in CONNECTED[key]:
-                    for sock in CONNECTED[key][username]:
-                        sock.sendMessage(PING)
+                try:
+                    unames = CONNECTED[key]
+                except:
+                    continue
+                for username in unames:
+                    try:
+                        connections = unames[username]
+                    except:
+                        continue
+                    for sock in connections:
+                        try:
+                            sock.sendMessage(PING)
+                        except:
+                            pass
 
 
     ## WEBSOCKET STUFF
