@@ -211,15 +211,8 @@ def keeppingingall():
     while True:
         time.sleep(30)
         for c in all_clients:
-            try:
-                connections = all_clients[c]
-            except:
-                continue
-            for sock in connections:
-                try:
-                    sock.sendMessage(PING)
-                except:
-                    pass
+            for sock in all_clients[c]:
+                sock.sendMessage(PING)
 pinger = threading.Thread(target=keeppingingall)
 pinger.start()
 

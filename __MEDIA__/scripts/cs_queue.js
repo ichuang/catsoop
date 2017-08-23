@@ -36,7 +36,14 @@ $(document).ready(function(){
             room: catsoop.queue_room,
         }));
     }
-    
+   
+    catsoop.queue.ws.onclose = function(){
+        catsoop.queue.queue = null;
+        catsoop.queue.myentry = null;
+        catsoop.queue.known_keys = new Set();
+        delete catsoop.queue.ws;
+    }
+
     catsoop.queue.ws.onmessage = function(event){
         var m = JSON.parse(event.data);
         console.log(m);
@@ -51,8 +58,15 @@ $(document).ready(function(){
             // the current state of the queue.
             catsoop.queue.queue = m.queue;
             catsoop.queue.known_keys = new Set();
+            var m_t = null;
             for (var i = 0; i < m.queue.length; i ++){
                 catsoop.queue.known_keys.add(m.queue[i].username);
+                if (m_t === null || m.queue[i].updated_time > m_t){
+                    m_t = m.queue[i].updated_time;
+                }
+            }
+            if (m_t !== null){
+                catsoop.queue.ws.send(JSON.stringify({type: 'max_time', time: m_t}));
             }
         }else if (m.type == 'update'){
             if (catsoop.queue.queue === null){
@@ -66,11 +80,14 @@ $(document).ready(function(){
             var curix = 0;
             // we'll loop over all the new entries (probably just one, given
             // the default queue timing)
+            var m_t = null;
             for (var i = 0; i < news.length; i++){
                 var entry = news[i];
+                if (m_t === null || entry.updated_time > m_t){
+                    m_t = entry.updated_time;
+                }
                 if (entry.active){
                     if (catsoop.queue.known_keys.has(entry.username)){
-                        console.log('we know', entry.username);
                         // we already know this key.  just replace its entry
                         for (var j = 0; j < catsoop.queue.queue.length; j++){
                             var oentry = catsoop.queue.queue[j];
@@ -82,7 +99,6 @@ $(document).ready(function(){
                     }else{
                         // this is a new key.  find the right spot in the array
                         // and add it in.
-                        console.log('new entry', entry.username);
                         var j = 0;
                         var broke = false;
                         for (j = 0; j < catsoop.queue.queue.length; j++){
@@ -116,6 +132,16 @@ $(document).ready(function(){
                     catsoop.queue.known_keys.delete(entry.username);
                 }
             }
+            if (m_t !== null){
+                catsoop.queue.ws.send(JSON.stringify({type: 'max_time', time: m_t}));
+            }
+        }
+        // that will handle the updates.  now, rerender the queue.  the trick
+        // here is that we won't ever define this, because the way the queue
+        // wants to show up is going to be different for everyone (and even for
+        // different pages within the same course).
+        if (typeof catsoop.queue.render_queue !== 'undefined'){
+            catsoop.queue.render_queue();
         }
     }
 });
