@@ -30,6 +30,13 @@ Planned Features:
 
   * Implement Piazza replacement
 
+  * Easy way to access order of questions on page
+
+  * MP-style hints
+      csq_hints = [{'name':..., 'hint':..., 'penalty':...,}]
+      then in problemstate, keep hints_viewed
+
+  * Post-submission hints based on response
 
 Known Bugs:
 
