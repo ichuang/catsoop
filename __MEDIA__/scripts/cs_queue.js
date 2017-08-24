@@ -25,9 +25,9 @@ $(document).ready(function(){
     catsoop.queue = {};
     catsoop.queue.queue = null;
     catsoop.queue.myentry = null;
-    catsoop.queue.known_keys = new Set();
+    catsoop.queue.myclaimed = null;
     catsoop.queue.ws = new WebSocket(catsoop.queue_location);
-    
+
     catsoop.queue.ws.onopen = function(){
         catsoop.queue.ws.send(JSON.stringify({
             type: 'hello',
@@ -36,10 +36,9 @@ $(document).ready(function(){
             room: catsoop.queue_room,
         }));
     }
-    
+
     catsoop.queue.ws.onmessage = function(event){
         var m = JSON.parse(event.data);
-        console.log(m);
         if (m.type === 'hello' && !m.ok){
             // if we get this message, we weren't able to log in successfully,
             // so we'll just close the connection.
@@ -49,73 +48,95 @@ $(document).ready(function(){
         }else if (m.type == 'queue'){
             // this should happen near to when we first connect.  we receive
             // the current state of the queue.
+            var m_t = m.queue.length > 0 ? m.queue[m.queue.length - 1].updated_time : null;
+            if (m_t !== null){
+                catsoop.queue.ws.send(JSON.stringify({type: 'max_time', time: m_t}));
+            }
+            // now sort by started time and replace the actual queue.
+            m.queue.sort(function(a, b){
+                return a.started_time - b.started_time;
+            });
             catsoop.queue.queue = m.queue;
-            catsoop.queue.known_keys = new Set();
-            for (var i = 0; i < m.queue.length; i ++){
-                catsoop.queue.known_keys.add(m.queue[i].username);
+            catsoop.queue.ws.send(JSON.stringify({type: 'here'}));
+            if (typeof catsoop.queue.render_queue !== 'undefined'){
+                catsoop.queue.render_queue();
             }
         }else if (m.type == 'update'){
             if (catsoop.queue.queue === null){
                 return;
             }
-            console.log(catsoop.queue)
             // we'll receive one of these every time something changes in the
             // DB.  it's up to us to figure out what that means for what we're
             // tracking.
             var news = m.entries;
-            var curix = 0;
-            // we'll loop over all the new entries (probably just one, given
-            // the default queue timing)
-            for (var i = 0; i < news.length; i++){
-                var entry = news[i];
-                if (entry.active){
-                    if (catsoop.queue.known_keys.has(entry.username)){
-                        console.log('we know', entry.username);
-                        // we already know this key.  just replace its entry
-                        for (var j = 0; j < catsoop.queue.queue.length; j++){
-                            var oentry = catsoop.queue.queue[j];
-                            if (oentry.username === entry.username){
-                                catsoop.queue.queue[j] = entry;
-                                break;
-                            }
-                        }
-                    }else{
-                        // this is a new key.  find the right spot in the array
-                        // and add it in.
-                        console.log('new entry', entry.username);
-                        var j = 0;
-                        var broke = false;
-                        for (j = 0; j < catsoop.queue.queue.length; j++){
-                            var oentry = catsoop.queue.queue[j];
-                            if (oentry.started_time > entry.started_time){
-                                catsoop.queue.queue.splice(j, 0, entry);
-                                broke = true;
-                                break;
-                            }
-                        }
-                        if (!broke){
-                            catsoop.queue.queue.splice(j, 0, entry);
-                        }
-                    }
-                    // regardless of whether we added or replaced, we want to
-                    // update "myentry" and the currently know keys.
-                    if (entry.username === catsoop.username){
-                        catsoop.queue.myentry = entry;
-                    }
-                    catsoop.queue.known_keys.add(entry.username);
-                    console.log(catsoop.queue)
-                }else{
-                    // this thing is no longer active.  let's kill it.
-                    for (var j = 0; j < catsoop.queue.queue.length; j++){
-                        var oentry = catsoop.queue.queue[j];
-                        if (oentry.username === entry.username){
-                            catsoop.queue.queue.splice(j, 1);
-                            break;
-                        }
-                    }
-                    catsoop.queue.known_keys.delete(entry.username);
+            // combine new and old queues
+            var newqueue = catsoop.queue.queue.concat(news);
+            // sort entries entries by updated_time
+            newqueue.sort(function(a, b){
+                return a.updated_time - b.updated_time;
+            });
+            var m_t = news.length > 0 ? news[news.length - 1].updated_time : null;
+            if (m_t !== null){
+                catsoop.queue.ws.send(JSON.stringify({type: 'max_time', time: m_t}));
+            }
+            // keep only the _most recently updated_ entry for each id
+            var seen = new Set();
+            var toremove = [];
+            for (var i = newqueue.length-1; i >= 0; i--){
+                var entry = newqueue[i];
+                if (seen.has(entry.id)){
+                    toremove.push(i);
+                }
+                seen.add(entry.id);
+            }
+            for (var i of toremove){
+                newqueue.splice(i, 1);
+            }
+            // now, filter the queue entries to keep only the active ones.
+            newqueue = newqueue.filter(function(elt){
+                return elt.active;
+            });
+            // now sort by started time
+            newqueue.sort(function(a, b){
+                return a.started_time - b.started_time;
+            });
+            // and find my entry and/or my claim.
+            var myentry = null;
+            var myclaimed = null;
+            var curpos = 1;
+            for(var i = 0; i < newqueue.length; i++){
+                var entry = newqueue[i];
+                if (entry.claimant === catsoop.username){
+                    myentry = [curpos, entry];
+                }else if (entry.name === catsoop.username){
+                    myclaimed = [curpos, entry];
+                }
+                if (entry.claimant === null){
+                    // not been claimed; this counts against the position.
+                    curpos++;
                 }
             }
+            catsoop.queue.myentry = myentry;
+            catsoop.queue.myclaimed = myclaimed;
+            // and, of course, replace catsoop.queue.queue
+            catsoop.queue.queue = newqueue;
+            // that will handle the updates.  now, rerender the queue.  the trick
+            // here is that we won't ever define this, because the way the queue
+            // wants to show up is going to be different for everyone (and even for
+            // different pages within the same course).
+            if (typeof catsoop.queue.render_queue !== 'undefined'){
+                catsoop.queue.render_queue();
+            }
+        }
+    }
+
+    catsoop.queue.ws.onclose = function(){
+        catsoop.queue.queue = null;
+        catsoop.queue.myentry = null;
+        catsoop.queue.myclaimed = null;
+        delete catsoop.queue.ws;
+        if (typeof catsoop.queue.render_queue !== 'undefined'){
+            catsoop.queue.render_queue();
         }
     }
 });

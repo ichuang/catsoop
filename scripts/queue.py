@@ -43,12 +43,12 @@ else:
                           'description,location,active '
                    'FROM queues WHERE '
                    'course=? AND room=? AND active=? '
-                   'ORDER BY started_time ASC')
+                   'ORDER BY updated_time ASC')
     ROW_QUERY = ('SELECT id,username,type,started_time,updated_time,claimant,'
                          'description,location,active '
                  'FROM queues WHERE '
                  'course=? AND room=? AND updated_time>? '
-                 'ORDER BY started_time ASC')
+                 'ORDER BY updated_time ASC')
 
     PORTNUM = base_context.cs_queue_server_port
 
@@ -66,6 +66,15 @@ else:
         conn.row_factory = dict_factory
         return conn, conn.cursor()
 
+    # most browsers will close websockets that have been inactive for some
+    # amount of time.  so we'll start a thread to send a 'ping' to every
+    # connection every so often.  there is a way to do this without sending
+    # JSON (sending a 'ping' frame instead of a 'message'), but i'm not sure
+    # how to do it, and this seems to work for now.  maybe look into it later.
+    # note: we shouldn't need any error checking in this thread because
+    # everything we're looking at is a defaultdict (so no keyerrors), and the
+    # websocket module silently fails on all errors (so no exceptions from
+    # trying to send).
     PING = json.dumps({'type': 'ping'})
 
     def keeppingingall():
@@ -83,14 +92,21 @@ else:
     #           list of active connections for that user/course/room.
     CONNECTED = defaultdict(lambda: defaultdict(list))
 
+    # The queues themselves are stored in an SQLite database.  We will check
+    # against the database directly and send deltas, instead of trying to keep
+    # a copy in memory.  In order to do this, we need to keep track of, for
+    # each username for each room, the updated_time of the most recent entry
+    # they know about.  Each time through the loop, we'll grab all the entries
+    # that _not everyone_ knows about and send them along.  This will minimize
+    # the number of connections/queries we have to make each time through the
+    # loop, but we can still do some filtering to avoid sending duplicate
+    # messages (see below).
+    LAST_CHECK_TIME = defaultdict(lambda: defaultdict(lambda: -1))
+
 
     def prep_row(row, course, room, uname, perms):
         if row['username'] != uname and not perms:
             row['username'] = row['id']
-            row['anon'] = True
-        else:
-            row['anon'] = False
-        del row['id']
 
 
     def send_updated_message(sock, course, room, uname, rows):
@@ -116,6 +132,8 @@ else:
         def handleMessage(self):
             x = json.loads(self.data)
             if x['type'] == 'hello':
+                # when we receive this first message, grab the API token and
+                # get the associated user's information.
                 self.api_token = x['api_token']
                 g = loader.spoof_early_load([x['course']])
                 user_info = api.get_user_information(g, api_token=self.api_token, course=x['course'])
@@ -129,8 +147,11 @@ else:
                 self.course = x['course']
                 self.room = x['room']
                 self.perms = 'queue_staff' in user_info.get('permissions', [])
-                CONNECTED[(self.course, self.room)][self.uname].append(self)
                 send_wholequeue_message(self, self.course, self.room, self.uname)
+            elif x['type'] == 'here':
+                CONNECTED[(self.course, self.room)][self.uname].append(self)
+            elif x['type'] == 'max_time':
+                LAST_CHECK_TIME[(self.course, self.room)][self.uname] = x['time']
 
         def handleClose(self):
             # need to remove this person
@@ -141,6 +162,7 @@ else:
                 del room[self.uname]
             if len(room) == 0:
                 del CONNECTED[(self.course, self.room)]
+            del LAST_CHECK_TIME[(self.course, self.room)][self.uname]
 
 
     server = SimpleWebSocketServer('', PORTNUM, Reporter)
@@ -150,27 +172,34 @@ else:
     pinger = threading.Thread(target=keeppingingall)
     pinger.start()
 
-    # and now actually start running
-
-    # The queues themselves are stored in the SQLite database.  We will check
-    # against the database directly, instead of trying to keep a copy in memory.
-    # In order to do this, we need to keep track of, for each room, when we last
-    # looked for an update, and which IDs we were tracking.
-    LAST_CHECK_TIME = defaultdict(lambda: -1)
-
     while True:
         # get all the queues we're currently watching (we don't need to care about
         # ones we're not watching).
         conn, c = _connect()
         for key in list(CONNECTED.keys()):
             course, room = key
-            c.execute(ROW_QUERY, (course, room, LAST_CHECK_TIME[key]))
+            # get everything that _not everyone_ knows about
+            try:
+                check_time = min(LAST_CHECK_TIME[key].values())
+            except:
+                check_time = -1
+            c.execute(ROW_QUERY, (course, room, check_time))
             rows = c.fetchall()
-            # send all the updates
             if len(rows) > 0:
                 for username in CONNECTED[key]:
+                    # here we filter the entries so that each connection only
+                    # gets the updates they haven't already seen.
+                    mytime = LAST_CHECK_TIME[(course, room)][username]
+                    rows = [i for i in rows if i['updated_time'] > mytime]
+                    if len(rows) == 0:
+                        continue
                     for connection in CONNECTED[key][username]:
-                        send_updated_message(connection, course, room, username, [dict(i) for i in rows])
-                LAST_CHECK_TIME[key] = max(i['updated_time'] for i in rows)
+                        # once we have the filtered list, send it to all the
+                        # connections associated with this user.  we send a
+                        # _copy_ of each row because the rows will get mangled
+                        # by anonymization.  also, here we can filter to avoid
+                        # sending duplicate messages.
+                        send_updated_message(connection, course, room,
+                                             username, [dict(i) for i in rows])
         conn.close()
         time.sleep(0.1)
