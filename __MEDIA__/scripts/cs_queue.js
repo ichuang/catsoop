@@ -27,7 +27,7 @@ $(document).ready(function(){
     catsoop.queue.myentry = null;
     catsoop.queue.known_keys = new Set();
     catsoop.queue.ws = new WebSocket(catsoop.queue_location);
-    
+
     catsoop.queue.ws.onopen = function(){
         catsoop.queue.ws.send(JSON.stringify({
             type: 'hello',
@@ -35,13 +35,6 @@ $(document).ready(function(){
             course: catsoop.course,
             room: catsoop.queue_room,
         }));
-    }
-   
-    catsoop.queue.ws.onclose = function(){
-        catsoop.queue.queue = null;
-        catsoop.queue.myentry = null;
-        catsoop.queue.known_keys = new Set();
-        delete catsoop.queue.ws;
     }
 
     catsoop.queue.ws.onmessage = function(event){
@@ -140,6 +133,16 @@ $(document).ready(function(){
         // here is that we won't ever define this, because the way the queue
         // wants to show up is going to be different for everyone (and even for
         // different pages within the same course).
+        if (typeof catsoop.queue.render_queue !== 'undefined'){
+            catsoop.queue.render_queue();
+        }
+    }
+
+    catsoop.queue.ws.onclose = function(){
+        catsoop.queue.queue = null;
+        catsoop.queue.myentry = null;
+        catsoop.queue.known_keys = new Set();
+        delete catsoop.queue.ws;
         if (typeof catsoop.queue.render_queue !== 'undefined'){
             catsoop.queue.render_queue();
         }
