@@ -43,12 +43,12 @@ else:
                           'description,location,active '
                    'FROM queues WHERE '
                    'course=? AND room=? AND active=? '
-                   'ORDER BY started_time ASC')
+                   'ORDER BY updated_time ASC')
     ROW_QUERY = ('SELECT id,username,type,started_time,updated_time,claimant,'
                          'description,location,active '
                  'FROM queues WHERE '
                  'course=? AND room=? AND updated_time>? '
-                 'ORDER BY started_time ASC')
+                 'ORDER BY updated_time ASC')
 
     PORTNUM = base_context.cs_queue_server_port
 
@@ -107,10 +107,6 @@ else:
     def prep_row(row, course, room, uname, perms):
         if row['username'] != uname and not perms:
             row['username'] = row['id']
-            row['anon'] = True
-        else:
-            row['anon'] = False
-        del row['id']
 
 
     def send_updated_message(sock, course, room, uname, rows):
@@ -151,8 +147,9 @@ else:
                 self.course = x['course']
                 self.room = x['room']
                 self.perms = 'queue_staff' in user_info.get('permissions', [])
-                CONNECTED[(self.course, self.room)][self.uname].append(self)
                 send_wholequeue_message(self, self.course, self.room, self.uname)
+            elif x['type'] == 'here':
+                CONNECTED[(self.course, self.room)][self.uname].append(self)
             elif x['type'] == 'max_time':
                 LAST_CHECK_TIME[(self.course, self.room)][self.uname] = x['time']
 
@@ -182,7 +179,10 @@ else:
         for key in list(CONNECTED.keys()):
             course, room = key
             # get everything that _not everyone_ knows about
-            check_time = min(LAST_CHECK_TIME[key].values())
+            try:
+                check_time = min(LAST_CHECK_TIME[key].values())
+            except:
+                check_time = -1
             c.execute(ROW_QUERY, (course, room, check_time))
             rows = c.fetchall()
             if len(rows) > 0:
@@ -191,6 +191,8 @@ else:
                     # gets the updates they haven't already seen.
                     mytime = LAST_CHECK_TIME[(course, room)][username]
                     rows = [i for i in rows if i['updated_time'] > mytime]
+                    if len(rows) == 0:
+                        continue
                     for connection in CONNECTED[key][username]:
                         # once we have the filtered list, send it to all the
                         # connections associated with this user.  we send a
