@@ -112,19 +112,21 @@ conn.close()
 # Now start the workers.
 
 CHECKER_IX = None
+KILLSIGS = []
 
 for (ix, (wd, cmd, slp, name)) in enumerate(procs):
     print('Starting', name)
     if 'checker.py' in cmd:
         CHECKER_IX = ix
     killsig = signal.SIGTERM if 'uwsgi' not in cmd else signal.SIGKILL
+    KILLSIGS.append(killsig)
     running.append(subprocess.Popen(cmd, cwd=wd,
                                     preexec_fn=set_pdeathsig(killsig)))
     time.sleep(slp)
 
 def _kill_children():
-    for i in running:
-        i.kill()
+    for ix, i in enumerate(running):
+        os.kill(i.pid, KILLSIGS[ix])
 atexit.register(_kill_children)
 
 while True:
