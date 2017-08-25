@@ -17,6 +17,7 @@
 import os
 import sys
 import time
+import atexit
 import signal
 import sqlite3
 import subprocess
@@ -120,6 +121,11 @@ for (ix, (wd, cmd, slp, name)) in enumerate(procs):
     running.append(subprocess.Popen(cmd, cwd=wd,
                                     preexec_fn=set_pdeathsig(killsig)))
     time.sleep(slp)
+
+def _kill_children():
+    for i in running:
+        i.kill()
+atexit.register(_kill_children)
 
 while True:
     t = check_wsgi_time()

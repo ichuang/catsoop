@@ -36,8 +36,13 @@ assert libc is not None
 
 
 def set_pdeathsig(sig = signal.SIGTERM):
-    def callable():
-        return libc.prctl(1, sig)
+    if hasattr(libc, 'prctl'):
+        def callable():
+            return libc.prctl(1, sig)
+    else:
+        # on mac osx, there is no such thing as prctl.
+        def callable():
+            pass
     return callable
 
 
