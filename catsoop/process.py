@@ -23,7 +23,18 @@ import subprocess
 import multiprocessing
 
 
-libc = ctypes.CDLL("libc.so.6")
+# libc lives in different places on different OS
+libc = None
+for i in ('libc.so.6', 'libc.dylib', 'cygwin1.dll', 'msys-2.0.dll'):
+    try:
+        libc = ctypes.CDLL(i)
+    except:
+        pass
+    if libc is not None:
+        break
+assert libc is not None
+
+
 def set_pdeathsig(sig = signal.SIGTERM):
     def callable():
         return libc.prctl(1, sig)
