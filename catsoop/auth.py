@@ -139,11 +139,12 @@ def _get_user_information(context, into, course, username, do_preload=False):
         if spoofed_role is not None:
             into['role'] = spoofed_role
             orig_p = into['permissions']
-            new_p = plist.get(spoofed_role, defaults)
-            new_p = set(new_p).intersection(set(orig_p))
+            spoofed_p = plist.get(spoofed_role, defaults)
+            new_p = set(spoofed_p).intersection(set(orig_p))
             for i in ('submit_all', 'view_all'):
-                if i in orig_p and i not in new_p:
-                    new_p.add(i.split('_')[0])
+                lesser = i.split('_')[0]
+                if i in orig_p and i not in new_p and lesser in spoofed_p:
+                    new_p.add(lesser)
             into['permissions'] = new_p
 
 
