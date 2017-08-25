@@ -135,6 +135,18 @@ def _get_user_information(context, into, course, username, do_preload=False):
         plist = context.get('cs_permissions', {})
         defaults = context.get('cs_default_permissions', ['view'])
         into['permissions'] = plist.get(into['role'], defaults)
+        spoofed_role = context.get('cs_form', {}).get('as_role', None)
+        if spoofed_role is not None:
+            into['role'] = spoofed_role
+            orig_p = into['permissions']
+            new_p = plist.get(spoofed_role, defaults)
+            new_p = set(new_p).intersection(set(orig_p))
+            for i in ('submit_all', 'view_all'):
+                if i in orig_p and i not in new_p:
+                    new_p.add(i.split('_')[0])
+            into['permissions'] = new_p
+
+
 
     loader.clean_builtins(into)
 
