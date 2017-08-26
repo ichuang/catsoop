@@ -10,11 +10,12 @@ Planned Features:
     avoid unfortunate naming issues like cs_multiplechoice_renderer by
     namespacing all the defaults.
 
-  * Make CAT-SOOP builtins work without jQuery (but still include jQuery in
-    case courses want to use it).
-
   * Allow pythoncode checkers to look at more than just the log entry (in
     particular, stdout).
+
+  * Implement a more robust way of handling long outputs from a local Python
+    sandbox.  The current method (changing the pipe size) is a real hack, and
+    apparently doesn't work on Mac OS.
 
   * Improve checker for expression QTYPE:
       * Allow checking of integrals
@@ -27,8 +28,6 @@ Planned Features:
       (based on edX)
 
   * Improve infrastructure for giving hints
-
-  * Implement Piazza replacement
 
   * Easy way to access order of questions on page
 
@@ -46,6 +45,8 @@ Known Bugs:
   * In ratio mode, checker for expression question type fails if solution
     evaluates to 0.
 
+  * On Mac, child processes of checkers may not properly be killed due to lack
+    of pdeathsig
 
 Things to Think About:
 
@@ -55,3 +56,8 @@ Things to Think About:
   * Consider implementing "legacy" checker
       For those who don't want to use the fancy new stuff, and nice to have for
       things like surveys.
+
+  * Make CAT-SOOP builtins work without jQuery (but still include jQuery in
+    case courses want to use it).
+
+  * Implement Piazza replacement
