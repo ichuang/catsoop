@@ -13,10 +13,6 @@ Planned Features:
   * Allow pythoncode checkers to look at more than just the log entry (in
     particular, stdout).
 
-  * Implement a more robust way of handling long outputs from a local Python
-    sandbox.  The current method (changing the pipe size) is a real hack, and
-    apparently doesn't work on Mac OS.
-
   * Improve checker for expression QTYPE:
       * Allow checking of integrals
       * Allow checking of derivatives

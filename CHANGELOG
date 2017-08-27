@@ -13,6 +13,9 @@ ADDED:
 
 CHANGED:
 
+* Local Python sandboxes now write their stdout and stderr to files instead of
+  relying on low-level hacks involving pipes.
+
 * Updated KaTeX to version 0.8.2.
 
 * Updated python-markdown to version 2.6.9.

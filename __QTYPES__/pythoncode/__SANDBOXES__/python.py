@@ -19,6 +19,7 @@ import time
 import fcntl
 import shutil
 import hashlib
+import tempfile
 import resource
 import subprocess
 
@@ -66,24 +67,24 @@ def run_code(context, code, options):
 
     interp = context.get('csq_python_interpreter', '/usr/local/bin/python3')
 
+    # open stdin in write mode, write to it, and then open it again in read
+    # mode.
     inr, inw = os.pipe()
-    outr, outw = os.pipe()
-    errr, errw = os.pipe()
-    for i in (outr, outw, errr, errw):
-        # this is kind of a hack; it sets the size of all of the
-        # newly-opened pipes to the max that is allowable.  without this,
-        # the buffers fill up and the process hangs, even with outputs as
-        # small as ~16KB!!!!
-        fcntl.fcntl(i, 1031, 1048576)  # 1031 is F_SETPIPE_SZ (not included in fcntl module)
-
+    outfname = tempfile.mktemp()
+    errfname = tempfile.mktemp()
     p = subprocess.Popen([interp, '-E', '-B', fname],
                          cwd=tmpdir,
                          preexec_fn=limiter,
                          bufsize=0,
                          stdin=inr,
-                         stdout=outw,
-                         stderr=errw)
-
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    p2 = subprocess.Popen(['tee', outfname], stdin=p.stdout,
+                                             stdout=subprocess.DEVNULL,
+                                             stderr=subprocess.DEVNULL)
+    p3 = subprocess.Popen(['tee', errfname], stdin=p.stderr,
+                                             stdout=subprocess.DEVNULL,
+                                             stderr=subprocess.DEVNULL)
     with open(inw, 'w') as f:
         f.write(options['STDIN'])
     safe_close(inw)
@@ -91,19 +92,16 @@ def run_code(context, code, options):
     killer = context['csm_process'].PKiller(p, options['CLOCKTIME'])
     killer.start()
 
-    while p.poll() is None:
-        time.sleep(0.1)
+    p.wait()
 
-    safe_close(inr)
-    safe_close(outw)
-    safe_close(errw)
-
-    out = open(outr).read()
-    err = open(errr).read()
-
-    safe_close(outr)
-    safe_close(errr)
+    out = open(outfname, 'r').read()
+    err = open(errfname, 'r').read()
 
     shutil.rmtree(tmpdir, True)
+    for f in (outfname, errfname):
+        try:
+            os.unlink(f)
+        except:
+            pass
 
     return fname, out, err
