@@ -48,16 +48,11 @@ $(document).ready(function(){
         }else if (m.type == 'queue'){
             // this should happen near to when we first connect.  we receive
             // the current state of the queue.
-            var m_t = m.queue.length > 0 ? m.queue[m.queue.length - 1].updated_time : null;
-            if (m_t !== null){
-                catsoop.queue.ws.send(JSON.stringify({type: 'max_time', time: m_t}));
-            }
-            // now sort by started time and replace the actual queue.
+            // sort by started time and replace the actual queue.
             m.queue.sort(function(a, b){
                 return a.started_time - b.started_time;
             });
             catsoop.queue.queue = m.queue;
-            catsoop.queue.ws.send(JSON.stringify({type: 'here'}));
             if (typeof catsoop.queue.render_queue !== 'undefined'){
                 catsoop.queue.render_queue();
             }
@@ -75,10 +70,6 @@ $(document).ready(function(){
             newqueue.sort(function(a, b){
                 return a.updated_time - b.updated_time;
             });
-            var m_t = news.length > 0 ? news[news.length - 1].updated_time : null;
-            if (m_t !== null){
-                catsoop.queue.ws.send(JSON.stringify({type: 'max_time', time: m_t}));
-            }
             // keep only the _most recently updated_ entry for each id
             var seen = new Set();
             var toremove = [];

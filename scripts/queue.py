@@ -110,8 +110,13 @@ else:
 
 
     def send_updated_message(sock, course, room, uname, rows):
+        lct = None
         for i in rows:
             prep_row(i, course, room, uname, sock.perms)
+            if lct is None or i['updated_time'] > lct:
+                lct = i['updated_time']
+        if lct is not None:
+            LAST_CHECK_TIME[(sock.course, sock.room)][sock.uname] = lct
         sock.sendMessage(json.dumps({'type': 'update', 'entries': rows}))
 
 
@@ -121,10 +126,14 @@ else:
         c2.execute(QUEUE_QUERY, (course, room, 1))
         rows = c2.fetchall()
         conn2.close()
+        lct = -1
         for i in rows:
             prep_row(i, course, room, uname, sock.perms)
+            if i['updated_time'] > lct:
+                lct = i['updated_time']
         msg['queue'] = rows
         sock.sendMessage(json.dumps(msg))
+        LAST_CHECK_TIME[(sock.course, sock.room)][sock.uname] = lct
 
 
     # now let's start up the websocket server
@@ -147,11 +156,8 @@ else:
                 self.course = x['course']
                 self.room = x['room']
                 self.perms = 'queue_staff' in user_info.get('permissions', [])
-                send_wholequeue_message(self, self.course, self.room, self.uname)
-            elif x['type'] == 'here':
                 CONNECTED[(self.course, self.room)][self.uname].append(self)
-            elif x['type'] == 'max_time':
-                LAST_CHECK_TIME[(self.course, self.room)][self.uname] = x['time']
+                send_wholequeue_message(self, self.course, self.room, self.uname)
 
         def handleClose(self):
             # need to remove this person
@@ -178,9 +184,10 @@ else:
         conn, c = _connect()
         for key in list(CONNECTED.keys()):
             course, room = key
+            check_times = LAST_CHECK_TIME[key]
             # get everything that _not everyone_ knows about
             try:
-                check_time = min(LAST_CHECK_TIME[key].values())
+                check_time = min(check_times.values())
             except:
                 check_time = -1
             c.execute(ROW_QUERY, (course, room, check_time))
@@ -189,7 +196,7 @@ else:
                 for username in CONNECTED[key]:
                     # here we filter the entries so that each connection only
                     # gets the updates they haven't already seen.
-                    mytime = LAST_CHECK_TIME[(course, room)][username]
+                    mytime = check_times[username]
                     rows = [i for i in rows if i['updated_time'] > mytime]
                     if len(rows) == 0:
                         continue
