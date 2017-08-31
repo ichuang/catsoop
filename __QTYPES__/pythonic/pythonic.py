@@ -117,9 +117,9 @@ def handle_submission(submissions, **info):
     response = ''
     if info['csq_show_check']:
         if percent == 1.0:
-            response = '<img src="%s" />' % info['cs_check_image']
+            response = '<img src="%s" /><br/>' % info['cs_check_image']
         elif percent == 0.0:
-            response = '<img src="%s" />' % info['cs_cross_image']
+            response = '<img src="%s" /><br/>' % info['cs_cross_image']
 
     response += msg
 
