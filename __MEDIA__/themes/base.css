@@ -695,6 +695,10 @@ li {
         page-break-inside: avoid;
     }
 
+    [id$="_message"]{
+        display: none;
+    }
+
     [name="cs_footnotes"]{
         page-break-before: always;
     }
