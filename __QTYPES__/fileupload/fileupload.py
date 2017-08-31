@@ -26,6 +26,7 @@ defaults.update({
     'csq_soln_filename': 'solution.txt',
     'csq_allow_save': False,
     'csq_soln_type': 'string',
+    'csq_extract_data': True,
 })
 
 
@@ -35,7 +36,8 @@ def handle_submission(submissions, **info):
     ll = submissions.get(name, None)
     if ll is not None:
         fname, _ = ll
-        submissions[name] = info['csm_loader'].get_file_data(info, submissions, name)
+        if info['csq_extract_data']:
+            submissions[name] = info['csm_loader'].get_file_data(info, submissions, name)
         o.update(base['handle_submission'](submissions, **info))
     return o
 
