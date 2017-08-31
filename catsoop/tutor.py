@@ -72,7 +72,7 @@ def make_score_display(context, args, name, score, assume_submit=False):
             return 'Grade not available.'
         else:
             return ''
-    c = context.get('cs_score_message', None)
+    c = args.get('csq_score_message', args.get('cs_score_message', None))
     try:
         return c(score)
     except:
