@@ -52,7 +52,7 @@ def dict_factory(cursor, row):
 
 
 def _connect():
-    conn = sqlite3.connect(CHECKER_DB_LOC)
+    conn = sqlite3.connect(CHECKER_DB_LOC, 60)
     conn.text_factory = str
     conn.row_factory = dict_factory
     return conn, conn.cursor()
@@ -237,13 +237,13 @@ while True:
                 for i in all_clients[id_]:
                     send_error_message(i, '', zresp)
             else:
-                conn, c = _connect()
-                c.execute('SELECT * FROM checker WHERE magic=?', (id_, ))
-                row = c.fetchone()
+                conn2, c2 = _connect()
+                c2.execute('SELECT * FROM checker WHERE magic=?', (id_, ))
+                row = c2.fetchone()
                 if row is not None:
                     for client in all_clients[id_]:
                         send_done_message(client, row['score_box'], row['response_zipped'])
-                conn.close()
+                conn2.close()
             dead.add(i)
     for i in sorted(dead, reverse=True):
         running.pop(i)
@@ -255,22 +255,25 @@ while True:
     # if no processes are free, head back to the top of the loop.
     open_slots = base_context.cs_checker_parallel_checks - len(running)
 
-    conn, c = _connect()
-    c.execute('SELECT * FROM checker WHERE progress=0 ORDER BY time ASC')
-    rows = c.fetchall()
-    conn.close()
+    conn3, c3 = _connect()
+    c3.execute('SELECT * FROM checker WHERE progress=0 ORDER BY time ASC')
+    rows = c3.fetchall()
+    conn3.close()
 
+    print()
+    print(running)
+    print(rows)
     pos = 1
     for ix, entry in enumerate(rows):
         prep_entry(entry)
         if ix < open_slots:
             # there's an open slot here.  mark this as being checked
-            conn, c = _connect()
+            conn4, c4 = _connect()
             started = time.time()
-            c.execute('UPDATE checker SET progress=1,time_started=? WHERE magic=?',
+            c4.execute('UPDATE checker SET progress=1,time_started=? WHERE magic=?',
                       (started, entry['magic']))
-            conn.commit()
-            conn.close()
+            conn4.commit()
+            conn4.close()
             # start a worker
             p = multiprocessing.Process(target=do_check, args=(entry, ))
             running.append((entry['magic'], p))
