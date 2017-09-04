@@ -26,6 +26,7 @@ room = cs_form.get('room', 'default')
 description = cs_form.get('description', '')
 location = cs_form.get('location', '')
 type_ = cs_form.get('type', 'help')
+extra_data = cs_form.get('extra_data', '{}')
 
 error = None
 
@@ -61,10 +62,8 @@ if error is None:
     conn = sqlite3.connect(db_loc)
     conn.text_factory = str
     c = conn.cursor()
-    #TODO: handle 'extra data'
-    extra_data = {}
     c.execute('INSERT OR REPLACE INTO queues VALUES (COALESCE((SELECT id FROM queues WHERE username=? AND course=? AND room=?),?), ?, ?, ?, ?, ?, ?, COALESCE((SELECT started_time FROM queues WHERE username=? AND course=? AND room=?),?), ?, ?, ?, NULL, ?, ?)',
-              (uinfo['username'], course, room, uuid.uuid4().hex, uinfo['username'], course, room, type_, description, location, uinfo['username'], course, room, now, now, True, json.dumps([]), photo, json.dumps(extra_data)))
+              (uinfo['username'], course, room, uuid.uuid4().hex, uinfo['username'], course, room, type_, description, location, uinfo['username'], course, room, now, now, True, json.dumps([]), photo, extra_data))
     conn.commit()
     conn.close()
 

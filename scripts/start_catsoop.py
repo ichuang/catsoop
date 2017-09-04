@@ -96,7 +96,7 @@ queuetable = ('CREATE TABLE IF NOT EXISTS '
               'active INTEGER NOT NULL, '
               'actions TEXT NOT NULL, '
               'claimant TEXT, '
-              'photo BLOB, '
+              'photo TEXT, '
               'extra_data TEXT)')
 
 

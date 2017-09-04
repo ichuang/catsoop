@@ -70,8 +70,8 @@ def run_code(context, code, options):
     # open stdin in write mode, write to it, and then open it again in read
     # mode.
     inr, inw = os.pipe()
-    outfname = tempfile.mktemp()
-    errfname = tempfile.mktemp()
+    _e, outfname = tempfile.mkstemp()
+    _o, errfname = tempfile.mkstemp()
     p = subprocess.Popen([interp, '-E', '-B', fname],
                          cwd=tmpdir,
                          preexec_fn=limiter,
@@ -101,6 +101,11 @@ def run_code(context, code, options):
     for f in (outfname, errfname):
         try:
             os.unlink(f)
+        except:
+            pass
+    for f in (_o, _e):
+        try:
+            os.close(f)
         except:
             pass
 
