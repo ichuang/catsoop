@@ -260,9 +260,6 @@ while True:
     rows = c3.fetchall()
     conn3.close()
 
-    print()
-    print(running)
-    print(rows)
     pos = 1
     for ix, entry in enumerate(rows):
         prep_entry(entry)
