@@ -25,13 +25,15 @@ import sqlite3
 import traceback
 import collections
 
+FileLock = csm_tools.filelock.FileLock
+
 _prefix = 'cs_defaulthandler_'
 
 NEWENTRY = ('INSERT INTO checker VALUES(?, ?, ?, ?, ?, ?, 0, ?, '
                                        'NULL, NULL, NULL, NULL)')
 
 def checker_sqlite():
-    c = sqlite3.connect(CHECKER_DB_LOC)
+    c = sqlite3.connect(CHECKER_DB_LOC, 60)
     c.text_factory = str
     return c, c.cursor()
 
@@ -737,16 +739,17 @@ def handle_check(context):
         question, args = namemap[name]
 
         magic = str(uuid.uuid4())
-        conn, c = checker_sqlite()
-        c.execute(NEWENTRY, (magic,
-                             json.dumps(context['cs_path_info']),
-                             context.get('cs_username', 'None'),
-                             json.dumps([name]),
-                             json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
-                             time.time(),
-                             'check'))
-        conn.commit()
-        conn.close()
+        with FileLock(CHECKER_DB_LOC) as f:
+            conn, c = checker_sqlite()
+            c.execute(NEWENTRY, (magic,
+                                 json.dumps(context['cs_path_info']),
+                                 context.get('cs_username', 'None'),
+                                 json.dumps([name]),
+                                 json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
+                                 time.time(),
+                                 'check'))
+            conn.commit()
+            conn.close()
 
         entry_ids[name] = entry_id = magic
 
@@ -847,16 +850,17 @@ def handle_submit(context):
         grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
         if grading_mode == 'auto':
             magic = str(uuid.uuid4())
-            conn, c = checker_sqlite()
-            c.execute(NEWENTRY, (magic,
-                                 json.dumps(context['cs_path_info']),
-                                 context.get('cs_username', 'None'),
-                                 json.dumps([name]),
-                                 json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
-                                 time.time(),
-                                 'submit'))
-            conn.commit()
-            conn.close()
+            with FileLock(CHECKER_DB_LOC) as f:
+                conn, c = checker_sqlite()
+                c.execute(NEWENTRY, (magic,
+                                     json.dumps(context['cs_path_info']),
+                                     context.get('cs_username', 'None'),
+                                     json.dumps([name]),
+                                     json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
+                                     time.time(),
+                                     'submit'))
+                conn.commit()
+                conn.close()
 
             entry_ids[name] = entry_id = magic
 

@@ -94,7 +94,7 @@ def sqlite_access(fname):
     Initializes database if appropriate.
     """
     create_if_not_exists(os.path.dirname(fname))
-    c = sqlite3.connect(fname)
+    c = sqlite3.connect(fname, 60)
     c.text_factory = str
     c.execute(MAKETABLE)
     c.commit()
@@ -105,25 +105,29 @@ def update_log(db_name, path, logname, new):
     """
     Adds a new entry to the specified log.
     """
-    conn, c = sqlite_access(get_log_filename(path, db_name))
-    c.execute(UPDATE, (_dump(path), logname, _dump(new)))
-    conn.commit()
-    conn.close()
+    fname = get_log_filename(path, db_name)
+    with FileLock(fname):
+        conn, c = sqlite_access(fname)
+        c.execute(UPDATE, (_dump(path), logname, _dump(new)))
+        conn.commit()
+        conn.close()
 
 
 def overwrite_log(db_name, path, logname, new):
     """
     Overwrites the most recent entry in the specified log.
     """
-    conn, c = sqlite_access(get_log_filename(path, db_name))
-    path = _dump(path)
-    c.execute(OVERWRITE, (path,
-                          logname,
-                          path,
-                          logname,
-                          _dump(new), ))
-    conn.commit()
-    conn.close()
+    fname = get_log_filename(path, db_name)
+    with FileLock(fname):
+        conn, c = sqlite_access(fname)
+        path = _dump(path)
+        c.execute(OVERWRITE, (path,
+                              logname,
+                              path,
+                              logname,
+                              _dump(new), ))
+        conn.commit()
+        conn.close()
 
 
 def read_log(db_name, path, logname):
@@ -136,10 +140,11 @@ def read_log(db_name, path, logname):
         return []
     if not os.path.isfile(fname):
         return []
-    conn, c = sqlite_access(fname)
-    c.execute(READ, (_dump(path), logname, ))
-    out = [json.loads(i[-1]) for i in c.fetchall()]
-    conn.close()
+    with FileLock(fname):
+        conn, c = sqlite_access(fname)
+        c.execute(READ, (_dump(path), logname, ))
+        out = [json.loads(i[-1]) for i in c.fetchall()]
+        conn.close()
     return out
 
 
@@ -153,16 +158,17 @@ def most_recent(db_name, path, logname, default=None):
         return default
     if not os.path.isfile(fname):
         return default
-    conn, c = sqlite_access(fname)
-    c.execute(MOSTRECENT, (_dump(path), logname, ))
-    out = c.fetchone()
-    conn.close()
+    with FileLock(fname):
+        conn, c = sqlite_access(fname)
+        c.execute(MOSTRECENT, (_dump(path), logname, ))
+        out = c.fetchone()
+        conn.close()
     return json.loads(out[-1]) if out is not None else default
 
 
 def modify_most_recent(db_name, path, log, default=None, transform_func=lambda x: x, method='update'):
     fname = get_log_filename(path, db_name)
-    with FileLock(fname) as lock:
+    with FileLock(fname+'.2') as lock:
         old_val = most_recent(db_name, path, log, default)
         new_val = transform_func(old_val)
         if method == 'update':

@@ -38,9 +38,8 @@ class FileLock(object):
     flags = os.O_CREAT | os.O_EXCL | os.O_RDWR
 
     def __init__(self, file_name, delay=.05):
-        if not os.path.isdir(FILELOCK_DIR):
-            os.makedirs(FILELOCK_DIR)
         self.is_locked = False
+        os.makedirs(FILELOCK_DIR, exist_ok=True)
         self.file_name = file_name
         self.lockfile = os.path.join(
             FILELOCK_DIR, "%s.pyfilelock" %
@@ -62,10 +61,13 @@ class FileLock(object):
         self.is_locked = True
 
     def release(self):
-        if self.is_locked:
-            os.close(self.fd)
-            os.unlink(self.lockfile)
-            self.is_locked = False
+        try:
+            if self.is_locked:
+                os.close(self.fd)
+                os.unlink(self.lockfile)
+                self.is_locked = False
+        except AttributeError:
+            pass
 
     def __enter__(self):
         if not self.is_locked:
