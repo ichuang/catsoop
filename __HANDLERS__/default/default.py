@@ -95,6 +95,21 @@ def handle_get_state(context):
     for i in ll:
         if isinstance(ll[i], set):
             ll[i] = list(ll[i])
+    ll['scores'] = {}
+    FileLock = context['csm_tools'].filelock.FileLock
+    fname = os.path.join(context['cs_data_root'], '__LOGS__', '_checker.db')
+    conn = sqlite3.connect(fname, 60)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    for k, v in ll.get('last_submit_checker_id', {}).items():
+        with FileLock(fname) as f:
+            c.execute('SELECT * FROM checker WHERE magic=?', (v, ))
+        row = c.fetchone()
+        if row is None:
+            ll['scores'][k] = 0.0
+        else:
+            ll['scores'][k] = row['score'] or 0.0
+    conn.close()
     return make_return_json(context, ll, [])
 
 
