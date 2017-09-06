@@ -80,7 +80,7 @@ def remove_from_group(context, path, username, group):
     course = path[0]
     log = context['csm_cslog']
     section = get_section(context, course, username)
-    preexisting_group = get_group(context, course, path, username)
+    preexisting_group = get_group(context, path, username)
     if preexisting_group[:-1] != (section, group):
         return "%s is not assigned to section %s group %s." % (username,
                                                                section, group)
@@ -154,5 +154,5 @@ def make_all_groups(context, path, section):
             g = group_names[len(output)]
             output[g] = out
 
-    err = overwrite_groups(context, course, path, section, output)
+    err = overwrite_groups(context, path, section, output)
     return err
