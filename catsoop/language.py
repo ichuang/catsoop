@@ -23,6 +23,7 @@ import re
 import copy
 import random
 import string
+import hashlib
 import traceback
 
 from io import StringIO
@@ -449,9 +450,12 @@ def handle_custom_tags(context, text):
 
     # hints (<showhide>)
 
+    def _md5(x):
+        return hashlib.md5(x.encode()).hexdigest()
+
     for ix, i in enumerate(tree.find_all('showhide')):
         i.name = 'div'
-        i.attrs['id'] = "cs_showhide_%06d" % ix
+        i.attrs['id'] = "cs_showhide_%s" % _md5(str(i))
         i.attrs['style'] = "display:none;"
         wrap = tree.new_tag('div')
         wrap['class'] = ['response']
