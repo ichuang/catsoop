@@ -24,6 +24,9 @@ from zipfile import ZipFile, ZIP_DEFLATED
 course = cs_form.get('course', None)
 
 def keep_file(full, base):
+    # ignore nohup output from scripts
+    if base == 'nohup.out':
+        return False
     # ignore compiled python files
     if base.endswith('.pyc') or '.pycs' in base:
         return False

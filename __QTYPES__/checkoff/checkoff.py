@@ -26,12 +26,19 @@ def total_points(**info):
     return info['csq_npoints']
 
 def handle_submission(submissions, **info):
-    if 'real_user' not in info['cs_user_info']:
+    tok, un = submissions[info['csq_name']].split(',')
+    i = csm_api.userinfo_from_token(info, tok)
+    new = dict(info)
+    uinfo = info['csm_auth']._get_user_information(new,
+                                                   new,
+                                                   info['cs_course'],
+                                                   (i or {}).get('username', 'None'),
+                                                   True)
+    if 'impersonate' not in uinfo.get('permissions', []):
         percent = 0
         msg = 'You must receive this checkoff from a staff member.'
         l = False
     else:
-        un = submissions[info['csq_name']]
         new = dict(info)
         new['cs_form'] = {}
         uinfo = info['csm_auth']._get_user_information(new,

@@ -36,7 +36,6 @@ from catsoop.process import set_pdeathsig
 
 procs = (
     (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
-    (scripts_dir, ['python3', 'queue.py'], 0.1, 'Queue'),
     (base_dir, ['uwsgi', '--http', ':%s' % base_context.cs_wsgi_server_port,
                 '--wsgi-file', 'wsgi.py',
                 '--touch-reload', 'wsgi.py', '-p', str(int(base_context.cs_wsgi_server_processes))], 0.1, 'WSGI Server'),
@@ -74,37 +73,6 @@ conn = sqlite3.connect(checker_db_loc)
 conn.text_factory = str
 c = conn.cursor()
 c.execute(checkertable)
-conn.commit()
-conn.close()
-
-# Make sure the queue database is set up
-
-queue_db_loc = os.path.join(base_context.cs_data_root,
-                              '__LOGS__',
-                              '_queue.db')
-
-queuetable = ('CREATE TABLE IF NOT EXISTS '
-              'queues (id TEXT NOT NULL PRIMARY KEY, '
-              'username TEXT NOT NULL, '
-              'course TEXT NOT NULL, '
-              'room TEXT NOT NULL, '
-              'type TEXT NOT NULL, '
-              'description TEXT NOT NULL, '
-              'location TEXT NOT NULL, '
-              'started_time REAL NOT NULL, '
-              'updated_time REAL NOT NULL, '
-              'active INTEGER NOT NULL, '
-              'actions TEXT NOT NULL, '
-              'claimant TEXT, '
-              'photo TEXT, '
-              'extra_data TEXT)')
-
-
-os.makedirs(os.path.dirname(queue_db_loc), exist_ok=True)
-conn = sqlite3.connect(queue_db_loc)
-conn.text_factory = str
-c = conn.cursor()
-c.execute(queuetable)
 conn.commit()
 conn.close()
 
