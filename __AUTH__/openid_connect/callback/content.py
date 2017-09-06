@@ -170,7 +170,7 @@ if error is None:
     except:
         error = "Error setting user information."
 
-path = [csm_base_context.cs_url_root] + session['_openid_path']
+path = [csm_base_context.cs_url_root] + cs_session_data.get('_openid_path', ['/'])
 redirect_location = '/'.join(path)
 if error is None:
     # we made it! set session data and redirect to original page
