@@ -1711,13 +1711,11 @@ def _get_scores(context):
 
         for student in students:
             username = student.get('username', 'None')
-            log = context['csm_cslog'].most_recent(
-                username,
-                context['cs_path_info'],
-                'problemstate',
-                {},
-            )
-            score = log.get('scores', {}).get(name, None)
+            state = context['csm_tutor'].compute_page_stats(context,
+                                                            username,
+                                                            context['cs_path_info'],
+                                                            ['state'])['state']
+            score = state.get('scores', {}).get(name, None)
             counts[username] = score
 
         scores[name] = counts
