@@ -1,5 +1,8 @@
 Planned Features:
 
+  * Move pycs files into cs_data_root so they don't pollute the courses'
+    directories.
+
   * Integrate the help queue
 
   * Implement relative due dates
@@ -46,8 +49,9 @@ Known Bugs:
 
 Things to Think About:
 
-  * Consider removing .pycs files (with the current structure, I doubt they
-    save us much time; they may actually be slowing things down now...)
+  * Consider removing .pycs files altogether (with the current structure, I
+    doubt they save us much time; they may actually be slowing things down
+    now...)
 
   * Consider implementing "legacy" checker
       For those who don't want to use the fancy new stuff, and nice to have for
