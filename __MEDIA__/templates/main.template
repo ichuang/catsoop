@@ -86,12 +86,12 @@
 
       <div class="container">
         <div class="row">
-          <div class="col-md-2">{cs_left_content}</div>
-          <div class="col-md-8">
+          <div class="col-md-1">{cs_left_content}</div>
+          <div class="col-md-10">
             <div id="page_content">{cs_content}</div>
             {cs_footnotes}
           </div>
-          <div class="col-md-2">{cs_right_content}</div>
+          <div class="col-md-1">{cs_right_content}</div>
         </div>
       </div>
       <div id="bottom_menu">
