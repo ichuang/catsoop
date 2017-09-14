@@ -6,12 +6,21 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
-* Added a built-in help queue.
-
 * Added a means of viewing a page with different (lower) permissions by
-* spoofing your role.
+  spoofing your role.
+
+* Added a "dummy" auth type to make authentication on local testing setups
+  easier.
+
+* Added preliminary support for running on MacOS and Windows (Cygwin) hosts by
+  fixing a number of Mac-specific issues.
+
+* The 'score' display can now be changed on a per-problem basis via
+  csq_score_message.
 
 CHANGED:
+
+* The body of the CAT-SOOP default template is now slightly wider.
 
 * Local Python sandboxes now write their stdout and stderr to files instead of
   relying on low-level hacks involving pipes.
@@ -26,7 +35,12 @@ CHANGED:
 
 * Added more options to modify the styling of the "login required" page.
 
+* Cross/check images are now preceded by a newline.
+
 DEPRECATED:
+
+* cs_score_message has been deprecated, in favor of csq_score_message.
+  cs_score_message will be removed in a future version.
 
 REMOVED:
 
@@ -34,6 +48,22 @@ REMOVED:
   pyflakes.
 
 FIXED:
+
+* Fixed a race condition related to clearing expired session data.
+
+* Fixed serious bug (deadlock) with checker script / logging.
+
+* Modified the way PKiller kills processes to avoid a potential race condition.
+
+* Fixed several breaking issues with the grouping mechanism related to the
+  version 10 changes.
+
+* Fixed a bug that prevented WHDW from loading students' scores.
+
+* Fixed a bug that caused some <showhide> tags' buttons to affect other
+  showhide elements on the page instead of themselves.
+
+* Fixed an issue with error reporting in the openid_connect auth type.
 
 * Fixed an issue with the 'login' authentication type that caused false
   negatives when checking passwords from different browsers.
@@ -45,7 +75,13 @@ FIXED:
 
 * Fixed a lingering instance of xrange.
 
+* Questions with the "checkoff" question type now render as totally empty if
+  the description and name are empty, rather than as a single colon.
+
 SECURITY:
+
+* nohup.out files are now ignored when generating the .zip files of the
+  CAT-SOOP source.
 
 DOCUMENTATION:
 
