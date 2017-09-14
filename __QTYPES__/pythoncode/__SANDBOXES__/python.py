@@ -48,6 +48,7 @@ def run_code(context, code, options):
         os.setsid()
         for i in rlimits:
             resource.setrlimit(*i)
+        context['csm_process'].set_pdeathsig()()
 
     tmpdir = context.get('csq_sandbox_dir', '/tmp/sandbox')
     this_one = hashlib.sha512(('%s-%s' % (context.get('cs_username', 'None'),
