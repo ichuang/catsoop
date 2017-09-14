@@ -72,11 +72,11 @@ def get_session_id(environ):
     now = time.time()
     for i in os.listdir(SESSION_DIR):
         fullname = os.path.join(SESSION_DIR, i)
-        if os.stat(fullname).st_mtime < now - EXPIRE:
-            try:
-                os.unlink(fullname)
-            except:
-                pass
+        try:
+            if os.stat(fullname).st_mtime < now - EXPIRE:
+                    os.unlink(fullname)
+        except:
+            pass
     if 'HTTP_COOKIE' in environ:
         try:
             cookie_sid = SimpleCookie(environ['HTTP_COOKIE'])['sid'].value
