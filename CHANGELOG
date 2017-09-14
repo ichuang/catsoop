@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
+##################
+# Version 10.4.0 #
+##################
 
 ADDED:
 
@@ -85,8 +83,6 @@ SECURITY:
 
 * nohup.out files are now ignored when generating the .zip files of the
   CAT-SOOP source.
-
-DOCUMENTATION:
 
 
 ##################
