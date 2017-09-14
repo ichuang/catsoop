@@ -19,6 +19,7 @@ import sys
 import json
 import time
 import zlib
+import signal
 import sqlite3
 import threading
 import traceback
@@ -37,12 +38,11 @@ import catsoop.loader as loader
 import catsoop.language as language
 import catsoop.dispatch as dispatch
 
-from catsoop.process import PKiller, set_pdeathsig
-from catsoop.tools.filelock import FileLock
+from catsoop.process import set_pdeathsig
 from catsoop.tools.websocket import WebSocket, SimpleWebSocketServer
 
 CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, '__LOGS__', '_checker.db')
-
+REAL_TIMEOUT = base_context.cs_checker_global_timeout
 PORTNUM = base_context.cs_checker_server_port
 
 def dict_factory(cursor, row):
@@ -56,7 +56,10 @@ def _connect():
     conn = sqlite3.connect(CHECKER_DB_LOC, 60)
     conn.text_factory = str
     conn.row_factory = dict_factory
-    return conn, conn.cursor()
+    c = conn.cursor()
+    c.execute('PRAGMA journal_mode=WAL')
+    c.fetchone()
+    return conn, c
 
 
 def prep_entry(e):
@@ -94,10 +97,6 @@ def do_check(row):
             m = elt[1]
             namemap[m['csq_name']] = elt
 
-    # start the process killer with the global timeout so we don't run too long
-    killer = PKiller(process, context['cs_checker_global_timeout'])
-    killer.start()
-
     # now, depending on the action we want, take the appropriate steps
 
     names_done = set()
@@ -132,25 +131,22 @@ def do_check(row):
             score = None
             score_box = ''
 
-        with FileLock(CHECKER_DB_LOC) as f:
-            conn, c = _connect()
-            resp = language.handle_custom_tags(context, msg)
-            c.execute('UPDATE checker SET progress=2,score=?,score_box=?,response_zipped=? WHERE magic=?',
-                      (score, score_box, sqlite3.Binary(zlib.compress(resp.encode(), 9)), row['magic']))
-            conn.commit()
-            conn.close()
+        conn, c = _connect()
+        resp = language.handle_custom_tags(context, msg)
+        c.execute('UPDATE checker SET progress=2,score=?,score_box=?,response_zipped=? WHERE magic=?',
+                  (score, score_box, sqlite3.Binary(zlib.compress(resp.encode(), 9)), row['magic']))
+        conn.commit()
+        conn.close()
 
-    killer.going = False
 
 running = []
 
 # if anything is in state '1' (running) when we start, that's an error.  turn
 # those back to 0's to force them to run again.
-with FileLock(CHECKER_DB_LOC) as f:
-    conn, c = _connect()
-    c.execute('UPDATE checker SET progress=0 WHERE progress=1')
-    conn.commit()
-    conn.close()
+conn, c = _connect()
+c.execute('UPDATE checker SET progress=0 WHERE progress=1')
+conn.commit()
+conn.close()
 
 ## WEBSOCKET STUFF
 
@@ -165,14 +161,16 @@ def send_running_message(sock, started):
     sock.sendMessage(json.dumps({'type': 'running', 'started': started, 'now': time.time()}))
 
 
-def send_done_message(sock, score_box, resp):
+def send_done_message(sock, score_box, resp, unzip=True):
+    if unzip:
+        resp = zlib.decompress(resp).decode()
     sock.sendMessage(json.dumps({'type': 'newresult',
                                  'score_box': score_box,
-                                 'response': zlib.decompress(resp).decode()}))
+                                 'response': resp}))
 
 
 def send_error_message(sock, score_box, resp):
-    send_done_message(sock, score_box, '<font color="red">%s</font>' % resp)
+    send_done_message(sock, score_box, '<font color="red">%s</font>' % resp, unzip=False)
 
 
 # now let's start up the websocket server
@@ -183,11 +181,10 @@ class Reporter(WebSocket):
         if x['type'] == 'hello':
             self.magic = m = x['magic']
             all_clients[m].append(self)
-            with FileLock(CHECKER_DB_LOC) as f:
-                conn, c = _connect()
-                c.execute('SELECT * FROM checker WHERE magic=?', (m, ))
-                row = c.fetchone()
-                conn.close()
+            conn, c = _connect()
+            c.execute('SELECT * FROM checker WHERE magic=?', (m, ))
+            row = c.fetchone()
+            conn.close()
             if row is not None:
                 p = row['progress']
                 if p == 0:
@@ -230,27 +227,31 @@ while True:
         if not p.is_alive():
             if p.exitcode < 0:  # this probably only happens if we killed it
                 # update the database
-                with FileLock(CHECKER_DB_LOC) as f:
-                    conn, c = _connect()
-                    resp = "Your submission could not be checked because the checker ran for too long"
-                    zresp = zlib.compress(resp.encode(), 9)
-                    c.execute('UPDATE checker SET progress=3,score=0.0,score_box="",response_zipped=? WHERE magic=?',
-                              (sqlite3.Binary(zresp), id_))
-                    conn.commit()
-                    conn.close()
+                conn, c = _connect()
+                resp = "Your submission could not be checked because the checker ran for too long"
+                zresp = zlib.compress(resp.encode(), 9)
+                c.execute('UPDATE checker SET progress=3,score=0.0,score_box="",response_zipped=? WHERE magic=?',
+                          (sqlite3.Binary(zresp), id_))
+                conn.commit()
+                conn.close()
                 # and inform anyone listening
-                for i in all_clients[id_]:
-                    send_error_message(i, '', zresp)
+                for client in all_clients[id_]:
+                    send_error_message(client, '', resp)
             else:
-                with FileLock(CHECKER_DB_LOC) as f:
-                    conn2, c2 = _connect()
-                    c2.execute('SELECT * FROM checker WHERE magic=?', (id_, ))
-                    row = c2.fetchone()
-                    if row is not None:
-                        for client in all_clients[id_]:
-                            send_done_message(client, row['score_box'], row['response_zipped'])
-                    conn2.close()
+                conn2, c2 = _connect()
+                c2.execute('SELECT * FROM checker WHERE magic=?', (id_, ))
+                row = c2.fetchone()
+                if row is not None:
+                    for client in all_clients[id_]:
+                        send_done_message(client, row['score_box'], row['response_zipped'])
+                conn2.close()
             dead.add(i)
+        elif time.time() - p._started > REAL_TIMEOUT:
+            print('BAD BABY', p._started, p._entry)
+            try:
+                os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+            except:
+                pass
     for i in sorted(dead, reverse=True):
         running.pop(i)
 
@@ -261,28 +262,28 @@ while True:
     # if no processes are free, head back to the top of the loop.
     open_slots = base_context.cs_checker_parallel_checks - len(running)
 
-    with FileLock(CHECKER_DB_LOC) as f:
-        conn3, c3 = _connect()
-        c3.execute('SELECT * FROM checker WHERE progress=0 ORDER BY time ASC')
-        rows = c3.fetchall()
-        conn3.close()
+    conn3, c3 = _connect()
+    c3.execute('SELECT * FROM checker WHERE progress=0 ORDER BY time ASC')
+    rows = c3.fetchall()
+    conn3.close()
 
     pos = 1
     for ix, entry in enumerate(rows):
         prep_entry(entry)
         if ix < open_slots:
             # there's an open slot here.  mark this as being checked
-            with FileLock(CHECKER_DB_LOC) as f:
-                conn4, c4 = _connect()
-                started = time.time()
-                c4.execute('UPDATE checker SET progress=1,time_started=? WHERE magic=?',
-                          (started, entry['magic']))
-                conn4.commit()
-                conn4.close()
+            conn4, c4 = _connect()
+            started = time.time()
+            c4.execute('UPDATE checker SET progress=1,time_started=? WHERE magic=?',
+                      (started, entry['magic']))
+            conn4.commit()
+            conn4.close()
             # start a worker
             p = multiprocessing.Process(target=do_check, args=(entry, ))
             running.append((entry['magic'], p))
             p.start()
+            p._started = time.time()
+            p._entry = entry
             try:
                 del POSITIONS[entry['magic']]
             except:
@@ -298,4 +299,4 @@ while True:
             POSITIONS[m] = pos
             pos += 1
     LASTMAX = pos
-    time.sleep(0.1)  # sleep for a little while before the next try
+    time.sleep(0.3)  # sleep for a little while before the next try

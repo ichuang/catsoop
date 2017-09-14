@@ -25,7 +25,6 @@ import sqlite3
 import traceback
 import collections
 
-FileLock = csm_tools.filelock.FileLock
 
 _prefix = 'cs_defaulthandler_'
 
@@ -35,7 +34,9 @@ NEWENTRY = ('INSERT INTO checker VALUES(?, ?, ?, ?, ?, ?, 0, ?, '
 def checker_sqlite():
     c = sqlite3.connect(CHECKER_DB_LOC, 60)
     c.text_factory = str
-    return c, c.cursor()
+    cur = c.cursor()
+    cur.execute('PRAGMA journal_mode=WAL')
+    return c, cur
 
 
 def _n(n):
@@ -96,14 +97,12 @@ def handle_get_state(context):
         if isinstance(ll[i], set):
             ll[i] = list(ll[i])
     ll['scores'] = {}
-    FileLock = context['csm_tools'].filelock.FileLock
     fname = os.path.join(context['cs_data_root'], '__LOGS__', '_checker.db')
     conn = sqlite3.connect(fname, 60)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     for k, v in ll.get('last_submit_checker_id', {}).items():
-        with FileLock(fname) as f:
-            c.execute('SELECT * FROM checker WHERE magic=?', (v, ))
+        c.execute('SELECT * FROM checker WHERE magic=?', (v, ))
         row = c.fetchone()
         if row is None:
             ll['scores'][k] = 0.0
@@ -754,17 +753,16 @@ def handle_check(context):
         question, args = namemap[name]
 
         magic = str(uuid.uuid4())
-        with FileLock(CHECKER_DB_LOC) as f:
-            conn, c = checker_sqlite()
-            c.execute(NEWENTRY, (magic,
-                                 json.dumps(context['cs_path_info']),
-                                 context.get('cs_username', 'None'),
-                                 json.dumps([name]),
-                                 json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
-                                 time.time(),
-                                 'check'))
-            conn.commit()
-            conn.close()
+        conn, c = checker_sqlite()
+        c.execute(NEWENTRY, (magic,
+                             json.dumps(context['cs_path_info']),
+                             context.get('cs_username', 'None'),
+                             json.dumps([name]),
+                             json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
+                             time.time(),
+                             'check'))
+        conn.commit()
+        conn.close()
 
         entry_ids[name] = entry_id = magic
 
@@ -865,17 +863,16 @@ def handle_submit(context):
         grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
         if grading_mode == 'auto':
             magic = str(uuid.uuid4())
-            with FileLock(CHECKER_DB_LOC) as f:
-                conn, c = checker_sqlite()
-                c.execute(NEWENTRY, (magic,
-                                     json.dumps(context['cs_path_info']),
-                                     context.get('cs_username', 'None'),
-                                     json.dumps([name]),
-                                     json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
-                                     time.time(),
-                                     'submit'))
-                conn.commit()
-                conn.close()
+            conn, c = checker_sqlite()
+            c.execute(NEWENTRY, (magic,
+                                 json.dumps(context['cs_path_info']),
+                                 context.get('cs_username', 'None'),
+                                 json.dumps([name]),
+                                 json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
+                                 time.time(),
+                                 'submit'))
+            conn.commit()
+            conn.close()
 
             entry_ids[name] = entry_id = magic
 
@@ -1711,11 +1708,14 @@ def _get_scores(context):
 
         for student in students:
             username = student.get('username', 'None')
-            state = context['csm_tutor'].compute_page_stats(context,
-                                                            username,
-                                                            context['cs_path_info'],
-                                                            ['state'])['state']
-            score = state.get('scores', {}).get(name, None)
+            log = context['csm_cslog'].most_recent(
+                username,
+                context['cs_path_info'],
+                'problemstate',
+                {},
+            )
+            log = context['csm_tutor'].compute_page_stats(context, username, context['cs_path_info'], ['state'])['state']
+            score = log.get('scores', {}).get(name, None)
             counts[username] = score
 
         scores[name] = counts

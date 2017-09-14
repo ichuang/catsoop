@@ -33,8 +33,6 @@ from . import loader
 from . import cslog
 from . import base_context
 
-from .tools.filelock import FileLock
-
 importlib.reload(base_context)
 
 
@@ -104,9 +102,10 @@ def compute_page_stats(context, user, path, keys=None):
             conn = sqlite3.connect(fname, 60)
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
+            c.execute('PRAGMA journal_mode=WAL')
+            c.fetchone()
             for k, v in out['state'].get('last_submit_checker_id', {}).items():
-                with FileLock(fname) as f:
-                    c.execute('SELECT * FROM checker WHERE magic=?', (v, ))
+                c.execute('SELECT * FROM checker WHERE magic=?', (v, ))
                 row = c.fetchone()
                 if row is None:
                     out['state']['scores'][k] = 0.0
@@ -118,13 +117,14 @@ def compute_page_stats(context, user, path, keys=None):
         out['actions'] = logging.read_log(user, path, 'problemactions')
     if 'submissions' in keys:
         fname = os.path.join(context['cs_data_root'], '__LOGS__', '_checker.db')
-        with FileLock(fname) as f:
-            conn = sqlite3.connect(fname, 60)
-            conn.row_factory = sqlite3.Row
-            c = conn.cursor()
-            c.execute('SELECT * FROM checker WHERE username=? AND path=?', (user, json.dumps(path)))
-            out['submissions'] = c.fetchall()
-            conn.close()
+        conn = sqlite3.connect(fname, 60)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('PRAGMA journal_mode=WAL')
+        c.fetchone()
+        c.execute('SELECT * FROM checker WHERE username=? AND path=?', (user, json.dumps(path)))
+        out['submissions'] = c.fetchall()
+        conn.close()
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
         out['manual_grades'] = logging.read_log(user, path, 'problemgrades')
