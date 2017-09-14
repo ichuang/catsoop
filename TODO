@@ -1,10 +1,5 @@
 Planned Features:
 
-  * Move pycs files into cs_data_root so they don't pollute the courses'
-    directories.
-
-  * Integrate the help queue
-
   * Implement relative due dates
 
   * Implement a better method for course-specific defaults for questions.

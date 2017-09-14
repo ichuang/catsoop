@@ -20,6 +20,9 @@ ADDED:
 
 CHANGED:
 
+* pycs compiled files are now stored in <cs_data_root>/_cached, to avoid
+  polluting the course itself.
+
 * The body of the CAT-SOOP default template is now slightly wider.
 
 * Local Python sandboxes now write their stdout and stderr to files instead of

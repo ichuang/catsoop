@@ -216,7 +216,13 @@ def cs_compile(fname, pre_code='', post_code=''):
     """
     base_fname = fname.rsplit('.', 1)[0]
     cache_tag = sys.implementation.cache_tag
-    cname = '.'.join([base_fname, 'pycs', cache_tag])
+    fdirs = os.path.dirname(fname).split(os.sep)
+    if fdirs and fdirs[0] == '':
+        fdirs.pop(0)
+    cname = '.'.join([os.path.basename(base_fname), 'pycs', cache_tag])
+    cdir = os.path.join(base_context.cs_data_root, '_cached', *fdirs)
+    os.makedirs(cdir, exist_ok=True)
+    cname = os.path.join(cdir, cname)
     try:
         # this is a 'try' block instead of a straight conditional to account
         # for cases where, e.g., cname doesn't exist.
