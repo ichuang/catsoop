@@ -64,22 +64,19 @@ class PKiller(threading.Thread):
         while (time.time() < end):
             time.sleep(0.1)
             if (not self.proc.is_alive()) or (not self.going):
-                return
-        if self.going:
-            try:
-                os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
-            except:
-                pass
+                break
+        self.kill()
 
     def run_subproc(self):
         end = time.time() + self.timeout
         while (time.time() < end):
             time.sleep(0.1)
             if (self.proc.poll() is not None) or (not self.going):
-                return
-        if self.going:
-            try:
-                os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
-            except:
-                pass
+                break
+        self.kill()
 
+    def kill(self):
+        try:
+            os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
+        except:
+            pass
