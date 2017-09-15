@@ -1571,7 +1571,7 @@ def pre_handle(context):
                     fullname = os.path.join(dir_, fname)
                     with open(fullname, 'wb') as f:
                         f.write(data)
-                    value[1] = fullname
+                    value[1] = os.path.join(*context['cs_path_info'], fname)
         elif context['cs_upload_management'] == 'db':
             pass
         else:

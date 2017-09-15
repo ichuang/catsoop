@@ -100,10 +100,11 @@ checktext = 'Run Code'
 def handle_check(submissions, **info):
     py3k = info.get('csq_python3', True)
 
-    code = submissions[info['csq_name']]
-    if info['csq_interface'] == 'upload' or isinstance(code, list):
-        code = csm_tools.data_uri.DataURI(code[1]).data.decode()
-    code = code.replace('\r\n', '\n')
+    try:
+        code = info['csm_loader'].get_file_data(info, submissions, info['csq_name'])
+        code = code.decode().replace('\r\n', '\n')
+    except:
+        return {'score': 0, 'msg': '<div class="bs-callout bs-callout-danger"><span class="text-danger"><b>Error:</b> Unable to decode the specified file.  Is this the file you intended to upload?</span></div>'}
 
     if py3k:
         _printer = "print('_catsoop_code_done_running')"

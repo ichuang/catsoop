@@ -36,7 +36,12 @@ def get_file_data(context, form, name):
     up = context['cs_upload_management']
     if isinstance(data, list):
         if up == 'file':
-            with open(os.path.join(data[1]), 'rb') as f:
+            if os.path.isfile(data[1]):
+                path = data[1]
+            else:
+                path = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', data[1])
+            print(data[1], path)
+            with open(path, 'rb') as f:
                 data = f.read()
             return data
         elif up == 'db':
