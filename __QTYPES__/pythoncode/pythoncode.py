@@ -270,9 +270,8 @@ def handle_submission(submissions, **info):
             msg += "\n<p>Your code produced the following output:"
             msg += "<br/><pre>%s</pre></p>" % html_format(out)
 
-        msg += '<p>'
         if err != '':
-            msg += "\nYour submission produced an error:"
+            msg += "\n<p>Your submission produced an error:"
             e = html_format(err)
             msg += "\n<br/><font color='red'><tt>%s</tt></font>" % e
             msg += "\n<br/><center>%s</center></p>" % (image)

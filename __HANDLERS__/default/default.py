@@ -1276,12 +1276,21 @@ def render_question(elt, context, lastsubmit, wrap=True):
     message = context[_n('last_log')].get('%s_message' % name, '')
     magic = context[_n('last_log')].get('%s_magic' % name, None)
     if magic is not None:
-        message = WEBSOCKET_RESPONSE % {'name': name, 'magic': magic,
-                                        'websocket': context['cs_checker_websocket'],
-                                        'loading': context['cs_loading_image'],
-                                        'id_css': (' style="display:none;"'
-                                                   if context.get('cs_show_submission_id', True)
-                                                   else '')}
+        checker_loc = os.path.join(context['cs_data_root'], '__LOGS__',
+                                   '_checker', 'results', magic)
+        if os.path.isfile(checker_loc):
+            with open(checker_loc, 'rb') as f:
+                result = context['csm_cslog'].unprep(f.read())
+            message = '\n<script type="text/javascript">$("#%s_score_display").html(%r);</script>' % (name, result['score_box'])
+            message += '\n' + result['response']
+
+        else:
+            message = WEBSOCKET_RESPONSE % {'name': name, 'magic': magic,
+                                            'websocket': context['cs_checker_websocket'],
+                                            'loading': context['cs_loading_image'],
+                                            'id_css': (' style="display:none;"'
+                                                       if context.get('cs_show_submission_id', True)
+                                                       else '')}
     if gmode == 'manual':
         q, args = context[_n('name_map')][name]
         lastlog = context['csm_tutor'].get_manual_grading_entry(context, name) or {}
