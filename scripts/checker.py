@@ -150,7 +150,6 @@ while True:
                 os.unlink(os.path.join(RUNNING, row['magic']))
             dead.add(i)
         elif time.time() - p._started > REAL_TIMEOUT:
-            print('BAD BABY', p._started, p._entry)
             try:
                 os.killpg(os.getpgid(p.pid), signal.SIGKILL)
             except:

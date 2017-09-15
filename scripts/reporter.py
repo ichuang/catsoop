@@ -49,7 +49,6 @@ CURRENT = {
 
 
 def get_status(magic):
-    print('get status for',magic)
     try:
         s = CURRENT['queued'].index(magic) + 1
     except:
@@ -64,15 +63,11 @@ def get_status(magic):
 
 def report_status(magic):
     s = get_status(magic)
-    print(s)
-    print('WHEEE')
     if s is None or s == LAST_STATUS.get(magic, None) and s != 'results':
         # if the status hasn't changed or there is no status yet, don't send a
         # message.
-        print('WHAT', s)
         return
 
-    print('HELLO',s)
     msg = None
     if isinstance(s, int):  # this is queued to be checked
         msg = {'type': 'inqueue', 'position': s}
