@@ -52,30 +52,10 @@ WSGI_TIME = check_wsgi_time()
 
 checker_db_loc = os.path.join(base_context.cs_data_root,
                               '__LOGS__',
-                              '_checker.db')
+                              '_checker')
 
-checkertable = ('CREATE TABLE IF NOT EXISTS '
-                'checker (magic TEXT NOT NULL PRIMARY KEY, '
-                'path TEXT NOT NULL, '
-                'username TEXT NOT NULL, '
-                'names TEXT NOT NULL, '
-                'form TEXT NOT NULL, '
-                'time REAL NOT NULL, '
-                'progress INT NOT NULL, '
-                'action TEXT NOT NULL, '
-                'score REAL, '
-                'score_box TEXT, '
-                'response_zipped BLOB, '
-                'time_started REAL)')
-
-os.makedirs(os.path.dirname(checker_db_loc), exist_ok=True)
-conn = sqlite3.connect(checker_db_loc)
-conn.text_factory = str
-c = conn.cursor()
-c.execute(checkertable)
-conn.commit()
-conn.close()
-
+for subdir in ('queued', 'running', 'results'):
+    os.makedirs(os.path.join(checker_db_loc, subdir), exist_ok=True)
 
 # Now start the workers.
 
@@ -98,16 +78,5 @@ def _kill_children():
 atexit.register(_kill_children)
 
 while True:
-    t = check_wsgi_time()
-    if t != WSGI_TIME:
-        # if the wsgi.py file changed, reload the checker (uwsgi will reload itself)
-        print('wsgi.py changed.  reloading the checker.')
-        old_p = running[CHECKER_IX+1]
-        old_p.kill()
-        old_p.wait()
-        wd, cmd, _, _ = procs[CHECKER_IX]
-        running[CHECKER_IX] = subprocess.Popen(cmd, cwd=wd,
-                                               preexec_fn=set_pdeathsig(signal.SIGTERM))
-        WSGI_TIME = t
     time.sleep(1)
 

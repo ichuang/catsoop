@@ -19,6 +19,7 @@ import sys
 import json
 import time
 import zlib
+import shutil
 import signal
 import sqlite3
 import threading
@@ -34,37 +35,19 @@ if CATSOOP_LOC not in sys.path:
 
 import catsoop.base_context as base_context
 import catsoop.auth as auth
+import catsoop.cslog as cslog
 import catsoop.loader as loader
 import catsoop.language as language
 import catsoop.dispatch as dispatch
 
 from catsoop.process import set_pdeathsig
-from catsoop.tools.websocket import WebSocket, SimpleWebSocketServer
 
-CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, '__LOGS__', '_checker.db')
+CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, '__LOGS__', '_checker')
+RUNNING = os.path.join(CHECKER_DB_LOC, 'running')
+QUEUED = os.path.join(CHECKER_DB_LOC, 'queued')
+RESULTS = os.path.join(CHECKER_DB_LOC, 'results')
+
 REAL_TIMEOUT = base_context.cs_checker_global_timeout
-PORTNUM = base_context.cs_checker_server_port
-
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
-
-
-def _connect():
-    conn = sqlite3.connect(CHECKER_DB_LOC, 60)
-    conn.text_factory = str
-    conn.row_factory = dict_factory
-    c = conn.cursor()
-    c.execute('PRAGMA journal_mode=WAL')
-    c.fetchone()
-    return conn, c
-
-
-def prep_entry(e):
-    for i in ('path', 'names', 'form'):
-        e[i] = json.loads(e[i])
 
 
 def exc_message(context):
@@ -78,9 +61,6 @@ def exc_message(context):
 def do_check(row):
     os.setpgrp()  # make this part of its own process group
     set_pdeathsig()()  # but make it die if the parent dies.  will this work?
-
-    process = multiprocessing.current_process()
-    process._catsoop_check_id = row['magic']
 
     context = loader.spoof_early_load(row['path'])
     context['cs_course'] = row['path'][0]
@@ -131,120 +111,43 @@ def do_check(row):
             score = None
             score_box = ''
 
-        conn, c = _connect()
-        resp = language.handle_custom_tags(context, msg)
-        c.execute('UPDATE checker SET progress=2,score=?,score_box=?,response_zipped=? WHERE magic=?',
-                  (score, score_box, sqlite3.Binary(zlib.compress(resp.encode(), 9)), row['magic']))
-        conn.commit()
-        conn.close()
+        row['score'] = score
+        row['score_box'] = score_box
+        row['response'] = resp
 
+        # add to results
+        newloc = os.path.join(RESULTS, row['magic'])
+        with open(newloc, 'wb') as f:
+            f.write(context['csm_cslog'].prep(row))
+        # then remove from running
+        os.unlink(os.path.join(RUNNING, row['magic']))
 
 running = []
 
-# if anything is in state '1' (running) when we start, that's an error.  turn
-# those back to 0's to force them to run again.
-conn, c = _connect()
-c.execute('UPDATE checker SET progress=0 WHERE progress=1')
-conn.commit()
-conn.close()
-
-## WEBSOCKET STUFF
-
-# this will map a magic number to a list of connected websockets for that number
-all_clients = defaultdict(list)
-
-def send_queued_message(sock, pos):
-    sock.sendMessage(json.dumps({'type': 'inqueue', 'position': pos}))
-
-
-def send_running_message(sock, started):
-    sock.sendMessage(json.dumps({'type': 'running', 'started': started, 'now': time.time()}))
-
-
-def send_done_message(sock, score_box, resp, unzip=True):
-    if unzip:
-        resp = zlib.decompress(resp).decode()
-    sock.sendMessage(json.dumps({'type': 'newresult',
-                                 'score_box': score_box,
-                                 'response': resp}))
-
-
-def send_error_message(sock, score_box, resp):
-    send_done_message(sock, score_box, '<font color="red">%s</font>' % resp, unzip=False)
-
-
-# now let's start up the websocket server
-class Reporter(WebSocket):
-    def handleMessage(self):
-        self.sendMessage(json.dumps({'type': 'hello'}))
-        x = json.loads(self.data)
-        if x['type'] == 'hello':
-            self.magic = m = x['magic']
-            all_clients[m].append(self)
-            conn, c = _connect()
-            c.execute('SELECT * FROM checker WHERE magic=?', (m, ))
-            row = c.fetchone()
-            conn.close()
-            if row is not None:
-                p = row['progress']
-                if p == 0:
-                    send_queued_message(self, LASTMAX)
-                elif p == 1:
-                    send_running_message(self, row['time_started'])
-                else:
-                    func = send_done_message if p == 2 else send_error_message
-                    func(self, row['score_box'], row['response_zipped'])
-
-    def handleClose(self):
-        all_clients[self.magic].remove(self)
-        if len(all_clients[self.magic]) == 0:
-            del all_clients[self.magic]
-
-LASTMAX = 1
-POSITIONS = {}
-
-server = SimpleWebSocketServer('', PORTNUM, Reporter)
-reporter = threading.Thread(target=server.serveforever)
-reporter.start()
-
-PING = json.dumps({'type': 'ping'})
-def keeppingingall():
-    while True:
-        time.sleep(30)
-        for c in all_clients:
-            for sock in all_clients[c]:
-                sock.sendMessage(PING)
-pinger = threading.Thread(target=keeppingingall)
-pinger.start()
-
+# if anything is in the "running" dir when we start, that's an error.  turn
+# those back to queued to force them to run again (put them at the front of the
+# queue).
+for f in os.listdir(RUNNING):
+    shutil.move(os.path.join(RUNNING, f), os.path.join(QUEUED, '0_%s' % f))
 
 # and now actually start running
 while True:
     # check for dead processes
     dead = set()
     for i in range(len(running)):
-        id_, p = running[i]
+        id_, row, p = running[i]
         if not p.is_alive():
             if p.exitcode < 0:  # this probably only happens if we killed it
                 # update the database
-                conn, c = _connect()
-                resp = "Your submission could not be checked because the checker ran for too long"
-                zresp = zlib.compress(resp.encode(), 9)
-                c.execute('UPDATE checker SET progress=3,score=0.0,score_box="",response_zipped=? WHERE magic=?',
-                          (sqlite3.Binary(zresp), id_))
-                conn.commit()
-                conn.close()
-                # and inform anyone listening
-                for client in all_clients[id_]:
-                    send_error_message(client, '', resp)
-            else:
-                conn2, c2 = _connect()
-                c2.execute('SELECT * FROM checker WHERE magic=?', (id_, ))
-                row = c2.fetchone()
-                if row is not None:
-                    for client in all_clients[id_]:
-                        send_done_message(client, row['score_box'], row['response_zipped'])
-                conn2.close()
+                row['score'] = score
+                row['score_box'] = score_box
+                row['response'] = ("Your submission could not be checked "
+                                   "because the checker ran for too long")
+                newloc = os.path.join(RESULTS, row['magic'])
+                with open(newloc, 'wb') as f:
+                    f.write(context['csm_cslog'].prep(row))
+                # then remove from running
+                os.unlink(os.path.join(RUNNING, row['magic']))
             dead.add(i)
         elif time.time() - p._started > REAL_TIMEOUT:
             print('BAD BABY', p._started, p._entry)
@@ -255,48 +158,23 @@ while True:
     for i in sorted(dead, reverse=True):
         running.pop(i)
 
-    for i in list(all_clients.keys()):
-        if len(all_clients[i]) == 0:
-            del all_clients[i]
+    if base_context.cs_checker_parallel_checks - len(running) > 0:
+        # otherwise, add an entry to running.
+        waiting = sorted(os.listdir(QUEUED))
+        if waiting:
+            # grab the first thing off the queue, move it to the "running" dir
+            first = waiting[0]
+            with open(os.path.join(QUEUED, first), 'rb') as f:
+                row = cslog.unprep(f.read())
+            _, magic = first.split('_')
+            row['magic'] = magic
+            shutil.move(os.path.join(QUEUED, first), os.path.join(RUNNING, magic))
 
-    # if no processes are free, head back to the top of the loop.
-    open_slots = base_context.cs_checker_parallel_checks - len(running)
-
-    conn3, c3 = _connect()
-    c3.execute('SELECT * FROM checker WHERE progress=0 ORDER BY time ASC')
-    rows = c3.fetchall()
-    conn3.close()
-
-    pos = 1
-    for ix, entry in enumerate(rows):
-        prep_entry(entry)
-        if ix < open_slots:
-            # there's an open slot here.  mark this as being checked
-            conn4, c4 = _connect()
-            started = time.time()
-            c4.execute('UPDATE checker SET progress=1,time_started=? WHERE magic=?',
-                      (started, entry['magic']))
-            conn4.commit()
-            conn4.close()
-            # start a worker
-            p = multiprocessing.Process(target=do_check, args=(entry, ))
-            running.append((entry['magic'], p))
+            # start a worker for it
+            p = multiprocessing.Process(target=do_check, args=(row, ))
+            running.append((magic, row, p))
             p.start()
             p._started = time.time()
-            p._entry = entry
-            try:
-                del POSITIONS[entry['magic']]
-            except:
-                pass
-            # send an update
-            for client in all_clients[entry['magic']]:
-                send_running_message(client, started)
-        else:
-            m = entry['magic']
-            if m not in POSITIONS or POSITIONS[m] != pos:
-                for client in all_clients[entry['magic']]:
-                    send_queued_message(client, pos)
-            POSITIONS[m] = pos
-            pos += 1
-    LASTMAX = pos
-    time.sleep(0.3)  # sleep for a little while before the next try
+            p._entry = row
+
+    time.sleep(0.1)

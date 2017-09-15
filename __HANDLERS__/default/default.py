@@ -20,23 +20,31 @@ import json
 import time
 import uuid
 import random
+import shutil
 import string
 import sqlite3
+import tempfile
 import traceback
 import collections
 
 
 _prefix = 'cs_defaulthandler_'
 
-NEWENTRY = ('INSERT INTO checker VALUES(?, ?, ?, ?, ?, ?, 0, ?, '
-                                       'NULL, NULL, NULL, NULL)')
-
-def checker_sqlite():
-    c = sqlite3.connect(CHECKER_DB_LOC, 60)
-    c.text_factory = str
-    cur = c.cursor()
-    cur.execute('PRAGMA journal_mode=WAL')
-    return c, cur
+def new_entry(context, qname, action):
+    id_ = str(uuid.uuid4())
+    obj = {'path': context['cs_path_info'],
+           'username': context.get('cs_username', 'None'),
+           'names': [qname],
+           'form': {k: v for k, v in context[_n('form')].items() if qname in k},
+           'time': time.time(),
+           'action': action}
+    loc = os.path.join(tempfile.gettempdir(), 'staging', id_)
+    os.makedirs(os.path.dirname(loc), exist_ok=True)
+    with open(loc, 'wb') as f:
+        f.write(context['csm_cslog'].prep(obj))
+    newloc = os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'queued', '%s_%s' % (time.time(), id_))
+    shutil.move(loc, newloc)
+    return id_
 
 
 def _n(n):
@@ -201,6 +209,7 @@ def handle_activation_form(context):
         log_action(context, {'action': 'show_activation_form'})
 
     return out
+
 
 def handle_raw_html(context):
     # base function: display the problem
@@ -752,17 +761,7 @@ def handle_check(context):
         newstate['last_submit'][name] = sub
         question, args = namemap[name]
 
-        magic = str(uuid.uuid4())
-        conn, c = checker_sqlite()
-        c.execute(NEWENTRY, (magic,
-                             json.dumps(context['cs_path_info']),
-                             context.get('cs_username', 'None'),
-                             json.dumps([name]),
-                             json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
-                             time.time(),
-                             'check'))
-        conn.commit()
-        conn.close()
+        magic = new_entry(context, name, 'check')
 
         entry_ids[name] = entry_id = magic
 
@@ -862,17 +861,7 @@ def handle_submit(context):
         question, args = namemap[name]
         grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
         if grading_mode == 'auto':
-            magic = str(uuid.uuid4())
-            conn, c = checker_sqlite()
-            c.execute(NEWENTRY, (magic,
-                                 json.dumps(context['cs_path_info']),
-                                 context.get('cs_username', 'None'),
-                                 json.dumps([name]),
-                                 json.dumps({k: v for k,v in context[_n('form')].items() if name in k}),
-                                 time.time(),
-                                 'submit'))
-            conn.commit()
-            conn.close()
+            magic = new_entry(context, name, 'submit')
 
             entry_ids[name] = entry_id = magic
 
