@@ -36,6 +36,7 @@ from catsoop.process import set_pdeathsig
 
 procs = (
     (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
+    (scripts_dir, ['python3', 'reporter.py'], 0.1, 'Reporter'),
     (base_dir, ['uwsgi', '--http', ':%s' % base_context.cs_wsgi_server_port,
                 '--wsgi-file', 'wsgi.py',
                 '--touch-reload', 'wsgi.py', '-p', str(int(base_context.cs_wsgi_server_processes))], 0.1, 'WSGI Server'),
@@ -79,4 +80,3 @@ atexit.register(_kill_children)
 
 while True:
     time.sleep(1)
-

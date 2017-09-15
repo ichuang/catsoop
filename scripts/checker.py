@@ -113,7 +113,7 @@ def do_check(row):
 
         row['score'] = score
         row['score_box'] = score_box
-        row['response'] = resp
+        row['response'] = language.handle_custom_tags(context, msg)
 
         # add to results
         newloc = os.path.join(RESULTS, row['magic'])
@@ -139,13 +139,13 @@ while True:
         if not p.is_alive():
             if p.exitcode < 0:  # this probably only happens if we killed it
                 # update the database
-                row['score'] = score
-                row['score_box'] = score_box
-                row['response'] = ("Your submission could not be checked "
-                                   "because the checker ran for too long")
+                row['score'] = 0.0
+                row['score_box'] = ''
+                row['response'] = ("<font color='red'><b>Your submission could not be checked "
+                                   "because the checker ran for too long.</b></font>")
                 newloc = os.path.join(RESULTS, row['magic'])
                 with open(newloc, 'wb') as f:
-                    f.write(context['csm_cslog'].prep(row))
+                    f.write(cslog.prep(row))
                 # then remove from running
                 os.unlink(os.path.join(RUNNING, row['magic']))
             dead.add(i)

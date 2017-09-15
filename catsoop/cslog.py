@@ -64,7 +64,7 @@ def get_log_filename(db_name, path, logname):
     '''
     if path:
         course = path[0]
-        return os.path.join(base_context.cs_data_root, '__LOGS__', '_courses', course, db_name, *path[1:], '%s.log' % logname)
+        return os.path.join(base_context.cs_data_root, '__LOGS__', '_courses', course, db_name, *(path[1:]), '%s.log' % logname)
     else:
         return os.path.join(base_context.cs_data_root, '__LOGS__', db_name, *path, '%s.log' % logname)
 
