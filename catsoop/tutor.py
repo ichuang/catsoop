@@ -88,7 +88,7 @@ def compute_page_stats(context, user, path, keys=None):
     logging = cslog
     if keys is None:
         keys = [
-            'context', 'question_points', 'state', 'actions', 'manual_grades', 'submissions',
+            'context', 'question_points', 'state', 'actions', 'manual_grades',
         ]
     keys = list(keys)
 
@@ -98,33 +98,18 @@ def compute_page_stats(context, user, path, keys=None):
         out['state'] = logging.most_recent(user, path, 'problemstate', {})
         if out['state']:
             out['state']['scores'] = {}
-            fname = os.path.join(context['cs_data_root'], '__LOGS__', '_checker.db')
-            conn = sqlite3.connect(fname, 60)
-            conn.row_factory = sqlite3.Row
-            c = conn.cursor()
-            c.execute('PRAGMA journal_mode=WAL')
-            c.fetchone()
             for k, v in out['state'].get('last_submit_checker_id', {}).items():
-                c.execute('SELECT * FROM checker WHERE magic=?', (v, ))
-                row = c.fetchone()
+                try:
+                    row = context['csm_cslog'].unprep(open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'results', v), 'rb').read())
+                except:
+                    row = None
                 if row is None:
                     out['state']['scores'][k] = 0.0
                 else:
                     out['state']['scores'][k] = row['score'] or 0.0
-            conn.close()
     if 'actions' in keys:
         keys.remove('actions')
         out['actions'] = logging.read_log(user, path, 'problemactions')
-    if 'submissions' in keys:
-        fname = os.path.join(context['cs_data_root'], '__LOGS__', '_checker.db')
-        conn = sqlite3.connect(fname, 60)
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-        c.execute('PRAGMA journal_mode=WAL')
-        c.fetchone()
-        c.execute('SELECT * FROM checker WHERE username=? AND path=?', (user, json.dumps(path)))
-        out['submissions'] = c.fetchall()
-        conn.close()
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
         out['manual_grades'] = logging.read_log(user, path, 'problemgrades')

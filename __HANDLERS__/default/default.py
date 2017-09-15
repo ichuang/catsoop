@@ -105,18 +105,15 @@ def handle_get_state(context):
         if isinstance(ll[i], set):
             ll[i] = list(ll[i])
     ll['scores'] = {}
-    fname = os.path.join(context['cs_data_root'], '__LOGS__', '_checker.db')
-    conn = sqlite3.connect(fname, 60)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
     for k, v in ll.get('last_submit_checker_id', {}).items():
-        c.execute('SELECT * FROM checker WHERE magic=?', (v, ))
-        row = c.fetchone()
+        try:
+            row = context['csm_cslog'].unprep(open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'results', v), 'rb').read())
+        except:
+            row = None
         if row is None:
             ll['scores'][k] = 0.0
         else:
             ll['scores'][k] = row['score'] or 0.0
-    conn.close()
     return make_return_json(context, ll, [])
 
 
@@ -1282,6 +1279,10 @@ def render_question(elt, context, lastsubmit, wrap=True):
             with open(checker_loc, 'rb') as f:
                 result = context['csm_cslog'].unprep(f.read())
             message = '\n<script type="text/javascript">$("#%s_score_display").html(%r);</script>' % (name, result['score_box'])
+            try:
+                result['response'] = result['response'].decode()
+            except:
+                pass
             message += '\n' + result['response']
 
         else:
