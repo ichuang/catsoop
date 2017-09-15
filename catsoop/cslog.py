@@ -14,164 +14,198 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Logging mechanisms in SQLite
+Logging mechanisms in catsoopdb
 """
 
 import os
-import json
-import sqlite3
+import re
+import zlib
+import pickle
+import random
+import string
+import contextlib
 
-from . import base_context as base_context
+@contextlib.contextmanager
+def passthrough():
+    yield
+
+from . import base_context
 from .tools.filelock import FileLock
 
-MAKETABLE = ('CREATE TABLE IF NOT EXISTS '
-             'log (ix INTEGER PRIMARY KEY AUTOINCREMENT, '
-             'path TEXT NOT NULL, '
-             'logname TEXT NOT NULL, '
-             'data TEXT NOT NULL)')
-"""
-SQLite query to initialize logging table
-"""
-
-UPDATE = 'INSERT INTO log VALUES(NULL,?,?,?)'
-"""
-SQLite query to add a new entry to a log
-"""
-
-OVERWRITE = ('INSERT OR REPLACE INTO log (ix,path,logname,data) '
-             'VALUES((SELECT max(ix) FROM log WHERE path=? AND logname=?), ?, ?, ?)')
-"""
-SQLite query to update the most recent entry to a log
-"""
-
-READ = 'SELECT * FROM log WHERE path=? AND logname=? ORDER BY ix ASC'
-"""
-SQLite query to grab all entries from a log
-"""
-
-MOSTRECENT = 'SELECT * FROM log WHERE path=? AND logname=? ORDER BY ix DESC LIMIT 1'
-"""
-SQLite query to grab most recent entry from a log
-"""
-
-def _ser(x):
-    if isinstance(x, set):
-        return list(x)
-    raise TypeError()
-
-def _dump(x):
-    return json.dumps(x, default=_ser)
-
-def create_if_not_exists(directory):
-    '''
-    Helper; creates a directory if it does not already exist.
-    '''
-    os.makedirs(directory, exist_ok=True)
+SEP_CHARS = (string.ascii_letters + string.digits).encode()
 
 
-def get_log_filename(path, db_name):
-    '''
-    Returns the filename where a given database is stored on disk.
-    '''
-    try:
-        course = path[0]
-    except:
-        course = None
-    if course is not None:
-        d = os.path.join(base_context.cs_data_root, '__LOGS__', '_courses', course)
-        fname = os.path.join(d, db_name + '.db')
-    else:
-        d = os.path.join(base_context.cs_data_root, '__LOGS__')
-        fname = os.path.join(base_context.cs_data_root, '__LOGS__', db_name + '.db')
-    if os.path.dirname(os.path.abspath(fname)) != os.path.abspath(d):
-        raise Exception("Cannot access log at %s" % fname)
-    return fname
+def good_separator(sep, data, new=None):
+    return sep not in data and (new is None or sep not in new)
 
 
-def sqlite_access(fname):
-    """
-    Helper used to access a given SQLite database.
-    Initializes database if appropriate.
-    """
-    create_if_not_exists(os.path.dirname(fname))
-    c = sqlite3.connect(fname, 60)
-    c.text_factory = str
-    cur = c.cursor()
-    cur.execute('PRAGMA journal_mode=WAL')
-    cur.fetchone()
-    cur.execute(MAKETABLE)
-    c.commit()
-    return c, cur
-
-
-def update_log(db_name, path, logname, new):
-    """
-    Adds a new entry to the specified log.
-    """
-    fname = get_log_filename(path, db_name)
-    conn, c = sqlite_access(fname)
-    c.execute(UPDATE, (_dump(path), logname, _dump(new)))
-    conn.commit()
-    conn.close()
-
-
-def overwrite_log(db_name, path, logname, new):
-    """
-    Overwrites the most recent entry in the specified log.
-    """
-    fname = get_log_filename(path, db_name)
-    conn, c = sqlite_access(fname)
-    path = _dump(path)
-    c.execute(OVERWRITE, (path,
-                          logname,
-                          path,
-                          logname,
-                          _dump(new), ))
-    conn.commit()
-    conn.close()
-
-
-def read_log(db_name, path, logname):
-    """
-    Reads all entries of a log.
-    """
-    try:
-        fname = get_log_filename(path, db_name)
-    except:
-        return []
-    if not os.path.isfile(fname):
-        return []
-    conn, c = sqlite_access(fname)
-    c.execute(READ, (_dump(path), logname, ))
-    out = [json.loads(i[-1]) for i in c.fetchall()]
-    conn.close()
+def get_separator(data, new=None):
+    out = None
+    while out is None or not good_separator(out, data, new=new):
+        out = bytes(random.choice(SEP_CHARS) for i in range(20))
     return out
 
 
-def most_recent(db_name, path, logname, default=None):
+def create_if_not_exists(directory):
+    os.makedirs(directory, exist_ok=True)
+
+
+def prep(x):
+    return zlib.compress(pickle.dumps(x, -1), 9)
+
+
+def unprep(x):
+    return pickle.loads(zlib.decompress(x))
+
+
+def get_log_filename(db_name, path, logname):
+    '''
+    Returns the filename where a given log is stored on disk.
+    '''
+    if path:
+        course = path[0]
+        return os.path.join(base_context.cs_data_root, '__LOGS__', '_courses', course, db_name, *path[1:], '%s.log' % logname)
+    else:
+        return os.path.join(base_context.cs_data_root, '__LOGS__', db_name, *path, '%s.log' % logname)
+
+
+def update_log(db_name, path, logname, new, lock=True):
     """
-    Reads the most recent entry from a log.
+    Adds a new entry to the specified log.
     """
-    try:
-        fname = get_log_filename(path, db_name)
-    except:
-        return default
+    fname = get_log_filename(db_name, path, logname)
+    #get an exclusive lock on this file before making changes
+    # look up the separator and the data
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as lock:
+        try:
+            create_if_not_exists(os.path.dirname(fname))
+            with open(fname, 'rb') as f:
+                sep = f.readline().strip()
+                data = f.read()
+            if sep == '':
+                raise Exception
+        except:
+            overwrite_log(db_name, path, logname, new, lock=False)
+            return
+        new = prep(new)
+        if good_separator(sep, new):
+            # if the separator is still okay, just add the new entry to the end
+            # of the file
+            with open(fname, 'ab') as f:
+                f.write(new + sep)
+        else:
+            # if not, rewrite the whole file with a new separator
+            entries = [i for i in data.split(sep) if i != b''] + [new]
+            sep = get_separator(data, new)
+            with open(fname, 'wb') as f:
+                f.write(sep + b'\n')
+                f.write(sep.join(entries) + sep)
+
+
+def _overwrite_log(fname, new):
+    create_if_not_exists(os.path.dirname(fname))
+    new = prep(new)
+    sep = get_separator(new)
+    with open(fname, 'wb') as f:
+        f.write(sep + b'\n')
+        f.write(new + sep)
+
+
+def overwrite_log(db_name, path, logname, new, lock=True):
+    """
+    Overwrites the most recent entry in the specified log.
+    """
+    #get an exclusive lock on this file before making changes
+    fname = get_log_filename(db_name, path, logname)
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as l:
+        _overwrite_log(fname, new)
+
+
+def _read_log(db_name, path, logname, lock=True):
+    fname = get_log_filename(db_name, path, logname)
+    #get an exclusive lock on this file before reading it
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as lock:
+        try:
+            f = open(fname, 'rb')
+            sep = f.readline().strip()
+            this = ''
+            for i in f.read().split(sep):
+                yield unprep(i)
+            raise StopIteration
+        except:
+            raise StopIteration
+
+
+def read_log(db_name, path, logname, lock=True):
+    """
+    Reads all entries of a log.
+    """
+    return list(_read_log(db_name, path, logname, lock))
+
+
+def most_recent(db_name, path, logname, default=None, lock=True):
+    '''
+    Ignoring most of the log, grab the last entry
+
+    Based on code by S.Lott and Pykler at:
+    http://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-with-python-similar-to-tail
+    '''
+    fname = get_log_filename(db_name, path, logname)
     if not os.path.isfile(fname):
         return default
-    conn, c = sqlite_access(fname)
-    c.execute(MOSTRECENT, (_dump(path), logname, ))
-    out = c.fetchone()
-    conn.close()
-    return json.loads(out[-1]) if out is not None else default
+    #get an exclusive lock on this file before reading it
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as lock:
+        f = open(fname, 'rb')
+        sep = f.readline().strip()
+        lsep = len(sep)
+        offset = lsep + 1
+        f.seek(0, 2)
+        blocksize = 1024
+        numbytes = f.tell() - offset
+        block = -1
+        data = b''
+        while True:
+            if numbytes - blocksize > offset:
+                # if we are more than one "blocksize" from the start of
+                # the file (counting from the end), add that block to our
+                # buffer and continue on
+                f.seek(block * blocksize, 2)
+                data = f.read(blocksize) + data
+            else:
+                # otherwise, seek to the start of the file and read
+                # through to the end
+                f.seek(offset, 0)
+                # need to split on this next line because some entries
+                # may be shorter than one "blocksize"
+                data = (f.read(numbytes) + data)[:-lsep].split(sep)[-1]
+                f.close()
+                return unprep(data)
+            # update our counters
+            block -= 1
+            numbytes -= blocksize
+            # if we found a break (or multiple breaks), we are done.  grab
+            # the data and return.
+            breaks = data[:-lsep].count(sep)
+            if breaks >= 1:
+                f.close()
+                data = data[:-lsep]
+                t = data[data.rfind(sep)+lsep:]
+                return unprep(t)
 
 
-def modify_most_recent(db_name, path, log, default=None, transform_func=lambda x: x, method='update'):
-    fname = get_log_filename(path, db_name)
-    old_val = most_recent(db_name, path, log, default)
-    new_val = transform_func(old_val)
-    if method == 'update':
-        updater = update_log
-    else:
-        updater = overwrite_log
-    updater(db_name, path, log, new_val)
+def modify_most_recent(db_name, path, logname, default=None, transform_func=lambda x: x, method='update', lock=True):
+    fname = get_log_filename(db_name, path, logname)
+    cm = FileLock(fname) if lock else passthrough()
+    with cm as lock:
+        old_val = most_recent(db_name, path, logname, default, lock=False)
+        new_val = transform_func(old_val)
+        if method == 'update':
+            updater = update_log
+        else:
+            updater = overwrite_log
+        updater(db_name, path, logname, new_val, lock=False)
     return new_val
