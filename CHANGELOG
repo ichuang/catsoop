@@ -1,4 +1,35 @@
 ##################
+# Version 11.0.0 #
+##################
+
+ADDED:
+
+* Added script to migrate SQLite logs (and checker) to new format.
+
+CHANGED:
+
+* Logs are now, once again, stored in catsoopdb format.  No other options.
+
+* The checker's state is now stored via the filesystem, rather than through
+  SQLite.
+
+* File upload paths are now stored relative to cs_data_root to make moving
+  between systems easier.  Old (absolute) paths still work, but the system will
+  now store relative paths.
+
+* Results from completed checks are now loaded in a way that avoids requiring a
+  websocket connection.
+
+* The checker and reporter are now two separate processes.
+
+FIXED:
+
+* Fixed serious bug (deadlock) with checker script / logging.
+
+* Fixed HTML rendering of pythoncode question type.
+
+
+##################
 # Version 10.4.0 #
 ##################
 
