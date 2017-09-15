@@ -265,7 +265,7 @@ def handle_submission(submissions, **info):
             m = test['transform_output'](log)
             msg += "\n<br/><font color='blue'>%s</font>%s</p>" % (m, image)
         elif log != '':
-            msg += "\n<p><center>%s</center></p>" % (image)
+            msg += "\n<center>%s</center>" % (image)
 
         if out != '' and test['show_code']:
             msg += "\n<p>Your code produced the following output:"
@@ -274,8 +274,8 @@ def handle_submission(submissions, **info):
         if err != '':
             msg += "\n<p>Your submission produced an error:"
             e = html_format(err)
-            msg += "\n<br/><font color='red'><tt>%s</tt></font>" % e
-            msg += "\n<br/><center>%s</center></p>" % (image)
+            msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
+            msg += "\n<br/><center>%s</center>" % (image)
 
         count += 1
 
