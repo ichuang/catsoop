@@ -84,7 +84,10 @@ def report_status(magic):
 
     omsg = json.dumps(msg)
     for c in ALL_CLIENTS[magic]:
-        c.sendMessage(omsg)
+        try:
+            c.sendMessage(omsg)
+        except:
+            pass
     LAST_STATUS[magic] = s
 
 
