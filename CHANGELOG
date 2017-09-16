@@ -1,4 +1,13 @@
 ##################
+# Version 11.0.1 #
+##################
+
+FIXED:
+
+* Changes to the way the "reporter" process handles websocket connections.
+
+
+##################
 # Version 11.0.0 #
 ##################
 
