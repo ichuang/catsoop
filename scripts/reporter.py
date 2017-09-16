@@ -83,7 +83,7 @@ def report_status(magic):
         return
 
     omsg = json.dumps(msg)
-    for c in ALL_CLIENTS[magic]:
+    for c in list(ALL_CLIENTS[magic]):
         try:
             c.sendMessage(omsg)
         except:
