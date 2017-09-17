@@ -22,6 +22,7 @@ import signal
 import sqlite3
 import subprocess
 
+from datetime import datetime
 
 os.setpgrp()
 
@@ -39,15 +40,10 @@ procs = (
     (scripts_dir, ['python3', 'reporter.py'], 0.1, 'Reporter'),
     (base_dir, ['uwsgi', '--http', ':%s' % base_context.cs_wsgi_server_port,
                 '--wsgi-file', 'wsgi.py',
-                '--touch-reload', 'wsgi.py', '-p', str(int(base_context.cs_wsgi_server_processes))], 0.1, 'WSGI Server'),
+                '-L', '-p', str(int(base_context.cs_wsgi_server_processes))], 0.1, 'WSGI Server'),
 )
 
 running = []
-
-def check_wsgi_time():
-    return os.stat(os.path.join(base_dir, 'wsgi.py')).st_mtime
-
-WSGI_TIME = check_wsgi_time()
 
 # Make sure the checker database is set up
 
@@ -60,13 +56,10 @@ for subdir in ('queued', 'running', 'results'):
 
 # Now start the workers.
 
-CHECKER_IX = None
 KILLSIGS = []
 
 for (ix, (wd, cmd, slp, name)) in enumerate(procs):
     print('Starting', name)
-    if 'checker.py' in cmd:
-        CHECKER_IX = ix
     killsig = signal.SIGTERM if 'uwsgi' not in cmd else signal.SIGKILL
     KILLSIGS.append(killsig)
     running.append(subprocess.Popen(cmd, cwd=wd,

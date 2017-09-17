@@ -83,8 +83,11 @@ def report_status(magic):
         return
 
     omsg = json.dumps(msg)
-    for c in ALL_CLIENTS[magic]:
-        c.sendMessage(omsg)
+    for c in list(ALL_CLIENTS[magic]):
+        try:
+            c.sendMessage(omsg)
+        except:
+            pass
     LAST_STATUS[magic] = s
 
 
@@ -97,9 +100,10 @@ class Reporter(WebSocket):
             ALL_CLIENTS[m].append(self)
 
     def handleClose(self):
-        ALL_CLIENTS[self.magic].remove(self)
-        if len(ALL_CLIENTS[self.magic]) == 0:
-            del ALL_CLIENTS[self.magic]
+        try:
+            ALL_CLIENTS[self.magic].remove(self)
+        except:
+            pass
 
 
 server = SimpleWebSocketServer('', PORTNUM, Reporter)
@@ -111,7 +115,7 @@ PING = json.dumps({'type': 'ping'})
 def keeppingingall():
     while True:
         time.sleep(30)
-        for c in ALL_CLIENTS:
+        for c in list(ALL_CLIENTS.keys()):
             for sock in ALL_CLIENTS[c]:
                 sock.sendMessage(PING)
 pinger = threading.Thread(target=keeppingingall)
@@ -119,6 +123,12 @@ pinger.start()
 
 
 while True:
+    for magic in list(ALL_CLIENTS.keys()):
+        if len(ALL_CLIENTS[magic]) == 0:
+            try:
+                del ALL_CLIENTS[magic]
+            except:
+                pass
     CURRENT['queued'] = [i.split('_')[1] for i in sorted(os.listdir(QUEUED))]
     CURRENT['running'] = {i.name for i in os.scandir(RUNNING)}
     for magic in ALL_CLIENTS:
