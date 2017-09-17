@@ -1,4 +1,14 @@
 ##################
+# Version 11.0.2 #
+##################
+
+FIXED:
+
+* Moving a file from "running" to "results" in the checker is now implemented
+  as an atomic operation, to avoid the potential for corrupted results files.
+
+
+##################
 # Version 11.0.1 #
 ##################
 
