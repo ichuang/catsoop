@@ -78,7 +78,10 @@ def report_status(magic):
             start = time.time()
         msg = {'type': 'running', 'started': start, 'now': time.time()}
     elif s == 'results':
-        m = unprep(open(os.path.join(RESULTS, magic), 'rb').read())
+        try:
+            m = unprep(open(os.path.join(RESULTS, magic), 'rb').read())
+        except:
+            return
         sb = m.get('score_box', '?')
         r = m.get('response', '?')
         msg = {'type': 'newresult', 'score_box': sb, 'response': r}
