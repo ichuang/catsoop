@@ -16,18 +16,13 @@
 
 import os
 import sys
-import json
 import time
-import zlib
 import shutil
 import signal
-import sqlite3
-import threading
+import tempfile
 import traceback
 import collections
 import multiprocessing
-
-from collections import defaultdict
 
 CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if CATSOOP_LOC not in sys.path:
@@ -115,10 +110,17 @@ def do_check(row):
         row['score_box'] = score_box
         row['response'] = language.handle_custom_tags(context, msg)
 
-        # add to results
-        newloc = os.path.join(RESULTS, row['magic'])
-        with open(newloc, 'wb') as f:
+        # make temporary file to write results to
+        _, temploc = tempfile.mkstemp()
+        with open(temploc, 'wb') as f:
             f.write(context['csm_cslog'].prep(row))
+        # move that file to results, close the handle to it.
+        newloc = os.path.join(RESULTS, row['magic'])
+        shutil.move(temploc, newloc)
+        try:
+            os.close(_)
+        except:
+            pass
         # then remove from running
         os.unlink(os.path.join(RUNNING, row['magic']))
 
