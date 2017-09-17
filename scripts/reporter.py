@@ -72,7 +72,10 @@ def report_status(magic):
     if isinstance(s, int):  # this is queued to be checked
         msg = {'type': 'inqueue', 'position': s}
     elif s == 'running':
-        start = os.stat(os.path.join(RUNNING, magic)).st_ctime
+        try:
+            start = os.stat(os.path.join(RUNNING, magic)).st_ctime
+        except:
+            start = time.time()
         msg = {'type': 'running', 'started': start, 'now': time.time()}
     elif s == 'results':
         m = unprep(open(os.path.join(RESULTS, magic), 'rb').read())
@@ -127,6 +130,10 @@ while True:
         if len(ALL_CLIENTS[magic]) == 0:
             try:
                 del ALL_CLIENTS[magic]
+            except:
+                pass
+            try:
+                del LAST_STATUS[magic]
             except:
                 pass
     CURRENT['queued'] = [i.split('_')[1] for i in sorted(os.listdir(QUEUED))]
