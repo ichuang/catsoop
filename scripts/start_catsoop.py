@@ -35,6 +35,11 @@ if base_dir not in sys.path:
 import catsoop.base_context as base_context
 from catsoop.process import set_pdeathsig
 
+try:
+    import websockets
+except:
+    sys.exit("The websockets module is not installed.  Try: sudo pip3 install websockets")
+
 procs = (
     (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
     (scripts_dir, ['python3', 'reporter.py'], 0.1, 'Reporter'),

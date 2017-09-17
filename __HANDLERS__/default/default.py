@@ -2024,7 +2024,6 @@ ws_%(name)s.onmessage = function(event){
         $('#%(name)s_score_display').html(j.score_box);
         thediv[0].className = '';
         thediv.html(j.response);
-        ws_%(name)s.close();
         $('#%(name)s_buttons button').prop("disabled", false);
     }
 }

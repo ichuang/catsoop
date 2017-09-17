@@ -18,7 +18,9 @@ import os
 import sys
 import json
 import time
+import asyncio
 import threading
+import websockets
 
 from collections import defaultdict
 
@@ -26,27 +28,19 @@ CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if CATSOOP_LOC not in sys.path:
     sys.path.append(CATSOOP_LOC)
 
+from catsoop.cslog import unprep
 import catsoop.base_context as base_context
 
-from catsoop.cslog import unprep
-from catsoop.tools.websocket import WebSocket, SimpleWebSocketServer
-
+import websockets
 
 CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, '__LOGS__', '_checker')
 RUNNING = os.path.join(CHECKER_DB_LOC, 'running')
 QUEUED = os.path.join(CHECKER_DB_LOC, 'queued')
 RESULTS = os.path.join(CHECKER_DB_LOC, 'results')
 
+CURRENT = {'queued': [], 'running': set()}
 
 PORTNUM = base_context.cs_checker_server_port
-ALL_CLIENTS = defaultdict(list)
-LAST_STATUS = {}
-
-CURRENT = {
-    'queued': [],
-    'running': set(),
-}
-
 
 def get_status(magic):
     try:
@@ -61,89 +55,76 @@ def get_status(magic):
     return s
 
 
-def report_status(magic):
-    s = get_status(magic)
-    if s is None or s == LAST_STATUS.get(magic, None) and s != 'results':
-        # if the status hasn't changed or there is no status yet, don't send a
-        # message.
-        return
+async def reporter(websocket, path):
+    magic_json = await websocket.recv()
+    magic = json.loads(magic_json)['magic']
 
-    msg = None
-    if isinstance(s, int):  # this is queued to be checked
-        msg = {'type': 'inqueue', 'position': s}
-    elif s == 'running':
-        try:
-            start = os.stat(os.path.join(RUNNING, magic)).st_ctime
-        except:
-            start = time.time()
-        msg = {'type': 'running', 'started': start, 'now': time.time()}
-    elif s == 'results':
-        try:
-            m = unprep(open(os.path.join(RESULTS, magic), 'rb').read())
-        except:
-            return
-        sb = m.get('score_box', '?')
-        r = m.get('response', '?')
-        msg = {'type': 'newresult', 'score_box': sb, 'response': r}
-    if msg is None:
-        return
-
-    omsg = json.dumps(msg)
-    for c in list(ALL_CLIENTS[magic]):
-        try:
-            c.sendMessage(omsg)
-        except:
-            pass
-    LAST_STATUS[magic] = s
-
-
-class Reporter(WebSocket):
-    def handleMessage(self):
-        self.sendMessage(json.dumps({'type': 'hello'}))
-        x = json.loads(self.data)
-        if x['type'] == 'hello':
-            self.magic = m = x['magic']
-            ALL_CLIENTS[m].append(self)
-
-    def handleClose(self):
-        try:
-            ALL_CLIENTS[self.magic].remove(self)
-        except:
-            pass
-
-
-server = SimpleWebSocketServer('', PORTNUM, Reporter)
-reporter = threading.Thread(target=server.serveforever)
-reporter.start()
-
-
-PING = json.dumps({'type': 'ping'})
-def keeppingingall():
+    last_ping = time.time()
+    last_status = None
     while True:
-        time.sleep(30)
-        for c in list(ALL_CLIENTS.keys()):
-            for sock in list(ALL_CLIENTS[c]):
-                try:
-                    sock.sendMessage(PING)
-                except:
-                    pass
-pinger = threading.Thread(target=keeppingingall)
-pinger.start()
+        t = time.time()
 
+        # if it's been more than 10 seconds since we've pinged, ping again.
+        if t - last_ping > 10:
+            try:
+                await asyncio.wait_for(websocket.ping(), timeout=10)
+                last_ping = time.time()
+            except ayncio.TimeoutError:
+                # no response from ping in 10 seconds.  quit.
+                break
 
-while True:
-    for magic in list(ALL_CLIENTS.keys()):
-        if len(ALL_CLIENTS[magic]) == 0:
+        # get our current status
+        status = None
+        try:
+            status = CURRENT['queued'].index(magic) + 1
+        except:
+            if magic in CURRENT['running']:
+                status = 'running'
+            elif os.path.isfile(os.path.join(RESULTS, magic)):
+                status = 'results'
+
+        # if our status hasn't changed, or if we don't know yet, don't send
+        # anything; just keep waiting.
+        if status is None or status == last_status:
+            await asyncio.sleep(0.3)
+            continue
+
+        # otherwise, we should send a message.
+        if isinstance(status, int):
+            msg = {'type': 'inqueue', 'position': status}
+        elif status == 'running':
             try:
-                del ALL_CLIENTS[magic]
+                start = os.stat(os.path.join(RUNNING, magic)).st_ctime
             except:
-                pass
+                start = time.time()
+            msg = {'type': 'running', 'started': start, 'now': time.time()}
+        elif status == 'results':
             try:
-                del LAST_STATUS[magic]
+                m = unprep(open(os.path.join(RESULTS, magic), 'rb').read())
             except:
-                pass
+                return
+            sb = m.get('score_box', '?')
+            r = m.get('response', '?')
+            msg = {'type': 'newresult', 'score_box': sb, 'response': r}
+        else:
+            msg = None
+
+        if msg is not None:
+            await websocket.send(json.dumps(msg))
+        if status == 'results':
+            break
+
+        last_status = status
+
+        await asyncio.sleep(0.3)
+
+def updater():
     CURRENT['queued'] = [i.split('_')[1] for i in sorted(os.listdir(QUEUED))]
     CURRENT['running'] = {i.name for i in os.scandir(RUNNING)}
-    for magic in ALL_CLIENTS:
-        report_status(magic)
-    time.sleep(0.3)
+    loop.call_later(0.3, updater)
+
+start_server = websockets.serve(reporter, 'localhost', PORTNUM)
+loop = asyncio.get_event_loop()
+loop.run_until_complete(start_server)
+loop.call_soon(updater)
+loop.run_forever()
