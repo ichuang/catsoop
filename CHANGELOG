@@ -1,4 +1,19 @@
 ##################
+# Version 11.0.3 #
+##################
+
+FIXED:
+
+* Use https://github.com/aaugustin/websockets for websocket connections.
+
+REMOVED:
+
+* Removed the included simple websockets implementation.
+
+* Remove more traces of the abandoned queue.
+
+
+##################
 # Version 11.0.2 #
 ##################
 
