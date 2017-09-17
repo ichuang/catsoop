@@ -214,31 +214,6 @@ cs_wsgi_server_processes = 1
 How many worker processes the UWSGI server should start
 """
 
-# Queue Management
-
-cs_queue_websocket = None
-"""
-The location to which the browser should connect to the queue's process.  If
-set to None (the default), the queue worker will not be started.
-"""
-
-cs_queue_server_port = 6012
-"""
-The local port on which the queue server (if any) should run
-"""
-
-cs_queue_enabled = False
-"""
-Per-page, whether the queue should be enabled.  If enabled, this will cause the
-a new websocket connection to be opened on page load, and some javascript to be
-loaded that keeps track of the current state of the queue.
-"""
-
-cs_queue_room = 'default'
-'''
-Special: The room to which queue requests on this page should be assigned.
-'''
-
 # File Upload Type
 
 cs_upload_management = 'file'
@@ -291,8 +266,7 @@ cs_all_pieces = [
     'tutor', 'util',
 ]
 
-cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4', 'pyaes',
-                'websocket']
+cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4', 'pyaes']
 
 for i in cs_all_pieces:
     if i != 'base_context':
