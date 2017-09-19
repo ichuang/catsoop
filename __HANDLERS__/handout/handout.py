@@ -48,7 +48,7 @@ def handle(context):
         status = HTTPStatus.NOT_FOUND
 
     log_entry['success'] = m is None
-    context['csm_cslog'].update_log(uname, [context['cs_course'], logname, log_entry)
+    context['csm_cslog'].update_log(uname, [context['cs_course']], logname, log_entry)
 
     if m is None:
         return context['csm_dispatch'].serve_static_file(context, fname, context['cs_env'])
