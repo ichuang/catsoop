@@ -240,7 +240,7 @@ def _run_one_test(context, sub, soln, funcs, threshold, ratio=True):
             if mag(subm-sol) > mag(threshold*scale_factor):
                 return False
         except:
-            pass
+            return False
 
     return True
 
