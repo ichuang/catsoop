@@ -1,4 +1,15 @@
 ##################
+# Version 11.0.4 #
+##################
+
+FIXED:
+
+* Fixed issue with matrix comparison in expression question type.
+
+* Fixed typo (SyntaxError) in handout handler.
+
+
+##################
 # Version 11.0.3 #
 ##################
 
