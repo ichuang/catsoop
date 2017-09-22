@@ -1,3 +1,29 @@
+########################
+# Current Developments #
+########################
+
+Work toward next release.  Currently under development.
+
+ADDED:
+
+* Added the get_upload utility for downloading uploaded files.
+
+CHANGED:
+
+* The "fileupload" question type now uses get_upload to download user files,
+  rather than a data URI.
+
+DEPRECATED:
+
+REMOVED:
+
+FIXED:
+
+SECURITY:
+
+DOCUMENTATION:
+
+
 ##################
 # Version 11.0.4 #
 ##################
