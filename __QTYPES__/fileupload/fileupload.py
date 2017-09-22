@@ -14,8 +14,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import json
 import base64
 import mimetypes
+from urllib.parse import urlencode
 
 tutor.qtype_inherit('smallbox')
 base, _ = tutor.question("smallbox")
@@ -54,13 +57,14 @@ def render_html(last_log, **info):
     ll = last_log.get(name, None)
     if ll is not None:
         try:
-            fname, _ = ll
-            data = info['csm_loader'].get_file_data(info, last_log, name)
-            typ = mimetypes.guess_type(fname)[0] or 'text/plain'
+            fname, loc = ll
+            loc = os.path.basename(loc)
+            qstring = urlencode({'path': json.dumps(info['cs_path_info']),
+                                 'fname': loc})
             out += '<br/>'
-            out += ('<a href="data:%s;base64,%s" '
+            out += ('<a href="BASE/cs_util/get_upload?%s" '
                     'download="%s">Download Most '
-                    'Recent Submission</a>') % (typ, base64.b64encode(data).decode(), fname.replace('<', '').replace('>', '').replace('"', '').replace("'", ''))
+                    'Recent Submission</a>') % (qstring, fname.replace('<', '').replace('>', '').replace('"', '').replace("'", ''))
         except:
             pass
     return out
@@ -76,5 +80,4 @@ def answer_display(**info):
         ext = mimetypes.guess_extension(data.mimetype) or '.txt'
         name = name.rsplit('.', 1) + ext
     return ('<a href="%s" '
-            'download="%s">Download Most '
-            'Recent Submission</a>') % (data, name)
+            'download="%s">Download Solution</a>') % (data, name)
