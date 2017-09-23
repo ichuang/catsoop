@@ -15,8 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import json
 from base64 import b64encode
-
+from urllib.parse import urlencode
 
 def _execfile(*args):
     fn = args[0]
@@ -347,13 +348,17 @@ def render_html_upload(last_log, **info):
         out += ('''\n<a href="data:text/plain;base64,%(b64init)s" '''
                 '''target="_blank"%(dl)s>Code Skeleton</a><br />''') % params
     if last_log.get(name, None) is not None:
-        code = b64encode(info['csm_loader'].get_file_data(info, last_log, name)).decode()
-        fname = ''
-        if isinstance(last_log[name], list):
-            fname = last_log[name][0]
-        out += ('''\n<a href="data:text/plain;base64,%s" '''
-                '''download=%r id="%s_lastfile">'''
-                '''Your Last Submission</a><br />''') % (code, fname, name)
+        try:
+            fname, loc = last_log[name]
+            loc = os.path.basename(loc)
+            qstring = urlencode({'path': json.dumps(info['cs_path_info']),
+                                 'fname': loc})
+            out += '<br/>'
+            out += ('<a href="BASE/cs_util/get_upload?%s" '
+                    'download="%s">Download Most '
+                    'Recent Submission</a><br/>') % (qstring, fname.replace('<', '').replace('>', '').replace('"', '').replace("'", ''))
+        except:
+            pass
     out += '''\n<input type="file" style="display: none" id=%(name)s name="%(name)s" />''' % params
     out += ('''\n<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
             '''\n<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)
