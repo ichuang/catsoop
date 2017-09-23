@@ -98,7 +98,8 @@ async def reporter(websocket, path):
             msg = {'type': 'running', 'started': start, 'now': time.time()}
         elif status == 'results':
             try:
-                m = unprep(open(os.path.join(RESULTS, magic), 'rb').read())
+                with open(os.path.join(RESULTS, magic), 'rb') as f:
+                    m = unprep(f.read())
             except:
                 return
             sb = m.get('score_box', '?')

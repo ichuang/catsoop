@@ -95,8 +95,10 @@ def run_code(context, code, options):
 
     p.wait()
 
-    out = open(outfname, 'r').read()
-    err = open(errfname, 'r').read()
+    with open(outfname, 'r') as _o:
+        out = _o.read()
+    with open(errfname, 'r') as _e:
+        err = _e.read()
 
     shutil.rmtree(tmpdir, True)
     for f in (outfname, errfname):

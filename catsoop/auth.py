@@ -125,7 +125,8 @@ def _get_user_information(context, into, course, username, do_preload=False):
     else:
         fname = os.path.join(context['cs_data_root'], '__LOGS__', username)
     if os.path.exists(fname):
-        text = open(fname).read()
+        with open(fname) as f:
+            text = f.read()
         exec(text, into)
 
     # permissions handling

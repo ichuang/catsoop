@@ -107,7 +107,8 @@ def handle_get_state(context):
     ll['scores'] = {}
     for k, v in ll.get('last_submit_checker_id', {}).items():
         try:
-            row = context['csm_cslog'].unprep(open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'results', v), 'rb').read())
+            with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'results', v), 'rb') as f:
+                row = context['csm_cslog'].unprep(f.read())
         except:
             row = None
         if row is None:

@@ -254,7 +254,8 @@ _cs_config_errors = []
 # try to import configuration from config.py
 
 try:
-    exec(open(os.path.join(os.path.dirname(__file__), 'config.py')).read())
+    with open(os.path.join(os.path.dirname(__file__), 'config.py')) as f:
+        exec(f.read())
 except Exception as e:
     _cs_config_errors.append('error in config.py: %s' % (e, ))
 

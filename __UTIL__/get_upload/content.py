@@ -37,7 +37,8 @@ if error is None:
     try:
         loc = os.path.join(cs_data_root, '__LOGS__', '_uploads', *path, fname)
         content_type = mimetypes.guess_type(fname)[0] or 'text/plain'
-        response = open(loc, 'rb').read()
+        with open(loc, 'rb') as f:
+            response = f.read()
     except:
         error = 'There was an error retrieving the file.'
 

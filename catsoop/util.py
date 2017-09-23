@@ -37,7 +37,8 @@ def read_user_file(context, course, user, default=None):
     user_file = os.path.join(users_dir(context, course), "%s.py" % user)
     if os.path.isfile(user_file):
         uinfo = {}
-        exec(open(user_file).read(), uinfo)
+        with open(user_file) as f:
+            exec(f.read(), uinfo)
         uinfo['username'] = user
         loader.clean_builtins(uinfo)
         return uinfo

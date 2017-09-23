@@ -237,7 +237,9 @@ def cs_compile(fname, pre_code='', post_code=''):
             raise Exception
     except:
         # make some modifications to the code, and compile
-        code = '\n\n'.join([pre_code, open(fname).read(), post_code])
+        with open(fname) as _f:
+            real_code = _f.read()
+        code = '\n\n'.join([pre_code, real_code, post_code])
         code = code.replace('tutor.question(', 'tutor.question(globals(),')
         code = code.replace('tutor.qtype_inherit(',
                             'tutor.qtype_inherit(globals(),')
@@ -314,7 +316,8 @@ def do_late_load(context, course, path, into, content_file=None):
     else:
         into['cs_children'] = {}
     into['cs_source_format'] = content_file.rsplit('.', 1)[-1]
-    into['cs_content'] = open(content_file).read()
+    with open(content_file) as f:
+        into['cs_content'] = f.read()
     if into['cs_source_format'] != 'py':
         into['cs_content'] = language.handle_includes(into, into['cs_content'])
         into['cs_content'] = language.handle_python_tags(
