@@ -42,3 +42,32 @@ See the "installation quick-start guide" at:
 IS IT ANY GOOD?
 
 Yes.
+
+
+DEPENDENCIES AND INCLUDED SOFTWARE
+
+CAT-SOOP is built with the Python programming language, version 3.5+
+  (https://www.python.org/).
+CAT-SOOP relies on the websockets Python module
+  (https://github.com/aaugustin/websockets)
+
+
+The CAT-SOOP distribution also includes several pieces of third-party software,
+listed below.  Licensing information for these components is included in this
+distribution, under the "licenses_for_included_software" directory.
+
+CAT-SOOP includes verbatim copies of:
+  * Bootstrap (http://getbootstrap.com/)
+  * highlight.js (https://highlightjs.org/)
+  * jQuery (https://jquery.com/)
+  * KaTeX (https://github.com/Khan/KaTeX)
+  * MathJax (https://www.mathjax.org/)
+  * PLY (http://www.dabeaz.com/ply/)
+  * pyaes (https://github.com/ricmoo/pyaes)
+  * Python-Markdown (https://pythonhosted.org/Markdown/)
+  * SweetAlert2 (https://limonte.github.io/sweetalert2/)
+
+CAT-SOOP includes modified versions of:
+  * BeautifulSoup (https://www.crummy.com/software/BeautifulSoup/)
+  * DataURI.py (https://gist.github.com/zacharyvoase/5538178)
+  * fast-sha256-js (https://github.com/dchest/fast-sha256-js)

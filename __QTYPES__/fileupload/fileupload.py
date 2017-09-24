@@ -61,10 +61,12 @@ def render_html(last_log, **info):
             loc = os.path.basename(loc)
             qstring = urlencode({'path': json.dumps(info['cs_path_info']),
                                  'fname': loc})
+            safe_fname = fname.replace('<', '').replace('>', '').replace('"', '').replace("'", '')
             out += '<br/>'
-            out += ('<a href="BASE/cs_util/get_upload?%s" '
+            out += ('<a href="%s/cs_util/get_upload?%s" '
                     'download="%s">Download Most '
-                    'Recent Submission</a>') % (qstring, fname.replace('<', '').replace('>', '').replace('"', '').replace("'", ''))
+                    'Recent Submission</a>') % (info['cs_url_root'], qstring,
+                                                safe_fname)
         except:
             pass
     return out
