@@ -354,9 +354,10 @@ def render_html_upload(last_log, **info):
             qstring = urlencode({'path': json.dumps(info['cs_path_info']),
                                  'fname': loc})
             out += '<br/>'
-            out += ('<a href="BASE/cs_util/get_upload?%s" '
+            safe_fname = fname.replace('<', '').replace('>', '').replace('"', '').replace("'", '')
+            out += ('<a href="%s/cs_util/get_upload?%s" '
                     'download="%s">Download Most '
-                    'Recent Submission</a><br/>') % (qstring, fname.replace('<', '').replace('>', '').replace('"', '').replace("'", ''))
+                    'Recent Submission</a><br/>') % (info['cs_url_root'], qstring, safe_fname)
         except:
             pass
     out += '''\n<input type="file" style="display: none" id=%(name)s name="%(name)s" />''' % params
