@@ -40,7 +40,6 @@ def get_file_data(context, form, name):
                 path = data[1]
             else:
                 path = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', data[1])
-            print(data[1], path)
             with open(path, 'rb') as f:
                 data = f.read()
             return data
