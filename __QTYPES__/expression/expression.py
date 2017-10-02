@@ -40,7 +40,7 @@ def check_numpy():
         return False
 
 def _render_transpose(x):
-    out = r'{%s}^T' % x[0]
+    out = r'\left({%s}\right)^T' % x[0]
     if len(x) != 1:
         return out, "transpose takes exactly one argument"
     return out
@@ -229,12 +229,7 @@ def _run_one_test(context, sub, soln, funcs, threshold, ratio=True):
 
         mag = abs
         if check_numpy():
-            subnum = isinstance(subm, numpy.ndarray)
-            solnum = isinstance(sol, numpy.ndarray)
-            if subnum and solnum:
-                mag = numpy.linalg.norm
-            elif subnum or solnum:
-                return False
+            mag = numpy.linalg.norm
         scale_factor = sol if ratio else 1
         try:
             if mag(subm-sol) > mag(threshold*scale_factor):
