@@ -88,10 +88,12 @@ def do_check(row):
                                                      **args)
                 score = resp['score']
                 msg = resp['msg']
+                extra = resp.get('extra_data', None)
             except:
                 resp = {}
                 score = 0.0
                 msg = exc_message(context)
+                extra = None
 
             score_box = context['csm_tutor'].make_score_display(context, args,
                                                                 name, score,
@@ -109,6 +111,7 @@ def do_check(row):
         row['score'] = score
         row['score_box'] = score_box
         row['response'] = language.handle_custom_tags(context, msg)
+        row['extra_data'] = extra
 
         # make temporary file to write results to
         _, temploc = tempfile.mkstemp()
