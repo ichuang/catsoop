@@ -84,6 +84,12 @@ def make_score_display(context, args, name, score, assume_submit=False):
                 '%.02f%%</span>') % (r, g, s)
 
 
+def read_checker_result(context, magic):
+    with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'results', magic), 'rb') as f:
+        out = context['csm_cslog'].unprep(f.read())
+    return out
+
+
 def compute_page_stats(context, user, path, keys=None):
     logging = cslog
     if keys is None:
