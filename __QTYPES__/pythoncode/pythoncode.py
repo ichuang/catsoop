@@ -87,6 +87,8 @@ def init(info):
 
 
 def total_points(**info):
+    if 'csq_npoints' in info:
+        return info['csq_npoints']
     bak = info['csq_tests']
     info['csq_tests'] = []
     for i in bak:
