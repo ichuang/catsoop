@@ -29,13 +29,15 @@ if path is None or fname is None:
 if error is None:
     try:
         fname = os.path.basename(fname)
-        path = [i for i in json.loads(path) if i not in ('..', '.')]
+        path = json.loads(path)
     except:
         error = 'Could not interpret path and/or filename.'
 
 if error is None:
     try:
-        loc = os.path.join(cs_data_root, '__LOGS__', '_uploads', *path, fname)
+        upload_dir = os.path.realpath(os.path.join(cs_data_root, '__LOGS__', '_uploads'))
+        loc = os.path.realpath(os.path.join(upload_dir, *path, fname))
+        assert loc.startswith(upload_dir)
         content_type = mimetypes.guess_type(fname)[0] or 'text/plain'
         with open(loc, 'rb') as f:
             response = f.read()
