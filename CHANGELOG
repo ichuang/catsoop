@@ -8,10 +8,20 @@ ADDED:
 
 * Added the get_upload utility for downloading uploaded files.
 
+* Added "extra_data" field to checker results.
+
+* Added tutor.read_checker_result for quickly reading checker results.
+
+* Added csq_npoints as an option to the "pythoncode" question type.  If
+  specified, it overrides any point values assigned to the individual test
+  cases.
+
 CHANGED:
 
 * The "fileupload" question type now uses get_upload to download user files,
   rather than a data URI.
+
+* Changes to make sure that files are always closed after being opened.
 
 DEPRECATED:
 
@@ -19,7 +29,13 @@ REMOVED:
 
 FIXED:
 
+* Fixed an issue with the "expression" question type, where overzealous type
+  checking led to some correct answers being marked as incorrect.
+
 SECURITY:
+
+* Fixed an issue whereby get_upload could be used to read arbitrary files from
+  disk via a carefully constructed request.
 
 DOCUMENTATION:
 
