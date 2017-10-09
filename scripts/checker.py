@@ -107,6 +107,7 @@ def do_check(row):
 
             score = None
             score_box = ''
+            extra = None
 
         row['score'] = score
         row['score_box'] = score_box
