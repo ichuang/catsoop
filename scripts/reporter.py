@@ -67,7 +67,7 @@ async def reporter(websocket, path):
             try:
                 await asyncio.wait_for(websocket.ping(), timeout=10)
                 last_ping = time.time()
-            except ayncio.TimeoutError:
+            except asyncio.TimeoutError:
                 # no response from ping in 10 seconds.  quit.
                 break
 
