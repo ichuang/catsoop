@@ -87,7 +87,7 @@ def init(info):
 
 
 def total_points(**info):
-    if allow_csq_npoints and 'csq_npoints' in info:
+    if 'csq_npoints' in info:
         return info['csq_npoints']
     return total_test_points(**info)
 
