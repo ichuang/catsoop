@@ -17,8 +17,13 @@
 import json
 import collections.abc
 
-def default_checkbox_checker(x, y):
-    return float(len([i for i, j in zip(x, y) if i == j])) / len(y)
+
+def default_checkbox_checker(submission, solution):
+    credit_per_correct = 1/sum(solution)
+    correct = sum(i==j==True for i,j in zip(submission,solution)) * credit_per_correct
+    incorrect = sum(i==True and j==False for i,j in zip(submission,solution)) * credit_per_correct
+    return max(0, correct-incorrect)
+
 
 defaults = {
     'csq_soln': '--',

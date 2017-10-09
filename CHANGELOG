@@ -18,10 +18,12 @@ ADDED:
 
 CHANGED:
 
+* Changed the default checker used for multiple-choice-multiple-answer problems.
+
 * The "fileupload" question type now uses get_upload to download user files,
   rather than a data URI.
 
-* Changes to make sure that files are always closed after being opened.
+* Made changes to make sure that files are always closed after being opened.
 
 DEPRECATED:
 
