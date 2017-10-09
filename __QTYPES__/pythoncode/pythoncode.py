@@ -86,16 +86,18 @@ def init(info):
         info['csq_rerender'] = True
 
 
-def total_points(**info, allow_csq_npoints=True):
+def total_points(**info):
     if allow_csq_npoints and 'csq_npoints' in info:
         return info['csq_npoints']
+    return total_test_points(**info)
+
+def total_test_points(**info):
     bak = info['csq_tests']
     info['csq_tests'] = []
     for i in bak:
         info['csq_tests'].append(dict(test_defaults))
         info['csq_tests'][-1].update(i)
     return sum(i['npoints'] for i in info['csq_tests'])
-
 
 checktext = 'Run Code'
 
@@ -283,7 +285,7 @@ def handle_submission(submissions, **info):
         count += 1
 
     msg += "\n</div>"
-    tp = total_points(**info, False)
+    tp = total_test_points(**info)
     overall = float(score) / tp if tp != 0 else 0
     msg = (('\n<br/>&nbsp;Your score on your most recent '
             'submission was: %01.02f%%') % (overall * 100)) + msg
