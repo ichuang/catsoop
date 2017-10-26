@@ -2745,7 +2745,7 @@ schematic = (function() {
     }
 
     // use a dialog to get AC analysis parameters
-    Schematic.prototype.setup_ac_analysis = function() {
+    Schematic.prototype.setup_ac_analysis = function(silent) {
         this.unselect_all(-1);
         this.redraw_background();
 
@@ -2809,7 +2809,7 @@ schematic = (function() {
                 if (submit != undefined) {
                     // save a copy of the results for submission
                     this.ac_results = {'frequencies': results._frequencies_};
-                    for (var i=0; i < results.length; i++){
+                    for (var i in ckt.node_map){
                         var pk = i + '_phase';
                         this.ac_results[i] = {}
                         if (results[i] instanceof Array){
