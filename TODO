@@ -1,4 +1,11 @@
-Planned Features:
+Planned Features/Changes:
+
+  * After checker finishes, cache scores in problemstate logs (to prevent
+    having to do a double lookup to find scores).
+
+  * Implement "legacy" checker
+      For those who don't want to use the fancy new stuff, and nice to have for
+      things like surveys.
 
   * Implement relative due dates
 
@@ -23,13 +30,16 @@ Planned Features:
 
   * Improve infrastructure for giving hints
 
-  * Easy way to access order of questions on page
+  * Easy way to access order of questions on page (rather than going through
+    the context's cs_defaulthandler_name_map variable)
 
   * MP-style hints
       csq_hints = [{'name':..., 'hint':..., 'penalty':...,}]
       then in problemstate, keep hints_viewed
 
   * Post-submission hints based on response
+
+  * Improved interface for circuit simulator question type
 
 Known Bugs:
 
@@ -43,13 +53,11 @@ Things to Think About:
 
   * Consider removing .pycs files altogether (with the current structure, I
     doubt they save us much time; they may actually be slowing things down
-    now...)
-
-  * Consider implementing "legacy" checker
-      For those who don't want to use the fancy new stuff, and nice to have for
-      things like surveys.
+    now...).  They also complicate error reporting a bit.
 
   * Make CAT-SOOP builtins work without jQuery (but still include jQuery in
     case courses want to use it).
 
-  * Implement Piazza replacement
+  * Implement Piazza replacement (is this part of CAT-SOOP, or separate?)
+
+  * Integrate 6.01's exam grading more tightly with CAT-SOOP?
