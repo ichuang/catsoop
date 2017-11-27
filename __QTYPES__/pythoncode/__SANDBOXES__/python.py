@@ -94,21 +94,23 @@ def run_code(context, code, options):
     killer.start()
 
     p.wait()
+    p2.wait()
+    p3.wait()
 
     with open(outfname, 'r') as _o:
         out = _o.read()
     with open(errfname, 'r') as _e:
         err = _e.read()
 
+    for f in (_o, _e):
+        try:
+            os.close(f)
+        except:
+            pass
     shutil.rmtree(tmpdir, True)
     for f in (outfname, errfname):
         try:
             os.unlink(f)
-        except:
-            pass
-    for f in (_o, _e):
-        try:
-            os.close(f)
         except:
             pass
 
