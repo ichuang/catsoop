@@ -1564,6 +1564,8 @@ def pre_handle(context):
         context[_n('form')] = json.loads(context['cs_form'].get('data', '{}'))
         if context['cs_upload_management'] == 'file':
             for name, value in context[_n('form')].items():
+                if name == '__names__':
+                    continue
                 if isinstance(value, list):
                     data = csm_tools.data_uri.DataURI(value[1]).data
                     dir_ = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', *context['cs_path_info'])
