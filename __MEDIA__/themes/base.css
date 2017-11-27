@@ -79,7 +79,7 @@
 }
 
 .catsooplogo {
-    font-family: 'Computer Modern Typewriter';
+    font-family: 'Computer Modern Typewriter', monospace;
     border-color:transparent;
     font-weight:bold;
     background-color:transparent;
@@ -95,7 +95,7 @@
 }
 
 code {
-    font-family: 'Computer Modern Typewriter';
+    font-family: 'Computer Modern Typewriter', monospace;
     background-color: #eee;
     padding: 2px;
     border-radius: 5px;
@@ -127,7 +127,7 @@ h4 {
     background-color: @{cs_base_color};
     color: #fff;
     padding: 60px 25px 25px 25px;
-    font-family: Montserrat;
+    font-family: Montserrat, sans-serif;
 }
 .bg-grey {
     background-color: #f6f6f6;
@@ -332,7 +332,7 @@ pre {
   white-space: -pre-wrap;      /* Opera 4-6 */
   white-space: -o-pre-wrap;    /* Opera 7 */
   word-wrap: normal;       /* Internet Explorer 5.5+ */
-  font-family: 'Computer Modern Typewriter';
+  font-family: 'Computer Modern Typewriter', monospace;
 }
 
 img {vertical-align:middle; max-width:100%;}
@@ -416,7 +416,7 @@ svg {
 }
 
 tt {
-  font-family: 'Computer Modern Typewriter';
+  font-family: 'Computer Modern Typewriter', monospace;
 }
 
 a {
