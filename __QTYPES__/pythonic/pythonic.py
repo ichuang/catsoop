@@ -86,6 +86,10 @@ def handle_submission(submissions, **info):
                 msg += mfunc(sub)
             except:
                 pass
+        if msg == '':
+            msg = '<font color="red">Your submission could not be evaluated.  Please check that you have entered a valid Python expression.</font>  '
+        if info['csq_show_check']:
+            msg += '<img src="%s" /><br/>' % info['cs_cross_image']
         return {'score': 0.0,
                 'msg': msg}
 
