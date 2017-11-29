@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
+##################
+# Version 11.0.5 #
+##################
 
 ADDED:
 
@@ -25,10 +23,6 @@ CHANGED:
 
 * Made changes to make sure that files are always closed after being opened.
 
-DEPRECATED:
-
-REMOVED:
-
 FIXED:
 
 * Fixed a potential race condition in the "pythoncode" question type.
@@ -50,8 +44,6 @@ SECURITY:
 
 * Fixed an issue whereby get_upload could be used to read arbitrary files from
   disk via a carefully constructed request.
-
-DOCUMENTATION:
 
 
 ##################
