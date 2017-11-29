@@ -21,7 +21,7 @@ the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
 
-cs_version = 'v11.0.5'
+cs_version = '(development version, v11.0.5+)'
 """
 CAT-SOOP's version number
 """
