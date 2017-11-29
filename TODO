@@ -44,6 +44,9 @@ Planned Features/Changes:
 
   * Improved interface for circuit simulator question type
 
+  * Make CAT-SOOP work without Javascript enabled (offer a way to
+    submit/view/etc without javascript).
+
 Known Bugs:
 
   * Python error messages coming from code in <python> tags tend to show

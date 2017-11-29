@@ -31,12 +31,20 @@ REMOVED:
 
 FIXED:
 
+* Fixed a potential race condition in the "pythoncode" question type.
+
 * Fixed an issue with the "expression" question type, where overzealous type
   checking led to some correct answers being marked as incorrect.
 
 * Fixed issues with the circuit simulator question type that prevented an AC
   analysis from being run interactively, and that caused incorrect AC results
   to be sent to the checker.
+
+* Changes to make sure that reasonable fonts are used (particularly in <pre>,
+  <code>, and <tt>) even if our fonts are not loaded.
+
+* Some small temporary fixes to AC analysis in the circuit simulator for the
+  "circuit" question type.
 
 SECURITY:
 
