@@ -70,48 +70,21 @@ def run_code(context, code, options):
 
     # open stdin in write mode, write to it, and then open it again in read
     # mode.
-    inr, inw = os.pipe()
-    _e, outfname = tempfile.mkstemp()
-    _o, errfname = tempfile.mkstemp()
     p = subprocess.Popen([interp, '-E', '-B', fname],
                          cwd=tmpdir,
                          preexec_fn=limiter,
                          bufsize=0,
-                         stdin=inr,
+                         stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
-    p2 = subprocess.Popen(['tee', outfname], stdin=p.stdout,
-                                             stdout=subprocess.DEVNULL,
-                                             stderr=subprocess.DEVNULL)
-    p3 = subprocess.Popen(['tee', errfname], stdin=p.stderr,
-                                             stdout=subprocess.DEVNULL,
-                                             stderr=subprocess.DEVNULL)
-    with open(inw, 'w') as f:
-        f.write(options['STDIN'])
-    safe_close(inw)
 
-    killer = context['csm_process'].PKiller(p, options['CLOCKTIME'])
-    killer.start()
+    try:
+        out, err = p.communicate(options['STDIN'] or '')
+        out = out.decode()
+        err = err.decode()
+    except subprocess.TimeoutExpired:
+        p.kill()
 
-    p.wait()
-    p2.wait()
-    p3.wait()
-
-    with open(outfname, 'r') as _o:
-        out = _o.read()
-    with open(errfname, 'r') as _e:
-        err = _e.read()
-
-    for f in (_o, _e):
-        try:
-            os.close(f)
-        except:
-            pass
     shutil.rmtree(tmpdir, True)
-    for f in (outfname, errfname):
-        try:
-            os.unlink(f)
-        except:
-            pass
 
     return fname, out, err
