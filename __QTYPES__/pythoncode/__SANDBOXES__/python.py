@@ -68,8 +68,6 @@ def run_code(context, code, options):
 
     interp = context.get('csq_python_interpreter', '/usr/local/bin/python3')
 
-    # open stdin in write mode, write to it, and then open it again in read
-    # mode.
     p = subprocess.Popen([interp, '-E', '-B', fname],
                          cwd=tmpdir,
                          preexec_fn=limiter,
@@ -78,12 +76,16 @@ def run_code(context, code, options):
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
 
+    out = ''
+    err = ''
     try:
-        out, err = p.communicate(options['STDIN'] or '')
-        out = out.decode()
-        err = err.decode()
+        out, err = p.communicate(options['STDIN'] or '', timeout=options['CLOCKTIME'])
     except subprocess.TimeoutExpired:
         p.kill()
+        p.wait()
+        out, err = p.communicate()
+    out = out.decode()
+    err = err.decode()
 
     shutil.rmtree(tmpdir, True)
 
