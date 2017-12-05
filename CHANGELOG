@@ -8,11 +8,16 @@ ADDED:
 
 CHANGED:
 
+* Changed the options to uWSGI to try to get better performance.
+
 DEPRECATED:
 
 REMOVED:
 
 FIXED:
+
+* Fixed an issue whereby the Python sandbox could leave handles to deleted
+  files open (eventually leading to an error from having too many files open).
 
 SECURITY:
 

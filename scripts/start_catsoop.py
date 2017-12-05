@@ -40,12 +40,28 @@ try:
 except:
     sys.exit("The websockets module is not installed.  Try: sudo pip3 install websockets")
 
+if base_context.cs_wsgi_server_min_processes >= base_context.cs_wsgi_server_max_processes:
+    uwsgi_opts = ['--processes', str(base_context.cs_wsgi_server_min_processes)]
+else:
+    uwsgi_opts = [
+        '--cheaper', str(base_context.cs_wsgi_server_min_processes),
+        '--workers', str(base_context.cs_wsgi_server_max_processes),
+        '--cheaper-step', '1',
+        '--cheaper-initial', str(base_context.cs_wsgi_server_min_processes),
+    ]
+
+uwsgi_opts = [
+    '--http', ':%s' % base_context.cs_wsgi_server_port,
+    '--enable-threads',
+    '--thunder-lock',
+    '--wsgi-file', 'wsgi.py',
+    '--threads', str(base_context.cs_wsgi_server_threads_per_process),
+] + uwsgi_opts
+
 procs = (
     (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
     (scripts_dir, ['python3', 'reporter.py'], 0.1, 'Reporter'),
-    (base_dir, ['uwsgi', '--http', ':%s' % base_context.cs_wsgi_server_port,
-                '--wsgi-file', 'wsgi.py',
-                '-L', '-p', str(int(base_context.cs_wsgi_server_processes))], 0.1, 'WSGI Server'),
+    (base_dir, ['uwsgi'] + uwsgi_opts, 0.1, 'WSGI Server'),
 )
 
 running = []
