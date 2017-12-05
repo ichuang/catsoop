@@ -19,6 +19,9 @@ FIXED:
 * Fixed an issue whereby the Python sandbox could leave handles to deleted
   files open (eventually leading to an error from having too many files open).
 
+* Changed the Python sandbox to use sys.executable instead of hard-coded path to
+  an assumed location of a Python interpreter.
+
 SECURITY:
 
 DOCUMENTATION:

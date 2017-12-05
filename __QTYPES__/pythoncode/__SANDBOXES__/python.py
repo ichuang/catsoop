@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import time
 import fcntl
 import shutil
@@ -66,7 +67,7 @@ def run_code(context, code, options):
     with open(os.path.join(tmpdir, fname), 'w') as fileobj:
         fileobj.write(code.replace('\r\n', '\n'))
 
-    interp = context.get('csq_python_interpreter', '/usr/local/bin/python3')
+    interp = context.get('csq_python_interpreter', sys.executable)
 
     p = subprocess.Popen([interp, '-E', '-B', fname],
                          cwd=tmpdir,
