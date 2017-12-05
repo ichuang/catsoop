@@ -1,5 +1,7 @@
 Planned Features/Changes:
 
+  * Integrate Jacob's updated circuit simulator.
+
   * After checker finishes, cache scores in problemstate logs (to prevent
     having to do a double lookup to find scores).
 
