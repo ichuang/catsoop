@@ -22,7 +22,7 @@ import uuid
 import random
 import shutil
 import string
-import sqlite3
+import hashlib
 import tempfile
 import traceback
 import collections
@@ -1571,7 +1571,8 @@ def pre_handle(context):
                     dir_ = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', *context['cs_path_info'])
                     os.makedirs(dir_, exist_ok=True)
                     value[0] = value[0].replace('<', '').replace('>', '').replace('"', '').replace('"', '')
-                    fname = '%s___%.06f___%s' % (context['cs_username'], time.time(), value[0])
+                    hstring = hashlib.md5(data).hexdigest()
+                    fname = '%s___%.06f___%s___%s___%s' % (context['cs_username'], time.time(), name, hstring, value[0])
                     fullname = os.path.join(dir_, fname)
                     with open(fullname, 'wb') as f:
                         f.write(data)

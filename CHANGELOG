@@ -10,6 +10,9 @@ CHANGED:
 
 * Changed the options to uWSGI to try to get better performance.
 
+* File names for uploaded files now include the csq_name of the question they
+  were uploaded for.
+
 DEPRECATED:
 
 REMOVED:
@@ -24,6 +27,9 @@ FIXED:
   not set.
 
 SECURITY:
+
+* File names for uploaded files now include a hash of their contents to limit
+  the feasibility of a brute-force attack to grab a different user's files.
 
 DOCUMENTATION:
 

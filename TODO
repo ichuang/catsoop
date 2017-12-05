@@ -1,7 +1,5 @@
 Planned Features/Changes:
 
-  * Include question name in uploaded filenames.
-
   * After checker finishes, cache scores in problemstate logs (to prevent
     having to do a double lookup to find scores).
 
