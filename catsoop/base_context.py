@@ -209,19 +209,9 @@ cs_wsgi_server_port = 6010
 The local port on which the WSGI server should run.
 """
 
-cs_wsgi_server_max_processes = 1
+cs_wsgi_server_threads = 10
 """
-The maximum number of worker processes the UWSGI server should have running
-"""
-
-cs_wsgi_server_min_processes = 1
-"""
-The maximum number of worker processes the UWSGI server should have running
-"""
-
-cs_wsgi_server_threads_per_process = 100
-"""
-The number of threads per process that should be used for the UWSGI server
+The number of threads in the WSGI server's threadpool
 """
 
 # File Upload Type

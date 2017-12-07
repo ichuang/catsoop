@@ -33,38 +33,15 @@ if base_dir not in sys.path:
     sys.path.append(base_dir)
 
 import catsoop.base_context as base_context
+
+from catsoop.wsgi import application
+from catsoop.tools.cheroot import wsgi
 from catsoop.process import set_pdeathsig
 
 try:
     import websockets
 except:
     sys.exit("The websockets module is not installed.  Try: sudo pip3 install websockets")
-
-if base_context.cs_wsgi_server_min_processes >= base_context.cs_wsgi_server_max_processes:
-    uwsgi_opts = ['--processes', str(base_context.cs_wsgi_server_min_processes)]
-else:
-    uwsgi_opts = [
-        '--cheaper', str(base_context.cs_wsgi_server_min_processes),
-        '--workers', str(base_context.cs_wsgi_server_max_processes),
-        '--cheaper-step', '1',
-        '--cheaper-initial', str(base_context.cs_wsgi_server_min_processes),
-    ]
-
-uwsgi_opts = [
-    '--http', ':%s' % base_context.cs_wsgi_server_port,
-    '--enable-threads',
-    '--thunder-lock',
-    '--wsgi-file', 'wsgi.py',
-    '--threads', str(base_context.cs_wsgi_server_threads_per_process),
-] + uwsgi_opts
-
-procs = (
-    (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
-    (scripts_dir, ['python3', 'reporter.py'], 0.1, 'Reporter'),
-    (base_dir, ['uwsgi'] + uwsgi_opts, 0.1, 'WSGI Server'),
-)
-
-running = []
 
 # Make sure the checker database is set up
 
@@ -76,6 +53,13 @@ for subdir in ('queued', 'running', 'results'):
     os.makedirs(os.path.join(checker_db_loc, subdir), exist_ok=True)
 
 # Now start the workers.
+
+procs = (
+    (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
+    (scripts_dir, ['python3', 'reporter.py'], 0.1, 'Reporter'),
+)
+
+running = []
 
 KILLSIGS = []
 
@@ -92,5 +76,9 @@ def _kill_children():
         os.kill(i.pid, KILLSIGS[ix])
 atexit.register(_kill_children)
 
-while True:
-    time.sleep(1)
+# finally, start the WSGI server
+
+print('Starting WSGI Server')
+addr = '0.0.0.0', base_context.cs_wsgi_server_port
+server = wsgi.Server(addr, application)
+server.start()

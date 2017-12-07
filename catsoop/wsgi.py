@@ -19,9 +19,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(__file__))
-import catsoop.dispatch as dispatch
-
+from . import dispatch
 
 def _ensure_bytes(x):
     try:
