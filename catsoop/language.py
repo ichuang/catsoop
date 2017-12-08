@@ -231,12 +231,12 @@ def get_python_output(context, code, variables):
         if isinstance(code, int):
             raise IndentationError(
                 'Inconsistent indentation on line %d' % code)
-        code = ('oprint = print\n'
+        code = ('_cs_oprint = print\n'
                 'def myprint(*args, **kwargs):\n'
                 '    if "file" not in kwargs:\n'
                 '        kwargs["file"] = cs___WEBOUT\n'
                 '    oprint(*args, **kwargs)\n'
-                'print = cs_print = myprint\n\n') + code + '\n\nprint = oprint'
+                'print = cs_print = myprint\n\n') + code + '\n\nprint = _cs_oprint'
         code = code.replace('tutor.init_random()',
                             'tutor.init_random(globals())')
         code = code.replace('tutor.question(', 'tutor.question(globals(),')
