@@ -235,7 +235,7 @@ def get_python_output(context, code, variables):
                 'def myprint(*args, **kwargs):\n'
                 '    if "file" not in kwargs:\n'
                 '        kwargs["file"] = cs___WEBOUT\n'
-                '    oprint(*args, **kwargs)\n'
+                '    _cs_oprint(*args, **kwargs)\n'
                 'print = cs_print = myprint\n\n') + code + '\n\nprint = _cs_oprint'
         code = code.replace('tutor.init_random()',
                             'tutor.init_random(globals())')
