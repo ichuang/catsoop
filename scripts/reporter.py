@@ -20,7 +20,6 @@ import json
 import time
 import asyncio
 import threading
-import websockets
 
 from collections import defaultdict
 
@@ -30,6 +29,7 @@ if CATSOOP_LOC not in sys.path:
 
 from catsoop.cslog import unprep
 import catsoop.base_context as base_context
+import catsoop.tools.websockets as websockets
 
 CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, '__LOGS__', '_checker')
 RUNNING = os.path.join(CHECKER_DB_LOC, 'running')

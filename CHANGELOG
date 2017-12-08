@@ -9,6 +9,9 @@ ADDED:
 * Added cheroot (https://github.com/cherrypy/cheroot) as a catsoop.tools
   package.
 
+* Added websockets (https://github.com/aaugustin/websockets) as a catsoop.tools
+  package.
+
 CHANGED:
 
 * cheroot is now used instead of uWSGI.

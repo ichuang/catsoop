@@ -38,11 +38,6 @@ from catsoop.wsgi import application
 from catsoop.tools.cheroot import wsgi
 from catsoop.process import set_pdeathsig
 
-try:
-    import websockets
-except:
-    sys.exit("The websockets module is not installed.  Try: sudo pip3 install websockets")
-
 # Make sure the checker database is set up
 
 checker_db_loc = os.path.join(base_context.cs_data_root,
