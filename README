@@ -8,7 +8,7 @@
 CAT-SOOP
 
 * Web Site: https://catsoop.mit.edu
-      (or as a Tor "onion service" at http://catsoopsurzgtnkt.onion)
+      (or as a Tor "onion service" at http://v52wh2hq4yo7vyzp.onion/)
 
 * Repository Web Access: https://catsoop.mit.edu/repo/cat-soop
 
@@ -48,9 +48,6 @@ DEPENDENCIES AND INCLUDED SOFTWARE
 
 CAT-SOOP is built with the Python programming language, version 3.5+
   (https://www.python.org/).
-CAT-SOOP relies on the websockets Python module
-  (https://github.com/aaugustin/websockets)
-
 
 The CAT-SOOP distribution also includes several pieces of third-party software,
 listed below.  Licensing information for these components is included in this
@@ -66,8 +63,10 @@ CAT-SOOP includes verbatim copies of:
   * pyaes (https://github.com/ricmoo/pyaes)
   * Python-Markdown (https://pythonhosted.org/Markdown/)
   * SweetAlert2 (https://limonte.github.io/sweetalert2/)
+  * websockets (https://github.com/aaugustin/websockets)
 
 CAT-SOOP includes modified versions of:
   * BeautifulSoup (https://www.crummy.com/software/BeautifulSoup/)
+  * cheroot (https://pypi.python.org/pypi/Cheroot)
   * DataURI.py (https://gist.github.com/zacharyvoase/5538178)
   * fast-sha256-js (https://github.com/dchest/fast-sha256-js)
