@@ -11,7 +11,7 @@ ADDED:
 
 CHANGED:
 
-* Changed the options to uWSGI to try to get better performance.
+* cheroot is now used instead of uWSGI.
 
 * File names for uploaded files now include the csq_name of the question they
   were uploaded for.
