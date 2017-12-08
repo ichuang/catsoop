@@ -51,7 +51,7 @@ CAT-SOOP is built with the Python programming language, version 3.5+
 
 The CAT-SOOP distribution also includes several pieces of third-party software,
 listed below.  Licensing information for these components is included in this
-distribution, under the "licenses_for_included_software" directory.
+distribution, in the LICENSE.included_software file.
 
 CAT-SOOP includes verbatim copies of:
   * Bootstrap (http://getbootstrap.com/)
