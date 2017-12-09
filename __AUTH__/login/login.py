@@ -607,7 +607,7 @@ def generate_forgot_password_form(context):
     out += ('\n<tr>'
             '\n<td style="text-align:right;"></td>'
             '\n<td style="text-align:right;">'
-            '\n<input type="submit" value="Reset Password"></td>'
+            '\n<input type="submit" value="Reset Password" class="btn btn-catsoop"></td>'
             '\n</tr>')
     out += '\n</table>\n</form>'
     return out
