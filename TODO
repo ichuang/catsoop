@@ -1,5 +1,8 @@
 Planned Features/Changes:
 
+  * Integrate roles, sections into everything (rather than having them live in
+    6.01).
+
   * Integrate Jacob's updated circuit simulator.
 
   * After checker finishes, cache scores in problemstate logs (to prevent
