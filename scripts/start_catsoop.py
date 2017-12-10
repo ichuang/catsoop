@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This file is part of CAT-SOOP
 # Copyright (c) 2011-2017 Adam Hartz <hartz@mit.edu>
 #
