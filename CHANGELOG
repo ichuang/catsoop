@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
+##################
+# Version 11.1.0 #
+##################
 
 ADDED:
 
@@ -19,10 +17,6 @@ CHANGED:
 * File names for uploaded files now include the csq_name of the question they
   were uploaded for.
 
-DEPRECATED:
-
-REMOVED:
-
 FIXED:
 
 * Fixed an issue whereby the Python sandbox could leave handles to deleted
@@ -36,8 +30,6 @@ SECURITY:
 
 * File names for uploaded files now include a hash of their contents to limit
   the feasibility of a brute-force attack to grab a different user's files.
-
-DOCUMENTATION:
 
 
 ##################
