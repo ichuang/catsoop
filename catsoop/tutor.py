@@ -85,7 +85,8 @@ def make_score_display(context, args, name, score, assume_submit=False):
 
 
 def read_checker_result(context, magic):
-    with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'results', magic), 'rb') as f:
+    with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker',
+              'results', magic[0], magic[1], magic), 'rb') as f:
         out = context['csm_cslog'].unprep(f.read())
     return out
 

@@ -107,7 +107,9 @@ def handle_get_state(context):
     ll['scores'] = {}
     for k, v in ll.get('last_submit_checker_id', {}).items():
         try:
-            with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'results', v), 'rb') as f:
+            with open(os.path.join(context['cs_data_root'], '__LOGS__',
+                                   '_checker', 'results', v[0], v[1], v),
+                      'rb') as f:
                 row = context['csm_cslog'].unprep(f.read())
         except:
             row = None
@@ -1275,7 +1277,8 @@ def render_question(elt, context, lastsubmit, wrap=True):
     magic = context[_n('last_log')].get('%s_magic' % name, None)
     if magic is not None:
         checker_loc = os.path.join(context['cs_data_root'], '__LOGS__',
-                                   '_checker', 'results', magic)
+                                   '_checker', 'results',
+                                   magic[0], magic[1], magic)
         if os.path.isfile(checker_loc):
             with open(checker_loc, 'rb') as f:
                 result = context['csm_cslog'].unprep(f.read())

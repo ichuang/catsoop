@@ -8,6 +8,9 @@ ADDED:
 
 CHANGED:
 
+* Separated checker results into subdirectories to prevent a single directory
+  growing too large.
+
 DEPRECATED:
 
 REMOVED:

@@ -119,7 +119,9 @@ def do_check(row):
         with open(temploc, 'wb') as f:
             f.write(context['csm_cslog'].prep(row))
         # move that file to results, close the handle to it.
-        newloc = os.path.join(RESULTS, row['magic'])
+        magic = row['magic']
+        newloc = os.path.join(RESULTS, magic[0], magic[1], magic)
+        os.makedirs(os.path.dirname(newloc), exist_ok=True)
         shutil.move(temploc, newloc)
         try:
             os.close(_)

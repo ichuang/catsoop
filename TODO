@@ -8,9 +8,6 @@ Planned Features/Changes:
   * After checker finishes, cache scores in problemstate logs (to prevent
     having to do a double lookup to find scores).
 
-  * Separate checker results into subdirectories to prevent a single directory
-    growing too large.
-
   * Implement "legacy" checker
       For those who don't want to use the fancy new stuff, and nice to have for
       things like surveys.
