@@ -8,10 +8,6 @@ Planned Features/Changes:
   * After checker finishes, cache scores in problemstate logs (to prevent
     having to do a double lookup to find scores).
 
-  * Implement "legacy" checker
-      For those who don't want to use the fancy new stuff, and nice to have for
-      things like surveys.
-
   * Implement relative due dates
 
   * Implement a better method for course-specific defaults for questions.

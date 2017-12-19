@@ -6,6 +6,8 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* Added the 'legacy' grading mode, which does not use the asynchronous checker.
+
 CHANGED:
 
 * Separated checker results into subdirectories to prevent a single directory
