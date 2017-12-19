@@ -55,7 +55,7 @@ def _xml_pre_handle(context):
         if len(chunks) != 2:
             o.append(_malformed_question)
             break
-        type, rest = chunks
+        type_, rest = chunks
         otherrest = rest.split('</question>', 1)
         if len(otherrest) != 2:
             o.append(_malformed_question)
@@ -65,19 +65,28 @@ def _xml_pre_handle(context):
         try:
             code = remove_common_leading_whitespace(code)
             if isinstance(code, int):
-                raise IndentationError(
-                    'Inconsistent indentation on line %d' % code)
+                o.append(("<div><font color='red'><b>A Python Error Occurred:</b></font>"
+                          '<p><pre>'
+                          'Inconsistent indentation on line %d of question tag'
+                          '</pre></p></div>') % code)
+                o.append(rest)
+                continue
             exec(code, e)
             if 'csq_name' not in e:
                 e['csq_name'] = 'q%06d' % qcount
                 qcount += 1
-            o.append(tutor.question(context, type, **e))
+            o.append(tutor.question(context, type_, **e))
         except:
-            err = html_format(clear_info(context, traceback.format_exc()))
+            e = sys.exc_info()
+            tb_entries = traceback.extract_tb(e[2])
+            fname, lineno, func, text = tb_entries[-1]
+            tb_text = 'Error on line %d of question tag:\n    %s\n\n' % (lineno, code.splitlines()[lineno-1].strip())
+            tb_text = ''.join([tb_text] + traceback.format_exception_only(e[0], e[1]))
+
+            err = html_format(clear_info(context, tb_text))
             ret = ("<div><font color='red'>"
                    "<b>A Python Error Occurred:</b>"
                    "<p><pre>%s</pre><p>"
-                   "Please contact staff."
                    "</font></div>") % err
             o.append(ret)
         o.append(rest)

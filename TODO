@@ -46,17 +46,10 @@ Planned Features/Changes:
 
 Known Bugs:
 
-  * Python error messages coming from code in <python> tags tend to show
-    incorrect line numbers.
-
   * In ratio mode, checker for expression question type fails if solution
     evaluates to 0.
 
 Things to Think About:
-
-  * Consider removing .pycs files altogether (with the current structure, I
-    doubt they save us much time; they may actually be slowing things down
-    now...).  They also complicate error reporting a bit.
 
   * Make CAT-SOOP builtins work without jQuery (but still include jQuery in
     case courses want to use it).

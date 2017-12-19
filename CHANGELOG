@@ -19,6 +19,8 @@ CHANGED:
 * Checks run through the asynchronous checker now cache their results in the
   problemstate directory, to avoid having to do a double-lookup.
 
+* Improved error reporting throughout CAT-SOOP.
+
 DEPRECATED:
 
 REMOVED:
