@@ -46,7 +46,7 @@ def get_status(magic):
     except:
         if magic in CURRENT['running']:
             s = 'running'
-        elif os.path.isfile(os.path.join(RESULTS, magic)):
+        elif os.path.isfile(os.path.join(RESULTS, magic[0], magic[1], magic)):
             s = 'results'
         else:
             return
