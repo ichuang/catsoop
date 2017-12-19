@@ -105,18 +105,6 @@ def compute_page_stats(context, user, path, keys=None):
     if 'state' in keys:
         keys.remove('state')
         out['state'] = logging.most_recent(user, path, 'problemstate', {})
-        if out['state']:
-            out['state']['scores'] = {}
-            for k, v in out['state'].get('last_submit_checker_id', {}).items():
-                try:
-                    with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'results', v), 'rb') as f:
-                        row = context['csm_cslog'].unprep(f.read())
-                except:
-                    row = None
-                if row is None:
-                    out['state']['scores'][k] = 0.0
-                else:
-                    out['state']['scores'][k] = row['score'] or 0.0
     if 'actions' in keys:
         keys.remove('actions')
         out['actions'] = logging.read_log(user, path, 'problemactions')

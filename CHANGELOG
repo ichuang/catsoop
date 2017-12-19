@@ -16,6 +16,9 @@ CHANGED:
 * Helper scripts are now launched using sys.executable, rather than a
   hard-coded "python3".
 
+* Checks run through the asynchronous checker now cache their results in the
+  problemstate directory, to avoid having to do a double-lookup.
+
 DEPRECATED:
 
 REMOVED:
