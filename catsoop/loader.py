@@ -211,6 +211,11 @@ def do_early_load(context, course, path, into, content_file=None):
     into['cs_loader_states'] = breadcrumbs
     run_plugins(context, course, 'pre_auth', into)
 
+_code_replacements = [
+    ('tutor.question(', 'tutor.question(globals(),'),
+    ('tutor.qtype_inherit(', 'tutor.qtype_inherit(globals(),'),
+    ('tutor.init_random()', 'tutor.init_random(globals())')
+]
 
 def cs_compile(fname, pre_code='', post_code=''):
     """
@@ -223,41 +228,20 @@ def cs_compile(fname, pre_code='', post_code=''):
     fdirs = os.path.dirname(fname).split(os.sep)
     if fdirs and fdirs[0] == '':
         fdirs.pop(0)
-    cname = '.'.join([os.path.basename(base_fname), 'pycs', cache_tag])
+    cname = '.'.join([os.path.basename(base_fname), 'py'])
     cdir = os.path.join(base_context.cs_data_root, '_cached', *fdirs)
     os.makedirs(cdir, exist_ok=True)
     cname = os.path.join(cdir, cname)
-    try:
-        # this is a 'try' block instead of a straight conditional to account
-        # for cases where, e.g., cname doesn't exist.
-        if os.stat(cname).st_mtime <= os.stat(fname).st_mtime:
-            # if the file has been updated since it was last compiled,
-            # we need to re-compile
-            raise Exception
-    except:
-        # make some modifications to the code, and compile
-        with open(fname) as _f:
-            real_code = _f.read()
-        code = '\n\n'.join([pre_code, real_code, post_code])
-        code = code.replace('tutor.question(', 'tutor.question(globals(),')
-        code = code.replace('tutor.qtype_inherit(',
-                            'tutor.qtype_inherit(globals(),')
-        x = compile(
-            code.replace('tutor.init_random()',
-                         'tutor.init_random(globals())').strip(), fname,
-            'exec')
-        try:
-            # write the compiled code to disk
-            ccode = open(cname, 'wb')
-            marshal.dump(x, ccode)
-            ccode.close()
-        except:
-            return x
-    # grab the compiled code and return it
-    ccode = open(cname, 'rb')
-    out = marshal.load(ccode)
-    ccode.close()
-    return out
+    with open(fname) as _f:
+        real_code = _f.read()
+    code = '\n\n'.join([pre_code, real_code, post_code])
+    for i, j in _code_replacements:
+        code = code.replace(i, j)
+    with open(cname, 'w') as _f:
+        _f.write(code)
+    with open(cname + '.line_offset', 'w') as _f:
+        _f.write(str(len(pre_code) + 2))
+    return compile(code, cname, 'exec')
 
 
 def get_directory_name(context, course, path, name):

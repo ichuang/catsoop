@@ -14,6 +14,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import ast
+import sys
 import traceback
 
 from . import loader
@@ -49,7 +52,24 @@ def error_message_content(context, html=True):
     """
     Returns an HTML-ready string containing an error message.
     """
-    i = clear_info(context, traceback.format_exc())
+    data_cache = os.path.join(context['cs_data_root'], '_cached')
+    e = sys.exc_info()
+    tb_entries = traceback.extract_tb(e[2])
+    new_entries = []
+    for tb in tb_entries:
+        fname, lineno, func, text = tb
+        lo_fname = fname + '.line_offset'
+        line_offset = 0
+        if os.path.isfile(lo_fname):
+            with open(lo_fname) as offsetfile:
+                line_offset = ast.literal_eval(offsetfile.read())
+        lineno -= line_offset
+        if fname.startswith(data_cache):
+            fname = fname[len(data_cache):]
+        new_entries.append((fname, lineno, func, text))
+    tb_text = ''.join(traceback.format_list(new_entries) +
+                      traceback.format_exception_only(e[0], e[1]))
+    i = clear_info(context, tb_text)
     if html:
         return html_format(i)
     return i
