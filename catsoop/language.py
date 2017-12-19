@@ -233,8 +233,10 @@ def get_python_output(context, code, variables, line_offset):
     try:
         code = remove_common_leading_whitespace(code)
         if isinstance(code, int):
-            raise IndentationError(
-                'Inconsistent indentation on line %d' % code)
+            return ("<div><font color='red'><b>A Python Error Occurred:</b></font>"
+                    '<p><pre>'
+                    'Inconsistent indentation on line %d of python tag (line %d of source)'
+                    '</pre></p></div>') % (code, code + line_offset + 1)
         code = ('_cs_oprint = print\n'
                 'def myprint(*args, **kwargs):\n'
                 '    if "file" not in kwargs:\n'
