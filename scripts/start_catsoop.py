@@ -52,8 +52,8 @@ for subdir in ('queued', 'running', 'results'):
 # Now start the workers.
 
 procs = (
-    (scripts_dir, ['python3', 'checker.py'], 0.1, 'Checker'),
-    (scripts_dir, ['python3', 'reporter.py'], 0.1, 'Reporter'),
+    (scripts_dir, [sys.executable, 'checker.py'], 0.1, 'Checker'),
+    (scripts_dir, [sys.executable, 'reporter.py'], 0.1, 'Reporter'),
 )
 
 running = []
