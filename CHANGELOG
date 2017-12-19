@@ -13,6 +13,9 @@ CHANGED:
 * Separated checker results into subdirectories to prevent a single directory
   growing too large.
 
+* Helper scripts are now launched using sys.executable, rather than a
+  hard-coded "python3".
+
 DEPRECATED:
 
 REMOVED:
