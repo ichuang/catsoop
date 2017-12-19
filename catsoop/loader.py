@@ -19,6 +19,7 @@
 import os
 import re
 import sys
+import shutil
 import random
 import marshal
 import importlib
@@ -217,6 +218,12 @@ _code_replacements = [
     ('tutor.init_random()', 'tutor.init_random(globals())')
 ]
 
+def _atomic_write(fname, contents):
+    tname = fname+'.temp'
+    with open(tname, 'w') as f:
+        f.write(contents)
+    shutil.move(tname, fname)
+
 def cs_compile(fname, pre_code='', post_code=''):
     """
     Return a code object representing the code in fname.  If fname has already
@@ -237,10 +244,13 @@ def cs_compile(fname, pre_code='', post_code=''):
     code = '\n\n'.join([pre_code, real_code, post_code])
     for i, j in _code_replacements:
         code = code.replace(i, j)
-    with open(cname, 'w') as _f:
-        _f.write(code)
-    with open(cname + '.line_offset', 'w') as _f:
-        _f.write(str(len(pre_code) + 2))
+    try:
+        # this is a 'try' block instead of a straight conditional to account
+        # for cases where, e.g., cname doesn't exist.
+        assert os.stat(cname).st_mtime > os.stat(fname).st_mtime
+    except:
+        _atomic_write(cname, code)
+        _atomic_write(cname+'.line_offset', str(len(pre_code) + 2))
     return compile(code, cname, 'exec')
 
 
