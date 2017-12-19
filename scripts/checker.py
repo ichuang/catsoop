@@ -129,6 +129,17 @@ def do_check(row):
             pass
         # then remove from running
         os.unlink(os.path.join(RUNNING, row['magic']))
+        # finally, update the appropriate log
+        lockname = context['csm_cslog'].get_log_filename(row['username'], row['path'], 'problemstate')
+        with context['csm_cslog'].FileLock(lockname) as lock:
+            x = context['csm_cslog'].most_recent(row['username'], row['path'], 'problemstate', lock=False)
+            x.setdefault('scores', {})[name] = row['score']
+            mag_key = '%s_magic' % name
+            x['%s_score_box' % name] = row['score_box']
+            x['%s_message' % name] = row['response']
+            if mag_key in x:
+                del x[mag_key]
+            context['csm_cslog'].overwrite_log(row['username'], row['path'], 'problemstate', x, lock=False)
 
 running = []
 

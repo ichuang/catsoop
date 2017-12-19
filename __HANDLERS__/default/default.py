@@ -861,10 +861,10 @@ def handle_submit(context):
         question, args = namemap[name]
         grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
         if grading_mode == 'auto':
+            # 'auto' grading mode is the default.  sends things to the
+            # asynchronous checker to be run.
             magic = new_entry(context, name, 'submit')
-
             entry_ids[name] = entry_id = magic
-
             out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id,
                                                    'websocket': context['cs_checker_websocket'],
                                                    'loading': context['cs_loading_image'],
@@ -879,7 +879,56 @@ def handle_submit(context):
             newstate['%s_magic' % name] = entry_id
             newstate['last_checker_id'][name] = entry_id
             newstate['last_submit_checker_id'][name] = entry_id
+        elif grading_mode == 'legacy':
+            # 'legacy' grading mode implements the old behavior: check the
+            # submission and cache the result, all within this request.
+            magic_key = '%s_magic' % name
+            if magic_key in newstate:
+                del newstate[magic_key]
+            try:
+                resp = question['handle_submission'](context[_n('form')], **args)
+                score = resp['score']
+                msg = context['csm_language'].handle_custom_tags(context, resp['msg'])
+            except:
+                resp = {}
+                score = 0.0
+                msg = exc_message(context)
+            out['score'] = newstate.setdefault('scores', {})[name] = score
+            out['message'] = newstate['%s_message' % name] = msg
+            out['score_display'] = context['csm_tutor'].make_score_display(
+                context, args, name, score,
+                assume_submit=True)
+
+            # auto lock if the option is set.
+            if resp.get('lock', False):
+                c = dict(context)
+                c[_n('question_names')] = [name]
+                o = json.loads(handle_lock(c)[2])
+                ll = context['csm_cslog'].most_recent(
+                    context['cs_course'], context.get('cs_username', 'None'),
+                    context[_n('logname_state')], {})
+                newstate['locked'] = ll.get('locked', set())
+                outdict[name].update(o[name])
+
+            # auto view answer if the option is set
+            if 'submit_all' not in context[_n('orig_perms')]:
+                x = nsubmits_left(context, name)
+                if (question.get('allow_viewanswer', True) and (((out['score'] == 1 and 'perfect' in _get_auto_view(args)) or
+                     (x[0] == 0 and 'nosubmits' in _get_auto_view(args))) and
+                        _get(args, 'csq_allow_viewanswer', True, bool))):
+                    # this is a hack...
+                    c = dict(context)
+                    c[_n('question_names')] = [name]
+                    o = json.loads(handle_viewanswer(c)[2])
+                    ll = context['csm_cslog'].most_recent(
+                        context['cs_course'], context.get('cs_username', 'None'),
+                        context[_n('logname_state')], {})
+                    newstate['answer_viewed'] = ll.get('answer_viewed', set())
+                    newstate['explanation_viewed'] = ll.get('explanation_viewed',
+                                                            set())
+                    outdict[name].update(o[name])
         elif grading_mode == 'manual':
+            # submitted for manual grading.
             out['message'] = 'Submission received for manual grading.'
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, None,
