@@ -20,6 +20,7 @@
 
 import os
 import re
+import sys
 import copy
 import random
 import string
@@ -198,23 +199,26 @@ PYTHON_REGEX = re.compile(
 
 def remove_common_leading_whitespace(x):
     lines = x.splitlines()
-    for j in {0, -1}:
-        while len(lines) > 0 and lines[j].strip() == '':
-            lines.pop(j)
     if len(lines) == 0:
         return ''
-    candidate = re.match(r'^(\s*)', lines[0])
+    for ix in range(len(lines)):
+        if lines[ix].strip():
+            break
+    first_ix = ix
+    candidate = re.match(r'^(\s*)', lines[first_ix])
     if candidate is None:
         return x
     candidate = candidate.group(1)
     for ix, i in enumerate(lines):
-        if not (i.startswith(candidate) or i.strip() == ''):
+        if ix < first_ix or not i.strip():
+            continue
+        if not i.startswith(candidate):
             return ix
     lc = len(candidate)
     return '\n'.join(i[lc:] for i in lines)
 
 
-def get_python_output(context, code, variables):
+def get_python_output(context, code, variables, line_offset):
     '''
     Get output from Python code.
 
@@ -243,24 +247,32 @@ def get_python_output(context, code, variables):
         exec(code, variables)
         return variables['cs___WEBOUT'].getvalue()
     except:
-        err = html_format(clear_info(context, traceback.format_exc()))
+        e = sys.exc_info()
+        tb_entries = traceback.extract_tb(e[2])
+        fname, lineno, func, text = tb_entries[-1]
+        tb_text = 'Error on line %d of python tag (line %d of source):\n    ' % (lineno - 8, lineno + line_offset - 7)
+        tb_text = ''.join([tb_text] + traceback.format_exception_only(e[0], e[1]))
+
+        err = html_format(clear_info(context, tb_text))
         ret = ("<div><font color='red'>"
                "<b>A Python Error Occurred:</b>"
                "<p><pre>%s</pre><p>"
                "Please contact staff."
-               "</font></div>") % err
+               "</font></div>") % (err, )
         return ret
 
 
-def _make_python_handler(context):
+def _make_python_handler(context, fulltext):
     if 'cs__python_envs' not in context:
         context['cs__python_envs'] = {}
 
     def python_tag_handler(match):
         execcontext = context
+        guess_line = fulltext[:match.start()].count('\n')
+ #       guess_line = 0
         d = match.groupdict()
         opts = (d['opts'] or "").strip().split(" ")
-        body = d['body'].strip()
+        body = d['body']
         if d['tag'] == 'printf':
             if len(opts) == 1 and opts[0] == "":
                 f = "%s"
@@ -285,7 +297,7 @@ def _make_python_handler(context):
                     context['cs__python_envs'][envname] = {}
                 execcontext = context['cs__python_envs'][envname]
         # run the code
-        code_result = get_python_output(context, body, execcontext)
+        code_result = get_python_output(context, body, execcontext, guess_line)
         # decide whether to show the result
         return ((out + code_result).strip()
                 if "noresult" not in opts else (out).strip())
@@ -329,7 +341,7 @@ def handle_python_tags(context, text):
                                              g['body'])
 
     text = re.sub(PYVAR_REGEX, printf_handler, text)
-    text = re.sub(PYTHON_REGEX, _make_python_handler(context), text)
+    text = re.sub(PYTHON_REGEX, _make_python_handler(context, text), text)
     return text.replace(r'\@{', '@{')
 
 
