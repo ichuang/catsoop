@@ -250,7 +250,7 @@ def get_python_output(context, code, variables, line_offset):
         e = sys.exc_info()
         tb_entries = traceback.extract_tb(e[2])
         fname, lineno, func, text = tb_entries[-1]
-        tb_text = 'Error on line %d of python tag (line %d of source):\n    ' % (lineno - 8, lineno + line_offset - 7)
+        tb_text = 'Error on line %d of python tag (line %d of source):\n    %s\n\n' % (lineno - 8, lineno + line_offset - 7, code.splitlines()[lineno-1].strip())
         tb_text = ''.join([tb_text] + traceback.format_exception_only(e[0], e[1]))
 
         err = html_format(clear_info(context, tb_text))
