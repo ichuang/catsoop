@@ -67,7 +67,7 @@ def make_score_display(context, args, name, score, assume_submit=False):
         log = get_manual_grading_entry(context, name)
         if log is not None:
             score = log['score']
-    elif gmode == 'legacy' and score is None:
+    elif score is None:
             score = last_log.get('scores', {}).get(name, None)
     if score is None:
         if name in last_log.get('scores', {}) or assume_submit:

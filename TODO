@@ -52,12 +52,6 @@ Known Bugs:
   * In ratio mode, checker for expression question type fails if solution
     evaluates to 0.
 
-  * Potential race condition if the checker script and a legacy checker
-    question are both trying to write to the problemstate log at the same time.
-    We should be able to fix (or at least mitigate) this by being more careful
-    about how the logs are treated in the handle_submit function in the default
-    handler.
-
 Things to Think About:
 
   * Consider removing .pycs files altogether (with the current structure, I
