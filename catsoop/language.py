@@ -257,7 +257,6 @@ def get_python_output(context, code, variables, line_offset):
         ret = ("<div><font color='red'>"
                "<b>A Python Error Occurred:</b>"
                "<p><pre>%s</pre><p>"
-               "Please contact staff."
                "</font></div>") % (err, )
         return ret
 
