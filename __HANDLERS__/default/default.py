@@ -1637,7 +1637,7 @@ def pre_handle(context):
                     os.makedirs(dir_, exist_ok=True)
                     value[0] = value[0].replace('<', '').replace('>', '').replace('"', '').replace('"', '')
                     hstring = hashlib.md5(data).hexdigest()
-                    fname = '%s___%.06f___%s___%s___%s' % (context['cs_username'], name, time.time(), hstring, value[0])
+                    fname = '%s___%s___%.06f___%s___%s' % (context['cs_username'], name, time.time(), hstring, value[0])
                     fullname = os.path.join(dir_, fname)
                     with open(fullname, 'wb') as f:
                         f.write(data)
