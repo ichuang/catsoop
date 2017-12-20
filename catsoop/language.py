@@ -20,6 +20,7 @@
 
 import os
 import re
+import ast
 import sys
 import copy
 import random
@@ -80,7 +81,10 @@ def _xml_pre_handle(context):
             e = sys.exc_info()
             tb_entries = traceback.extract_tb(e[2])
             fname, lineno, func, text = tb_entries[-1]
-            tb_text = 'Error on line %d of question tag:\n    %s\n\n' % (lineno, code.splitlines()[lineno-1].strip())
+            if e[0] == SyntaxError:
+                tb_text = 'Syntax error in question tag:\n'
+            else:
+                tb_text = 'Error on line %d of question tag:\n    %s\n\n' % (lineno, code.splitlines()[lineno-1].strip())
             tb_text = ''.join([tb_text] + traceback.format_exception_only(e[0], e[1]))
 
             err = html_format(clear_info(context, tb_text))
@@ -260,9 +264,16 @@ def get_python_output(context, code, variables, line_offset):
     except:
         e = sys.exc_info()
         tb_entries = traceback.extract_tb(e[2])
-        fname, lineno, func, text = tb_entries[-1]
-        tb_text = 'Error on line %d of python tag (line %d of source):\n    %s\n\n' % (lineno - 8, lineno + line_offset - 7, code.splitlines()[lineno-1].strip())
-        tb_text = ''.join([tb_text] + traceback.format_exception_only(e[0], e[1]))
+        fname, lineno, func, text = tb_entries[0]
+        exc_only = traceback.format_exception_only(e[0], e[1])
+        if e[0] == SyntaxError:
+            tb_text = 'Syntax error in Python tag:\n'
+            def lineno_replacer(x):
+                return 'line %d' % (ast.literal_eval(x.group(1)) - 8)
+            exc_only = [re.sub(r'line (\d)+', lineno_replacer, i) for i in exc_only]
+        else:
+            tb_text = 'Error on line %d of Python tag (line %d of source):\n    %s\n\n' % (lineno - 8, lineno + line_offset - 7, code.splitlines()[lineno-1].strip())
+        tb_text = ''.join([tb_text] + exc_only)
 
         err = html_format(clear_info(context, tb_text))
         ret = ("<div><font color='red'>"
