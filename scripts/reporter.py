@@ -122,7 +122,7 @@ def updater():
     CURRENT['running'] = {i.name for i in os.scandir(RUNNING)}
     loop.call_later(0.3, updater)
 
-start_server = websockets.serve(reporter, 'localhost', PORTNUM)
+start_server = websockets.serve(reporter, '0.0.0.0', PORTNUM)
 loop = asyncio.get_event_loop()
 loop.run_until_complete(start_server)
 loop.call_soon(updater)
