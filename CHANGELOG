@@ -27,6 +27,8 @@ REMOVED:
 
 FIXED:
 
+* Temporary workaround for automatic scrolling to location of anchor.
+
 SECURITY:
 
 DOCUMENTATION:

@@ -30,9 +30,9 @@
           $("#myPage").css('padding-top', $('#cs_main_navbar').height());
       }}
 
-      $(document).ready(function(){{
+      $(window).load(function(){{
         catsoop.set_top_margin();
-        if (location.hash) catsoop.scroll_header();
+        if (location.hash) setTimeout(catsoop.scroll_header, 500);
         window.addEventListener("hashchange", catsoop.scroll_header);
       }});
       $(window).resize(catsoop.set_top_margin);
