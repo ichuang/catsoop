@@ -13,18 +13,32 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# API authentication
+"""
+Methods related to authentication for API access
+"""
 
 import os
 import uuid
 import random
 import string
 
+_nodoc = {'CHARACTERS'}
+
 CHARACTERS = string.ascii_letters + string.digits
 
-
 def new_api_token(context, username):
+    """
+    Generate a new API token for the given user.
+
+    **Parameters**:
+
+    * `context`: the context associated with this request
+    * `username`: the username for which a new API token should be generated
+
+
+    **Returns:** a new API token for the given user, with length as given by
+    `cs_api_token_length`.
+    """
     length = context.get('cs_api_token_length', 70)
     seed = username + uuid.uuid4().hex
     r = random.Random()
@@ -33,6 +47,18 @@ def new_api_token(context, username):
 
 
 def initialize_api_token(context, user_info):
+    """
+    Intialize an API token for a user, and store the association in the
+    database.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `user_info`: the user_info dictionary associated with this request
+        (should ideally contain `'username'`, `'name'`, and `'email'` keys).
+
+    **Returns:** the newly-generated API token
+    """
     user_info = {
         k: v
         for (k, v) in user_info.items() if k in {'username', 'name', 'email'}
@@ -46,11 +72,36 @@ def initialize_api_token(context, user_info):
 
 
 def userinfo_from_token(context, tok):
+    """
+    Given an API token, return the associated user's information.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `tok`: an API token
+
+    **Returns:** a dictionary containing the information associated with the
+    user who holds the given API token; it will contain some subset of the keys
+    `'username'`, `'name'`, and `'email'`.  Returns `None` if the given token
+    is invalid.
+    """
     return context['csm_cslog'].most_recent('_api_tokens', [], str(tok),
                                             None)
 
 
 def get_logged_in_user(context):
+    """
+    Helper function.  Given a request context, returns the information
+    associated with the user making the request if an API token is present.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** a dictionary containing the information associated with the
+    user who holds the given API token; it will contain the key `api_token`, as
+    well as some subset of the keys `'username'`, `'name'`, and `'email'`.
+    """
     form = context.get('cs_form', {})
     if 'api_token' in form:
         tok = form['api_token']
@@ -67,6 +118,37 @@ def get_user_information(context,
                          api_token=None,
                          course=None,
                          _as=None):
+    """
+    Return the information associated with a user identified by an API token or
+    a username and password.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Optional Parameters:**
+
+    * `uname`: if logging in via password, this is the username of the user in
+        question.
+    * `passwd`: if logging in via password, this is the hex-encoded 32-bit
+        result of hashing the user's password with pbkdf2 for 100000 iterations,
+        with a salt given by the username and the password concatenated
+        together.  this is not the user's password in plain text.
+    * `api_token`: if logging in via API token, this is the token of the person
+        making the request.
+    * `course`: if given, relevant user information from that course (section,
+        role, permissions, etc) will be included in the result
+    * `_as`: if making this request to get someone else's information, this is
+        the other person's username.  must have relevant permissions.
+
+    **Returns:** a dictionary with two keys. `'ok'` maps to a Boolean
+    indicating whether the lookup was successful.
+
+    * If `'ok`' maps to `False`, then the additional key is `'error'`, which
+        maps to a string containing an error message.
+    * If `'ok`' maps to `True`, then the additional key is `'user_info'`, which
+        maps to a dictionary containing the user's information.
+    """
     login = context['csm_auth'].get_auth_type_by_name(context, 'login')
 
     user = None
@@ -87,7 +169,7 @@ def get_user_information(context,
         if uname is not None and passwd is not None:
             # if no API token was given, but username and password were, check
             # those.
-            hash_iters = context.get('cs_password_hash_iterations', 250000)
+            hash_iters = context.get('cs_password_hash_iterations', 500000)
             pwd_check = login.check_password(context, passwd, uname,
                                              hash_iters)
             if not pwd_check:

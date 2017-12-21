@@ -13,6 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Utilities for generating error messages and displaying error pages
+"""
 
 import os
 import ast
@@ -27,7 +30,13 @@ from . import base_context
 def html_format(string):
     """
     Returns an HTML-escaped version of the input string, suitable for
-    insertion into a <pre> tag
+    insertion into a &lt;pre&gt; tag
+
+    **Parameters:**
+
+    * `string`: the string to be escaped
+
+    **Returns:** an HTML-escaped version of the input string
     """
     for x, y in (('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;'), ('\t', '    '),
                  (' ', '&nbsp;')):
@@ -38,11 +47,29 @@ def html_format(string):
 def clear_info(context, text):
     """
     Clear sensitive information from a string
+
+    In particular, this function clears the `cs_fs_root` and `cs_data_root`
+    from tracebacks, as well as any information specified by the
+    `cs_extra_clear` variable.  It also removes the current user's session ID
+    and API token if they are present.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: the text (typically a traceback) from which the information
+        should be removed.
+
+    **Returns:** the input string, but with sensitive data replaced.
     """
     text = text.replace(
         context.get('cs_fs_root', base_context.cs_fs_root), '<CATSOOP ROOT>')
     text = text.replace(
         context.get('cs_data_root', base_context.cs_data_root), '<DATA ROOT>')
+    if 'cs_sid' in context:
+        text = text.replace(context['cs_sid'], '<SESSION ID>')
+    apitok = context.get('user_info', {}).get('api_token', None)
+    if apitok is not None:
+        text = text.replace(apitok, '<API TOKEN>')
     for i, j in context.get('cs_extra_clear', []):
         text = text.replace(i, j)
     return text
@@ -50,7 +77,21 @@ def clear_info(context, text):
 
 def error_message_content(context, html=True):
     """
-    Returns an HTML-ready string containing an error message.
+    Returns a string containing an appropriate error message.
+
+    This function bases its output on the last exception, but it also tries
+    to take into account changes that the CAT-SOOP system makes to some input
+    files.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Optional Parameters:**
+
+    * `html` (default `True`): whether the output should be HTML-escaped
+
+    **Returns:** an error message appropriate for the last exception
     """
     data_cache = os.path.join(context['cs_data_root'], '_cached')
     e = sys.exc_info()
@@ -77,7 +118,21 @@ def error_message_content(context, html=True):
 
 def do_error_message(context, msg=None):
     """
-    Display an error message
+    Display an error page (500 Internal Server Error), including a sensible
+    error message.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Optional Parameters:**
+
+    * `msg` (default `None`): a custom message to be displayed.  If no message
+        is specified, the output from `catsoop.errors.error_message_content` is
+        used (which tries to provide a meaningful error message based on the
+        last exception.
+
+    **Returns:** a 3-tuple, as expected by `catsoop.wsgi.application`
     """
     plain = 'data' in context.get('cs_form', {})
     new = dict(context)
@@ -111,7 +166,14 @@ def do_error_message(context, msg=None):
 
 def do_404_message(context):
     """
-    Display an error message
+    Display an error page (404 File Not Found), including a sensible error
+    message.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** a 3-tuple, as expected by `catsoop.wsgi.application`
     """
     new = dict(context)
     loader.load_global_data(new)
@@ -141,6 +203,8 @@ error_404_logo = ("\   ???????? "
                 "\n\__=(  @_@ )="
                 "\n(__________) "
                 "\n |_ |_ |_ |_ ")
+"""This alternate logo replaces the CAT-SOOP logo on when a 404 (File Not
+Found) error is encountered."""
 
 error_500_logo = ("  _  _  _  _  "
                 "\n  _|__|__|__| "
@@ -148,3 +212,5 @@ error_500_logo = ("  _  _  _  _  "
                 "\n=( x X  )=   \\"
                 "\n  \/  \/     /"
                 "\n             \\")
+"""This alternate logo replaces the CAT-SOOP logo on when a 500 (Internal
+Server Error) error is encountered."""

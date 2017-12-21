@@ -13,8 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# User authentication
+"""
+User authentication for normal interactions
+"""
 
 import os
 import importlib
@@ -35,14 +36,33 @@ def _execfile(*args):
 
 def get_auth_type(context):
     """
-    Returns a dictionary containing the variables defined in the
-    authentication type specified by context['cs_auth_type'].
+    Return the methods associated with the currently chosen authentication
+    type.
+
+    **Parameters**:
+
+    * `context`: the context associated with this request.
+
+    **Returns:** a dictionary containing the variables defined in the
+    authentication type specified by `context['cs_auth_type']`.
     """
     auth_type = context['cs_auth_type']
     return get_auth_type_by_name(context, auth_type)
 
 
 def get_auth_type_by_name(context, auth_type):
+    """
+    Helper function.  Returns the methods associated with the given
+    authentication type, regardless of which is active.
+
+    **Parameters**:
+
+    * `context`: the context associated with this request.
+    * `auth_type`: the name of the authentication type in question.
+
+    **Returns:** a dictionary containing the variables defined in the
+    authentication type specified by `auth_type`.
+    """
     fs_root = context.get('cs_fs_root', base_context.cs_fs_root)
     data_root = context.get('cs_data_root', base_context.cs_data_root)
     course = context['cs_course']
@@ -69,14 +89,20 @@ def get_logged_in_user(context):
     From the context, get information about the logged in user.
 
     If the context has an API token in it, that value will be used to determine
-    who is logged in.
+    who is logged in.  Otherwise, the currently-active authentication type's
+    `get_logged_in_user` function is used.
 
-    If cs_auth_type is 'cert', then the information is pulled from the user's
-    certificate (by way of environment variables).
+    Side effect: if the user in question does not have an API token already, a
+    new one is created for them.
 
-    If cs_auth_type is 'login', then the user will log in via a form, and user
-    information is pulled from logs on disk.  Information about the user
-    currently logged in to the system is stored in the session.
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** a dictionary containing the information associated with the
+    user who is currently logged in.  If a user is logged in, it will contain
+    the key `api_token`, as well as some subset of the keys `'username'`,
+    `'name'`, and `'email'`.
     """
     # if an API token was specified, use the associated information and move on
     # this has the side-effect of renewing that token (moving back the
@@ -99,22 +125,30 @@ def get_logged_in_user(context):
 
 
 def get_user_information(context):
+    """
+    Based on the context, load extra information about the user who is logged
+    in.
+
+    This method is used to load any information specified about the user in a
+    course's `__USERS__` directory, or from a global log.  For example,
+    course-level permissions are loaded this way.
+
+    This function is also responsible for handling impersonation of other
+    users.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** a dictionary like that returned by `get_logged_in_user`, but
+    (possibly) with additional mappings as specified in the loaded file.
+    """
     return _get_user_information(context, context['cs_user_info'],
                                  context.get('cs_course', None),
                                  context['cs_username'])
 
 
 def _get_user_information(context, into, course, username, do_preload=False):
-    """
-    Based on the context, load extra information about the user.
-
-    This method is used to load any information specified about the user
-    in a course's __USERS__ directory, or from a global log.  For example,
-    course-level permissions are loaded this way.
-
-    Returns a dictionary like that returned by get_logged_in_user, but
-    (possibly) with additional mappings as specified in the loaded file.
-    """
     if course is not None:
         if do_preload:
             loader.load_global_data(context)

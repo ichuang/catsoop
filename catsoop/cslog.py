@@ -15,6 +15,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 Logging mechanisms in catsoopdb
+
+From a high-level perspective, CAT-SOOP's logs are sequences of Python objects.
+
+A log is identified by a `db_name` (typically a username), a `path` (a list of
+strings starting with a course name), and a `logname` (a string).
+
+On disk, each log is a file containing zipped, pickled Python objects,
+separated by a known value that is guaranteed not to exist in any of the
+pickled objects.  This is an implementation detail that most people shouldn't
+need to worry about.
+
+This module provides functions for interacting with and modifying those logs.
+In particular, it provides ways to retrieve the Python objects in a log, or to
+add new Python objects to a log.
 """
 
 import os
@@ -24,6 +38,9 @@ import pickle
 import random
 import string
 import contextlib
+
+_nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'create_if_not_exists',
+          'get_separator', 'good_separator', 'modify_most_recent'}
 
 @contextlib.contextmanager
 def passthrough():
@@ -51,16 +68,29 @@ def create_if_not_exists(directory):
 
 
 def prep(x):
+    """
+    Helper function to pickle and compress a Python object.
+    """
     return zlib.compress(pickle.dumps(x, -1), 9)
 
 
 def unprep(x):
+    """
+    Helper function to decompress and unpickle a log entry and return the
+    associated Python object.
+    """
     return pickle.loads(zlib.decompress(x))
 
 
 def get_log_filename(db_name, path, logname):
     '''
-    Returns the filename where a given log is stored on disk.
+    Helper function, returns the filename where a given log is stored on disk.
+
+    **Parameters:**
+
+    * `db_name`: the name of the database to look in
+    * `path`: the path to the page associated with the log
+    * `logname`: the name of the log
     '''
     if path:
         course = path[0]
@@ -71,7 +101,19 @@ def get_log_filename(db_name, path, logname):
 
 def update_log(db_name, path, logname, new, lock=True):
     """
-    Adds a new entry to the specified log.
+    Adds a new entry to the end of the specified log.
+
+    **Parameters:**
+
+    * `db_name`: the name of the database to update
+    * `path`: the path to the page associated with the log
+    * `logname`: the name of the log
+    * `new`: the Python object that should be added to the end of the log
+
+    **Optional Parameters:**
+
+    * `lock` (default `True`): whether the database should be locked during
+        this update
     """
     fname = get_log_filename(db_name, path, logname)
     #get an exclusive lock on this file before making changes
@@ -114,7 +156,19 @@ def _overwrite_log(fname, new):
 
 def overwrite_log(db_name, path, logname, new, lock=True):
     """
-    Overwrites the most recent entry in the specified log.
+    Overwrites the entire log with a new log with a single (given) entry.
+
+    **Parameters:**
+
+    * `db_name`: the name of the database to overwrite
+    * `path`: the path to the page associated with the log
+    * `logname`: the name of the log
+    * `new`: the Python object that should be contained in the new log
+
+    **Optional Parameters:**
+
+    * `lock` (default `True`): whether the database should be locked during
+        this update
     """
     #get an exclusive lock on this file before making changes
     fname = get_log_filename(db_name, path, logname)
@@ -142,16 +196,50 @@ def _read_log(db_name, path, logname, lock=True):
 def read_log(db_name, path, logname, lock=True):
     """
     Reads all entries of a log.
+
+    **Parameters:**
+
+    * `db_name`: the name of the database to read
+    * `path`: the path to the page associated with the log
+    * `logname`: the name of the log
+
+    **Optional Parameters:**
+
+    * `lock` (default `True`): whether the database should be locked during
+        this read
+
+    **Returns:** a list containing the Python objects in the log
     """
     return list(_read_log(db_name, path, logname, lock))
 
 
 def most_recent(db_name, path, logname, default=None, lock=True):
     '''
-    Ignoring most of the log, grab the last entry
+    Ignoring most of the log, grab the last entry.
 
-    Based on code by S.Lott and Pykler at:
-    http://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-with-python-similar-to-tail
+    This code works by reading backward through the log until the separator is
+    found, treating the piece of the file after the last separator as a log
+    entry, and using `unprep` to return the associated Python object.
+
+    Based on <a
+    href="http://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-with-python-similar-to-tail"
+    target="_blank">code by S.Lott and Pykler</a>
+
+    **Parameters:**
+
+    * `db_name`: the name of the database to read
+    * `path`: the path to the page associated with the log
+    * `logname`: the name of the log
+
+    **Optional Parameters:**
+
+    * `default` (default `None`): the value to be returned if the log contains
+        no entries or does not exist
+    * `lock` (default `True`): whether the database should be locked during
+        this read
+
+    **Returns:** a single Python object representing the most recent entry in
+    the log.
     '''
     fname = get_log_filename(db_name, path, logname)
     if not os.path.isfile(fname):

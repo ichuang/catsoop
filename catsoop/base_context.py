@@ -14,12 +14,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Initial Context
+Initial context for page loads, including initializing 'special' variables
 
 Many of the variables in this file are special variables that affect the way
 the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
+
+_nodoc = {'contents', 'cs_all_pieces', 'cs_all_tools', 'f', 'i', 'root',
+          'cs_dummy_username', 'datetime'}
 
 cs_version = '(development version, v11.1.0+)'
 """
@@ -28,12 +31,12 @@ CAT-SOOP's version number
 
 cs_fs_root = '/home/cat-soop/cat-soop'
 """
-The directory where CAT-SOOP is located (the location of index.py).
+The directory where CAT-SOOP's source is located (no trailing slash).
 """
 
 cs_data_root = r'/home/cat-soop/data'
 """
-The directory where CAT-SOOP's data files are located.
+The directory where CAT-SOOP's data files are located (no trailing slash).
 """
 
 cs_url_root = 'http://localhost:6010'
@@ -44,8 +47,9 @@ to CAT-SOOP's information page.
 
 cs_auth_type = 'login'
 """
-Which authentication type to use ('login' to use a form, 'cert' to read client
-certificates).
+Special: Which authentication type to use (`'login'` to use a form, `'cert'` to
+read client certificates, `'openid_connect'` to use OpenID Connect, or some
+other value for a course-specific or other custom authentication type).
 """
 
 # Default Page Content
@@ -65,27 +69,30 @@ Special: Text representing the CAT-SOOP Logo
 
 cs_main_page_text = ""
 """
-Special: Text to be added to the main page
+Special: Text to be added to the main (information) page when no course is
+chosen.
 """
 
 cs_base_color = "#0000CC"
 """
-Special: The base color to use to customize the main theme.
+Special: The base color to use to customize the main theme, hexadecimal format.
 """
 
 cs_process_theme = True
 """
-Special: Whether the theme should be "processed" by, e.g., evaluating Python code
+Special: Whether the theme should be "processed" by, e.g., evaluating Python
+code
 """
 
 cs_welcome_message = ""
 """
-Special: Welcome message displayed next to title in base theme.
+Special: Welcome message displayed next to the title in base theme.
 """
 
 cs_header = "CAT-SOOP"
 """
-Special: The main header, displayed at the top of the page
+Special: The main header, displayed at the top-left of the page in the base
+theme.
 """
 
 cs_subheader = ''
@@ -100,7 +107,18 @@ Special: Footer, displayed in addition to the "powered by CAT-SOOP" link
 
 cs_top_menu = ''
 """
-Special: Navigation menu
+Special: Navigation menu.
+
+The navigation menu is specified as a string (containing raw HTML), or as a list of dictionaries.
+
+Each dictionary should contain two keys:
+
+* `'text'` maps to the text to be displayed, and
+* `'link'` maps to a URL, or to another list of dictionaries representing a
+    submenu.
+
+In the case where a dictionary is specified, the appropriate HTML for use with
+the base theme will be generated.
 """
 
 cs_scripts = ''
@@ -136,7 +154,7 @@ Special: The content of the page
 
 cs_footnotes = ''
 """
-Special: A string containing footenotes, if any
+Special: A string containing footnotes, if any
 """
 
 cs_template = 'BASE/templates/main.template'
@@ -174,55 +192,59 @@ A URI pointing to an image to be used for the "cross" (incorrect) image.
 
 cs_course = None
 """
-The course associated with a request
+The course associated with the given request (should not be manually set)
 """
 
 # Checker
 
 cs_checker_websocket = 'ws://localhost:6011'
 """
-The location to which the browser should connect to the checker's "reporter" process.
+Special: The location to which the browser should connect to the checker's
+"reporter" process.
 """
 
 cs_checker_server_port = 6011
 """
-The local port on which the websocket server should run
+Special: The local port on which the websocket server should run
 """
 
 cs_checker_global_timeout = 120
 """
-The absolute maximum that a checker should be allowed to run before being
-killed.  This trumps any limits set by a [articular question so that if there
-is, for example, an infinite loop in a checker's code, it will still be killed
-eventually.
+Special: The absolute maximum length (in seconds) that a checker should be
+allowed to run before being killed.  This trumps any limits set by a particular
+question so that if there is, for example, an infinite loop in a checker's
+code, it will still be killed eventually.
 """
 
 cs_checker_parallel_checks = 1
 """
-The number of checks the checker should run simultaneously.
+Special: The number of checks the checker should run simultaneously.
 """
 
 # UWSGI Server
 
 cs_wsgi_server_port = 6010
 """
-The local port on which the WSGI server should run.
+Special: The local port on which the WSGI server should run.
 """
 
 cs_wsgi_server_threads = 10
 """
-The number of threads in the WSGI server's threadpool
+Special: The number of threads in the WSGI server's threadpool
 """
 
 # File Upload Type
 
 cs_upload_management = 'file'
 """
-Defines how CAT-SOOP should handle file uploads.  Must be 'file' or 'db'.
+Special: defines how CAT-SOOP should handle file uploads.  Must be `'file'` or
+`'db'`.
 
-In 'file' mode, CAT-SOOP will store the uploaded files on disk, under <cs_data_root>/_uploads.
+In `'file'` mode, CAT-SOOP will store the uploaded files on disk, under
+`<cs_data_root>/__LOGS__/_uploads`.
 
-In 'db' mode, CAT-SOOP will store the contents of the files directly in the database.
+In `'db'` mode, CAT-SOOP will store the contents of the files directly in the
+CAT-SOOP logs.
 """
 
 # Debugging Function

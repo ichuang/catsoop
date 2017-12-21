@@ -13,6 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Methods for handling requests, or for routing them to the proper handlers
+"""
 
 import os
 import cgi
@@ -31,6 +34,7 @@ from . import session
 from . import language
 from . import base_context
 
+_nodoc = {'CSFormatter', 'formatdate', 'dict_from_cgi_form'}
 
 class CSFormatter(string.Formatter):
     def get_value(self, key, args, kwargs):
@@ -43,6 +47,13 @@ class CSFormatter(string.Formatter):
 def redirect(location):
     '''
     Generate HTTP response that redirects the user to the specified location
+
+    **Parameters:**
+
+    * `location`: the location the user should be redirected to
+
+    **Returns:** a 3-tuple `(response_code, headers, content)` as expected by
+    `catsoop.wsgi.application`
     '''
     return ('302', 'Found'), {'Location': str(location)}, ''
 
@@ -50,7 +61,29 @@ def redirect(location):
 def static_file_location(context, path):
     '''
     Given an "intermediate" URL, return the path to that file on disk.
-    Used by serve_static_file.
+    Used by `serve_static_file`.
+
+    The given path is in CAT-SOOP's internal format, a list of strings.  The
+    first string represents the course in question, or one of the following:
+
+    * `__BASE__` to look in the CAT-SOOP source directory
+    * `__QTYPE__` to look in a question type's directory
+    * `__HANDLER__` to look in a handler's directory
+    * `__PLUGIN__` to look in a plugin's directory
+
+    Regardless of whether the first element is a course or one of the special
+    values above, the function proceeds by working its way down the given
+    directories (all elements but the last in the given list).  Upon arriving
+    in that directory, it looks for a directory called `__MEDIA__` containing a
+    file with the given name.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `path`: a list of directory names, starting with the course
+
+    **Returns:** a string containing the location of the requested file on
+    disk.
     '''
     loc = ''
     rest = path[2:]
@@ -108,8 +141,21 @@ def static_file_location(context, path):
 
 def content_file_location(context, path):
     """
-    Returns the location (filename on disk) of the content file for the
-    resource given by path.
+    Returns the location (filename on disk) of the content file for the dynamic
+    page represented by `path`.
+
+    This function is responsible for looking for content files (regardless of
+    their extension), and also for looking for pages that don't have an
+    associated directory (i.e., pages represented by a single file).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `path` is an "intermediate" URL (i.e., a list of strings starting with a
+        course).
+
+    **Returns:** a string containing the location of the requested file on
+    disk.
     """
     course = path[0]
     path = path[1:]
@@ -161,8 +207,23 @@ def serve_static_file(context,
                       stream=False,
                       streamchunk=4096):
     """
-    Generate HTTP response to serve up a static file, or a 404 error if the
+    Generate an HTTP response to serve up a static file, or a 404 error if the
     file does not exist.  Makes use of the browser's cache when possible.
+
+    **Parameters**:
+
+    * `context`: the context associated with this request
+    * `fname`: the location on disk of the file to be sent
+
+    **Optional Parameters:**
+
+    * `environment` (default `{}`): the environment variables associated with
+        the request
+    * `stream` (default `False`): whether this file should be streamed (instead
+        of sent as one bytestring).  Regardless of the value of `stream`, files
+        above 1MB are always streamed.
+    * `streamchunk` (default `4096`): the size, in bytes, of the chunks in the
+        resulting stream
     """
     environment = environment or {}
     try:
@@ -197,18 +258,30 @@ def serve_static_file(context,
     return status, headers, out
 
 
-def is_static(meta, path):
+def is_static(context, path):
     """
-    Returns True if the path represents a file on disk, False otherwise
+    **Parameters**:
+
+    * `context`: the context associated with this request
+    * `path`: an "intermediate" URL (list of strings) representing a given
+        resource
+
+    **Returns: `True` if the path represents a static file, and `False`
+    otherwise
     """
-    return os.path.isfile(static_file_location(meta, path))
+    return os.path.isfile(static_file_location(context, path))
 
 
 def is_resource(context, path):
     """
-    @param path: The path to the resource in question
-    @return: C{True} if the path represents a valid resource (has a content
-    file), and C{False} otherwise
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `path`: an "intermediate" URL (list of strings) representing a given
+        resource
+
+    **Returns:** `True` if the path represents a dynamic page with a content
+    file, and `False` otherwise.
     """
     return content_file_location(context, path) is not None
 
@@ -250,8 +323,21 @@ def _real_url_helper(context, url):
 
 def get_real_url(context, url):
     '''
-    Convert a URL from our internal representation to something that will
+    Convert a location from our internal representation to something that will
     actually point the web browser to the right place.
+
+    Links in CAT-SOOP can begin with `BASE`, `COURSE`, `CURRENT`, `__QTYPE__`,
+    `__HANDLER__`, or `__PLUGIN__`.  This function takes in a URL in that form
+    and returns the corresponding URL.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `url`: a location, possibly starting with a "magic" location (e.g.,
+        `CURRENT`)
+
+    **Returns:** a string containing a URL pointing to the corresponding
+    resource
     '''
     u = urllib.parse.urlparse(url)
     original = urllib.parse.urlunparse(u[:3] + ('', '', ''))
@@ -262,7 +348,7 @@ def get_real_url(context, url):
 
 def dict_from_cgi_form(cgi_form):
     '''
-    Dump CGI form info into a dictionary
+    Convert CGI FieldStorage into a dictionary
     '''
     o = {}
     for key in cgi_form:
@@ -280,6 +366,13 @@ def dict_from_cgi_form(cgi_form):
 def display_page(context):
     """
     Generate the HTTP response for a dynamically-generated page.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** a 3-tuple `(response_code, headers, content)` as expected by
+    `catsoop.wsgi.application`
     """
     if context['cs_process_theme']:
         context['cs_theme'] = ("%s/cs_util/process_theme"
@@ -374,12 +467,24 @@ def _top_menu_html(topmenu, header=True):
 def main(environment):
     """
     Generate the page content associated with this request, properly handling
-    activities and static files.
+    dynamic pages and static files.
 
-    Returns a 3-tuple (response_code, headers, content)
+    This function is the main entrypoint into CAT-SOOP.  It is responsible for:
 
-    The "environment" parameter is a dictionary containing the environment
-    variables associated with this request.
+    * gathering form data
+    * organizing execution of `preload.py` files
+    * authenticating users
+    * loading page source and dispatching to the proper handlers
+    * displaying the result
+    * handling errors in these steps
+
+    **Parameters:**
+
+    * `environment`: a dictionary containing the environment variables
+        associated with this request.
+
+    **Returns:** a 3-tuple `(response_code, headers, content)` as expected by
+    `catsoop.wsgi.application`
     """
     context = {}
     context['cs_env'] = environment
