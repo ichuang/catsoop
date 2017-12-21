@@ -29,7 +29,12 @@ FIXED:
 
 * Temporary workaround for automatic scrolling to location of anchor.
 
+* Fixed a bug with username/password-based access to the get_user_information
+  API endpoint
+
 SECURITY:
+
+* The current session ID and API token are now filtered from error messages.
 
 DOCUMENTATION:
 
