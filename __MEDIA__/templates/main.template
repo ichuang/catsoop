@@ -30,12 +30,12 @@
           $("#myPage").css('padding-top', $('#cs_main_navbar').height());
       }}
 
+      $(document).ready(function(){{catsoop.set_top_margin();}});
       $(window).load(function(){{
-        catsoop.set_top_margin();
         if (location.hash) setTimeout(catsoop.scroll_header, 500);
         window.addEventListener("hashchange", catsoop.scroll_header);
+        $(window).resize(catsoop.set_top_margin);
       }});
-      $(window).resize(catsoop.set_top_margin);
     </script>
 
     <!-- Additional styling specific for course-->
