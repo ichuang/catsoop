@@ -309,6 +309,26 @@ _indent_regex = re.compile(r'^(\s*)')
 def _replace_indentation_tabs(x):
     return re.sub(_indent_regex, _tab_replacer, x)
 
+_string_regex = re.compile(r"""(\"\"\"[^"\\]*(?:(?:\\.|"(?!""))[^"\\]*)*\"\"\"|'''[^'\\]*(?:(?:\\.|'(?!''))[^'\\]*)*'''|'[^\n'\\]*(?:\\.[^\n'\\]*)*'|"[^\n"\\]*(?:\\.[^\n"\\]*)*")""", re.MULTILINE|re.DOTALL)
+
+def indent_code(c):
+    strings = {}
+    # start by removing strings and replacing them with unique character sequences
+    def _replacer(x):
+        new_id = None
+        while new_id is None or new_id in strings or new_id in c:
+            new_id = ''.join(random.choice(string.ascii_letters) for i in range(20))
+        strings[new_id] = x.group(1)
+        return new_id
+    c = re.sub(_string_regex, _replacer, c)
+    # now that strings are out of the way, change the indentation of every line
+    c = '\n'.join('    %s' % _replace_indentation_tabs(i) for i in c.splitlines())
+    # finally, reintroduce strings
+    for k, v in strings.items():
+        c = c.replace(k, v)
+    return c
+
+
 def get_python_output(context, code, variables, line_offset=0):
     '''
     Helper function.  Evaluate code in the given environment, and return its
@@ -343,7 +363,7 @@ def get_python_output(context, code, variables, line_offset=0):
                     '<p><pre>'
                     'Inconsistent indentation on line %d of python tag (line %d of source)'
                     '</pre></p></div>') % (code, code + line_offset + 1)
-        code = '\n'.join('    %s' % _replace_indentation_tabs(i) for i in code.splitlines())
+        code = indent_code(code) 
         code = (('_cs_oprint = print\n'
                  'def myprint(*args, **kwargs):\n'
                  '    if "file" not in kwargs:\n'
