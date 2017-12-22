@@ -900,15 +900,18 @@ def handle_submit(context):
                     resp = question['handle_submission'](context[_n('form')], **args)
                     score = resp['score']
                     msg = context['csm_language'].handle_custom_tags(context, resp['msg'])
+                    extra = resp.get('extra_data', None)
                 except:
                     resp = {}
                     score = 0.0
                     msg = exc_message(context)
+                    extra = None
                 out['score'] = newstate.setdefault('scores', {})[name] = score
                 out['message'] = newstate['%s_message' % name] = msg
                 out['score_display'] = context['csm_tutor'].make_score_display(
                     context, args, name, score,
                     assume_submit=True)
+                newstate['%s_extra_data' % name] = out['extra_data'] = extra
 
                 # auto lock if the option is set.
                 if resp.get('lock', False):

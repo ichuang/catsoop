@@ -137,6 +137,7 @@ def do_check(row):
             mag_key = '%s_magic' % name
             x['%s_score_box' % name] = row['score_box']
             x['%s_message' % name] = row['response']
+            x['%s_extra_data' % name] = row['extra_data']
             if mag_key in x:
                 del x[mag_key]
             context['csm_cslog'].overwrite_log(row['username'], row['path'], 'problemstate', x, lock=False)
