@@ -13,10 +13,18 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Handling of the CAT-SOOP specification language(s): Markdown, XML, and Python
 
-# Features of the CAT-SOOP specification language(s)
+The real goal of parsing of a page's source is to convert it back to the
+original Python specification format.  Markdown is translated to XML, which is
+translated to Python.  The overall flow when parsing a page is:
 
-# Handling of XML, MD, PY sources
+1. If the content file is in Markdown, parse it down to HTML.
+2. If the content file was in Markdown or XML, parse it down to Python
+    (stripping out comments and seperating &lt;question&gt; tags into
+    appropriate calls to `catsoop.tutor.question`).
+"""
 
 import os
 import re
@@ -30,7 +38,6 @@ import traceback
 
 from io import StringIO
 from collections import OrderedDict
-from contextlib import redirect_stdout
 
 from . import tutor
 from . import dispatch
@@ -42,10 +49,29 @@ from .tools.markdown.extensions import fenced_code
 from .tools.markdown.extensions import sane_lists
 from .tools.bs4 import BeautifulSoup
 
+_nodoc = {'BeautifulSoup', 'OrderedDict', 'StringIO', 'clear_info',
+          'html_format', 'PYTHON_REGEX', 'PYVAR_REGEX',
+          'remove_common_leading_whitespace', 'source_formats',
+          'source_format_string'}
+
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
 
-def _xml_pre_handle(context):
+def xml_pre_handle(context):
+    """
+    Translate the value in `cs_content` from XML to Python, storing the result
+    as `cs_problem_spec` in the given context.
+
+    This function mostly strips out comments and converts &lt;question&gt; tags
+    into appropriate calls to `catsoop.tutor.question`.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request (from which
+      `cs_content` is taken)
+
+    **Returns:** `None`
+    """
     text = context['cs_content']
     text = re.sub(_environment_matcher('comment'), '', text)
     tmp = text.split('<question')
@@ -81,11 +107,15 @@ def _xml_pre_handle(context):
             e = sys.exc_info()
             tb_entries = traceback.extract_tb(e[2])
             fname, lineno, func, text = tb_entries[-1]
+            exc_only = traceback.format_exception_only(e[0], e[1])
             if e[0] == SyntaxError:
                 tb_text = 'Syntax error in question tag:\n'
-            else:
+            elif func == '<module>':
                 tb_text = 'Error on line %d of question tag:\n    %s\n\n' % (lineno, code.splitlines()[lineno-1].strip())
-            tb_text = ''.join([tb_text] + traceback.format_exception_only(e[0], e[1]))
+            else:
+                tb_text = context['csm_errors'].error_message_content(context, html=False)
+                exc_only = ['']
+            tb_text = ''.join([tb_text] + exc_only)
 
             err = html_format(clear_info(context, tb_text))
             ret = ("<div><font color='red'>"
@@ -109,7 +139,22 @@ def _md(x):
     return o
 
 
-def _md_pre_handle(context, xml=True):
+def md_pre_handle(context, xml=True):
+    """
+    Translate the value in `cs_content` from Markdown to HTML
+
+    **Parameters:**
+
+    * `context`: the context associated with this request (from which
+      `cs_content` is taken)
+
+    **Optional Parameters:**
+
+    * `xml` (default `True`): whether `catsoop.language.xml_pre_handle` should
+      be invoked after translating to HTML
+
+    **Returns:** `None`
+    """
     text = context['cs_content']
 
     text = re.sub(_environment_matcher('comment'), '', text)
@@ -118,10 +163,24 @@ def _md_pre_handle(context, xml=True):
 
     context['cs_content'] = text
     if xml:
-        _xml_pre_handle(context)
+        xml_pre_handle(context)
 
 
-def _py_pre_handle(context):
+def py_pre_handle(context):
+    """
+    'Pre-handler' for Python.
+
+    This function exists to mirror the interface of `md_pre_handle` and
+    `xml_pre_handle`, but it does nothing (since the `cs_problem_spec` does not
+    need any additional processing at this point).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request (from which
+      `cs_content` is taken)
+
+    **Returns:** `None`
+    """
     pass
 
 
@@ -169,19 +228,31 @@ def _xml_format_string(context, s):
     return handle_custom_tags(context, s)
 
 
-source_formats = OrderedDict([('md', _md_pre_handle), ('xml', _xml_pre_handle),
-                              ('py', _py_pre_handle)])
+source_formats = OrderedDict([('md', md_pre_handle), ('xml', xml_pre_handle),
+                              ('py', py_pre_handle)])
 """OrderedDict mapping source format names to formatting handlers"""
 
 source_format_string = OrderedDict([('md', _md_format_string),
                                     ('xml', _xml_format_string),
                                     ('py', _xml_format_string)])
-"""OrderedDict mappying source format names to formatters"""
+"""OrderedDict mapping source format names to formatters"""
 
 
 def source_transform_string(context, s):
     """
-    Transform the given string according to the source format
+    Convert the given string to HTML, based on the syntax associated with the
+    type of the current content file.
+
+    If the content file is Markdown, this will translate the string into HTML
+    and handle custom tags.  If the content file is in HTML or Python, custom
+    tags will be handled, but no other translation will occur.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `s`: the string to be translated to HTML
+
+    **Returns:** the translated string
     """
     src_format = context.get('cs_source_format', None)
     if src_format is not None:
@@ -202,12 +273,12 @@ _matcher = r'[\#0\- +]*\d*(?:.\d+)?[hlL]?[diouxXeEfFgGcrs]'
 _matcher = r'(?:%%%s|%s)?' % (_matcher, _matcher)
 _pyvar_matcher = r"(?P<lead>^|[^\\])@(?P<fmt>%s){(?P<body>.+?)}" % _matcher
 PYVAR_REGEX = re.compile(_pyvar_matcher, re.DOTALL | re.IGNORECASE)
-"""Regular expression for matching @{} syntax"""
+"""Regular expression for matching `@{}` syntax"""
 
 PYTHON_REGEX = re.compile(
     r"""<(?P<tag>python|printf) *(?P<opts>.*?)>(?P<body>.*?)</(?P=tag)>""",
     re.MULTILINE | re.DOTALL | re.IGNORECASE)
-"""Regular expression for matching <python> tags"""
+"""Regular expression for matching &lt;python&gt; tags"""
 
 
 def remove_common_leading_whitespace(x):
@@ -218,7 +289,7 @@ def remove_common_leading_whitespace(x):
         if lines[ix].strip():
             break
     first_ix = ix
-    candidate = re.match(r'^(\s*)', lines[first_ix])
+    candidate = re.match(_indent_regex, lines[first_ix])
     if candidate is None:
         return x
     candidate = candidate.group(1)
@@ -230,17 +301,39 @@ def remove_common_leading_whitespace(x):
     lc = len(candidate)
     return '\n'.join(i[lc:] for i in lines)
 
+def _tab_replacer(x):
+    return x.group(1).replace('\t', '    ')
 
-def get_python_output(context, code, variables, line_offset):
+_indent_regex = re.compile(r'^(\s*)')
+
+def _replace_indentation_tabs(x):
+    return re.sub(_indent_regex, _tab_replacer, x)
+
+def get_python_output(context, code, variables, line_offset=0):
     '''
-    Get output from Python code.
+    Helper function.  Evaluate code in the given environment, and return its
+    output, if any.
 
-    Makes use of a special variable cs___WEBOUT, which is a file-like
-    object.  Any data written to cs___WEBOUT will be returned.  Exposes a
-    function cs_print to the code provided, so that cs_print(x) will
-    function as print(x, file=cs___WEBOUT).
+    Makes use of a special variable `cs___WEBOUT`, which is a file-like
+    object.  Any data written to `cs___WEBOUT` will be returned.  Overwrites
+    `print` in the given environment so that it outputs to `cs___WEBOUT`
+    instead of to stdout.
 
-    Writing code to stdout (as with a normal print statement) will not work.
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `code`: a strin containing the Python code to be executed
+    * `variables`: a dictionary representing the environment in which the code
+        should be executed
+
+    **Optional Parameters**:
+
+    * `line_offset` (default `0`): the offset, in lines, of this code's
+        &lt;python&gt; tag from the top of the source file; used in case an error
+        occurs, to try to point authors to the right location in the original
+        source file
+
+    **Returns:** a string containing any values written to `cs___WEBOUT`
     '''
     variables.update({'cs___WEBOUT': StringIO()})
     try:
@@ -250,12 +343,19 @@ def get_python_output(context, code, variables, line_offset):
                     '<p><pre>'
                     'Inconsistent indentation on line %d of python tag (line %d of source)'
                     '</pre></p></div>') % (code, code + line_offset + 1)
-        code = ('_cs_oprint = print\n'
-                'def myprint(*args, **kwargs):\n'
-                '    if "file" not in kwargs:\n'
-                '        kwargs["file"] = cs___WEBOUT\n'
-                '    _cs_oprint(*args, **kwargs)\n'
-                'print = cs_print = myprint\n\n') + code + '\n\nprint = _cs_oprint'
+        code = '\n'.join('    %s' % _replace_indentation_tabs(i) for i in code.splitlines())
+        code = (('_cs_oprint = print\n'
+                 'def myprint(*args, **kwargs):\n'
+                 '    if "file" not in kwargs:\n'
+                 '        kwargs["file"] = cs___WEBOUT\n'
+                 '    _cs_oprint(*args, **kwargs)\n'
+                 'print = cs_print = myprint\n'
+                 'try:\n\n')
+                 + code +
+                 ('\nexcept Exception as e:\n'
+                  '    raise e\n'
+                  'finally:\n'
+                  '    print = _cs_oprint'))
         code = code.replace('tutor.init_random()',
                             'tutor.init_random(globals())')
         code = code.replace('tutor.question(', 'tutor.question(globals(),')
@@ -264,15 +364,18 @@ def get_python_output(context, code, variables, line_offset):
     except:
         e = sys.exc_info()
         tb_entries = traceback.extract_tb(e[2])
-        fname, lineno, func, text = tb_entries[0]
+        fname, lineno, func, text = tb_entries[-1]
         exc_only = traceback.format_exception_only(e[0], e[1])
         if e[0] == SyntaxError:
             tb_text = 'Syntax error in Python tag:\n'
             def lineno_replacer(x):
-                return 'line %d' % (ast.literal_eval(x.group(1)) - 8)
+                return 'line %d' % (ast.literal_eval(x.group(1)) - 9)
             exc_only = [re.sub(r'line (\d)+', lineno_replacer, i) for i in exc_only]
+        elif func == '<module>':
+            tb_text = 'Error on line %d of Python tag (line %d of source):\n    %s\n\n' % (lineno - 9, lineno + line_offset - 8, code.splitlines()[lineno-1].strip())
         else:
-            tb_text = 'Error on line %d of Python tag (line %d of source):\n    %s\n\n' % (lineno - 8, lineno + line_offset - 7, code.splitlines()[lineno-1].strip())
+            tb_text = context['csm_errors'].error_message_content(context, html=False)
+            exc_only = ['']
         tb_text = ''.join([tb_text] + exc_only)
 
         err = html_format(clear_info(context, tb_text))
@@ -327,6 +430,18 @@ def _make_python_handler(context, fulltext):
 
 
 def handle_includes(context, text):
+    """
+    Handles all `<include>` tags in the provided text, replacing them with the
+    contents of the files they reference.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: a string containing the raw HTML source of the page
+
+    **Returns:** a string representing the updated HTML after includes have
+    been handled
+    """
     # we'll handle paths relative to here unless given an absolute path
     def _include_handler(match):
         base_dir = dispatch.content_file_location(context, context['cs_path_info'])
@@ -352,7 +467,20 @@ def handle_includes(context, text):
 
 def handle_python_tags(context, text):
     '''
-    Process <python> and <printf> tags.
+    Process all Python-related custom tags.
+
+    Firstly, each `@{}` is translated into an appropriate `<printf>` tag.
+    Then, `<python>` and `<printf>` tags are handled sequentially, each being
+    replaced with its output after having its code evaluated in the current
+    context (using `catsoop.language.get_python_output`).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: a string containing the raw HTML source of the page
+
+    **Returns:** a string representing the updated HTML after python tags have
+    been handled
     '''
 
     def printf_handler(x):
@@ -368,7 +496,34 @@ def handle_python_tags(context, text):
 
 def handle_custom_tags(context, text):
     '''
-    Process custom HTML tags using fix_single.
+    Process custom HTML tags
+
+    This function begins by calling `cs_course_handle_custom_tags` on the input
+    text, so that courses can implement their own custom HTML tags.  This
+    function is responsible for handling the following custom tags:
+
+    * `<chapter>`, `<section>`, `<subsection>`, etc.
+    * `<chapter*>`, `<section*>`, etc.
+    * `<ref>`
+    * `<footnote>`
+    * `<showhide>`
+    * `<math>` and `<displaymath>`
+
+    It also takes care of making sure links, images, etc are referencing real
+    URLs instead of internal URLs, and also for making sure that syntax
+    highlighting is approprtiately applied for code snippets.
+
+    It is not responsible for handling Python tags or includes (which are
+    handled elsewhere, before this function is invoked).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: a string containing the raw HTML source of the page, after
+        running through the handler
+
+    **Returns:** a string representing the updated HTML after custom tags have
+    been handled
     '''
 
     if 'cs_course_handle_custom_tags' in context:
@@ -531,6 +686,19 @@ def handle_custom_tags(context, text):
 
 
 def handle_math_tags(tree):
+    """
+    Handles `<math>` and `<displaymath>` tags, replacing them with `<span>` and
+    `<div>` elements with appropriate classes so the Javascript math renderer
+    can find them.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: a string containing the raw HTML source of the page
+
+    **Returns:** a string representing the updated HTML after math tags have
+    been handled
+    """
     for ix, i in enumerate(tree.find_all(re.compile('(?:display)?math'))):
         i['class'] = i.get('class', [])
         if i.name == 'math':
