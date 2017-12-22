@@ -14,10 +14,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Cross-platform file locking solution, mainly used for logging.
+Cross-platform file locking solution, mainly used for logging
 
-Based on and modified from an implementation by Evan Fosmark:
-http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python/
+Based on and modified from
+[an implementation by Evan Fosmark](http://www.evanfosmark.com/2009/01/cross-platform-file-locking-support-in-python/).
 """
 
 import os

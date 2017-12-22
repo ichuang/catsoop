@@ -58,6 +58,9 @@
 # consider to be good Python "coding style."   Modify the code at your
 # own risk!
 # ----------------------------------------------------------------------------
+"""
+Parser
+"""
 
 import re
 import types

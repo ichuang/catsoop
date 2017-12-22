@@ -30,6 +30,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
+"""
+Lexer
+"""
 
 __version__    = '3.10'
 __tabversion__ = '3.10'
@@ -184,7 +187,7 @@ class Lexer:
             tf.write('_lexliterals  = %s\n' % repr(self.lexliterals))
             tf.write('_lexstateinfo = %s\n' % repr(self.lexstateinfo))
 
-            # Rewrite the lexstatere table, replacing function objects with function names 
+            # Rewrite the lexstatere table, replacing function objects with function names
             tabre = {}
             for statename, lre in self.lexstatere.items():
                 titem = []
@@ -536,7 +539,7 @@ def _statetoken(s, names):
     for i, part in enumerate(parts[1:], 1):
         if part not in names and part != 'ANY':
             break
-    
+
     if i > 1:
         states = tuple(parts[1:i])
     else:

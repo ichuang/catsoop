@@ -40,6 +40,7 @@ SECURITY:
 
 DOCUMENTATION:
 
+* Added (hopefully) meaningful docstrings to almost everything in the codebase.
 
 ##################
 # Version 11.1.0 #

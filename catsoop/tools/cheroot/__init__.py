@@ -1,4 +1,8 @@
-"""High-performance, pure-Python HTTP server used by CherryPy."""
+"""
+High-performance, pure-Python HTTP server
+
+From <https://github.com/cherrypy/cheroot>
+"""
 
 try:
     import pkg_resources

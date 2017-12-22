@@ -44,7 +44,11 @@
 
 # Also useful, PyCrypto, a crypto library implemented in C with Python bindings:
 # https://www.dlitz.net/software/pycrypto/
+"""
+Pure-Python implementation of the AES block cipher algorithm
 
+From <https://github.com/ricmoo/pyaes>
+"""
 
 VERSION = [1, 3, 0]
 

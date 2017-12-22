@@ -1,9 +1,15 @@
-# https://gist.github.com/zacharyvoase/5538178
+"""
+Utilities for working with data URI's.
+
+Modified from: <https://gist.github.com/zacharyvoase/5538178>
+"""
 
 import re
 import urllib
 import textwrap
 import mimetypes
+
+_nodoc = {'MIMETYPE_REGEX', 'CHARSET_REGEX', 'DATA_URI_REGEX'}
 
 import base64 as b64
 
@@ -23,6 +29,9 @@ _DATA_URI_RE = re.compile(r'^{}$'.format(DATA_URI_REGEX), re.DOTALL)
 
 
 class DataURI(str):
+    """
+    Class for creating, interpreting, and manipulating data URI's
+    """
 
     @classmethod
     def make(cls, mimetype, charset, base64, data):
