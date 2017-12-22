@@ -13,8 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# WSGI Interface to CAT-SOOP
+"""
+WSGI Interface to CAT-SOOP
+"""
 
 import os
 import sys
@@ -30,8 +31,8 @@ def _ensure_bytes(x):
 
 def application(environ, start_response):
     """
-    WSGI application interface for CAT-SOOP, as specified in PEP
-    3333 (http://www.python.org/dev/peps/pep-3333/).
+    WSGI application interface for CAT-SOOP, as specified in
+    [PEP 3333](http://www.python.org/dev/peps/pep-3333/).
     """
     status, headers, content = dispatch.main(environ)
     start_response('%s %s' % (status[0], status[1]), list(headers.items()))

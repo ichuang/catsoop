@@ -13,8 +13,13 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Functions for loading page specifications into dictionaries
 
-# Functions for loading specifications into dictionaries
+This file contains functions that do a lot of the "heavy lifting" associated
+with loading pages, including handling preload, managing parsing/evaluation of
+code in content files, and evaluation of plugins.
+"""
 
 import os
 import re
@@ -33,6 +38,22 @@ importlib.reload(base_context)
 
 
 def get_file_data(context, form, name):
+    """
+    Load the contents of a submission to the question with the given name in
+    the given form, taking file upload preferences into account.
+
+    Depending on the value of `cs_upload_management`, the data for a file might
+    be stored directly on disk, or as part of a CAT-SOOP log.  This function
+    grabs the associated data as a bytestring.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `form`: a dictionary mapping names to values, as in `cs_form`
+    * `name`: the name of the question whose data we should grab
+
+    **Returns:** a bytestring containing the data
+    """
     data = form[name]
     up = context['cs_upload_management']
     if isinstance(data, list):
@@ -56,7 +77,13 @@ def get_file_data(context, form, name):
 
 def clean_builtins(d):
     """
-    Cleans __builtins__ out of a dictionary to make it serializable
+    Removes the `'__builtins__'` key from a dictionary to make it serializable
+
+    **Parameters:**
+
+    * `d`: the dictionary to clean
+
+    **Returns:** `None`
     """
     try:
         del d['__builtins__']
@@ -65,6 +92,17 @@ def clean_builtins(d):
 
 
 def plugin_locations(context, course):
+    """
+    Look up the directories from which plugins should be loaded
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the course from which plugins should be loaded (or `None` if no
+        course).
+
+    **Returns:** a list of directories from which plugins should be loaded.
+    """
     out = [
         os.path.join(
             context.get('cs_fs_root', base_context.cs_fs_root), '__PLUGINS__')
@@ -78,6 +116,17 @@ def plugin_locations(context, course):
 
 
 def available_plugins(context, course):
+    """
+    Determine all the plugins that can be loaded
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the course from which plugins should be loaded (or `None` if no
+        course).
+
+    **Returns:** a list of the full paths to all available plugins' directories
+    """
     out = []
     for loc in plugin_locations(context, course):
         try:
@@ -91,17 +140,41 @@ def available_plugins(context, course):
     return out
 
 
-def get_plugin_code_file(plugin, type):
-    full_fname = os.path.join(plugin, "%s.py" % type)
+def get_plugin_code_file(plugin, type_):
+    """
+    Return the filename of a particular hook from the given plugin
+
+    **Parameters:**
+
+    * `plugin`: a string containing the name of a directory containing a plugin
+    * `type_`: the name of a plugin hook as a string (e.g., `'post_load'`)
+
+    **Returns:** a string containing the full path to the given hook for the
+    given plugin if it exists, or `None` otherwise
+    """
+    full_fname = os.path.join(plugin, "%s.py" % type_)
     if os.path.isfile(full_fname):
         return full_fname
     return None
 
 
-def run_plugins(context, course, type, into):
+def run_plugins(context, course, type_, into):
+    """
+    Run the given hook for all plugins
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the course from which plugins should be loaded (or `None` if no
+        course).
+    * `type_`: the name of a plugin hook as a string (e.g., `'post_load'`)
+    * `into`: the context in which the plugins should be run
+
+    **Returns:** `None`
+    """
     plugins = available_plugins(context, course)
     for p in plugins:
-        codefile = get_plugin_code_file(p, type)
+        codefile = get_plugin_code_file(p, type_)
         if codefile is None:
             continue
         exec(cs_compile(codefile), into)
@@ -111,8 +184,20 @@ def load_global_data(into, check_values=True):
     """
     Load global data into the specified dictionary
 
-    Includes anything specified in base_context.py and config.py, as well as
-    all of the modules in the catsoop directory.
+    Includes anything specified in `base_context.py` and `config.py`, as well
+    as all of the modules in the catsoop directory.
+
+    **Parameters:**
+
+    * `into`: a dictionary into which the built-in values should be loaded
+
+    **Optional Parameters:**
+
+    * `check_values` (default `True`): whether to error on invalid
+        configuration values
+
+    **Returns:** `None` on success, or a string containing an error message on
+    failure
     """
     into['cs_time'] = time.now()
     into['cs_timestamp'] = time.detailed_timestamp(into['cs_time'])
@@ -141,7 +226,22 @@ def load_global_data(into, check_values=True):
 
 def get_course_fs_location(context, course, join=True):
     """
-    Returns the base location of the specified course on disk.
+    Returns the base location of the specified course on disk, including
+    "special" courses (`cs_util`, `__QTYPE__`, etc).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the name of the course
+
+    **Optional Parameters:**
+
+    * `join` (default `True`): controls the return type.  If `True`, the
+        elements in the path will be joined together and the return value will
+        be a string.  If `False`, the return value will be a list of directory
+        names.
+
+    **Returns:** depends on the value of `join` (see above).
     """
     fs_root = context.get('cs_fs_root', base_context.cs_fs_root)
     if course == 'cs_util':
@@ -159,6 +259,21 @@ def get_course_fs_location(context, course, join=True):
 
 
 def spoof_early_load(path):
+    """
+    Generate a new context, loading the global data and running the
+    `preload.py` files for the specified path.
+
+    This function is particularly useful in scripts, as many of the functions
+    in CAT-SOOP require a "context" in which to run.
+
+    **Parameters:**
+
+    * `path`: a list of strings (starting with a course name) representing the
+        path whose preload context should be spoofed
+
+    **Returns:** a context dictionary containing the global values and those
+    defined in the `preload.py` files along the specified path
+    """
     ctx = {}
     load_global_data(ctx)
     opath = path
@@ -172,18 +287,39 @@ def spoof_early_load(path):
 
 def do_early_load(context, course, path, into, content_file=None):
     """
-    Load data from preload.py in the appropriate directories for this request.
+    Load data from `preload.py` files in the appropriate directories for this
+    request.
 
-    The preload.py file from the course will be executed first, followed by
+    The `preload.py` file from the course will be executed first, followed by
     the next level down the path, and so on until the file from this request's
     path has been run.  The preload files will also be run from this page's
     children, though they will be executed into separate directories, and
     stored in the 'children' key of the supplied dictionary.
 
-    This function is run before loading user data, so the code in preload.py
+    This function is run before loading user data, so the code in `preload.py`
     cannot make use of user information, though it can make use of any
-    variables specified in base_context or in preload files from higher up
+    variables specified in the base context or in preload files from higher up
     the tree.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the course associated with this request
+    * `path`: the path associated with this request, as a list of strings _not_
+        including the course
+    * `into`: the dictionary in which the code should be executed
+
+    **Optional Parameters:**
+
+    * `content_file` (default `None`): the name of the content file associated
+        with this page load.  We need to know this because the behavior is
+        slightly different depending on whether the associated content file is
+        indeed a `content.xx` file (in which case we can run a `preload.py` for
+        _every element in the given path_) or whether it is an arbitrary file
+        (in which case we cannot run a `preload.py` for the last element in the
+        list).
+
+    **Returns:** `None` on success, or the string `'missing'` on failure
     """
     into['cs_course'] = course
     directory = get_course_fs_location(context, course)
@@ -226,9 +362,27 @@ def _atomic_write(fname, contents):
 
 def cs_compile(fname, pre_code='', post_code=''):
     """
-    Return a code object representing the code in fname.  If fname has already
-    been compiled, load the code object using the marshal module.  Otherwise,
-    compile the code using the built-in compile function.
+    Return a code object representing the code in the specified file, after
+    making a few CAT-SOOP-specific modifications.
+
+    As a side-effect, store on disk a file containing the updated code, and
+    another containing information about how many new lines were added to the
+    top of the given file, for use in error reporting.  These pieces are only
+    updated if the contents of the given file have changed (based on the
+    modification time).
+
+    **Parameters:**
+
+    * `fname`: the name of the file to be compiled
+
+    **Optional Parameters:**
+
+    * `pre_code` (default `''`): a string containing code to be inserted at the
+        start of the file
+    * `post_code` (default `''`): a string containing code to be inserted at the
+        end of the file
+
+    **Returns:** a bytestring containing the compiled code
     """
     base_fname = fname.rsplit('.', 1)[0]
     cache_tag = sys.implementation.cache_tag
@@ -256,8 +410,24 @@ def cs_compile(fname, pre_code='', post_code=''):
 
 def get_directory_name(context, course, path, name):
     """
-    Return the actual name of a directory (including sorting numbers)
-    given the shortname of the resource it represents.
+    Return the actual name of a subdirectory of the given path (including
+    sorting numbers) given the shortname of the resource it represents.
+
+    Directories for pages can optionally begin with a series of digits and a
+    period, in which case the name of the associated page is the piece
+    following that period, and the numbers that come before it are used for
+    sorting.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the course associated with this request
+    * `path`: the path associated with this request, as a list of strings _not_
+        including the course
+    * `name`: the name of the page being requested (a known child of `path`)
+
+    **Returns:** the appropriate directory name if `name` is indeed a child of
+    `path`, or `None` otherwise
     """
     s = get_subdirs(context, course, path)
     for i in s:
@@ -269,7 +439,17 @@ def get_directory_name(context, course, path, name):
 
 def get_subdirs(context, course, path):
     """
-    Return the subdirectories of path that contain resources.
+    Return all subdirectories of the given path that represent pages.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the course associated with this request
+    * `path`: the path associated with this request, as a list of strings _not_
+        including the course
+
+    **Returns:** a list of all directory names under `path` that represent
+    pages.
     """
     path_pieces = get_course_fs_location(context, course, join=False)
     for ix, i in enumerate(path):
@@ -292,6 +472,26 @@ def do_late_load(context, course, path, into, content_file=None):
 
     This function is run after loading user data, so the code in the content
     file can make use of that information, which includes user permissions.
+
+    This function also populates the `cs_children` variable by executing the
+    `preload.py` files of this page's children into the given context.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the course associated with this request
+    * `path`: the path associated with this request, as a list of strings _not_
+        including the course
+    * `into`: the dictionary in which the code should be executed
+
+    **Optional Parameters:**
+
+    * `content_file` (default `None`): the name of the content file associated
+        with this page load.  We need to know this because the behavior is
+        slightly different depending on whether the associated content file is
+        indeed a `content.xx` file or whether it is an arbitrary file.
+
+    **Returns:** `None`
     """
     run_plugins(context, course, 'post_auth', into)
     directory = os.path.dirname(content_file)

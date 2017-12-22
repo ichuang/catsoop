@@ -20,13 +20,17 @@ from __future__ import unicode_literals
 from .tools.markdown.extensions import Extension
 from .tools.markdown.inlinepatterns import HtmlPattern, SimpleTextPattern
 
+_nodoc = {'Extension', 'HtmlPattern', 'SimpleTextPattern', 'absolute_import',
+'unicode_literals'}
+
 _MATH_RE = r'(^|[^\\])(\$)((?:\\\$|[^$])*)\3'
 _DMATH_RE = r'(^|[^\\])(\$\$)(.*?)\3'
 _ESCAPED_DOLLAR_RE = r'\\(\$)'
 
 
 class RawHtmlPattern(HtmlPattern):
-    """Store raw inline html and return a placeholder."""
+    """A subclass of `catsoop.tools.markdown.inlinepattern.HtmlPattern` used to
+    store raw inline html and return a placeholder."""
 
     def __init__(self, endtag, *args, **kwargs):
         self._hz_tag = endtag
@@ -45,7 +49,7 @@ class RawHtmlPattern(HtmlPattern):
 
 
 class MathExtension(Extension):
-    """Add CAT-SOOP math extension to Markdown class."""
+    """The CAT-SOOP math extension to Markdown."""
 
     def extendMarkdown(self, md, md_globals):
         """ Modify inline patterns. """

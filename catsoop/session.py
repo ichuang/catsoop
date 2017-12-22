@@ -31,6 +31,8 @@ from .tools import filelock
 
 importlib.reload(base_context)
 
+_nodoc = {'SimpleCookie', 'make_session_dir'}
+
 VALID_SESSION_RE = re.compile(r"^[A-Fa-f0-9]{32}$")
 """
 Regular expression matching a valid session id name (32 hexadecimal characters)
@@ -39,7 +41,7 @@ Regular expression matching a valid session id name (32 hexadecimal characters)
 EXPIRE = 48 * 3600
 """
 Number of seconds since last action to keep a session as valid.
-Defaults to 48 hours
+Defaults to 48 hours.
 """
 
 SESSION_DIR = os.path.join(base_context.cs_data_root, "__SESSIONS__")
@@ -52,20 +54,25 @@ def new_session_id():
     """
     Returns a new session ID
 
-    @return: A string containing a new session ID
+    **Returns:** a string containing a new session ID
     """
     return uuid.uuid4().hex
 
 
 def get_session_id(environ):
     """
-    Returns the appropriate session id for this request
+    Returns the appropriate session id for this request, generating a new one
+    if necessary.
 
-    @param environ: A dictionary mapping environment variables to their values
-    @return: A tuple C{(sid, new)}, where C{sid} is a string containing the
-    session ID, and C{new} is a boolean that takes value C{True} if
-    the session ID is new (just now generated), and C{False} if the
-    session ID is not new.
+    As a side-effect, deletes all expired sessions.
+
+    **Parameters:**
+
+    * `environ`: a dictionary mapping environment variables to their values
+
+    **Returns:** a tuple `(sid, new)`, where `sid` is a string containing the
+    session ID, and `new` is a Boolean that takes value `True` if the session
+    ID is new (just now generated), and `False` if the session ID is not new.
     """
     # clear out dead sessions first
     make_session_dir()
@@ -100,8 +107,12 @@ def get_session_data(context, sid):
     """
     Returns the session data associated with a given session ID
 
-    @param sid: The session ID to look up
-    @return: A dictionary mapping session variables to their values
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `sid`: the session ID to look up
+
+    **Returns:** a dictionary mapping session variables to their values
     """
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
@@ -118,8 +129,13 @@ def set_session_data(context, sid, data):
     """
     Replaces a given session's data with the dictionary provided
 
-    @param sid: The session ID to replace
-    @param data: A dictionary mapping session variables to values
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `sid`: the session ID to replace
+    * `data`: a dictionary mapping session variables to values
+
+    **Returns:** `None`
     """
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)

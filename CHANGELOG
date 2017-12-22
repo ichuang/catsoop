@@ -25,6 +25,8 @@ DEPRECATED:
 
 REMOVED:
 
+* Removed the PKiller class, which is no longer used anywhere.
+
 FIXED:
 
 * Temporary workaround for automatic scrolling to location of anchor.

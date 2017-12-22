@@ -13,6 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Tools for controlling processes
+"""
 
 import os
 import time
@@ -22,9 +25,14 @@ import threading
 import subprocess
 import multiprocessing
 
+_nodoc = {'i'}
 
 # libc lives in different places on different OS
 libc = None
+"""
+The `ctypes.CDLL` object representing libc (which lives in different places on
+different platforms).  Used in `catsoop.process.set_pdeathsig`.
+"""
 for i in ('libc.so.6', 'libc.dylib', 'cygwin1.dll', 'msys-2.0.dll'):
     try:
         libc = ctypes.CDLL(i)
@@ -36,6 +44,23 @@ assert libc is not None
 
 
 def set_pdeathsig(sig = signal.SIGTERM):
+    """
+    Create a function that can be used to set the signal that the calling
+    process receives when its parent process dies (not supported on Mac OSX).
+
+    This is used when starting new processes to try to make sure they die if
+    CAT-SOOP is killed.
+
+    **Optional Parameters:**
+
+    * `sig` (default `signal.SIGTERM`): the signal to be sent to this process
+        when its parent dies
+
+    **Returns:** a function of no arguments that, when called, sets the parent
+    process death signal of the calling process to the value given by `sig`.
+    On Mac OSX, instead returns a function of no arguments that does nothing
+    when called.
+    """
     if hasattr(libc, 'prctl'):
         def callable():
             return libc.prctl(1, sig)
@@ -44,39 +69,3 @@ def set_pdeathsig(sig = signal.SIGTERM):
         def callable():
             pass
     return callable
-
-
-class PKiller(threading.Thread):
-    def __init__(self, proc, timeout):
-        threading.Thread.__init__(self)
-        self.proc = proc
-        self.timeout = timeout
-        self.going = True
-
-    def run(self):
-        if isinstance(self.proc, subprocess.Popen):
-            self.run_subproc()
-        else:
-            self.run_multiproc()
-
-    def run_multiproc(self):
-        end = time.time() + self.timeout
-        while (time.time() < end):
-            time.sleep(0.1)
-            if (not self.proc.is_alive()) or (not self.going):
-                break
-        self.kill()
-
-    def run_subproc(self):
-        end = time.time() + self.timeout
-        while (time.time() < end):
-            time.sleep(0.1)
-            if (self.proc.poll() is not None) or (not self.going):
-                break
-        self.kill()
-
-    def kill(self):
-        try:
-            os.killpg(os.getpgid(self.proc.pid), signal.SIGKILL)
-        except:
-            pass

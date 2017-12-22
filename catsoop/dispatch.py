@@ -624,7 +624,7 @@ def main(environment):
                 context['cs_content'] = language.handle_includes(context, context['cs_content'])
                 context['cs_content'] = language.handle_python_tags(
                     context, context['cs_content'])
-                context['csm_language']._md_pre_handle(context)
+                context['csm_language'].md_pre_handle(context)
                 context['cs_handler'] = 'passthrough'
 
         res = tutor.handle_page(context)

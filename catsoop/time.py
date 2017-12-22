@@ -13,8 +13,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""Utilities for dealing with time"""
+
 import time
 from datetime import datetime, timedelta, MAXYEAR
+
+_nodoc = {'datetime', 'timedelta', 'MAXYEAR'}
 
 days = ['M', 'T', 'W', 'R', 'F', 'S', 'U']
 "List used for mapping weekday numbers to weekday letters"
@@ -22,7 +26,7 @@ days = ['M', 'T', 'W', 'R', 'F', 'S', 'U']
 
 def realize_time(context, timestring):
     """
-    Return an appropriate datetimebased on timestring
+    Return an appropriate `datetime.datetime` object based on the given timestring
     """
     if timestring == 'NEVER':
         return datetime(

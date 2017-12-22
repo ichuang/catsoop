@@ -23,6 +23,8 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+_nodoc = {"MIMEText", "MIMEMultipart"}
+
 RE_URL = re.compile(r"([^:]*:\/\/)?(([^\/]*\.)*([^\/\.]+\.[^\/]+)+)")
 """
 Regular expression to match a URL, to give a chance at guessing a reasonable
@@ -33,6 +35,17 @@ default "from" address
 def get_from_address(context):
     """
     Get the address that should be used for the "From" field in sent e-mails
+
+    If `cs_email_from address` is sent, use that.  Otherwise, if `cs_url_root`
+    is a sensible URL, then use `"no-reply@%s" % cs_url_root`.  Otherwise,
+    return `None`.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** a string containing a default "From" address, or `None` in the
+    case of an error.
     """
     from_addr = context.get('cs_email_from_address', None)
     if from_addr is not None:
@@ -49,7 +62,19 @@ def get_from_address(context):
 
 def get_smtp_config_vars(context):
     """
-    Get the values of e-mail-related configuration variables.
+    Helper function.  Get the values of e-mail-related configuration variables
+    from the given context.
+
+    In particular, this function looks for `cs_smtp_host`, `cs_smtp_port`,
+    `cs_smtp_user`, and `cs_smtp_password`.  If those values are not provided,
+    the function assumes it is connecting to localhost on port 25, and that no
+    username or password are required.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** a 4-tuple `(hostname, port, username, password)`
     """
     host = context.get('cs_smtp_host', 'localhost')
     port = context.get('cs_smtp_port', 25)
@@ -60,7 +85,20 @@ def get_smtp_config_vars(context):
 
 def get_smtp_object(context):
     """
-    Return an smtplib.SMTP object to use for sending e-mail.
+    Return an SMTP object for sending e-mails, or `None` if not configured to
+    send e-mail.
+
+    This function is actually also used as the primary means of detecting
+    whether this instance is capable of sending e-mails (which controls certain
+    behaviors, such as whether e-mail confirmations are required when signing
+    up for an account under the `"login"` authentication type.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** an `smtplib.SMTP` object to use for sending e-mail, or `None`
+    if this instance is not capable of sending e-mail.
     """
     host, port, user, passwd = get_smtp_config_vars(context)
     try:
@@ -72,8 +110,17 @@ def get_smtp_object(context):
 
 def setup_smtp_object(smtp, user, passwd):
     """
-    Set up an smtplib.SMTP object for use with CAT-SOOP, enabling TLS if
-    possible and logging in a user if information is specified.
+    Helper function.  Set up an `smtplib.SMTP` object for use with CAT-SOOP,
+    enabling TLS if possible and logging in a user if information is specified.
+
+    **Parameters**:
+
+    * `smtp`: the `smtplib.SMTP` object to configure
+    * `user`: the username to use when logging in
+    * `password`: the password to use when logging in
+
+    **Returns:** the same `smtplib.SMTP` object that was passed in, after
+    configuring it.
     """
     smtp.set_debuglevel(False)
     smtp.ehlo()
@@ -88,6 +135,19 @@ def setup_smtp_object(smtp, user, passwd):
 def can_send_email(context, smtp=-1):
     """
     Test whether CAT-SOOP can send e-mail as currently configured
+
+    **Parameters**:
+
+    * `context`: the context associated with this request
+
+    **Optional Parameters:**
+
+    * `smtp` (default `-1`): the `smtplib.SMTP` object to use; if none is
+        provided, `catsoop.mail.get_smtp_object` is invoked to create one
+
+    **Returns:** `True` if this instance is capable of sending e-mails (if it
+    properly configured an `smtplib.SMTP` object and has a valid "From"
+    address), and `False` otherwise
     """
     if smtp == -1:
         smtp = get_smtp_object(context)
@@ -97,14 +157,24 @@ def can_send_email(context, smtp=-1):
 def send_email(context, to_addr, subject, body, html_body=None,
                from_addr=None):
     """
-    Send an e-mail.
+    Helper function.  Send an e-mail.
 
-    to_addr: A string containing a single e-mail address for the recipient, or
-             an iterable containing multiple recipient addresses.
-    subject: A string representing the subject of the e-mail message
-    body: A string representing the contents of the e-mail (plain text)
-    html_body: A string representing the contents of the e-mail in HTML mode,
-               or None to send only a plain-text message
+    **Parameters**:
+
+    * `context`: the context associated with this request
+    * `to_addr`: A string containing a single e-mail address for the recipient,
+        or an iterable containing multiple recipient addresses.
+    * `subject`: A string representing the subject of the e-mail message
+    * `body`: A string representing the contents of the e-mail (plain text)
+
+    **Optional Parameters:**
+
+    * `html_body` (default `None`): A string representing the contents of the
+        e-mail in HTML mode, or `None` to send only a plain-text message
+    * `from_addr` (default `None`): the "From" address to use; if none is
+        provided, the result of `catsoop.mail.get_from_address` is used
+
+    **Returns:** a dictionary containing error information
     """
     if not isinstance(to_addr, (list, tuple, set)):
         to_addr = [to_addr]
@@ -132,6 +202,31 @@ def send_email(context, to_addr, subject, body, html_body=None,
 
 def internal_message(context, course, recipient, subject, body,
                      from_addr=None):
+    """
+    Send an e-mail to a member of a course.
+
+    This function will send a multipart message.  The HTML portion will consist
+    of the result of interpreting the given `body` as Markdown, and the
+    plain-text portion will contain `body` verbatim.
+
+    **Parameters**:
+
+    * `context`: the context associated with this request
+    * `course`: the course associated with this request (where to look for user
+        information for the recipient)
+    * `recipient`: the CAT-SOOP username (not e-mail address) of the indented
+        recipient
+    * `subject`: A string representing the subject of the e-mail message
+    * `body`: A string representing the contents of the e-mail (plain text)
+
+    **Optional Parameters:**
+
+    * `from_addr` (default `None`): the "From" address to use; if none is
+        provided, the result of `catsoop.mail.get_from_address` is used
+
+    **Returns:** a dictionary containing error information (empty on success),
+    or a string containing an error message.
+    """
     if recipient not in context['csm_util'].list_all_users(context, course):
         return '%s is not a user in %s.' % (recipient, course)
     into = {'username': recipient}
@@ -142,5 +237,5 @@ def internal_message(context, course, recipient, subject, body,
         return 'No e-mail address found for %s' % recipient
     email = uinfo['email']
     lang = context['csm_language']
-    html_body = lang._md_format_string(globals(), body, False)
+    html_body = lang._md_format_string(context, body, False)
     return send_email(context, email, subject, body, html_body, from_addr)
