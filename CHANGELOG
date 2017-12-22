@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
+##################
+# Version 11.1.1 #
+##################
 
 ADDED:
 
@@ -19,9 +17,7 @@ CHANGED:
 * Checks run through the asynchronous checker now cache their results in the
   problemstate directory, to avoid having to do a double-lookup.
 
-* Improved error reporting throughout CAT-SOOP.
-
-DEPRECATED:
+* Attempts at improved error reporting throughout CAT-SOOP.
 
 REMOVED:
 
@@ -32,7 +28,9 @@ FIXED:
 * Temporary workaround for automatic scrolling to location of anchor.
 
 * Fixed a bug with username/password-based access to the get_user_information
-  API endpoint
+  API endpoint.
+
+* Fixed a bug with the name of uploaded files.
 
 SECURITY:
 
@@ -41,6 +39,7 @@ SECURITY:
 DOCUMENTATION:
 
 * Added (hopefully) meaningful docstrings to almost everything in the codebase.
+
 
 ##################
 # Version 11.1.0 #
