@@ -26,7 +26,27 @@ days = ['M', 'T', 'W', 'R', 'F', 'S', 'U']
 
 def realize_time(context, timestring):
     """
-    Return an appropriate `datetime.datetime` object based on the given timestring
+    Return an appropriate `datetime.datetime` object based on the given
+    timestring.
+
+    The timestring can have one of the following forms:
+
+    * `'NEVER'`: resolves to the maximum date that `datetime` can represent
+    * `'ALWAYS'`: resolves to the minimum date that `datetime can represent
+    * `'YYYY-MM-DD:HH:MM'` resolves to a particular time (minute resolution)
+    * `'W:HH:MM`, where `W` is a letter representing a day of the week,
+        resolves to the given time in the week number given by `cs_week_number`,
+        starting from `cs_first_monday`.  For example, `'T:09:00'` represents
+        Tuesday morning at 9 o'clock.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request (from which
+        `cs_first_monday` and `cs_week_number` are read)
+    * `timestring`: a string representing the desired time (see above)
+
+    **Returns:** a `datetime.datetime` object corresponding to the time given
+    by `timestring`
     """
     if timestring == 'NEVER':
         return datetime(
@@ -63,7 +83,13 @@ def realize_time(context, timestring):
 
 def unix(dt):
     """
-    Generate a UNIX timestamp from an instance of datetime.
+    Generate a Unix timestamp from an instance of datetime.
+
+    **Parameters:**
+
+    * `dt`: an instance of `datetime.datetime`
+
+    **Returns:** the Unix timestamp corresponding to the given time
     """
     return time.mktime(dt.timetuple())
 
@@ -71,22 +97,38 @@ def unix(dt):
 def now():
     """
     Wraps datetime.now.
+
+    **Returns:** the current time, as an instance of `datetime.datetime`
     """
     return datetime.now()
 
 
 def long_timestamp(time):
     """
-    Generate a (long) human-readable timestamp.
-    (e.g., "Wednesday June 05, 2013; 02:58:21 PM")
+    Generate a (long) human-readable timestamp
+    (e.g., `"Wednesday June 05, 2013; 02:58:21 PM"`)
+
+    **Parameters:**
+
+    * `time`: an instance of `datetime.datetime`
+
+    **Returns:** a string containing a human-readable representation of the
+    given time
     """
     return time.strftime("%A %B %d, %Y; %I:%M:%S %p")
 
 
 def short_timestamp(time):
     """
-    Generate a (short) human-readable timestamp.
-    (e.g. "Jun 05, 2013; 02:58 PM")
+    Generate a (short) human-readable timestamp
+    (e.g. `"Jun 05, 2013; 02:58 PM"`)
+
+    **Parameters:**
+
+    * `time`: an instance of `datetime.datetime`
+
+    **Returns:** a string containing a human-readable representation of the
+    given time
     """
     return time.strftime("%b %d, %Y; %I:%M %p")
 
@@ -94,7 +136,13 @@ def short_timestamp(time):
 def detailed_timestamp(time=None):
     """
     Generate a detailed timestamp.
-    (e.g. "2013-06-05:14:58:21.024717")
+    (e.g. `"2013-06-05:14:58:21.024717"`)
+
+    **Parameters:**
+
+    * `time`: an instance of `datetime.datetime`
+
+    **Returns:** a string containing a representation of the given time
     """
     return time.strftime('%Y-%m-%d:%H:%M:%S.%f')
 
@@ -102,5 +150,12 @@ def detailed_timestamp(time=None):
 def from_detailed_timestamp(time):
     """
     Generate an instance of datetime from a detailed timestamp.
+
+    **Parameters:**
+
+    * `time`: a string of the same form as the output from
+        `catsoop.time.detailed_timestamp`
+
+    **Returns:** a `datetime.datetime` instance representing the given time
     """
     return datetime.strptime(time, '%Y-%m-%d:%H:%M:%S.%f')

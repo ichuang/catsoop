@@ -13,6 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Various utilies (primarily for user management)
+"""
 
 import os
 
@@ -24,16 +27,54 @@ def _hide(n):
 
 
 def users_dir(context, course):
+    """
+    Determine the location of the given course's `__USERS__` directory on disk.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the name of the course, as a string
+
+    **Returns:** a string containing the location of the given course's
+    `__USERS__` directory.
+    """
     root = context['cs_data_root']
     return os.path.join(root, 'courses', course, '__USERS__')
 
 
 def list_all_users(context, course):
+    """
+    List all the users in a course
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the name of the course, as a string
+
+    **Returns:** a list of the usernames of all users in the course
+    """
     usrdir = users_dir(context, course)
     return [i.rsplit('.', 1)[0] for i in os.listdir(usrdir) if not _hide(i)]
 
 
 def read_user_file(context, course, user, default=None):
+    """
+    Retrieve the contents of a given user's `__USERS__` file within a course.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the name of the course, as a string
+    * `user: the name of a user, as a string
+
+    **Optional Parameters:**
+
+    * `default` (default `None`): the value to be returned if the given user
+        does not have a `__USERS__` file
+
+    **Returns:** a dictionary containing the variables defined in the given
+    user's file
+    """
     user_file = os.path.join(users_dir(context, course), "%s.py" % user)
     if os.path.isfile(user_file):
         uinfo = {}
@@ -44,3 +85,27 @@ def read_user_file(context, course, user, default=None):
         return uinfo
     else:
         return default
+
+
+def all_users_info(context, course, filter_func=lambda uinfo: True):
+    """
+    Return a mapping from usernames to user information
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `course`: the name of the course, as a string
+
+    **Optional Parameters:**
+
+    * `filter_func` (default `lambda uinfo: True`): a function mapping user
+        information dictionaries to Booleans; a user is only included in the
+        output if the function returns `True` when invoked on their user
+        information dictionary
+
+    **Returns:** a dictionary mapping usernames to user information
+    dictionaries
+    """
+    all_users = {u: read_user_file(context, course, u, {})
+                 for u in list_all_users(context, course)}
+    return {k: v for k, v in all_users.items() if filter_func(v)}

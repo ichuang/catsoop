@@ -13,8 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# Tutor-specific things (questions, handlers, etc)
+"""
+Utilities for managing courses (questions, handlers, statistics, etc)
+"""
 
 import os
 import re
@@ -35,6 +36,7 @@ from . import base_context
 
 importlib.reload(base_context)
 
+_nodoc = {'timedelta'}
 
 def _get(context, key, default, cast=lambda x: x):
     v = context.get(key, default)
@@ -42,6 +44,30 @@ def _get(context, key, default, cast=lambda x: x):
 
 
 def get_manual_grading_entry(context, name):
+    """
+    Return the most recent manual grading entry associated with a given
+    question
+
+    **Parameters:**
+
+    * `context`: the context associated with this request (from which the
+        current user is retrieved)
+    * `name`: the name of the question whose grades we want
+
+    **Returns:** the most recent manual grading entry associated with the given
+    question, or `None` if no grading entries exist.  If a dictionary is
+    returned, it will have the following keys:
+
+    * `'qname'`: the name of the question being graded (will be the same as the
+        given `name`)
+    * `'grader'`: the name of the user who submitted the grade
+    * `'score'`: a floating-point number between 0 and 1, representing the
+        score
+    * `'comments'`: a string containing the grader's comments, if any
+    * `'timestamp'`: the time at which the grade was submitted, as a string
+        from `catsoop.time.detailed_timestamp`
+
+    """
     uname = context['cs_user_info'].get('username', 'None')
     log = context['csm_cslog'].read_log(uname, context['cs_path_info'],
                                         'problemgrades')
@@ -53,6 +79,41 @@ def get_manual_grading_entry(context, name):
 
 
 def make_score_display(context, args, name, score, assume_submit=False):
+    """
+    Helper function to generate the display that users should see for their
+    score.
+
+    The output depends on a number of constraints:
+
+    If `csq_show_score` is `False`, then no score is displayed.  In this case,
+    if the user has submitted something, they will see a message indicating
+    that a submission has been received.  Otherwise, they will see nothing.
+
+    If no score is given, the most recent score is looked up (either from the
+    manual grading entries log or from the problem state log) and used.
+
+    After determining the score, if a `csq_score_message` function is defined,
+    it is called with the current score (a `float` between 0 and 1) passed in
+    as its sole argument, and the result is returned.  Otherwise, a default
+    value is used.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `args`: a dictionary representing the environment associated with this
+        question (including variables defined within the &lt;question&gt; tag)
+    * `name`: the name of the question
+    * `score`: a float between 0 and ` representing the score we want to
+        render, or `None` if we should look up a value from the logs
+
+    **Optional Parameters:**
+
+    * `assume_submit` (default `False`): if `True`, assume that the user has
+        made a submission for purposes of rendering a response, even if the
+        logs say otherwise
+
+    **Returns:** a string containing HTML representing the rendered score
+    """
     last_log = context['csm_cslog'].most_recent(context['cs_username'],
                                                 context['cs_path_info'],
                                                 'problemstate',
@@ -87,6 +148,42 @@ def make_score_display(context, args, name, score, assume_submit=False):
 
 
 def read_checker_result(context, magic):
+    """
+    Helper function to load a "results" file from the checker and return the
+    associated dictionary.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `magic`: the ID of the checker result to look up
+
+    **Returns:** a dictionary representing the checker's results; this
+    dictionary will contain the following keys:
+
+    * _Input information_:
+
+        * `'path'`: a list of string representing the path associated with this
+            result
+        * `'username'`: the user who submitted the request
+        * `'names'`: a list containing the names of the questions that were
+            submitted
+        * `'form'`: a dictionary containing the values given in the form (among
+            them, the values that were submitted)
+        * `'time'`: a Unix timestamp, when this request was submitted
+        * `'action'`: either `'check'` or `'submit'`, depending on which button
+            was clicked to initiate the submission
+
+    * _Output information_:
+
+        * `'score'`: a `float` between 0 and 1 indicating the score given to
+            this submission
+        * `'score_box'`: a string containing the HTML-rendered version of the
+            score (to be displayed to the user
+        * `'response'`: the HTML that should be displayed back to the user
+            about their submission (test results, etc)
+        * `'extra_data'`: any extra data returned by the checker, or `None` for
+            question types that don't return extra data
+    """
     with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker',
               'results', magic[0], magic[1], magic), 'rb') as f:
         out = context['csm_cslog'].unprep(f.read())
@@ -94,10 +191,56 @@ def read_checker_result(context, magic):
 
 
 def compute_page_stats(context, user, path, keys=None):
+    """
+    Compute statistics about the given user and page.
+
+    This function is designed to provide all the information one could want to
+    know about a given page, including both information about the page itself
+    and about the given user's activities on the page.
+
+    Exactly what values are computed and included in the result depends on the
+    value of the optional parameter `keys`.  If no value is provided, all of
+    the following keys are included in the resulting dictionary.  Otherwise,
+    only the keys given by `keys` are included.
+
+    Possible keys are:
+
+    * `'context'`: an approximation of the context the user would see if they
+        loaded the page, after the entire page load completes (including the
+        handler)
+    * `'questions'`: an `OrderedDict` mapping question names to tuples, in the
+        same order they are specified on the page.  each value is a tuple of
+        the form outputted by `catsoop.tutor.question`
+    * `'question_points'`: a dictionary (unordered) mapping question names to
+        the number of points they are worth
+    * `'state'`: the user's most recent "problemstate" log entry for this page
+    * `'actions'`: a list containing all the user's actions on this page
+    * `'manual_grades'`: a list containing all manual grading entries for the
+        user on this page (i.e., all grades assigned _to them_)
+
+    If the function is simply used to look up logs, it can be reasonably
+    efficient.  If it is used to inspect the context, it will be a bit slower,
+    as it must then simulate the entire process associated with the given user
+    loading the given page.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `user`: the name of the user whose stats we want to compute
+    * `path`: a list of strings representing the path of interest
+
+    **Optional Parameters:**
+
+    * `keys` (default `None`): a list of strings representing the keys of
+    * interest.  if no value is specified, all possible keys are included
+
+    **Returns:** a dictionary containing the information detailed above
+    """
     logging = cslog
     if keys is None:
         keys = [
-            'context', 'question_points', 'state', 'actions', 'manual_grades',
+            'context', 'questions', 'question_points', 'state', 'actions',
+            'manual_grades',
         ]
     keys = list(keys)
 
@@ -137,6 +280,9 @@ def compute_page_stats(context, user, path, keys=None):
     if 'context' in keys:
         keys.remove('context')
         out['context'] = new
+    if 'questions' in keys:
+        keys.remove('questions')
+        out['questions'] = new['cs_defaulthandler_name_map']
     if 'question_points' in keys:
         keys.remove('question_points')
         items = new['cs_defaulthandler_name_map'].items()
@@ -150,6 +296,21 @@ def compute_page_stats(context, user, path, keys=None):
 
 
 def qtype_inherit(context, other_type):
+    """
+    Helper function for a question type to inherit from another question type.
+
+    This loads all values from the given question type into the given context
+    (typically, the environment associated with a "child" question type).
+
+    **Parameters:**
+
+    * `context`: the dictionary into which the inherited values should be
+        placed
+    * `other_type`: a string containing the name of the question type whose
+        values should be inherited
+
+    **Returns:** `None`
+    """
     base, _ = question(context, other_type)
     context.update(base)
 
@@ -167,12 +328,32 @@ def _wrapped_defaults_maker(context, name):
 
 def question(context, qtype, **kwargs):
     """
-    Generate a data structure representing a question.  Looks for the specified
-    qtype in the course level first, and then in the global location.
+    Generate a data structure representing a question.
 
-    This function is called as tutor.question(qtype,**kwargs) in almost all
+    Looks for the specified question type in the course level first, and then
+    in the global location.
+
+    This function is called as `tutor.question(qtype, **kwargs)` in almost all
     cases; i.e., it is called without the first argument.  A hack in
-    loader.cs_compile will insert the first argument.
+    `catsoop.loader.cs_compile` will insert the first argument.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `qtype`: the name of the requested question type, as a string
+
+    **Keyword Arguments:**
+
+    * The keyword arguments given to this function represent options for it
+        (e.g., `csq_soln`).  The options that have an effect depend on the
+        question type.  In the case of XML or Markdown input format, all
+        variables defined in the environment associated with this question are
+        passed in as keyword arguments.
+
+    **Returns:** a tuple containing two dictionaries: the first contains the
+    variables defined by the question type, and the second contains the
+    environment associated with the question (including variables defined in
+    the &lt;question&gt; tag).
     """
     try:
         course = context['cs_course']
@@ -211,9 +392,21 @@ def question(context, qtype, **kwargs):
 
 def handler(context, handler, check_course=True):
     """
-    Generate a data structure representing an activity.  Looks for the
-    specified handler in the course level first, and then in the global
-    location.
+    Generate a data structure representing an activity.
+
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `handler`: the name of the requested handler as a string
+
+    **Optional Parameters:**
+
+    * `check_course` (default `True)`: if `True`, look for the specified
+        handler in the course level first, and then in the global location;
+        otherwise, look only in the global location
+
+    **Returns:** a dictionary containing the variables defined by the handler
     """
     new = {}
     new['csm_base_context'] = new['base_context'] = base_context
@@ -238,20 +431,23 @@ def handler(context, handler, check_course=True):
     return new
 
 
-def get_canonical_name(path):
-    """
-    Return the canonical name of the resource at path.  This name is
-    the cdr of path, joined by '___'.
-    """
-    return '___'.join(path[1:])
-
-
 def get_release_date(context):
     """
-    Get the release date of a resource.  The inspected variable is
-    release_date.  If realize_time is defined in context, it will be used in
-    place of time.realize_time (note that it must have the same number and type
-    of arguments, and the same return type as time.realize_time).
+    Get the release date of a page from the given context.
+
+    The inspected variable is `cs_release_date`.  If `cs_release_date` has not
+    been set, `'ALWAYS'` will be used (1 January 1900 at 00:00).
+
+    Additionally, if `cs_realize_time` is defined in the given context, it will
+    be used in place of `catsoop.time.realize_time` (note that it must have the
+    same number and type of arguments, and the same return type).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** an instance of `datetime.datetime` representing the page's
+    release date.
     """
     rel = context.get('cs_release_date', 'ALWAYS')
     if callable(rel):
@@ -262,10 +458,24 @@ def get_release_date(context):
 
 def get_due_date(context, do_extensions=False):
     """
-    Get the due date of a resource.  The inspected variable is due_date.  If
-    realize_time is defined in context, it will be used in place of
-    time.realize_time (note that it must have the same number and type of
-    arguments, and the same return type as time.realize_time).
+    Get the due date of a page from the given context.
+
+    The inspected variable is `cs_due_date`.  If `cs_due_date` is not defined,
+    `'NEVER'` will be used (31 December 9999 at 23:59).
+
+    Additionally, if `cs_realize_time` is defined in context, it will be used
+    in place of `catsoop.time.realize_time`.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Optional Parameters:**
+
+    * `do_extensions` (default `False`): if `True`, look in the user's information for extensions and apply them
+
+    **Returns:** an instance of `datetime.datetime` representing the page's due
+    date.
     """
     due = context.get('cs_due_date', 'NEVER')
     if callable(due):
@@ -276,8 +486,8 @@ def get_due_date(context, do_extensions=False):
         if do_extensions:
             extensions = context['cs_user_info'].get('extensions', [])
             for ex in extensions:
-                if re.match(ex[0], get_canonical_name(context)):
-                    due += timedelta(weeks=ex[1])
+                if all(i==j for i,j in zip(e[0], path)):
+                    due += timedelta(days=ex[1])
     except:
         pass
     return due
@@ -285,7 +495,16 @@ def get_due_date(context, do_extensions=False):
 
 def available_courses():
     """
-    Returns a list of available courses.
+    Returns a list of available courses on the system.
+
+    This function loops over directories in the `courses` directory.  For each,
+    it executes its top-level `preload.py`.  If `cs_course_available` is `True`
+    (or not specified), that course is included in the listing.
+
+    **Returns:** a list of tuples.  Each tuple contains `(shortname,
+    longname)`, where `shortname` is the name to use in a URL referencing the
+    course, and `longname` is a more descriptive name (governed by the value of
+    `cs_long_name` in that course's `preload.py` file).
     """
     base = os.path.join(base_context.cs_data_root, 'courses')
     if not os.path.isdir(base):
@@ -305,13 +524,29 @@ def available_courses():
 
 def handle_page(context):
     """
-    Generate content for activities.  If atype is defined in context, replaces
-    the content variable with the result of calling the atype's handle function
-    on context.  Specifics vary by atype.
+    Determine and invoke the appropriate handler for a page.
+
+    If `cs_handler` is defined in the given context, then the handler with that
+    name is used.  Otherwise, the default handler is used.
+
+    Regardless, the given handler's `handle` function is called on the given
+    context.  The overall result of this function depends on that function's
+    output:
+
+    * if `handle` returns a 3-tuple (representing a specific HTTP response to
+        send), that value is returned directly (and `catsoop.dispatch.main` will
+        send that response directly).
+    * otherwise, `cs_content` is replaced with the result
+
+    **Parameters:**
+
+    * `context`: the context associated with this request (from which
+    * `cs_handler` is retrieved)
+
+    **Returns:** a value based on the result of the chosen handler's `handle`
+    function (see above).
     """
-    hand = context.get('cs_handler', None)
-    if hand is None:
-        hand = 'default'
+    hand = context.get('cs_handler', 'default')
     h = handler(context, hand)
     result = h['handle'](context)
     if isinstance(result, tuple):
@@ -342,12 +577,27 @@ def _get_random_seed(context, n=100, force_new=False):
     return stored
 
 
-def init_random(context, prefix=''):
+def init_random(context):
     """
-    Initialize the random number generator for per-user, per-resource
-    randomness.  This function is called as tutor.init_random() in almost all
-    cases; i.e., it is called with no arguments.  A hack in loader.cs_compile
-    will insert the argument.
+    Initialize the random number generator for per-user, per-page randomness.
+
+    Random seeds are stored in a log.  This function will try to read that log
+    to determine the appropriate random seed for this user and page.  If no
+    such seed exists, a new random value is generated (from `/dev/urandom` if
+    possible).
+
+    This value is then stored as `cs_random_seed` and used to seed the
+    `random.Random` instance in `cs_random`.
+
+    This function is called as `tutor.init_random()` in almost all cases; i.e.,
+    it is called with no arguments.  A hack in `catsoop.loader.cs_compile` will
+    insert the argument.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+
+    **Returns:** `None`
     """
     try:
         seed = _get_random_seed(context)
