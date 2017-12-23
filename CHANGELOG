@@ -14,6 +14,9 @@ REMOVED:
 
 FIXED:
 
+* Added CSS to prevent scrollbars from appearing on the CAT-SOOP logo in page
+  footers.
+
 SECURITY:
 
 DOCUMENTATION:
