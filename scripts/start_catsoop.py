@@ -36,8 +36,6 @@ if base_dir not in sys.path:
 
 import catsoop.base_context as base_context
 
-from catsoop.wsgi import application
-from catsoop.tools.cheroot import wsgi
 from catsoop.process import set_pdeathsig
 
 # Make sure the checker database is set up
@@ -51,31 +49,34 @@ for subdir in ('queued', 'running', 'results'):
 
 # Now start the workers.
 
-procs = (
+procs = [
     (scripts_dir, [sys.executable, 'checker.py'], 0.1, 'Checker'),
     (scripts_dir, [sys.executable, 'reporter.py'], 0.1, 'Reporter'),
-)
+]
+
+wsgi_ports = base_context.cs_wsgi_server_port
+
+if not isinstance(wsgi_ports, list):
+    wsgi_ports = [wsgi_ports]
+
+for port in wsgi_ports:
+    procs.append((scripts_dir,
+                  [sys.executable, 'wsgi_server.py', str(port)],
+                  0.1,
+                  'WSGI Server at Port %d' % port))
 
 running = []
 
-KILLSIGS = []
-
 for (ix, (wd, cmd, slp, name)) in enumerate(procs):
     print('Starting', name)
-    killsig = signal.SIGTERM if 'uwsgi' not in cmd else signal.SIGKILL
-    KILLSIGS.append(killsig)
     running.append(subprocess.Popen(cmd, cwd=wd,
-                                    preexec_fn=set_pdeathsig(killsig)))
+                                    preexec_fn=set_pdeathsig(signal.SIGTERM)))
     time.sleep(slp)
 
 def _kill_children():
     for ix, i in enumerate(running):
-        os.kill(i.pid, KILLSIGS[ix])
+        os.kill(i.pid, signal.SIGTERM)
 atexit.register(_kill_children)
 
-# finally, start the WSGI server
-
-print('Starting WSGI Server')
-addr = '0.0.0.0', base_context.cs_wsgi_server_port
-server = wsgi.Server(addr, application)
-server.start()
+while True:
+    time.sleep(1)

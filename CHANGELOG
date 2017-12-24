@@ -10,6 +10,9 @@ ADDED:
 
 CHANGED:
 
+* Separated WSGI server into separate process, and allow cs_wsgi_server_port to
+  be a list to start multiple servers (for load balancing).
+
 DEPRECATED:
 
 REMOVED:
