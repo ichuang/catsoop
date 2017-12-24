@@ -58,7 +58,7 @@ def get_logged_in_user(context):
             context['cs_content'] = LOGIN_PAGE % (_get_base_url(context),
                                                   context['cs_openid_server'])
             return {'cs_render_now': True}
-    elif action == 'redirect':
+    elif action == 'login':
         redir_url = '%s/__AUTH__/openid_connect/callback' % context['cs_url_root']
         scope = context.get('cs_openid_scope', 'openid profile email')
         state = generate_token()
@@ -83,7 +83,7 @@ def get_logged_in_user(context):
 LOGIN_PAGE = """
 <div id="catsoop_login_box">
 Access to this page requires logging in via OpenID Connect.  Please <a
-href="%s?loginaction=redirect">Log In</a> to continue.<br/>Note that this link
+href="%s?loginaction=login">Log In</a> to continue.<br/>Note that this link
 will take you to an external site (<tt>%s</tt>) to authenticate, and then you
 will be redirected back to this page.
 </div>

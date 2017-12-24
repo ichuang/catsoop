@@ -36,6 +36,7 @@ from . import base_context
 
 _nodoc = {'CSFormatter', 'formatdate', 'dict_from_cgi_form'}
 
+
 class CSFormatter(string.Formatter):
     def get_value(self, key, args, kwargs):
         try:
@@ -600,6 +601,21 @@ def main(environment):
             else:
                 context['cs_user_info'] = {}
                 context['cs_username'] = None
+
+            # now with user information, update top menu if we can
+            menu = context.get('cs_top_menu', None)
+            context['cs_debug'](menu)
+            if isinstance(menu, list):
+                uname = context['cs_username']
+                base_url = '/'.join([context['cs_url_root']] + context['cs_path_info'])
+                if str(uname) == 'None':
+                    menu.append({'text': 'Log In',
+                                 'link': '%s?loginaction=login' % base_url})
+                else:
+                    menu_entry = {'text': uname, 'link': []}
+                    menu_entry['link'].append({'text': 'Log Out',
+                                               'link': '%s?loginaction=logout' % base_url})
+                    menu.append(menu_entry)
 
             # MAKE SURE LATE LOAD EXISTS; 404 IF NOT
             if context.get('cs_course', None):
