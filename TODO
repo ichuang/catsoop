@@ -1,5 +1,7 @@
 Planned Features/Changes:
 
+  * Access control for static files (in __MEDIA__).
+
   * Integrate roles, sections into everything (rather than having them live in
     6.01).
 
