@@ -51,6 +51,10 @@ Known Bugs:
   * In ratio mode, checker for expression question type fails if solution
     evaluates to 0.
 
+  * Video files served from __MEDIA__ don't stream properly in some browsers
+    (which seem to be doing some fancy handling rather than just grabbing the
+    whole file).
+
 Things to Think About:
 
   * Make CAT-SOOP builtins work without jQuery (but still include jQuery in
