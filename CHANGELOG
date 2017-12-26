@@ -23,7 +23,9 @@ FIXED:
   footers.
 
 * Updated wsgi.py so that it can be used by an external WSGI server (such as
-  uWSGI)
+  uWSGI).
+
+* Fixed key generation for AES encryption in login mode.
 
 SECURITY:
 
