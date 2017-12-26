@@ -73,7 +73,7 @@ def get_logged_in_user(context):
         if 'cs_hashed_2' in form:
             # the user has submitted the form.  check it.
             errors = []
-            if not check_password(context, form['oldpasswd'], uname, hash_iterations):
+            if not check_password(context, form['cs_hashed_2'], uname, hash_iterations):
                 errors.append('Incorrect password entered.')
             passwd = form['cs_hashed_0']
             passwd2 = form['cs_hashed_1']

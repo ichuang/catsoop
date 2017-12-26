@@ -25,7 +25,9 @@ FIXED:
 * Updated wsgi.py so that it can be used by an external WSGI server (such as
   uWSGI).
 
-* Fixed key generation for AES encryption in login mode.
+* Fixed key generation for AES encryption in login authentication mode.
+
+* Fixed a bug with changing password in login authentication mode.
 
 SECURITY:
 
