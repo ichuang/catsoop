@@ -6,7 +6,8 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
-* Added "Log In" / "Log Out" to top menu by default.
+* Added "Log In" / "Log Out" to top menu by default, and gave authentication
+  types the ability to populate that menu.
 
 CHANGED:
 

@@ -613,6 +613,9 @@ def main(environment):
                                  'link': '%s?loginaction=login' % base_url})
                 else:
                     menu_entry = {'text': uname, 'link': []}
+                    auth_method = auth.get_auth_type(context)
+                    for i in auth_method.get('user_menu_options', lambda c: [])(context):
+                        menu_entry['link'].append(i)
                     menu_entry['link'].append({'text': 'Log Out',
                                                'link': '%s?loginaction=logout' % base_url})
                     menu.append(menu_entry)

@@ -23,6 +23,11 @@ import hashlib
 
 from .tools import pyaes
 
+def user_menu_options(context):
+    url = _get_base_url(context)
+    return [{'text': 'Change Password', 'link': '%s?loginaction=change_password' % url}]
+
+
 def get_logged_in_user(context):
     # form-based login
     base_context = context['csm_base_context']
