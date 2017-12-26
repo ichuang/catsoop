@@ -14,6 +14,9 @@ CHANGED:
 * Separated WSGI server into separate process, and allow cs_wsgi_server_port to
   be a list to start multiple servers (for load balancing).
 
+* Updated wsgi.py so that it can be used by an external WSGI server (such as
+  uWSGI).
+
 DEPRECATED:
 
 REMOVED:
@@ -22,9 +25,6 @@ FIXED:
 
 * Added CSS to prevent scrollbars from appearing on the CAT-SOOP logo in page
   footers.
-
-* Updated wsgi.py so that it can be used by an external WSGI server (such as
-  uWSGI).
 
 * Fixed key generation for AES encryption in login authentication mode.
 
