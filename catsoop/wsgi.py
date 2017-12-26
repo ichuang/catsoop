@@ -20,7 +20,13 @@ WSGI Interface to CAT-SOOP
 import os
 import sys
 
-from . import dispatch
+try:
+    from . import dispatch
+except:
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    if base_dir not in sys.path:
+        sys.path.append(base_dir)
+    import catsoop.dispatch as dispatch
 
 def _ensure_bytes(x):
     try:
