@@ -814,186 +814,180 @@ def handle_submit(context):
     uname = context[_n('uname')]
 
 
-    lockname = context['csm_cslog'].get_log_filename(uname,
-                                                     context['cs_path_info'],
-                                                     'problemstate')
-    with context['csm_tools'].filelock.FileLock(lockname) as lock:
-        lastlog = context['csm_cslog'].most_recent(uname,
-                                                   context['cs_path_info'],
-                                                   'problemstate',
-                                                   {},
-                                                   lock=False)
+    lastlog = context['csm_cslog'].most_recent(uname,
+                                               context['cs_path_info'],
+                                               'problemstate',
+                                               {})
 
-        nsubmits_used = context[_n('nsubmits_used')]
+    nsubmits_used = context[_n('nsubmits_used')]
 
-        namemap = context[_n('name_map')]
+    namemap = context[_n('name_map')]
 
-        newstate = dict(lastlog)
+    newstate = dict(lastlog)
 
-        newstate['last_submit_time'] = context['cs_timestamp']
-        newstate['last_submit_times'] = newstate.get('last_submit_times', {})
-        newstate['timestamp'] = context['cs_timestamp']
-        if 'last_submit' not in newstate:
-            newstate['last_submit'] = {}
-        if 'last_checker_id' not in newstate:
-            newstate['last_checker_id'] = {}
-        if 'last_submit_checker_id' not in newstate:
-            newstate['last_submit_checker_id'] = {}
+    newstate['last_submit_time'] = context['cs_timestamp']
+    newstate['last_submit_times'] = newstate.get('last_submit_times', {})
+    newstate['timestamp'] = context['cs_timestamp']
+    if 'last_submit' not in newstate:
+        newstate['last_submit'] = {}
+    if 'last_checker_id' not in newstate:
+        newstate['last_checker_id'] = {}
+    if 'last_submit_checker_id' not in newstate:
+        newstate['last_submit_checker_id'] = {}
 
-        names_done = set()
-        outdict = {}  # dictionary containing the responses for each question
+    names_done = set()
+    outdict = {}  # dictionary containing the responses for each question
 
-        # here, we don't do a whole lot.  we log a submission and add it to the
-        # checker's queue.
+    # here, we don't do a whole lot.  we log a submission and add it to the
+    # checker's queue.
 
-        entry_ids = {}
+    entry_ids = {}
 
-        for name in names:
-            if name.startswith('__'):
-                name = name[2:].rsplit('_', 1)[0]
-            if name in names_done:
-                continue
+    for name in names:
+        if name.startswith('__'):
+            name = name[2:].rsplit('_', 1)[0]
+        if name in names_done:
+            continue
 
-            names_done.add(name)
-            newstate['last_submit_times'][name] = context['cs_timestamp']
-            out = {}
-            sub = context[_n('form')].get(name, '')
+        names_done.add(name)
+        newstate['last_submit_times'][name] = context['cs_timestamp']
+        out = {}
+        sub = context[_n('form')].get(name, '')
 
-            error = submit_msg(context, context[_n('perms')], name)
-            if error is not None:
-                out['error_msg'] = error
-                outdict[name] = out
-                continue
+        error = submit_msg(context, context[_n('perms')], name)
+        if error is not None:
+            out['error_msg'] = error
+            outdict[name] = out
+            continue
 
-            # if we are here, no errors occurred.  go ahead with submitting.
-            nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
-            newstate['last_submit'][name] = sub
+        # if we are here, no errors occurred.  go ahead with submitting.
+        nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
+        newstate['last_submit'][name] = sub
 
-            question, args = namemap[name]
-            grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
-            if grading_mode == 'auto':
-                # 'auto' grading mode is the default.  sends things to the
-                # asynchronous checker to be run.
-                magic = new_entry(context, name, 'submit')
-                entry_ids[name] = entry_id = magic
-                out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id,
-                                                       'websocket': context['cs_checker_websocket'],
-                                                       'loading': context['cs_loading_image'],
-                                                       'id_css': (' style="display:none;"'
-                                                                  if context.get('cs_show_submission_id', True)
-                                                                  else '')}
-                out['magic'] = entry_id
-                out['score_display'] = ''
-                msg_key = '%s_message' % name
-                if msg_key in newstate:
-                    del newstate[msg_key]
-                newstate['%s_magic' % name] = entry_id
-                newstate['last_checker_id'][name] = entry_id
-                newstate['last_submit_checker_id'][name] = entry_id
-            elif grading_mode == 'legacy':
-                # 'legacy' grading mode implements the old behavior: check the
-                # submission and cache the result, all within this request.
-                magic_key = '%s_magic' % name
-                if magic_key in newstate:
-                    del newstate[magic_key]
-                try:
-                    resp = question['handle_submission'](context[_n('form')], **args)
-                    score = resp['score']
-                    msg = context['csm_language'].handle_custom_tags(context, resp['msg'])
-                    extra = resp.get('extra_data', None)
-                except:
-                    resp = {}
-                    score = 0.0
-                    msg = exc_message(context)
-                    extra = None
-                out['score'] = newstate.setdefault('scores', {})[name] = score
-                out['message'] = newstate['%s_message' % name] = msg
-                out['score_display'] = context['csm_tutor'].make_score_display(
-                    context, args, name, score,
-                    assume_submit=True)
-                newstate['%s_extra_data' % name] = out['extra_data'] = extra
+        question, args = namemap[name]
+        grading_mode = _get(args, 'csq_grading_mode', 'auto', str)
+        if grading_mode == 'auto':
+            # 'auto' grading mode is the default.  sends things to the
+            # asynchronous checker to be run.
+            magic = new_entry(context, name, 'submit')
+            entry_ids[name] = entry_id = magic
+            out['message'] = WEBSOCKET_RESPONSE % {'name': name, 'magic': entry_id,
+                                                   'websocket': context['cs_checker_websocket'],
+                                                   'loading': context['cs_loading_image'],
+                                                   'id_css': (' style="display:none;"'
+                                                              if context.get('cs_show_submission_id', True)
+                                                              else '')}
+            out['magic'] = entry_id
+            out['score_display'] = ''
+            msg_key = '%s_message' % name
+            if msg_key in newstate:
+                del newstate[msg_key]
+            newstate['%s_magic' % name] = entry_id
+            newstate['last_checker_id'][name] = entry_id
+            newstate['last_submit_checker_id'][name] = entry_id
+        elif grading_mode == 'legacy':
+            # 'legacy' grading mode implements the old behavior: check the
+            # submission and cache the result, all within this request.
+            magic_key = '%s_magic' % name
+            if magic_key in newstate:
+                del newstate[magic_key]
+            try:
+                resp = question['handle_submission'](context[_n('form')], **args)
+                score = resp['score']
+                msg = context['csm_language'].handle_custom_tags(context, resp['msg'])
+                extra = resp.get('extra_data', None)
+            except:
+                resp = {}
+                score = 0.0
+                msg = exc_message(context)
+                extra = None
+            out['score'] = newstate.setdefault('scores', {})[name] = score
+            out['message'] = newstate['%s_message' % name] = msg
+            out['score_display'] = context['csm_tutor'].make_score_display(
+                context, args, name, score,
+                assume_submit=True)
+            newstate['%s_extra_data' % name] = out['extra_data'] = extra
 
-                # auto lock if the option is set.
-                if resp.get('lock', False):
+            # auto lock if the option is set.
+            if resp.get('lock', False):
+                c = dict(context)
+                c[_n('question_names')] = [name]
+                o = json.loads(handle_lock(c)[2])
+                ll = context['csm_cslog'].most_recent(
+                    uname,
+                    context['cs_path_info'],
+                    'problemstate')
+                newstate['locked'] = ll.get('locked', set())
+                outdict[name].update(o[name])
+
+            # auto view answer if the option is set
+            if 'submit_all' not in context[_n('orig_perms')]:
+                x = nsubmits_left(context, name)
+                if (question.get('allow_viewanswer', True) and (((out['score'] == 1 and 'perfect' in _get_auto_view(args)) or
+                     (x[0] == 0 and 'nosubmits' in _get_auto_view(args))) and
+                        _get(args, 'csq_allow_viewanswer', True, bool))):
+                    # this is a hack...
                     c = dict(context)
                     c[_n('question_names')] = [name]
-                    o = json.loads(handle_lock(c)[2])
-                    ll = context['csm_cslog'].most_recent(
-                        uname,
-                        context['cs_path_info'],
-                        'problemstate', lock=False)
-                    newstate['locked'] = ll.get('locked', set())
+                    o = json.loads(handle_viewanswer(c)[2])
+                    ll = context['csm_cslog'].most_recent(uname,
+                                                          context['cs_path_info'],
+                                                          'problemstate',
+                                                          {})
+                    newstate['answer_viewed'] = ll.get('answer_viewed', set())
+                    newstate['explanation_viewed'] = ll.get('explanation_viewed',
+                                                            set())
                     outdict[name].update(o[name])
+        elif grading_mode == 'manual':
+            # submitted for manual grading.
+            out['message'] = 'Submission received for manual grading.'
+            out['score_display'] = context['csm_tutor'].make_score_display(
+                context, args, name, None,
+                assume_submit=True)
+            mag_key = '%s_magic' % name
+            if mag_key in newstate:
+                del newstate[mag_key]
+            newstate['%s_message' % name] = out['message']
+        else:
+            out['message'] = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
+            out['score_display'] = context['csm_tutor'].make_score_display(
+                context, args, name, 0.0,
+                assume_submit=True)
+            mag_key = '%s_magic' % name
+            if mag_key in newstate:
+                del newstate[mag_key]
+            newstate['%s_message' % name] = out['message']
 
-                # auto view answer if the option is set
-                if 'submit_all' not in context[_n('orig_perms')]:
-                    x = nsubmits_left(context, name)
-                    if (question.get('allow_viewanswer', True) and (((out['score'] == 1 and 'perfect' in _get_auto_view(args)) or
-                         (x[0] == 0 and 'nosubmits' in _get_auto_view(args))) and
-                            _get(args, 'csq_allow_viewanswer', True, bool))):
-                        # this is a hack...
-                        c = dict(context)
-                        c[_n('question_names')] = [name]
-                        o = json.loads(handle_viewanswer(c)[2])
-                        ll = context['csm_cslog'].most_recent(uname,
-                                                              context['cs_path_info'],
-                                                              'problemstate',
-                                                              {},
-                                                              lock=False)
-                        newstate['answer_viewed'] = ll.get('answer_viewed', set())
-                        newstate['explanation_viewed'] = ll.get('explanation_viewed',
-                                                                set())
-                        outdict[name].update(o[name])
-            elif grading_mode == 'manual':
-                # submitted for manual grading.
-                out['message'] = 'Submission received for manual grading.'
-                out['score_display'] = context['csm_tutor'].make_score_display(
-                    context, args, name, None,
-                    assume_submit=True)
-                mag_key = '%s_magic' % name
-                if mag_key in newstate:
-                    del newstate[mag_key]
-                newstate['%s_message' % name] = out['message']
-            else:
-                out['message'] = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
-                out['score_display'] = context['csm_tutor'].make_score_display(
-                    context, args, name, 0.0,
-                    assume_submit=True)
-                mag_key = '%s_magic' % name
-                if mag_key in newstate:
-                    del newstate[mag_key]
-                newstate['%s_message' % name] = out['message']
+        rerender = args.get('csq_rerender', question.get('always_rerender', False))
+        if rerender is True:
+            out['rerender'] = question['render_html'](newstate['last_submit'],
+                                                      **args)
+        elif rerender:
+            out['rerender'] = rerender
 
-            rerender = args.get('csq_rerender', question.get('always_rerender', False))
-            if rerender is True:
-                out['rerender'] = question['render_html'](newstate['last_submit'],
-                                                          **args)
-            elif rerender:
-                out['rerender'] = rerender
+        outdict[name] = out
 
-            outdict[name] = out
+        # cache responses
+        newstate['%s_score_display' % name] = out['score_display']
 
-            # cache responses
-            newstate['%s_score_display' % name] = out['score_display']
+    context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
 
-        context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
+    # update problemstate log
+    context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
+                                       'problemstate', newstate)
 
-        # update problemstate log
-        context['csm_cslog'].overwrite_log(uname, context['cs_path_info'],
-                                           'problemstate', newstate, lock=False)
+    # log submission in problemactions
+    duetime = context['csm_time'].detailed_timestamp(due)
+    subbed = {n: context[_n('form')].get(n, '') for n in names}
+    log_action(context, {'action': 'submit',
+                         'names': names,
+                         'submitted': subbed,
+                         'checker_ids': entry_ids,
+                         'due_date': duetime})
 
-        # log submission in problemactions
-        duetime = context['csm_time'].detailed_timestamp(due)
-        subbed = {n: context[_n('form')].get(n, '') for n in names}
-        log_action(context, {'action': 'submit',
-                             'names': names,
-                             'submitted': subbed,
-                             'checker_ids': entry_ids,
-                             'due_date': duetime})
+    context['csm_loader'].run_plugins(context, context['cs_course'], 'post_submit', context)
 
-        context['csm_loader'].run_plugins(context, context['cs_course'], 'post_submit', context)
-
-        return make_return_json(context, outdict)
+    return make_return_json(context, outdict)
 
 
 def manage_groups(context):
