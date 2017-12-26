@@ -31,7 +31,7 @@ FIXED:
 * Fixed a bug with changing password in login authentication mode.
 
 * Fixed a bug with client-side password hashing so that the hash is now a
-  proper PBDKF2 hash of the given password.
+  proper PBKDF2 hash of the given password.
 
 SECURITY:
 
