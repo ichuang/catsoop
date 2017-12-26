@@ -55,6 +55,10 @@ Known Bugs:
     (which seem to be doing some fancy handling rather than just grabbing the
     whole file).
 
+  * Question names with certain characters (spaces, operators, etc) are
+    currently broken.  We should either fix things so that they work or give a
+    sensible error message, rather than failing silently.
+
 Things to Think About:
 
   * Make CAT-SOOP builtins work without jQuery (but still include jQuery in
