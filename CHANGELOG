@@ -45,6 +45,11 @@ FIXED:
 * The last_submit_time and last_submit_times entries in the problemstate log
   are now only updated if the submission was successful.
 
+* Fixed a bug whereby some compound expressions were treated as literals in the
+  'pythonliteral' question type.
+
+* Fixed a bug with rendering of < and > in the 'richtext' question type.
+
 SECURITY:
 
 DOCUMENTATION:

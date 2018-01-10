@@ -27,7 +27,9 @@ def handle_submission(submissions, **info):
         return {'score': 0.0, 'msg': '<font color="red">%s</font>' % inp}
 
     try:
-        ast.literal_eval(sub)
+        x = ast.parse(sub).body[0].value
+        assert not isinstance(x, ast.BinOp)
+        ast.literal_eval(x)
     except:
         return {'score': 0.0, 'msg': 'Value must be a valid Python literal.'}
 
