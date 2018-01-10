@@ -33,6 +33,11 @@ FIXED:
 * Fixed a bug with client-side password hashing so that the hash is now a
   proper PBKDF2 hash of the given password.
 
+* Fixed a bug whereby some compound expressions were treated as literals in the
+  'pythonliteral' question type.
+
+* Fixed a bug with rendering of < and > in the 'richtext' question type.
+
 SECURITY:
 
 DOCUMENTATION:

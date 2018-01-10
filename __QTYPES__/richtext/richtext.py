@@ -24,16 +24,17 @@ defaults.update({
     'csq_show_check': False,
 })
 
-
 def markdownify(context, text):
     return context['csm_language']._md(text)
 
 def richtext_format(context, text, msg="Preview:"):
-    text = text.replace('<', '&lt;').replace('>', '&gt;')
+    #text = text.replace('<', '&lt;').replace('>', '&gt;')
     out = '</br>%s<br/>' % msg
     out += ('<div style="background-color: #eeeeee;'
             'padding:10px; border-radius:10px;">')
     out += markdownify(context, text)
+    out = out.replace('<script', '&lt;script')
+    out = out.replace('</script', '&lt;script')
     out += ('<script type="text/javascript">'
             'catsoop.render_all_math($("#cs_qdiv_%s"), true);'
             '</script>') % context['csq_name']
