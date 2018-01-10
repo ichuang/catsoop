@@ -17,6 +17,12 @@ CHANGED:
 * Updated wsgi.py so that it can be used by an external WSGI server (such as
   uWSGI).
 
+* cs_nosubmit_message is now sent only on an actual submission (not when
+  viewing the page), so that the submit button still appears when loading pages
+  with cs_nosubmit_message set.
+
+* Buttons are now always created under 'view' mode in the default handler.
+
 DEPRECATED:
 
 REMOVED:

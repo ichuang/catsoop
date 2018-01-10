@@ -1231,7 +1231,8 @@ def submit_msg(context, perms, name):
         elif not _get(qargs, 'csq_allow_submit', True, bool):
             # ...submissions are not allowed (custom message)
             if 'cs_nosubmit_message' in context:
-                error = context['cs_nosubmit_message'](context)
+                if context[_n('action')] != 'view':
+                    error = context['cs_nosubmit_message'](context)
             else:
                 error = 'Submissions are not allowed for this question.'
         elif (not _get(qargs, 'csq_grading_mode', 'auto', str) == 'manual' and
@@ -1269,9 +1270,12 @@ def make_return_json(context, ret, names=None):
     names = context[_n('question_names')] if names is None else names
     names = set(i[2:].rsplit('_', 1)[0] if i.startswith('__') else i
                 for i in names)
+    ctx2 = dict(context)
+    if ctx2[_n('action')] != 'view':
+        ctx2[_n('action')] = 'view'
     for name in names:
         ret[name]['nsubmits_left'] = nsubmits_left(context, name)[1],
-        ret[name]['buttons'] = make_buttons(context, name)
+        ret[name]['buttons'] = make_buttons(ctx2, name)
     return simple_return_json(ret)
 
 
