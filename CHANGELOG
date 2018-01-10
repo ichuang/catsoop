@@ -17,11 +17,14 @@ CHANGED:
 * Updated wsgi.py so that it can be used by an external WSGI server (such as
   uWSGI).
 
-* cs_nosubmit_message is now sent only on an actual submission (not when
+* csq_nosubmit_message is now sent only on an actual submission (not when
   viewing the page), so that the submit button still appears when loading pages
   with cs_nosubmit_message set.
 
 * Buttons are now always created under 'view' mode in the default handler.
+
+* cs_nosubmit_message was replaced with csq_nosubmit_message (specific to
+  each question).
 
 DEPRECATED:
 
@@ -38,6 +41,9 @@ FIXED:
 
 * Fixed a bug with client-side password hashing so that the hash is now a
   proper PBKDF2 hash of the given password.
+
+* The last_submit_time and last_submit_times entries in the problemstate log
+  are now only updated if the submission was successful.
 
 SECURITY:
 

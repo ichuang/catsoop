@@ -825,7 +825,6 @@ def handle_submit(context):
 
     newstate = dict(lastlog)
 
-    newstate['last_submit_time'] = context['cs_timestamp']
     newstate['last_submit_times'] = newstate.get('last_submit_times', {})
     newstate['timestamp'] = context['cs_timestamp']
     if 'last_submit' not in newstate:
@@ -842,7 +841,7 @@ def handle_submit(context):
     # checker's queue.
 
     entry_ids = {}
-
+    submit_succeeded = True
     for name in names:
         if name.startswith('__'):
             name = name[2:].rsplit('_', 1)[0]
@@ -850,7 +849,6 @@ def handle_submit(context):
             continue
 
         names_done.add(name)
-        newstate['last_submit_times'][name] = context['cs_timestamp']
         out = {}
         sub = context[_n('form')].get(name, '')
 
@@ -858,7 +856,9 @@ def handle_submit(context):
         if error is not None:
             out['error_msg'] = error
             outdict[name] = out
+            submit_succeeded = False
             continue
+        newstate['last_submit_times'][name] = context['cs_timestamp']
 
         # if we are here, no errors occurred.  go ahead with submitting.
         nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
@@ -958,6 +958,8 @@ def handle_submit(context):
                 del newstate[mag_key]
             newstate['%s_message' % name] = out['message']
 
+        if submit_succeeded:
+            newstate['last_submit_time'] = context['cs_timestamp']
         rerender = args.get('csq_rerender', question.get('always_rerender', False))
         if rerender is True:
             out['rerender'] = question['render_html'](newstate['last_submit'],
@@ -1230,9 +1232,9 @@ def submit_msg(context, perms, name):
                      'because you have already viewed the answer.')
         elif not _get(qargs, 'csq_allow_submit', True, bool):
             # ...submissions are not allowed (custom message)
-            if 'cs_nosubmit_message' in context:
+            if 'csq_nosubmit_message' in qargs:
                 if context[_n('action')] != 'view':
-                    error = context['cs_nosubmit_message'](context)
+                    error = qargs['csq_nosubmit_message'](qargs)
             else:
                 error = 'Submissions are not allowed for this question.'
         elif (not _get(qargs, 'csq_grading_mode', 'auto', str) == 'manual' and
