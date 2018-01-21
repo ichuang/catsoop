@@ -323,6 +323,7 @@ def indent_code(c):
     c = re.sub(_string_regex, _replacer, c)
     # now that strings are out of the way, change the indentation of every line
     c = '\n'.join('    %s' % _replace_indentation_tabs(i) for i in c.splitlines())
+    c = '    pass\n%s' % c
     # finally, reintroduce strings
     for k, v in strings.items():
         c = c.replace(k, v)
@@ -363,7 +364,7 @@ def get_python_output(context, code, variables, line_offset=0):
                     '<p><pre>'
                     'Inconsistent indentation on line %d of python tag (line %d of source)'
                     '</pre></p></div>') % (code, code + line_offset + 1)
-        code = indent_code(code) 
+        code = indent_code(code)
         code = (('_cs_oprint = print\n'
                  'def myprint(*args, **kwargs):\n'
                  '    if "file" not in kwargs:\n'
