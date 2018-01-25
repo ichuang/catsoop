@@ -605,7 +605,7 @@ def main(environment):
             # now with user information, update top menu if we can
             menu = context.get('cs_top_menu', None)
             context['cs_debug'](menu)
-            if isinstance(menu, list):
+            if isinstance(menu, list) and context.get('cs_auth_required', True):
                 uname = context['cs_username']
                 base_url = '/'.join([context['cs_url_root']] + context['cs_path_info'])
                 if str(uname) == 'None':
