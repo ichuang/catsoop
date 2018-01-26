@@ -163,7 +163,8 @@ while True:
                 row['score_box'] = ''
                 row['response'] = ("<font color='red'><b>Your submission could not be checked "
                                    "because the checker ran for too long.</b></font>")
-                newloc = os.path.join(RESULTS, row['magic'])
+                magic = row['magic']
+                newloc = os.path.join(RESULTS, magic[0], magic[1], magic)
                 with open(newloc, 'wb') as f:
                     f.write(cslog.prep(row))
                 # then remove from running
