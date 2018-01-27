@@ -605,9 +605,9 @@ def handle_grade(context):
                            'timestamp': context['cs_timestamp']})
         _, args = context[_n('name_map')][name]
         outdict[name] = {
-            'score_display': context['csm_tutor'].make_score_display(context, args, name, score),
+            'score_display': context['csm_tutor'].make_score_display(context, args, name, score / npoints),
             'message': "<b>Grader's Comments:</b><br/><br/>%s" % context['csm_language']._md_format_string(context, comments),
-            'score': score,
+            'score': score / npoints,
         }
 
     # update problemstate log
