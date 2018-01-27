@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
+##################
+# Version 11.1.2 #
+##################
 
 ADDED:
 
@@ -26,11 +24,13 @@ CHANGED:
 * cs_nosubmit_message was replaced with csq_nosubmit_message (specific to
   each question).
 
-DEPRECATED:
-
-REMOVED:
-
 FIXED:
+
+* Fixed an issue where checker results were stored in an invalid location in
+  the case of some errors.
+
+* Fixed an issue with the checker updating scores for problems that don't yet
+  have a problemstate log.
 
 * Added CSS to prevent scrollbars from appearing on the CAT-SOOP logo in page
   footers.
@@ -50,9 +50,9 @@ FIXED:
 
 * Fixed a bug with rendering of < and > in the 'richtext' question type.
 
-SECURITY:
+* Fixed an issue with empty <python> tags.
 
-DOCUMENTATION:
+* Fixed a broken link in the OpenID Connect login page.
 
 
 ##################
