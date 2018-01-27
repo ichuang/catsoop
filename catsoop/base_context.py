@@ -24,7 +24,7 @@ or late loads at lower levels).
 _nodoc = {'contents', 'cs_all_pieces', 'cs_all_tools', 'f', 'i', 'root',
           'cs_dummy_username', 'datetime'}
 
-cs_version = 'v11.1.2'
+cs_version = '(development version, v11.1.2+)'
 """
 CAT-SOOP's version number
 """
@@ -289,7 +289,8 @@ cs_all_pieces = [
     'tutor', 'util',
 ]
 
-cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4', 'pyaes']
+cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4', 'pyaes',
+                'pretty']
 
 for i in cs_all_pieces:
     if i != 'base_context':

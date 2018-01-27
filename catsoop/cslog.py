@@ -33,11 +33,14 @@ add new Python objects to a log.
 
 import os
 import re
+import ast
 import zlib
 import pickle
-import random
-import string
 import contextlib
+
+from collections import OrderedDict
+
+from .tools.pretty import pretty
 
 _nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'create_if_not_exists',
           'get_separator', 'good_separator', 'modify_most_recent'}
@@ -49,19 +52,6 @@ def passthrough():
 from . import base_context
 from .tools.filelock import FileLock
 
-SEP_CHARS = (string.ascii_letters + string.digits).encode()
-
-
-def good_separator(sep, data, new=None):
-    return sep not in data and (new is None or sep not in new)
-
-
-def get_separator(data, new=None):
-    out = None
-    while out is None or not good_separator(out, data, new=new):
-        out = bytes(random.choice(SEP_CHARS) for i in range(20))
-    return out
-
 
 def create_if_not_exists(directory):
     os.makedirs(directory, exist_ok=True)
@@ -71,15 +61,11 @@ def prep(x):
     """
     Helper function to pickle and compress a Python object.
     """
-    return zlib.compress(pickle.dumps(x, -1), 9)
+    return pretty(x)
 
 
 def unprep(x):
-    """
-    Helper function to decompress and unpickle a log entry and return the
-    associated Python object.
-    """
-    return pickle.loads(zlib.decompress(x))
+    return literal_eval(x)
 
 
 def get_log_filename(db_name, path, logname):
@@ -99,6 +85,8 @@ def get_log_filename(db_name, path, logname):
         return os.path.join(base_context.cs_data_root, '__LOGS__', db_name, *path, '%s.log' % logname)
 
 
+sep = '\n\n'
+
 def update_log(db_name, path, logname, new, lock=True):
     """
     Adds a new entry to the end of the specified log.
@@ -115,6 +103,7 @@ def update_log(db_name, path, logname, new, lock=True):
     * `lock` (default `True`): whether the database should be locked during
         this update
     """
+    assert can_log(new), "Can't log: %r" % new
     fname = get_log_filename(db_name, path, logname)
     #get an exclusive lock on this file before making changes
     # look up the separator and the data
@@ -122,36 +111,21 @@ def update_log(db_name, path, logname, new, lock=True):
     with cm as lock:
         try:
             create_if_not_exists(os.path.dirname(fname))
-            with open(fname, 'rb') as f:
-                sep = f.readline().strip()
+            with open(fname, 'r') as f:
                 data = f.read()
-            if sep == '':
-                raise Exception
         except:
             overwrite_log(db_name, path, logname, new, lock=False)
             return
         new = prep(new)
-        if good_separator(sep, new):
-            # if the separator is still okay, just add the new entry to the end
-            # of the file
-            with open(fname, 'ab') as f:
-                f.write(new + sep)
-        else:
-            # if not, rewrite the whole file with a new separator
-            entries = [i for i in data.split(sep) if i != b''] + [new]
-            sep = get_separator(data, new)
-            with open(fname, 'wb') as f:
-                f.write(sep + b'\n')
-                f.write(sep.join(entries) + sep)
+        with open(fname, 'a') as f:
+            f.write(new + sep)
 
 
 def _overwrite_log(fname, new):
+    assert can_log(new), "Can't log: %r" % new
     create_if_not_exists(os.path.dirname(fname))
-    new = prep(new)
-    sep = get_separator(new)
-    with open(fname, 'wb') as f:
-        f.write(sep + b'\n')
-        f.write(new + sep)
+    with open(fname, 'w') as f:
+        f.write(prep(new) + sep)
 
 
 def overwrite_log(db_name, path, logname, new, lock=True):
@@ -183,12 +157,10 @@ def _read_log(db_name, path, logname, lock=True):
     cm = FileLock(fname) if lock else passthrough()
     with cm as lock:
         try:
-            f = open(fname, 'rb')
-            sep = f.readline().strip()
-            this = ''
+            f = open(fname, 'r')
             for i in f.read().split(sep):
-                yield unprep(i)
-            raise StopIteration
+                if i:
+                    yield unprep(i)
         except:
             raise StopIteration
 
@@ -248,7 +220,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
     cm = FileLock(fname) if lock else passthrough()
     with cm as lock:
         f = open(fname, 'rb')
-        sep = f.readline().strip()
+        sep = b'\n\n'
         lsep = len(sep)
         offset = lsep + 1
         f.seek(0, 2)
@@ -271,7 +243,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
                 # may be shorter than one "blocksize"
                 data = (f.read(numbytes) + data)[:-lsep].split(sep)[-1]
                 f.close()
-                return unprep(data)
+                return unprep(data.decode())
             # update our counters
             block -= 1
             numbytes -= blocksize
@@ -282,7 +254,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
                 f.close()
                 data = data[:-lsep]
                 t = data[data.rfind(sep)+lsep:]
-                return unprep(t)
+                return unprep(t.decode())
 
 
 def modify_most_recent(db_name, path, logname, default=None, transform_func=lambda x: x, method='update', lock=True):
@@ -291,9 +263,86 @@ def modify_most_recent(db_name, path, logname, default=None, transform_func=lamb
     with cm as lock:
         old_val = most_recent(db_name, path, logname, default, lock=False)
         new_val = transform_func(old_val)
+        assert can_log(new_val), "Can't log: %r" % new_val
         if method == 'update':
             updater = update_log
         else:
             updater = overwrite_log
         updater(db_name, path, logname, new_val, lock=False)
     return new_val
+
+_unprep_funcs = {
+    'OrderedDict': OrderedDict,
+    'frozenset': frozenset,
+}
+
+def unprep(node_or_string):
+    """
+    Helper function to read a log entry and return the associated Python
+    object.  Forked from Python 3.5's ast.literal_eval function:
+
+    Safely evaluate an expression node or a string containing a Python
+    expression.  The string or node provided may only consist of the following
+    Python literal structures: strings, bytes, numbers, tuples, lists, dicts,
+    sets, booleans, and None.
+
+    Modified for CAT-SOOP to include collections.OrderedDict.
+    """
+    if isinstance(node_or_string, str):
+        node_or_string = ast.parse(node_or_string, mode='eval')
+    if isinstance(node_or_string, ast.Expression):
+        node_or_string = node_or_string.body
+    def _convert(node):
+        if isinstance(node, (ast.Str, ast.Bytes)):
+            return node.s
+        elif isinstance(node, ast.Num):
+            return node.n
+        elif isinstance(node, ast.Tuple):
+            return tuple(map(_convert, node.elts))
+        elif isinstance(node, ast.List):
+            return list(map(_convert, node.elts))
+        elif isinstance(node, ast.Set):
+            return set(map(_convert, node.elts))
+        elif isinstance(node, ast.Dict):
+            return dict((_convert(k), _convert(v)) for k, v
+                        in zip(node.keys, node.values))
+        elif isinstance(node, ast.NameConstant):
+            return node.value
+        elif isinstance(node, ast.UnaryOp) and \
+             isinstance(node.op, (ast.UAdd, ast.USub)) and \
+             isinstance(node.operand, (ast.Num, ast.UnaryOp, ast.BinOp)):
+            operand = _convert(node.operand)
+            if isinstance(node.op, ast.UAdd):
+                return + operand
+            else:
+                return - operand
+        elif isinstance(node, ast.BinOp) and \
+             isinstance(node.op, (ast.Add, ast.Sub)) and \
+             isinstance(node.right, (ast.Num, ast.UnaryOp, ast.BinOp)) and \
+             isinstance(node.left, (ast.Num, ast.UnaryOp, ast.BinOp)):
+            left = _convert(node.left)
+            right = _convert(node.right)
+            if isinstance(node.op, ast.Add):
+                return left + right
+            else:
+                return left - right
+        elif isinstance(node, ast.Call) and \
+             isinstance(node.func, ast.Name) and \
+             node.func.id in _unprep_funcs:
+            return _unprep_funcs[node.func.id](*(_convert(i) for i in node.args))
+        raise ValueError('malformed node or string: ' + repr(node))
+    return _convert(node_or_string)
+
+
+NoneType = type(None)
+def can_log(x):
+    """
+    Checks whether a given value can be a log entry.
+    """
+    if isinstance(x, (str, bytes, int, float, complex, NoneType, bool)):
+        return True
+    elif isinstance(x, (list, tuple, set, frozenset)):
+        return all(can_log(i) for i in x)
+    elif isinstance(x, (dict, OrderedDict)):
+        return all((can_log(k) and can_log(v)) for k,v in x.items())
+    return False

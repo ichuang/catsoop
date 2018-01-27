@@ -1,3 +1,28 @@
+########################
+# Current Developments #
+########################
+
+Work toward next release.  Currently under development.
+
+ADDED:
+
+CHANGED:
+
+* Logs are now stored in plain-text files, as opposed to binary log files.
+
+DEPRECATED:
+
+REMOVED:
+
+FIXED:
+
+* Fixed a bug with rendering of scores when manual grades are submitted.
+
+SECURITY:
+
+DOCUMENTATION:
+
+
 ##################
 # Version 11.1.2 #
 ##################
