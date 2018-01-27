@@ -235,11 +235,6 @@ def handle_raw_html(context):
         return ('This page is not yet available.  '
                 'It will become available on %s.') % reltime
 
-    if 'submit' in perms or 'submit_all' in perms:
-        # only log an entry for users who can submit
-        log_action(context, {'action': 'view',
-                             'score': lastlog.get('score', 0.0)})
-
     page = ''
     num_questions = len(context[_n('name_map')])
     if (num_questions > 0 and _get(context, 'cs_show_due', True, bool) and
@@ -286,11 +281,6 @@ def handle_content_only(context):
         return ('This page is not yet available.  '
                 'It will become available on %s.') % reltime
 
-    if 'submit' in perms or 'submit_all' in perms:
-        # only log an entry for users who can submit
-        log_action(context, {'action': 'view',
-                             'score': lastlog.get('score', 0.0)})
-
     page = ''
     num_questions = len(context[_n('name_map')])
     if (num_questions > 0 and _get(context, 'cs_show_due', True, bool) and
@@ -335,11 +325,6 @@ def handle_view(context):
         reltime = reltime.replace(';', ' at')
         return ('This page is not yet available.  '
                 'It will become available on %s.') % reltime
-
-    if 'submit' in perms or 'submit_all' in perms:
-        # only log an entry for users who can submit
-        log_action(context, {'action': 'view',
-                             'score': lastlog.get('score', 0.0)})
 
     page = ''
     num_questions = len(context[_n('name_map')])

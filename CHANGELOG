@@ -10,6 +10,8 @@ CHANGED:
 
 * Logs are now stored in plain-text files, as opposed to binary log files.
 
+* Page views are no longer logged in the problemactions log.
+
 DEPRECATED:
 
 REMOVED:
