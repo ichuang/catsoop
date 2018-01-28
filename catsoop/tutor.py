@@ -78,7 +78,7 @@ def get_manual_grading_entry(context, name):
     return out
 
 
-def make_score_display(context, args, name, score, assume_submit=False):
+def make_score_display(context, args, name, score=None, assume_submit=False):
     """
     Helper function to generate the display that users should see for their
     score.
@@ -124,7 +124,7 @@ def make_score_display(context, args, name, score, assume_submit=False):
         else:
             return ''
     gmode = _get(args, 'csq_grading_mode', 'auto', str)
-    if gmode == 'manual':
+    if gmode == 'manual' and score is None:
         log = get_manual_grading_entry(context, name)
         if log is not None:
             score = log['score']
