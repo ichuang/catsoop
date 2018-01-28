@@ -27,6 +27,7 @@ import importlib
 import collections
 
 from datetime import timedelta
+from collections import OrderedDict
 
 from . import auth
 from . import time
@@ -211,7 +212,7 @@ def compute_page_stats(context, user, path, keys=None):
     * `'questions'`: an `OrderedDict` mapping question names to tuples, in the
         same order they are specified on the page.  each value is a tuple of
         the form outputted by `catsoop.tutor.question`
-    * `'question_points'`: a dictionary (unordered) mapping question names to
+    * `'question_points'`: an ordered dictionary mapping question names to
         the number of points they are worth
     * `'state'`: the user's most recent "problemstate" log entry for this page
     * `'actions'`: a list containing all the user's actions on this page
@@ -254,6 +255,11 @@ def compute_page_stats(context, user, path, keys=None):
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
         out['manual_grades'] = logging.read_log(user, path, 'problemgrades')
+    if 'question_points' in keys and 'context' not in keys:
+        qp_log = logging.most_recent('_question_points', path, 'question_points', None)
+        if qp_log is not None:
+            keys.remove('question_points')
+            out['question_points'] = qp_log['questions']
 
     if len(keys) == 0:
         return out
@@ -286,10 +292,10 @@ def compute_page_stats(context, user, path, keys=None):
     if 'question_points' in keys:
         keys.remove('question_points')
         items = new['cs_defaulthandler_name_map'].items()
-        out['question_points'] = {
-            n: q['total_points'](**a)
+        out['question_points'] = OrderedDict(
+            (n, q['total_points'](**a))
             for (n, (q, a)) in items
-        }
+        )
     for k in keys:
         out[k] = None
     return out

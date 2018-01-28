@@ -30,6 +30,8 @@ import marshal
 import importlib
 import traceback
 
+from collections import OrderedDict
+
 from . import time
 from . import language
 from . import base_context
@@ -521,6 +523,18 @@ def do_late_load(context, course, path, into, content_file=None):
         into['cs_post_load'](into)
     run_plugins(context, course, 'post_load', into)
     language.source_formats[into['cs_source_format']](into)
+    last_mod = os.stat(content_file).st_mtime
+    cache = into['csm_cslog'].most_recent('_question_points', [course] + path,
+                                          'question_points', None)
+    if course not in {None, 'cs_util'} and (cache is None or last_mod > cache['timestamp']):
+        qs = OrderedDict()
+        for i in into['cs_problem_spec']:
+            if isinstance(i, tuple):
+                qs[i[1]['csq_name']] = i[0]['total_points'](**i[1])
+        into['csm_cslog'].overwrite_log('_question_points', [course] + path,
+                                        'question_points',
+                                        {'timestamp': last_mod,
+                                         'questions': qs})
     if 'cs_pre_handle' in into:
         into['cs_pre_handle'](into)
     run_plugins(context, course, 'pre_handle', into)

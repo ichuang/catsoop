@@ -6,6 +6,9 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* Added a cache of question point values, to avoid having to fake a page load
+  to get question point values in tutor.compute_page_stats.
+
 CHANGED:
 
 * Logs are now stored in plain-text files, as opposed to binary log files.
