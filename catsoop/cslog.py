@@ -222,7 +222,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
         f = open(fname, 'rb')
         sep = b'\n\n'
         lsep = len(sep)
-        offset = lsep + 1
+        offset = 0
         f.seek(0, 2)
         blocksize = 1024
         numbytes = f.tell() - offset
@@ -274,6 +274,7 @@ def modify_most_recent(db_name, path, logname, default=None, transform_func=lamb
 _unprep_funcs = {
     'OrderedDict': OrderedDict,
     'frozenset': frozenset,
+    'set': set,
 }
 
 def unprep(node_or_string):

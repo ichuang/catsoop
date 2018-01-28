@@ -116,7 +116,7 @@ def do_check(row):
 
         # make temporary file to write results to
         _, temploc = tempfile.mkstemp()
-        with open(temploc, 'wb') as f:
+        with open(temploc, 'w') as f:
             f.write(context['csm_cslog'].prep(row))
         # move that file to results, close the handle to it.
         magic = row['magic']
@@ -135,11 +135,11 @@ def do_check(row):
             x = context['csm_cslog'].most_recent(row['username'], row['path'], 'problemstate', {}, lock=False)
             x.setdefault('scores', {})[name] = row['score']
             mag_key = '%s_magic' % name
-            x['%s_score_box' % name] = row['score_box']
-            x['%s_message' % name] = row['response']
-            x['%s_extra_data' % name] = row['extra_data']
-            if mag_key in x:
-                del x[mag_key]
+            x.setdefault('score_displays', {})[name] = row['score_box']
+            x.setdefault('cached_responses', {})[name] = row['response']
+            x.setdefault('extra_data', {})[name] = row['extra_data']
+            if name in x.get('checker_ids', {}):
+                del x['checker_ids'][name]
             context['csm_cslog'].overwrite_log(row['username'], row['path'], 'problemstate', x, lock=False)
 
 running = []
@@ -165,7 +165,7 @@ while True:
                                    "because the checker ran for too long.</b></font>")
                 magic = row['magic']
                 newloc = os.path.join(RESULTS, magic[0], magic[1], magic)
-                with open(newloc, 'wb') as f:
+                with open(newloc, 'w') as f:
                     f.write(cslog.prep(row))
                 # then remove from running
                 os.unlink(os.path.join(RUNNING, row['magic']))
@@ -184,7 +184,7 @@ while True:
         if waiting:
             # grab the first thing off the queue, move it to the "running" dir
             first = waiting[0]
-            with open(os.path.join(QUEUED, first), 'rb') as f:
+            with open(os.path.join(QUEUED, first), 'r') as f:
                 row = cslog.unprep(f.read())
             _, magic = first.split('_')
             row['magic'] = magic

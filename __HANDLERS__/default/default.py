@@ -40,7 +40,7 @@ def new_entry(context, qname, action):
            'action': action}
     loc = os.path.join(tempfile.gettempdir(), 'staging', id_)
     os.makedirs(os.path.dirname(loc), exist_ok=True)
-    with open(loc, 'wb') as f:
+    with open(loc, 'w') as f:
         f.write(context['csm_cslog'].prep(obj))
     newloc = os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'queued', '%s_%s' % (time.time(), id_))
     shutil.move(loc, newloc)
@@ -105,11 +105,11 @@ def handle_get_state(context):
         if isinstance(ll[i], set):
             ll[i] = list(ll[i])
     ll['scores'] = {}
-    for k, v in ll.get('last_submit_checker_id', {}).items():
+    for k, v in ll.get('last_submit_id', {}).items():
         try:
             with open(os.path.join(context['cs_data_root'], '__LOGS__',
                                    '_checker', 'results', v[0], v[1], v),
-                      'rb') as f:
+                      'r') as f:
                 row = context['csm_cslog'].unprep(f.read())
         except:
             row = None
@@ -693,8 +693,8 @@ def handle_save(context):
         outdict[name] = out
 
         # cache responses
-        newstate['%s_score_display' % name] = out['score_display']
-        newstate['%s_message' % name] = out['message']
+        newstate['score_displays'][name] = out['score_display']
+        newstate['cached_responses'][name] = out['message']
 
     # update problemstate log
     if len(saved_names) > 0:
@@ -731,8 +731,8 @@ def handle_check(context):
     outdict = {}  # dictionary containing the responses for each question
 
     entry_ids = {}
-    if 'last_checker_id' not in newstate:
-        newstate['last_checker_id'] = {}
+    if 'checker_ids' not in newstate:
+        newstate['checker_ids'] = {}
 
     for name in names:
         if name.startswith('__'):
@@ -769,12 +769,10 @@ def handle_check(context):
         outdict[name] = out
 
         # cache responses
-        newstate['last_checker_id'][name] = entry_id
-        newstate['%s_score_display' % name] = ''
-        msg_key = '%s_message' % name
-        if msg_key in newstate:
-            del newstate[msg_key]
-        newstate['%s_magic' % name] = entry_id
+        newstate['checker_ids'][name] = entry_id
+        newstate['score_displays'][name] = ''
+        if name in newstate.get('messages', {}):
+            del newstate['messages'][name]
 
     # update problemstate log
     uname = context[_n('uname')]
@@ -814,10 +812,16 @@ def handle_submit(context):
     newstate['timestamp'] = context['cs_timestamp']
     if 'last_submit' not in newstate:
         newstate['last_submit'] = {}
-    if 'last_checker_id' not in newstate:
-        newstate['last_checker_id'] = {}
-    if 'last_submit_checker_id' not in newstate:
-        newstate['last_submit_checker_id'] = {}
+    if 'last_submit_id' not in newstate:
+        newstate['last_submit_id'] = {}
+    if 'cached_responses' not in newstate:
+        newstate['cached_responses'] = {}
+    if 'checker_ids' not in newstate:
+        newstate['checker_ids'] = {}
+    if 'extra_data' not in newstate:
+        newstate['extra_data'] = {}
+    if 'score_displays' not in newstate:
+        newstate['score_displays'] = {}
 
     names_done = set()
     outdict = {}  # dictionary containing the responses for each question
@@ -864,18 +868,15 @@ def handle_submit(context):
                                                               else '')}
             out['magic'] = entry_id
             out['score_display'] = ''
-            msg_key = '%s_message' % name
-            if msg_key in newstate:
-                del newstate[msg_key]
-            newstate['%s_magic' % name] = entry_id
-            newstate['last_checker_id'][name] = entry_id
-            newstate['last_submit_checker_id'][name] = entry_id
+            if name in newstate['cached_responses']:
+                del newstate['cached_responses'][name]
+            newstate['checker_ids'][name] = entry_id
+            newstate['last_submit_id'][name] = entry_id
         elif grading_mode == 'legacy':
             # 'legacy' grading mode implements the old behavior: check the
             # submission and cache the result, all within this request.
-            magic_key = '%s_magic' % name
-            if magic_key in newstate:
-                del newstate[magic_key]
+            if name in newstate['checker_ids']:
+                del newstate['checker_ids'][name]
             try:
                 resp = question['handle_submission'](context[_n('form')], **args)
                 score = resp['score']
@@ -887,11 +888,11 @@ def handle_submit(context):
                 msg = exc_message(context)
                 extra = None
             out['score'] = newstate.setdefault('scores', {})[name] = score
-            out['message'] = newstate['%s_message' % name] = msg
+            out['message'] = newstate['cached_responses'][name] = msg
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, score,
                 assume_submit=True)
-            newstate['%s_extra_data' % name] = out['extra_data'] = extra
+            newstate['extra_data'][name] = out['extra_data'] = extra
 
             # auto lock if the option is set.
             if resp.get('lock', False):
@@ -929,19 +930,17 @@ def handle_submit(context):
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, None,
                 assume_submit=True)
-            mag_key = '%s_magic' % name
-            if mag_key in newstate:
-                del newstate[mag_key]
-            newstate['%s_message' % name] = out['message']
+            if name in newstate['checker_ids']:
+                del newstate['checker_ids'][name]
+            newstate['cached_responses'][name] = out['message']
         else:
             out['message'] = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, 0.0,
                 assume_submit=True)
-            mag_key = '%s_magic' % name
-            if mag_key in newstate:
-                del newstate[mag_key]
-            newstate['%s_message' % name] = out['message']
+            if name in newstate['checker_ids']:
+                del newstate['checker_ids'][name]
+            newstate['cached_responses'][name] = out['message']
 
         if submit_succeeded:
             newstate['last_submit_time'] = context['cs_timestamp']
@@ -955,7 +954,7 @@ def handle_submit(context):
         outdict[name] = out
 
         # cache responses
-        newstate['%s_score_display' % name] = out['score_display']
+        newstate['score_displays'][name] = out['score_display']
 
     context[_n('nsubmits_used')] = newstate['nsubmits_used'] = nsubmits_used
 
@@ -1323,14 +1322,14 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += '\n<div id="%s_message">' % args['csq_name']
 
     gmode = _get(args, 'csq_grading_mode', 'auto', str)
-    message = context[_n('last_log')].get('%s_message' % name, '')
-    magic = context[_n('last_log')].get('%s_magic' % name, None)
+    message = context[_n('last_log')].get('cached_responses', {}).get(name, '')
+    magic = context[_n('last_log')].get('checker_ids', {}).get(name, None)
     if magic is not None:
         checker_loc = os.path.join(context['cs_data_root'], '__LOGS__',
                                    '_checker', 'results',
                                    magic[0], magic[1], magic)
         if os.path.isfile(checker_loc):
-            with open(checker_loc, 'rb') as f:
+            with open(checker_loc, 'r') as f:
                 result = context['csm_cslog'].unprep(f.read())
             message = '\n<script type="text/javascript">$("#%s_score_display").html(%r);</script>' % (name, result['score_box'])
             try:
