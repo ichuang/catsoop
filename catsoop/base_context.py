@@ -228,9 +228,16 @@ cs_wsgi_server_port = 6010
 Special: The local port on which the WSGI server should run.
 """
 
-cs_wsgi_server_threads = 10
+cs_wsgi_server_min_processes = 1
 """
-Special: The number of threads in the WSGI server's threadpool
+Special: The minimum number of worker processes the UWSGI server should have
+running
+"""
+
+cs_wsgi_server_max_processes = 1
+"""
+Special: The maximum number of worker processes the UWSGI server should have
+running
 """
 
 # File Upload Type

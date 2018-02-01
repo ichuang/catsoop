@@ -47,23 +47,32 @@ checker_db_loc = os.path.join(base_context.cs_data_root,
 for subdir in ('queued', 'running', 'results'):
     os.makedirs(os.path.join(checker_db_loc, subdir), exist_ok=True)
 
+# set up uWSGI stuff
+
+if base_context.cs_wsgi_server_min_processes >= base_context.cs_wsgi_server_max_processes:
+    uwsgi_opts = ['--processes', str(base_context.cs_wsgi_server_min_processes)]
+else:
+    uwsgi_opts = [
+        '--cheaper', str(base_context.cs_wsgi_server_min_processes),
+        '--workers', str(base_context.cs_wsgi_server_max_processes),
+        '--cheaper-step', '1',
+        '--cheaper-initial', str(base_context.cs_wsgi_server_min_processes),
+    ]
+
+uwsgi_opts = [
+    '--http', ':%s' % base_context.cs_wsgi_server_port,
+    '--thunder-lock',
+    '--wsgi-file', os.path.join('catsoop', 'wsgi.py'),
+    '--touch-reload', os.path.join('catsoop', 'wsgi.py'),
+] + uwsgi_opts
+
 # Now start the workers.
 
 procs = [
     (scripts_dir, [sys.executable, 'checker.py'], 0.1, 'Checker'),
     (scripts_dir, [sys.executable, 'reporter.py'], 0.1, 'Reporter'),
+    (base_dir, ['uwsgi'] + uwsgi_opts, 0.1, 'WSGI Server'),
 ]
-
-wsgi_ports = base_context.cs_wsgi_server_port
-
-if not isinstance(wsgi_ports, list):
-    wsgi_ports = [wsgi_ports]
-
-for port in wsgi_ports:
-    procs.append((scripts_dir,
-                  [sys.executable, 'wsgi_server.py', str(port)],
-                  0.1,
-                  'WSGI Server at Port %d' % port))
 
 running = []
 
