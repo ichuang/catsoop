@@ -526,7 +526,9 @@ def do_late_load(context, course, path, into, content_file=None):
     last_mod = os.stat(content_file).st_mtime
     cache = into['csm_cslog'].most_recent('_question_points', [course] + path,
                                           'question_points', None)
-    if course not in {None, 'cs_util'} and (cache is None or last_mod > cache['timestamp']):
+    if (course not in {None, 'cs_util'}
+            and (cache is None or last_mod > cache['timestamp']) and
+            'cs_problem_spec' in into):
         qs = OrderedDict()
         for i in into['cs_problem_spec']:
             if isinstance(i, tuple):
