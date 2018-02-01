@@ -219,42 +219,8 @@ def most_recent(db_name, path, logname, default=None, lock=True):
     #get an exclusive lock on this file before reading it
     cm = FileLock(fname) if lock else passthrough()
     with cm as lock:
-        f = open(fname, 'rb')
-        sep = b'\n\n'
-        lsep = len(sep)
-        offset = 0
-        f.seek(0, 2)
-        blocksize = 1024
-        numbytes = f.tell() - offset
-        block = -1
-        data = b''
-        while True:
-            if numbytes - blocksize > offset:
-                # if we are more than one "blocksize" from the start of
-                # the file (counting from the end), add that block to our
-                # buffer and continue on
-                f.seek(block * blocksize, 2)
-                data = f.read(blocksize) + data
-            else:
-                # otherwise, seek to the start of the file and read
-                # through to the end
-                f.seek(offset, 0)
-                # need to split on this next line because some entries
-                # may be shorter than one "blocksize"
-                data = (f.read(numbytes) + data)[:-lsep].split(sep)[-1]
-                f.close()
-                return unprep(data.decode())
-            # update our counters
-            block -= 1
-            numbytes -= blocksize
-            # if we found a break (or multiple breaks), we are done.  grab
-            # the data and return.
-            breaks = data[:-lsep].count(sep)
-            if breaks >= 1:
-                f.close()
-                data = data[:-lsep]
-                t = data[data.rfind(sep)+lsep:]
-                return unprep(t.decode())
+        with open(fname, 'r') as f:
+            return unprep(f.read().rsplit(sep, 2)[-2])
 
 
 def modify_most_recent(db_name, path, logname, default=None, transform_func=lambda x: x, method='update', lock=True):
