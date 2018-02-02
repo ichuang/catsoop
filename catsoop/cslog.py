@@ -109,16 +109,9 @@ def update_log(db_name, path, logname, new, lock=True):
     # look up the separator and the data
     cm = FileLock(fname) if lock else passthrough()
     with cm as lock:
-        try:
-            create_if_not_exists(os.path.dirname(fname))
-            with open(fname, 'r') as f:
-                data = f.read()
-        except:
-            overwrite_log(db_name, path, logname, new, lock=False)
-            return
-        new = prep(new)
+        os.makedirs(os.path.dirname(fname), exist_ok=True)
         with open(fname, 'a') as f:
-            f.write(new + sep)
+            f.write(prep(new) + sep)
 
 
 def _overwrite_log(fname, new):
