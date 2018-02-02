@@ -17,6 +17,12 @@ FIXED:
 * Fixed an issue that caused a misleading error message when the remote Python
   sandbox couldn't be reached.
 
+* Fixed a misleading error message about how to install jose when using the
+  "openid_connect" authentication type.
+
+* Fixed a broken link after an error message when using the "openid_connect"
+  authentication type.
+
 SECURITY:
 
 DOCUMENTATION:

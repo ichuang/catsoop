@@ -93,7 +93,7 @@ if error is None:
                 import jose
             except:
                 error = ('Verifying JWT signatures requires installing '
-                         'python-jose (<tt>pip install python-jose</tt>).')
+                         'python-jose (<tt>sudo pip3 install python-jose</tt>).')
 
         if error is None:
             from jose import jwk
@@ -181,5 +181,5 @@ if error is None:
 else:
     cs_handler = 'passthrough'
     cs_content_header = 'Could Not Log You In'
-    cs_content = 'You could not be logged in to the system because of the following error:<br/><font color="red">%s</font><p>Click <a href="%s?loginaction=redirect">here</a> to try again.' % (error, redirect_location)
+    cs_content = 'You could not be logged in to the system because of the following error:<br/><font color="red">%s</font><p>Click <a href="%s?loginaction=login">here</a> to try again.' % (error, redirect_location)
     cs_footer = cs_footer.replace(cs_base_logo_text, csm_errors.error_500_logo)
