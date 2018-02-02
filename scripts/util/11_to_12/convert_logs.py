@@ -35,7 +35,7 @@ for root, dirs, files in os.walk(logroot):
             logname = fn[:-4]
         print(loguser, logpath, logname)
         with open(os.path.join(root, fn), 'rb') as f:
-            sep = f.readline()
+            sep = f.readline().strip()
             data = f.read().split(sep)
         os.unlink(os.path.join(root, fn))
         for d in data:
