@@ -223,6 +223,11 @@ Special: The number of checks the checker should run simultaneously.
 
 # UWSGI Server
 
+cs_wsgi_server = 'cheroot'
+"""
+The WSGI server to use.  Currently, must be 'cheroot' or 'uwsgi'
+"""
+
 cs_wsgi_server_port = 6010
 """
 Special: The local port on which the WSGI server should run.

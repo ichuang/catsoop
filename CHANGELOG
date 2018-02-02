@@ -11,8 +11,8 @@ ADDED:
 
 CHANGED:
 
-* CAT-SOOP once again depends on uWSGI, and the options for configuring the
-  WSGI server have reverted as well.
+* CAT-SOOP can optionally be configured to use uWSGI, and the options for
+  configuring the WSGI server have changed.
 
 * Logs are now stored in plain-text files, as opposed to binary log files.
 

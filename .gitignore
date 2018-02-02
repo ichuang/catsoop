@@ -1,5 +1,3 @@
-syntax: glob
-
 # rethink logs and node modules
 scripts/node_modules/
 scripts/rethinkdb_data/
