@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
+###################
+# Verssion 12.0.0 #
+###################
 
 ADDED:
 
@@ -23,17 +21,9 @@ CHANGED:
 * "question_points" is no longer a valid key in tutor.compute_page_stats.
   "question_info" should be used instead.
 
-DEPRECATED:
-
-REMOVED:
-
 FIXED:
 
 * Fixed a bug with rendering of scores when manual grades are submitted.
-
-SECURITY:
-
-DOCUMENTATION:
 
 
 ##################
