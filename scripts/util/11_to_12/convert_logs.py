@@ -53,7 +53,7 @@ for root, dirs, files in os.walk(logroot):
                         if k.endswith(end):
                             if newkey not in new:
                                 new[newkey] = {}
-                            new[newkey][k[:len(end)]] = v
+                            new[newkey][k[:-len(end)]] = v
                             broken = True
                             break
                     if not broken:

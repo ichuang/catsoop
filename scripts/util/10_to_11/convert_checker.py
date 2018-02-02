@@ -10,7 +10,9 @@ import catsoop.cslog as cslog
 import catsoop.base_context as bc
 
 results = os.path.join(bc.cs_data_root, '__LOGS__', '_checker', 'results')
-for fname in os.listdir(results):
+for fname in sorted(os.listdir(results)):
+    if len(fname) == 1:
+        continue
     print(fname)
     newdir = os.path.join(results, fname[0], fname[1])
     os.makedirs(newdir, exist_ok=True)
