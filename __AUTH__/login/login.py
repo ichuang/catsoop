@@ -546,7 +546,7 @@ def compute_password_hash(password, salt=None, iterations=500000, aes_key_loc=No
     Given a password, and (optionally) an associated salt, return a hash value.
     """
     hash_ = hashlib.pbkdf2_hmac('sha512', _ensure_bytes(password),
-                                salt,
+                                _ensure_bytes(salt),
                                 iterations)
     if aes_key_loc is not None:
         if not os.path.isfile(aes_key_loc):

@@ -6,7 +6,7 @@ import sqlite3
 import zlib
 
 this_dir = os.path.dirname(__file__)
-catsoop_root = os.path.abspath(os.path.join(this_dir, '..', '..'))
+catsoop_root = os.path.abspath(os.path.join(this_dir, '..', '..', '..'))
 sys.path.append(catsoop_root)
 
 import catsoop.cslog as cslog
