@@ -1,3 +1,27 @@
+########################
+# Current Developments #
+########################
+
+Work toward next release.  Currently under development.
+
+ADDED:
+
+CHANGED:
+
+DEPRECATED:
+
+REMOVED:
+
+FIXED:
+
+* Fixed an issue that caused a misleading error message when the remote Python
+  sandbox couldn't be reached.
+
+SECURITY:
+
+DOCUMENTATION:
+
+
 ##################
 # Version 12.0.0 #
 ##################

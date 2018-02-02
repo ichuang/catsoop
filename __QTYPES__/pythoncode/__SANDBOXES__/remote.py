@@ -33,6 +33,6 @@ def run_code(context, code, options):
         fname = resp['filename']
     except:
         out = ''
-        err = 'CAT-SOOP: Could not connect to %s' % SANDBOX_URL
+        err = 'CAT-SOOP: Could not connect to %s' % context.get('csq_sandbox_url', SANDBOX_URL)
         fname = ''
     return fname, out, err
