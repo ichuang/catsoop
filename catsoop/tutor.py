@@ -186,7 +186,7 @@ def read_checker_result(context, magic):
             question types that don't return extra data
     """
     with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker',
-              'results', magic[0], magic[1], magic), 'rb') as f:
+              'results', magic[0], magic[1], magic), 'r') as f:
         out = context['csm_cslog'].unprep(f.read())
     return out
 
