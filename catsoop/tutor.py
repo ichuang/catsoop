@@ -212,8 +212,8 @@ def compute_page_stats(context, user, path, keys=None):
     * `'questions'`: an `OrderedDict` mapping question names to tuples, in the
         same order they are specified on the page.  each value is a tuple of
         the form outputted by `catsoop.tutor.question`
-    * `'question_points'`: an ordered dictionary mapping question names to
-        the number of points they are worth
+    * `'question_info'`: an ordered dictionary mapping question names to
+        dictionaries with information about those questions
     * `'state'`: the user's most recent "problemstate" log entry for this page
     * `'actions'`: a list containing all the user's actions on this page
     * `'manual_grades'`: a list containing all manual grading entries for the
@@ -240,7 +240,7 @@ def compute_page_stats(context, user, path, keys=None):
     logging = cslog
     if keys is None:
         keys = [
-            'context', 'questions', 'question_points', 'state', 'actions',
+            'context', 'questions', 'question_info', 'state', 'actions',
             'manual_grades',
         ]
     keys = list(keys)
@@ -255,11 +255,11 @@ def compute_page_stats(context, user, path, keys=None):
     if 'manual_grades' in keys:
         keys.remove('manual_grades')
         out['manual_grades'] = logging.read_log(user, path, 'problemgrades')
-    if 'question_points' in keys and 'context' not in keys:
-        qp_log = logging.most_recent('_question_points', path, 'question_points', None)
-        if qp_log is not None:
-            keys.remove('question_points')
-            out['question_points'] = qp_log['questions']
+    if 'question_info' in keys and 'context' not in keys:
+        qi_log = logging.most_recent('_question_info', path, 'question_info', None)
+        if qi_log is not None:
+            keys.remove('question_info')
+            out['question_info'] = qi_log['questions']
 
     if len(keys) == 0:
         return out
@@ -289,13 +289,15 @@ def compute_page_stats(context, user, path, keys=None):
     if 'questions' in keys:
         keys.remove('questions')
         out['questions'] = new['cs_defaulthandler_name_map']
-    if 'question_points' in keys:
-        keys.remove('question_points')
+    if 'question_info' in keys:
+        keys.remove('question_info')
         items = new['cs_defaulthandler_name_map'].items()
-        out['question_points'] = OrderedDict(
-            (n, q['total_points'](**a))
-            for (n, (q, a)) in items
-        )
+        out['question_info'] = OrderedDict()
+        for (n, (q, a)) in items:
+            qi = out['question_info'][n] = {}
+            qi['csq_name'] = n
+            qi['csq_npoints'] = q['total_points'](**a)
+            qi['csq_display_name'] = a.get('csq_display_name', 'csq_name')
     for k in keys:
         out[k] = None
     return out

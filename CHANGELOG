@@ -6,8 +6,8 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
-* Added a cache of question point values, to avoid having to fake a page load
-  to get question point values in tutor.compute_page_stats.
+* Added a cache of question information, to avoid having to fake a page load
+  to get question information in tutor.compute_page_stats.
 
 CHANGED:
 
@@ -19,6 +19,9 @@ CHANGED:
 * Page views are no longer logged in the problemactions log.
 
 * Updated KaTeX to 0.9.0-beta1.
+
+* "question_points" is no longer a valid key in tutor.compute_page_stats.
+  "question_info" should be used instead.
 
 DEPRECATED:
 

@@ -524,17 +524,20 @@ def do_late_load(context, course, path, into, content_file=None):
     run_plugins(context, course, 'post_load', into)
     language.source_formats[into['cs_source_format']](into)
     last_mod = os.stat(content_file).st_mtime
-    cache = into['csm_cslog'].most_recent('_question_points', [course] + path,
-                                          'question_points', None)
+    cache = into['csm_cslog'].most_recent('_question_info', [course] + path,
+                                          'question_info', None)
     if (course not in {None, 'cs_util'}
             and (cache is None or last_mod > cache['timestamp']) and
             'cs_problem_spec' in into):
         qs = OrderedDict()
         for i in into['cs_problem_spec']:
             if isinstance(i, tuple):
-                qs[i[1]['csq_name']] = i[0]['total_points'](**i[1])
-        into['csm_cslog'].overwrite_log('_question_points', [course] + path,
-                                        'question_points',
+                x = qs[i[1]['csq_name']] = {}
+                x['csq_npoints'] = i[0]['total_points'](**i[1])
+                x['csq_name'] = i[1]['csq_name']
+                x['csq_display_name'] = i[1].get('csq_display_name', x['csq_name'])
+        into['csm_cslog'].overwrite_log('_question_info', [course] + path,
+                                        'question_info',
                                         {'timestamp': last_mod,
                                          'questions': qs})
     if 'cs_pre_handle' in into:
