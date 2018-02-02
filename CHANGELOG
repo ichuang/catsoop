@@ -14,9 +14,11 @@ CHANGED:
 * CAT-SOOP can optionally be configured to use uWSGI, and the options for
   configuring the WSGI server have changed.
 
-* Logs are now stored in plain-text files, as opposed to binary log files.
+* Logs are now stored in plain-text files, as opposed to binary log file.
 
 * Page views are no longer logged in the problemactions log.
+
+* Updated KaTeX to 0.9.0-beta1.
 
 DEPRECATED:
 

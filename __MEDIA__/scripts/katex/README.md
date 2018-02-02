@@ -16,8 +16,8 @@ KaTeX supports all major browsers, including Chrome, Safari, Firefox, Opera, Edg
 You can [download KaTeX](https://github.com/khan/katex/releases) and host it on your server or include the `katex.min.js` and `katex.min.css` files on your page directly from a CDN:
 
 ```html
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.css" integrity="sha384-8QOKbPtTFvh/lMY0qPVbXj9hDh+v8US0pD//FcoYFst2lCIf0BmT58+Heqj0IGyx" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha1/katex.min.js" integrity="sha384-GR8SEkOO1rBN/jnOcQDFcFmwXAevSLx7/Io9Ps1rkxWp983ZIuUGfxivlF/5f5eJ" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.css" integrity="sha384-VEnyslhHLHiYPca9KFkBB3CMeslnM9CzwjxsEbZTeA21JBm7tdLwKoZmCt3cZTYD" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-beta1/katex.min.js" integrity="sha384-O4hpKqcplNCe+jLuBVEXC10Rn1QEqAmX98lKAIFBEDxZI0a+6Z2w2n8AEtQbR4CD" crossorigin="anonymous"></script>
 ```
 
 #### In-browser rendering
@@ -48,7 +48,7 @@ You can provide an object of options as the last argument to `katex.render` and 
 - `displayMode`: `boolean`. If `true` the math will be rendered in display mode, which will put the math in display style (so `\int` and `\sum` are large, for example), and will center the math on the page on its own line. If `false` the math will be rendered in inline mode. (default: `false`)
 - `throwOnError`: `boolean`. If `true`, KaTeX will throw a `ParseError` when it encounters an unsupported command. If `false`, KaTeX will render the unsupported command as text in the color given by `errorColor`. (default: `true`)
 - `errorColor`: `string`. A color string given in the format `"#XXX"` or `"#XXXXXX"`. This option determines the color which unsupported commands are rendered in. (default: `#cc0000`)
-- `macros`: `object`. A collection of custom macros. Each macro is a property with a name like `\name` (written `"\\name"` in JavaScript) which maps to a string that describes the expansion of the macro.
+- `macros`: `object`. A collection of custom macros. Each macro is a property with a name like `\name` (written `"\\name"` in JavaScript) which maps to a string that describes the expansion of the macro. Single-character keys can also be included in which case the character will be redefined as the given macro (similar to TeX active characters).
 - `colorIsTextColor`: `boolean`. If `true`, `\color` will work like LaTeX's `\textcolor`, and take two arguments (e.g., `\color{blue}{hello}`), which restores the old behavior of KaTeX (pre-0.8.0). If `false` (the default), `\color` will work like LaTeX's `\color`, and take one argument (e.g., `\color{blue}hello`).  In both cases, `\textcolor` works as in LaTeX (e.g., `\textcolor{blue}{hello}`).
 - `maxSize`: `number`. If non-zero, all user-specified sizes, e.g. in `\rule{500em}{500em}`, will be capped to `maxSize` ems. Otherwise, users can make elements and spaces arbitrarily large (the default behavior).
 
@@ -85,6 +85,30 @@ to LaTeX with a 10pt font; for example, the rectangle `\rule{1cm}{1em}` has
 the same aspect ratio in KaTeX as in LaTeX.  However, because most browsers
 default to a larger font size, this typically means that a 1cm kern in KaTeX
 will appear larger than 1cm in browser units.
+
+### Common Issues
+- Many Markdown preprocessors, such as the one that Jekyll and GitHub Pages use,
+  have a "smart quotes" feature.  This changes `'` to `’` which is an issue for
+  math containing primes, e.g. `f'`.  This can be worked around by defining a
+  single character macro which changes them back, e.g. `{"’", "'"}`.
+- KaTeX follows LaTeX's rendering of `aligned` and `matrix` environments unlike
+  MathJax.  When displaying fractions one above another in these vertical
+  layouts there may not be enough space between rows for people who are used to
+  MathJax's rendering.  The distance between rows can be adjusted by using
+  `\\[0.1em]` instead of the standard line separator distance.
+- KaTeX does not support the `align` environment because LaTeX doesn't support
+  `align` in math mode.  The `aligned` environment offers the same functionality
+  but in math mode, so use that instead or define a macro that maps `align` to
+  `aligned`.
+
+## Libraries
+
+### Angular2+
+- [ng-katex](https://github.com/garciparedes/ng-katex) Angular module to write beautiful math expressions with TeX syntax boosted by KaTeX library
+
+### Ruby
+
+- [katex-ruby](https://github.com/glebm/katex-ruby) Provides server-side rendering and integration with popular Ruby web frameworks (Rails, Hanami, and anything that uses Sprockets).
 
 ## Contributing
 
