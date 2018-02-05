@@ -24,6 +24,8 @@ import traceback
 import collections
 import multiprocessing
 
+from datetime import datetime
+
 CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if CATSOOP_LOC not in sys.path:
     sys.path.append(CATSOOP_LOC)
@@ -63,6 +65,7 @@ def do_check(row):
     context['cs_username'] = row['username']
     context['cs_user_info'] = {'username': row['username']}
     context['cs_user_info'] = auth.get_user_information(context)
+    context['cs_now'] = datetime.fromtimestamp(row['time'])
     cfile = dispatch.content_file_location(context, row['path'])
     loader.do_late_load(context, context['cs_course'], context['cs_path_info'], context, cfile)
 

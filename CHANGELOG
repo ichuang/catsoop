@@ -14,6 +14,8 @@ REMOVED:
 
 FIXED:
 
+* The checker script is now aware of the cs_now variable.
+
 * Fixed an issue that caused a misleading error message when the remote Python
   sandbox couldn't be reached.
 
