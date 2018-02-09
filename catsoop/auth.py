@@ -171,7 +171,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
         defaults = context.get('cs_default_permissions', ['view'])
         into['permissions'] = plist.get(into['role'], defaults)
         spoofed_role = context.get('cs_form', {}).get('as_role', None)
-        if spoofed_role is not None:
+        if spoofed_role is not None and 'impersonate' in into['permissions']:
             into['role'] = spoofed_role
             orig_p = into['permissions']
             spoofed_p = plist.get(spoofed_role, defaults)

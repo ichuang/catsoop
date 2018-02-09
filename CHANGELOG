@@ -29,6 +29,9 @@ FIXED:
 
 SECURITY:
 
+* Prevented "as_role"  from affecting the 'role' field in cs_user_info if the
+  user does not have the "impersonate" permission.
+
 DOCUMENTATION:
 
 
