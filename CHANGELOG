@@ -6,6 +6,8 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* Added questions' types to the "question_info" cache.
+
 CHANGED:
 
 DEPRECATED:

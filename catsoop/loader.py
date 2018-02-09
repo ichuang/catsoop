@@ -536,6 +536,7 @@ def do_late_load(context, course, path, into, content_file=None):
                 x['csq_npoints'] = i[0]['total_points'](**i[1])
                 x['csq_name'] = i[1]['csq_name']
                 x['csq_display_name'] = i[1].get('csq_display_name', x['csq_name'])
+                x['qtype'] = i[0]['qtype']
         into['csm_cslog'].overwrite_log('_question_info', [course] + path,
                                         'question_info',
                                         {'timestamp': last_mod,
