@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hartz@mit.edu>
+# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free

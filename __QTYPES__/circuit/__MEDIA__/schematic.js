@@ -1,5 +1,5 @@
 /* This file is part of CAT-SOOP
- * Copyright (c) 2011-2018 Adam Hartz <hartz@mit.edu>
+ * Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -23,7 +23,7 @@
  *    https://github.com/edx/edx-platform/blob/6d2468d0dcf782a7561ecc61946146d6fae2762f/common/lib/xmodule/xmodule/js/src/capa/schematic.js
  *
  *
- * Modified for CAT-SOOP by Adam J Hartz <hartz@mit.edu> on 3-4 July 2017:
+ * Modified for CAT-SOOP by Adam J Hartz <hz@mit.edu> on 3-4 July 2017:
  *     * Lots of formatting changes.
  *     * Added units to "edit properties" dialogs.
  *     * Removed several comments throughout that are no longer relevant.
