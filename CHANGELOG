@@ -19,6 +19,9 @@ REMOVED:
 
 FIXED:
 
+* In the default handler, ensure handle_check creates all problemstate fields
+  if they don't already exist.
+
 * The checker script is now aware of the cs_now variable.
 
 * Fixed an issue that caused a misleading error message when the remote Python

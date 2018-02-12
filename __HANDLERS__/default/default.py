@@ -733,6 +733,16 @@ def handle_check(context):
     entry_ids = {}
     if 'checker_ids' not in newstate:
         newstate['checker_ids'] = {}
+    if 'last_submit' not in newstate:
+        newstate['last_submit'] = {}
+    if 'last_submit_id' not in newstate:
+        newstate['last_submit_id'] = {}
+    if 'cached_responses' not in newstate:
+        newstate['cached_responses'] = {}
+    if 'extra_data' not in newstate:
+        newstate['extra_data'] = {}
+    if 'score_displays' not in newstate:
+        newstate['score_displays'] = {}
 
     for name in names:
         if name.startswith('__'):
