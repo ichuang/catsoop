@@ -240,7 +240,7 @@ def compute_page_stats(context, user, path, keys=None):
     logging = cslog
     if keys is None:
         keys = [
-            'context', 'questions', 'question_info', 'state', 'actions',
+            'context', 'question_info', 'state', 'actions',
             'manual_grades',
         ]
     keys = list(keys)
@@ -286,9 +286,6 @@ def compute_page_stats(context, user, path, keys=None):
     if 'context' in keys:
         keys.remove('context')
         out['context'] = new
-    if 'questions' in keys:
-        keys.remove('questions')
-        out['questions'] = new['cs_defaulthandler_name_map']
     if 'question_info' in keys:
         keys.remove('question_info')
         items = new['cs_defaulthandler_name_map'].items()
@@ -298,6 +295,7 @@ def compute_page_stats(context, user, path, keys=None):
             qi['csq_name'] = n
             qi['csq_npoints'] = q['total_points'](**a)
             qi['csq_display_name'] = a.get('csq_display_name', 'csq_name')
+            qi['qtype'] = q['qtype']
     for k in keys:
         out[k] = None
     return out

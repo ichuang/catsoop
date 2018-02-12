@@ -14,6 +14,9 @@ DEPRECATED:
 
 REMOVED:
 
+* "questions" is no longer a valid key for tutor.compute_page_stats, as it is
+  redundant with "question_info"
+
 FIXED:
 
 * The checker script is now aware of the cs_now variable.
