@@ -24,6 +24,9 @@ REMOVED:
 
 FIXED:
 
+* Fixed a bug where API token was not being properly set when impersonating a
+  user.
+
 * In the default handler, ensure handle_check creates all problemstate fields
   if they don't already exist.
 
