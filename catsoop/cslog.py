@@ -34,8 +34,6 @@ add new Python objects to a log.
 import os
 import re
 import ast
-import zlib
-import pickle
 import contextlib
 
 from collections import OrderedDict
@@ -43,7 +41,8 @@ from collections import OrderedDict
 from .tools.pretty import pretty
 
 _nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'create_if_not_exists',
-          'get_separator', 'good_separator', 'modify_most_recent'}
+          'get_separator', 'good_separator', 'modify_most_recent', 'NoneType',
+          'OrderedDict', 'pretty'}
 
 @contextlib.contextmanager
 def passthrough():
@@ -59,7 +58,7 @@ def create_if_not_exists(directory):
 
 def prep(x):
     """
-    Helper function to pickle and compress a Python object.
+    Helper function to serialize a Python object.
     """
     return pretty(x)
 
