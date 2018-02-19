@@ -21,10 +21,10 @@ From a high-level perspective, CAT-SOOP's logs are sequences of Python objects.
 A log is identified by a `db_name` (typically a username), a `path` (a list of
 strings starting with a course name), and a `logname` (a string).
 
-On disk, each log is a file containing zipped, pickled Python objects,
-separated by a known value that is guaranteed not to exist in any of the
-pickled objects.  This is an implementation detail that most people shouldn't
-need to worry about.
+On disk, each log is a file containing pretty-printed Python objects separated
+by blank lines.  This is an implementation detail that most people shouldn't
+need to worry about, but it does mean that log files cna be read or manipulated
+manually, in addition to using the functions in this module.
 
 This module provides functions for interacting with and modifying those logs.
 In particular, it provides ways to retrieve the Python objects in a log, or to
