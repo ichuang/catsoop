@@ -1,11 +1,13 @@
+```
 \
 /    /\__/\
 \__=(  o_O )=
 (__________)
  |_ |_ |_ |_
+```
 
 
-CAT-SOOP
+## CAT-SOOP
 
 * Web Site: https://catsoop.mit.edu
       (or as a Tor "onion service" at http://qcyec3cqcnryllwpcgszrr3uptmqyvnduyixf5lsvfjkpmmh6t6vhtyd.onion/)
@@ -20,7 +22,7 @@ CAT-SOOP
 * No animals were harmed in the making of this CAT-SOOP.
 
 
-WHAT IS IT?
+### WHAT IS IT?
 
 CAT-SOOP is a tool for automatic collection and assessment of online
 exercises, originally developed primarily for use in MIT's 6.01 (Introduction
@@ -33,25 +35,25 @@ any course material hosted on a CAT-SOOP instance, unless explicitly stated
 otherwise.
 
 
-HOW DO I INSTALL IT?
+### HOW DO I INSTALL IT?
 
 See the "installation quick-start guide" at:
     https://catsoop.mit.edu/website/docs/installing
 
 
-IS IT ANY GOOD?
+### IS IT ANY GOOD?
 
 Yes.
 
 
-DEPENDENCIES AND INCLUDED SOFTWARE
+### DEPENDENCIES AND INCLUDED SOFTWARE
 
 CAT-SOOP is built with the Python programming language, version 3.5+
   (https://www.python.org/).
 
 The CAT-SOOP distribution also includes several pieces of third-party software,
 listed below.  Licensing information for these components is included in this
-distribution, in the LICENSE.included_software file.
+distribution, in the `LICENSE.included_software` file.
 
 CAT-SOOP includes verbatim copies of:
   * Bootstrap (http://getbootstrap.com/)
