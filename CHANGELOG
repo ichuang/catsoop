@@ -24,6 +24,9 @@ REMOVED:
 
 FIXED:
 
+* Entering an empty expression and entering an invalid expression to a
+  "pythonic" question now produce the same error message.
+
 * Fixed a bug where API token was not being properly set when impersonating a
   user.
 

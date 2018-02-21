@@ -41,6 +41,10 @@ def gensym(code=''):
         count += 1
     return n
 
+INVALID_SUBMISSION_MSG = ('<font color="red">Your submission could not be '
+                          'evaluated.  Please check that you have entered a '
+                          'valid Python expression.</font>  ')
+
 def handle_submission(submissions, **info):
     py3k = info.get('csq_python3', True)
     sub = submissions[info['csq_name']]
@@ -66,7 +70,7 @@ def handle_submission(submissions, **info):
     try:
         code = info['csq_code_pre']
         if sub == '':
-            return {'score': 0.0, 'msg': ''}
+            return {'score': 0.0, 'msg': INVALID_SUBMISSION_MSG}
         varname = gensym(code + sub)
         code += '\n%s = %s' % (varname, sub)
         if py3k:
@@ -87,7 +91,7 @@ def handle_submission(submissions, **info):
             except:
                 pass
         if msg == '':
-            msg = '<font color="red">Your submission could not be evaluated.  Please check that you have entered a valid Python expression.</font>  '
+            msg = INVALID_SUBMISSION_MSG
         if info['csq_show_check']:
             msg += '<img src="%s" /><br/>' % info['cs_cross_image']
         return {'score': 0.0,
