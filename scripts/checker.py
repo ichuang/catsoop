@@ -136,13 +136,11 @@ def do_check(row):
         lockname = context['csm_cslog'].get_log_filename(row['username'], row['path'], 'problemstate')
         with context['csm_cslog'].FileLock(lockname) as lock:
             x = context['csm_cslog'].most_recent(row['username'], row['path'], 'problemstate', {}, lock=False)
-            x.setdefault('scores', {})[name] = row['score']
-            mag_key = '%s_magic' % name
+            if row['action'] == 'submit':
+                x.setdefault('scores', {})[name] = row['score']
             x.setdefault('score_displays', {})[name] = row['score_box']
             x.setdefault('cached_responses', {})[name] = row['response']
             x.setdefault('extra_data', {})[name] = row['extra_data']
-            if name in x.get('checker_ids', {}):
-                del x['checker_ids'][name]
             context['csm_cslog'].overwrite_log(row['username'], row['path'], 'problemstate', x, lock=False)
 
 running = []

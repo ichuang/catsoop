@@ -24,6 +24,9 @@ REMOVED:
 
 FIXED:
 
+* Fixed an issue that caused scores in the "problemstate" log to be overwritten
+  with `None` when the "check" button was used.
+
 * Entering an empty expression and entering an invalid expression to a
   "pythonic" question now produce the same error message.
 
