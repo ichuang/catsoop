@@ -296,6 +296,7 @@ def compute_page_stats(context, user, path, keys=None):
             qi['csq_npoints'] = q['total_points'](**a)
             qi['csq_display_name'] = a.get('csq_display_name', 'csq_name')
             qi['qtype'] = q['qtype']
+            qi['csq_grading_mode'] = a.get('csq_grading_mode', 'auto')
     for k in keys:
         out[k] = None
     return out
