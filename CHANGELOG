@@ -24,6 +24,9 @@ REMOVED:
 
 FIXED:
 
+* "expression" questions now support implicit multiplication by j (the
+  imaginary unit).
+
 * Fixed an issue that caused scores in the "problemstate" log to be overwritten
   with `None` when the "check" button was used.
 

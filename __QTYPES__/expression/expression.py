@@ -597,9 +597,18 @@ def _opt_clear_dec_part(x):
 
 def number2tex(context, funcs, x):
     n = x[1].lower()
+    if n.endswith('j'):
+        imag = True
+        n = n[:-1]
+    else:
+        imag = False
     if 'e' in n:
-        return (r'%s\cdot 10^{%s}' % tuple(n.split('e')), 22)
-    return x[1], 5
+        o = [r'%s\times 10^{%s}' % tuple(n.split('e')), 22]
+    else:
+        o = [n, 5]
+    if imag:
+        o[0] += 'j'
+    return tuple(o)
 
 
 _tree_map = {

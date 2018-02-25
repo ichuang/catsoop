@@ -33,7 +33,7 @@ def parser(lex=None, yacc=None):
     t_RPAREN = r"\)"
 
     t_NAME = r"[A-Za-z][A-Za-z0-9]*(_[A-Za-z0-9]*)?"
-    t_NUMBER = r"((\d+\.\d*|\.\d+)([eE][-+]?\d+)?|\d+[eE][-+]?\d+|\d+)"
+    t_NUMBER = r"((\d+\.\d*|\.\d+)([eE][-+]?\d+)?|\d+[eE][-+]?\d+|\d+)[jJ]?"
 
     lex.lex()
 
