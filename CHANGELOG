@@ -24,6 +24,9 @@ REMOVED:
 
 FIXED:
 
+* The "question_info" cache is now checked/updated after the pre_handle plugin
+  is executed, rather than after.
+
 * "expression" questions now support implicit multiplication by j (the
   imaginary unit).
 
