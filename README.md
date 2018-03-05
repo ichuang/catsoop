@@ -1,4 +1,4 @@
-```
+```nohighlight
 \
 /    /\__/\
 \__=(  o_O )=
@@ -9,15 +9,15 @@
 
 ## CAT-SOOP
 
-* Web Site: https://catsoop.mit.edu
-      (or as a Tor "onion service" at http://qcyec3cqcnryllwpcgszrr3uptmqyvnduyixf5lsvfjkpmmh6t6vhtyd.onion/)
+* Web Site: <https://catsoop.mit.edu>
+      (or as a Tor "onion service" at <http://qcyec3cqcnryllwpcgszrr3uptmqyvnduyixf5lsvfjkpmmh6t6vhtyd.onion/>)
 
-* Repository Web Access: https://gitlab.com/adqm/cat-soop
+* Repository Web Access / Issue Tracker: <https://catsoop.mit.edu/git>
 
 * IRC: #cat-soop on OFTC (irc.oftc.net)
 
 * Mailing List: catsoop-users@mit.edu
-      (subscribe at http://mailman.mit.edu/mailman/listinfo/catsoop-users)
+      (subscribe at <http://mailman.mit.edu/mailman/listinfo/catsoop-users>)
 
 * No animals were harmed in the making of this CAT-SOOP.
 
@@ -37,8 +37,7 @@ otherwise.
 
 ### HOW DO I INSTALL IT?
 
-See the "installation quick-start guide" at:
-    https://catsoop.mit.edu/website/docs/installing
+See the "installation quick-start guide" at <https://catsoop.mit.edu/website/docs/installing>
 
 
 ### IS IT ANY GOOD?
@@ -48,27 +47,26 @@ Yes.
 
 ### DEPENDENCIES AND INCLUDED SOFTWARE
 
-CAT-SOOP is built with the Python programming language, version 3.5+
-  (https://www.python.org/).
+CAT-SOOP is built with the Python programming language, version 3.5+ (<https://www.python.org/>).
 
 The CAT-SOOP distribution also includes several pieces of third-party software,
 listed below.  Licensing information for these components is included in this
 distribution, in the `LICENSE.included_software` file.
 
 CAT-SOOP includes verbatim copies of:
-  * Bootstrap (http://getbootstrap.com/)
-  * highlight.js (https://highlightjs.org/)
-  * jQuery (https://jquery.com/)
-  * KaTeX (https://github.com/Khan/KaTeX)
-  * MathJax (https://www.mathjax.org/)
-  * PLY (http://www.dabeaz.com/ply/)
-  * pyaes (https://github.com/ricmoo/pyaes)
-  * Python-Markdown (https://pythonhosted.org/Markdown/)
-  * SweetAlert2 (https://limonte.github.io/sweetalert2/)
-  * websockets (https://github.com/aaugustin/websockets)
+  * Bootstrap (<http://getbootstrap.com/>)
+  * highlight.js (<https://highlightjs.org/>)
+  * jQuery (<https://jquery.com/>)
+  * KaTeX (<https://github.com/Khan/KaTeX>)
+  * MathJax (<https://www.mathjax.org/>)
+  * PLY (<http://www.dabeaz.com/ply/>)
+  * pyaes (<https://github.com/ricmoo/pyaes>)
+  * Python-Markdown (<https://pythonhosted.org/Markdown/>)
+  * SweetAlert2 (<https://limonte.github.io/sweetalert2/>)
+  * websockets (<https://github.com/aaugustin/websockets>)
 
 CAT-SOOP includes modified versions of:
-  * BeautifulSoup (https://www.crummy.com/software/BeautifulSoup/)
-  * cheroot (https://pypi.python.org/pypi/Cheroot)
-  * DataURI.py (https://gist.github.com/zacharyvoase/5538178)
-  * fast-sha256-js (https://github.com/dchest/fast-sha256-js)
+  * BeautifulSoup (<https://www.crummy.com/software/BeautifulSoup/>)
+  * cheroot (<https://pypi.python.org/pypi/Cheroot>)
+  * DataURI.py (<https://gist.github.com/zacharyvoase/5538178>)
+  * fast-sha256-js (<https://github.com/dchest/fast-sha256-js>)
