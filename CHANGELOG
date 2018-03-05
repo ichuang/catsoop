@@ -6,7 +6,7 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
-* Added questions' types to the "question_info" cache.
+* Added questions' types and grading modes to the "question_info" cache.
 
 CHANGED:
 
@@ -23,6 +23,15 @@ REMOVED:
   redundant with "question_info"
 
 FIXED:
+
+* The "question_info" cache is now checked/updated after the pre_handle plugin
+  is executed, rather than after.
+
+* "expression" questions now support implicit multiplication by j (the
+  imaginary unit).
+
+* Fixed an issue that caused scores in the "problemstate" log to be overwritten
+  with `None` when the "check" button was used.
 
 * Entering an empty expression and entering an invalid expression to a
   "pythonic" question now produce the same error message.

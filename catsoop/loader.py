@@ -523,6 +523,11 @@ def do_late_load(context, course, path, into, content_file=None):
         into['cs_post_load'](into)
     run_plugins(context, course, 'post_load', into)
     language.source_formats[into['cs_source_format']](into)
+
+    if 'cs_pre_handle' in into:
+        into['cs_pre_handle'](into)
+    run_plugins(context, course, 'pre_handle', into)
+
     last_mod = os.stat(content_file).st_mtime
     cache = into['csm_cslog'].most_recent('_question_info', [course] + path,
                                           'question_info', None)
@@ -537,10 +542,8 @@ def do_late_load(context, course, path, into, content_file=None):
                 x['csq_name'] = i[1]['csq_name']
                 x['csq_display_name'] = i[1].get('csq_display_name', x['csq_name'])
                 x['qtype'] = i[0]['qtype']
+                x['csq_grading_mode'] = i[1].get('csq_grading_mode', 'auto')
         into['csm_cslog'].overwrite_log('_question_info', [course] + path,
                                         'question_info',
                                         {'timestamp': last_mod,
                                          'questions': qs})
-    if 'cs_pre_handle' in into:
-        into['cs_pre_handle'](into)
-    run_plugins(context, course, 'pre_handle', into)
