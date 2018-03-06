@@ -12,7 +12,7 @@
 * Web Site: <https://catsoop.mit.edu>
       (or as a Tor "onion service" at <http://qcyec3cqcnryllwpcgszrr3uptmqyvnduyixf5lsvfjkpmmh6t6vhtyd.onion/>)
 
-* Repository Web Access / Issue Tracker: <https://catsoop.mit.edu/git>
+* Repository Web Access / Issue Tracker: <https://catsoop.mit.edu/git/cat-soop/cat-soop>
 
 * IRC: #cat-soop on OFTC (irc.oftc.net)
 
