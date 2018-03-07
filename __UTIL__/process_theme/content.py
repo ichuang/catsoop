@@ -16,7 +16,8 @@
 
 import colorsys
 
-ctx = {}
+ctx = dict(globals())
+ctx['cs_env'] = cs_env
 csm_loader.load_global_data(ctx)
 
 
@@ -62,6 +63,7 @@ original_loc = csm_dispatch.static_file_location(ctx, temp[2:])
 with open(original_loc) as f:
     original_content = f.read()
 
+ctx.update(globals())
 
 cs_handler = 'raw_response'
 content_type = 'text/css'
