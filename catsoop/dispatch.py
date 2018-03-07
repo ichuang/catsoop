@@ -587,7 +587,7 @@ def main(environment):
                     return display_page(context)
                 redir = None
                 if user_info.get('cs_reload', False):
-                    redir = '/'.join([base_context.cs_url_root] +
+                    redir = '/'.join([context.get('cs_url_root', base_context.cs_url_root)] +
                                      context['cs_path_info'])
                 if redir is None:
                     redir = user_info.get('cs_redirect', None)
@@ -633,7 +633,7 @@ def main(environment):
             default_course = context.get('cs_default_course', None)
             if default_course is not None:
                 return redirect(
-                    '/'.join([base_context.cs_url_root, default_course]))
+                    '/'.join([context.get('cs_url_root', base_context.cs_url_root), default_course]))
             else:
                 root = context.get('cs_fs_root', base_context.cs_fs_root)
                 path = os.path.join(root, '__MEDIA__', 'mainpage.md')
