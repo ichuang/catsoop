@@ -24,6 +24,9 @@ REMOVED:
 
 FIXED:
 
+* Prevented scroll bars from showing up in the CAT-SOOP logo at the bottom of
+  the page.
+
 * The "question_info" cache is now checked/updated after the pre_handle plugin
   is executed, rather than after.
 
