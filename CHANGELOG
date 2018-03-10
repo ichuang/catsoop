@@ -24,6 +24,8 @@ REMOVED:
 
 FIXED:
 
+* Fixed issue where impersonating a user inherited their API token.
+
 * Prevented scroll bars from showing up in the CAT-SOOP logo at the bottom of
   the page.
 

@@ -197,8 +197,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
         into['username'] = into['name'] = context['cs_username']
         into['role'] = None
         into['permissions'] = []
-        into['api_token'] = context['csm_cslog'].most_recent(
-            '_api_users', [], into['username'], None)
+        into['api_token'] = old['api_token']
         into = get_user_information(context)
     cslog = context['csm_cslog']
     if 'username' in into:
