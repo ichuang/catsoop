@@ -24,6 +24,8 @@ REMOVED:
 
 FIXED:
 
+* Fixed an issue where invalid question names were failing silently.
+
 * Fixed issue where impersonating a user inherited their API token.
 
 * Prevented scroll bars from showing up in the CAT-SOOP logo at the bottom of

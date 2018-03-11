@@ -56,6 +56,7 @@ _nodoc = {'BeautifulSoup', 'OrderedDict', 'StringIO', 'clear_info',
 
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
+_valid_qname = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
 
 def xml_pre_handle(context):
     """
@@ -102,7 +103,13 @@ def xml_pre_handle(context):
             if 'csq_name' not in e:
                 e['csq_name'] = 'q%06d' % qcount
                 qcount += 1
-            o.append(tutor.question(context, type_, **e))
+            if _valid_qname.match(e['csq_name']):
+                o.append(tutor.question(context, type_, **e))
+            else:
+                o.append(('<div class="question">'
+                          '<font color="red">'
+                          'ERROR: Invalid question name <code>%r</code>'
+                          '</font></div>') % e['csq_name'])
         except:
             e = sys.exc_info()
             tb_entries = traceback.extract_tb(e[2])
