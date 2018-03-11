@@ -122,8 +122,10 @@ catsoop.groups_confirm_and_partner_all = function() {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, repartner everyone!'
-    }).then(function() {
-        catsoop.groups_partner_all(name);
+    }).then(function(x) {
+        if (x.value){
+            catsoop.groups_partner_all(name);
+        }
     })
 }
 

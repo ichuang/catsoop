@@ -28,9 +28,9 @@ catsoop.setTimeSince = function (name, start, sync){
     var time = {};
     time.days = (diff / 86400) | 0;
     diff -= (time.days * 86400);
-    time.hours = (diff / 3600) | 0; 
+    time.hours = (diff / 3600) | 0;
     diff -= (time.hours * 3600);
-    time.minutes = (diff / 60) | 0; 
+    time.minutes = (diff / 60) | 0;
     diff -= (time.minutes * 60);
     time.seconds = diff | 0;
     var msg = '';
@@ -266,7 +266,9 @@ catsoop.confirmAndViewAnswer = function(name) {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, view answer!'
-    }).then(function() {
-        catsoop.viewanswernow(name);
+    }).then(function(x) {
+        if(x.value){
+            catsoop.viewanswernow(name);
+        }
     })
 };

@@ -13,7 +13,9 @@ CHANGED:
 * The automatic source code download no longer saves cached copies, to avoid
   accidentally filling small disks.
 
-* Upgraded KaTeX to 0.9.0.
+* Upgraded KaTeX to version 0.9.0.
+
+* Upgraded SweetAlert2 to version 7.15.1.
 
 DEPRECATED:
 
