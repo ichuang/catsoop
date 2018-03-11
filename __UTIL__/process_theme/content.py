@@ -17,6 +17,7 @@
 import colorsys
 
 ctx = {}
+csm_loader.load_global_data(ctx)
 
 def _hex_to_rgb(x):
     if x.startswith('#'):
