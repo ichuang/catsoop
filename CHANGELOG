@@ -17,6 +17,10 @@ CHANGED:
 
 * Upgraded SweetAlert2 to version 7.15.1.
 
+* Upgraded MathJax to version 2.7.3.
+
+* Upgraded PLY to version 3.11.
+
 DEPRECATED:
 
 REMOVED:
