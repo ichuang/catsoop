@@ -6,6 +6,9 @@ _Work toward next release.  Currently under development._
 
 * Added questions' types and grading modes to the `'question_info'` cache.
 
+* `datetime` and `timedelta` objects (from the `datetime` module) are now
+  allowed in log entries.
+
 #### CHANGED:
 
 * The automatic source code download no longer saves cached copies, to avoid

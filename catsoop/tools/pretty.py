@@ -627,6 +627,20 @@ def _type_pprint(obj, p, cycle):
         p.text(mod + '.' + name)
 
 
+def _replaced_repr_pprint(repls):
+    def _inner_repr_pprint(obj, p, cycle):
+        """A pprint that just redirects to the normal repr function."""
+        # Find newlines and replace them with p.break_()
+        output = repr(obj)
+        for in_, out_ in repls:
+            output = output.replace(in_, out_)
+        for idx,output_line in enumerate(output.splitlines()):
+            if idx:
+                p.break_()
+            p.text(output_line)
+    return _inner_repr_pprint
+
+
 def _repr_pprint(obj, p, cycle):
     """A pprint that just redirects to the normal repr function."""
     # Find newlines and replace them with p.break_()
@@ -690,8 +704,8 @@ _type_pprinters = {
     types.BuiltinFunctionType:  _function_pprint,
     types.MethodType:           _repr_pprint,
 
-    datetime.datetime:          _repr_pprint,
-    datetime.timedelta:         _repr_pprint,
+    datetime.datetime:          _replaced_repr_pprint((('datetime.', ''),)),
+    datetime.timedelta:         _replaced_repr_pprint((('datetime.', ''),)),
     _exception_base:            _exception_pprint
 }
 

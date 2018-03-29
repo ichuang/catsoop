@@ -37,6 +37,7 @@ import ast
 import contextlib
 
 from collections import OrderedDict
+from datetime import datetime, timedelta
 
 from .tools.pretty import pretty
 
@@ -233,6 +234,8 @@ _unprep_funcs = {
     'OrderedDict': OrderedDict,
     'frozenset': frozenset,
     'set': set,
+    'datetime': datetime,
+    'timedelta': timedelta,
 }
 
 def unprep(node_or_string):
