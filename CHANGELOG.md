@@ -1,6 +1,4 @@
-# Current Developments
-
-_Work toward next release.  Currently under development._
+# Version 12.1.0
 
 #### ADDED:
 
@@ -21,8 +19,6 @@ _Work toward next release.  Currently under development._
 * Upgraded MathJax to version 2.7.3.
 
 * Upgraded PLY to version 3.11.
-
-#### DEPRECATED:
 
 #### REMOVED:
 
@@ -69,8 +65,6 @@ _Work toward next release.  Currently under development._
 
 * Prevented `as_role`  from affecting the `'role'` field in `cs_user_info` if the
   user does not have the `'impersonate'` permission.
-
-#### DOCUMENTATION:
 
 
 # Version 12.0.0
