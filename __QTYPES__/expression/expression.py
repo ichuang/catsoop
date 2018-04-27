@@ -170,10 +170,19 @@ def eval_number(context, names, funcs, n):
     return ast.literal_eval(n[1])
 
 
-def eval_binop(func):
+def check_shapes(x, y):
+    xs = getattr(x, 'shape', None)
+    ys = getattr(y, 'shape', None)
+    if xs is not None and ys is not None and xs != ys:
+        raise ValueError("array shapes do not match: %s and %s" % (xs, ys))
+
+
+def eval_binop(func, match_shapes=True):
     def _evaler(context, names, funcs, o):
         left = eval_expr(context, names, funcs, o[1])
         right = eval_expr(context, names, funcs, o[2])
+        if match_shapes:
+            check_shapes(left, right)
         return func(left, right)
 
     return _evaler
@@ -206,8 +215,8 @@ _eval_map = {
     '-': eval_binop(lambda x, y: x - y),
     '*': eval_binop(lambda x, y: x * y),
     '/': eval_binop(_div),
-    '@': eval_binop(lambda x, y: x @ y),
-    '^': eval_binop(lambda x, y: x**y),
+    '@': eval_binop(lambda x, y: x @ y, match_shapes=False),
+    '^': eval_binop(lambda x, y: x**y, match_shapes=False),
     'u-': eval_uminus,
     'u+': eval_uplus,
     'CALL': eval_call,

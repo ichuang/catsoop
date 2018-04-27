@@ -1,3 +1,26 @@
+# Current Developments
+
+_Work toward next release.  Currently under development._
+
+ADDED:
+
+CHANGED:
+
+DEPRECATED:
+
+REMOVED:
+
+FIXED:
+
+* Fixed an issue with unintentional "broadcasting" of `numpy` arrays in certain
+  `'expression'` questions.
+
+SECURITY:
+
+DOCUMENTATION:
+
+
+
 # Version 12.1.0
 
 #### ADDED:
