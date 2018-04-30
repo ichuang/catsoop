@@ -171,9 +171,11 @@ def eval_number(context, names, funcs, n):
 
 
 def check_shapes(x, y):
+    x = numpy.squeeze(x)
+    y = numpy.squeeze(y)
     xs = getattr(x, 'shape', None)
     ys = getattr(y, 'shape', None)
-    if xs is not None and ys is not None and xs != ys:
+    if xs and ys and xs != ys:
         raise ValueError("array shapes do not match: %s and %s" % (xs, ys))
 
 
