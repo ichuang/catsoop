@@ -173,6 +173,10 @@ def eval_number(context, names, funcs, n):
 def check_shapes(x, y):
     xs = getattr(x, 'shape', None)
     ys = getattr(y, 'shape', None)
+    if xs is not None and all(i==1 for i in xs):
+        xs = None
+    if ys is not None and all(i==1 for i in ys):
+        ys = None
     if xs is not None and ys is not None and xs != ys:
         raise ValueError("array shapes do not match: %s and %s" % (xs, ys))
 
