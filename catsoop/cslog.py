@@ -301,7 +301,7 @@ def can_log(x):
     """
     Checks whether a given value can be a log entry.
     """
-    if isinstance(x, (str, bytes, int, float, complex, NoneType, bool)):
+    if isinstance(x, (str, bytes, int, float, complex, NoneType, bool, datetime, timedelta)):
         return True
     elif isinstance(x, (list, tuple, set, frozenset)):
         return all(can_log(i) for i in x)

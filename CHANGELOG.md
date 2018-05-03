@@ -15,6 +15,9 @@ FIXED:
 * Fixed an issue with unintentional "broadcasting" of `numpy` arrays in certain
   `'expression'` questions.
 
+* Fixed an issue that prevented `datetime` and `timedelta` objects from being
+  logged.
+
 SECURITY:
 
 DOCUMENTATION:
