@@ -24,7 +24,7 @@ or late loads at lower levels).
 _nodoc = {'contents', 'cs_all_pieces', 'cs_all_tools', 'f', 'i', 'root',
           'cs_dummy_username', 'datetime'}
 
-cs_version = 'development version (v12.1.0+)'
+cs_version = 'v12.1.1'
 """
 CAT-SOOP's version number
 """
