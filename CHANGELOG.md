@@ -1,3 +1,26 @@
+# Current Developments
+
+_Work toward next release.  Currently under development._
+
+ADDED:
+
+CHANGED:
+
+DEPRECATED:
+
+REMOVED:
+
+FIXED:
+
+SECURITY:
+
+* Prevent submissions from being able to access materials defined in
+  `csq_code_pre` from `pythoncode` questions.
+
+DOCUMENTATION:
+
+
+
 # Version 12.1.1
 
 #### FIXED:

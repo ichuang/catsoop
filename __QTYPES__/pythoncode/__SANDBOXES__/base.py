@@ -38,8 +38,14 @@ def prep_code(code, test, **kwargs):
         footer = ('print "!LOGOUTPUT(o_O)!"\n'
                   'print repr(%s)\n') % test['variable']
 
-    code = '\n\n'.join((kwargs['csq_code_pre'], test['code_pre'], code,
-                        kwargs['csq_code_post'], test['code'], footer))
+    code = '\n\n'.join(('import os\nos.unlink(__file__)',
+                        kwargs['csq_code_pre'],
+                        test['code_pre'],
+                        code,
+                        'pass',
+                        kwargs['csq_code_post'],
+                        test['code'],
+                        footer))
     return code
 
 

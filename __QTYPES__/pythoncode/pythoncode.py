@@ -116,7 +116,10 @@ def handle_check(submissions, **info):
     else:
         _printer = "print '_catsoop_code_done_running'"
 
-    code = '\n\n'.join([info['csq_code_pre'], code, _printer])
+    code = '\n\n'.join(['import os\nos.unlink(__file__)',
+                        info['csq_code_pre'],
+                        code,
+                        _printer])
 
     get_sandbox(info)
     fname, out, err = info['sandbox_run_code'](
