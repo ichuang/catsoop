@@ -10,6 +10,8 @@ CHANGED:
 
 * Updated MathJax to version 2.7.4.
 
+* Updated SweetAlert2 to version 7.20.10.
+
 DEPRECATED:
 
 REMOVED:
