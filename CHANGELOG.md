@@ -8,6 +8,8 @@ CHANGED:
 
 * Updated KaTeX to version 0.10.0-alpha.
 
+* Updated MathJax to version 2.7.4.
+
 DEPRECATED:
 
 REMOVED:
