@@ -6,6 +6,8 @@ ADDED:
 
 CHANGED:
 
+* Updated KaTeX to version 0.10.0-alpha.
+
 DEPRECATED:
 
 REMOVED:
