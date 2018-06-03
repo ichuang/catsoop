@@ -13,18 +13,26 @@
     <!-- set up JS namespace for catsoop -->
     <script type="text/javascript">
     var catsoop = {{plugins: {{}}}};
+    </script>
 
-    function toggleResponsiveHeader(){{
-        document.getElementsByTagName('header')[0].classList.toggle('responsive');
-    }}
+    <!-- automatically adjust the top padding so that the whole page is visible even if the navbar's height changes -->
+    <!-- also move the target for anchors so the navbar doesn't hide them -->
+    <script type="text/javascript">
+      catsoop.scroll_header = function(){{
+          console.log('scrolling now');
+          scrollBy(0, -(document.getElementById('cs_header').scrollHeight));
+      }}
 
-    document.addEventListener('DOMContentLoaded', function(){{
-        var menu_boxes = document.getElementsByClassName('dropdown-checkbox');
-        for(var i=0; i<menu_boxes.length; i++){{
-            console.log(menu_boxes[i]);
-            menu_boxes[i].checked = false;
-        }}
-    }});
+      catsoop.set_top_margin = function(){{
+          document.getElementById('cs_body').style['padding-top'] = '' + (document.getElementById('cs_header').scrollHeight+10) + 'px';
+      }}
+
+      window.addEventListener("load", function() {{
+          catsoop.set_top_margin();
+          if (location.hash) setTimeout(catsoop.scroll_header, 1000);
+          window.addEventListener("hashchange", catsoop.scroll_header);
+          window.addEventListener("resize", catsoop.set_top_margin);
+      }});
     </script>
 
     <!-- load in katex and mathjax, and CAT-SOOP-specific math rendering  -->
@@ -51,12 +59,14 @@
   </head>
   <body style="margin: 0px;">
     <header id="cs_header">
-      <div><a class="cs_header_text" href="{cs_home_link}">{cs_header}</a></div>
-      <div></div>
-      <div class="cs_top_menu">Hello</div>
-      <div class="cs_menu_collapser">Hi</div>
+      <div class="nav-container">
+        <div><a class="cs_header_text" href="{cs_home_link}">{cs_header}</a></div>
+        <div></div>
+        <div class="cs_top_menu">Hello</div>
+        <div class="cs_menu_collapser">Hi</div>
+      </div>
     </header>
-    <main class="cs_body">
+    <main id="cs_body" class="cs_body">
       <div class="cs_left_menu"></div>
       <div class="cs_content">
         <center><h1>{cs_content_header}</h1></center>
