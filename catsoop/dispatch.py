@@ -445,30 +445,24 @@ def _breadcrumbs_html(context):
 def _top_menu_html(topmenu, header=True):
     if isinstance(topmenu, str):
         return topmenu
-    if header:
-        out = '<div class="collapse navbar-collapse" id="catsoopnavbar">'
-        out += '<ul class="nav navbar-nav navbar-right">'
     else:
         out = ''
     for i in topmenu:
         if i == 'divider':
-            out += '\n<li class="divider"></li>'
+            out += '\n<div class="divider"></div>'
             continue
         link = i['link']
         if isinstance(link, str):
-            out += '\n<li><a href="%s">%s</a></li>' % (link, i['text'])
+            out += '\n<a href="%s">%s</a>' % (link, i['text'])
         else:
-            out += '\n<li class="dropdown">'
-            out += ('<a href="#" data-toggle="dropdown" '
-                    'class="dropdown-toggle" role="button" '
-                    'aria-expanded="false">')
-            out += i['text']
-            out += '<span class="caret"></span></a>'
-            out += '<ul class="dropdown-menu">'
+            out += '\n<div class="dropdown">'
+            out += '\n<button class="dropbtn">%s<span class="downarrow">▼</span></button>' % i['text']
+            out += '\n<div class="dropdown-content">'
             out += _top_menu_html(link, False)
-            out += '</ul>'
+            out += '</div>'
+            out += '</div>'
     if header:
-        return out + '</ul></div>'
+        return out + '<a href="javascript:void(0);" class="icon" onclick="toggleResponsiveHeader()">&#9776;</a>'
     return out
 
 
