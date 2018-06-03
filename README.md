@@ -45,7 +45,7 @@ See the "installation quick-start guide" at <https://catsoop.mit.edu/website/doc
 Yes.
 
 
-### DEPENDENCIES AND INCLUDED SOFTWARE
+### INCLUDED SOFTWARE
 
 CAT-SOOP is built with the Python programming language, version 3.5+ (<https://www.python.org/>).
 
