@@ -40,9 +40,9 @@
       hljs.initHighlightingOnLoad();
     </script>
     <style>
-        :root {{
-            --cs-base-color: rgb(0, 0, 124);
-        }}
+      :root {{
+        --cs-base-color: {cs_base_color};
+    }}
     </style>
 
     {cs_scripts}
@@ -50,21 +50,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body style="margin: 0px;">
-          <header class="cs_header">
-              <div><a class="cs_header_text" href="{cs_home_link}">{cs_header}</a></div>
-              <div></div>
-              <div class="cs_top_menu">Hello</div>
-              <div class="cs_menu_collapser">Hi</div>
-          </header>
-          <main class="">
-            <div class="col-sm-12 col-md-8 col-lg-8">
-                <div class="card fluid">
-                  <center><h1>{cs_content_header}</h1></center>
-                  {cs_content}
-                </div>
-            </div>
-            <div class="col-md-2 col-lg-2"></div>
-          </main>
+    <header id="cs_header">
+      <div><a class="cs_header_text" href="{cs_home_link}">{cs_header}</a></div>
+      <div></div>
+      <div class="cs_top_menu">Hello</div>
+      <div class="cs_menu_collapser">Hi</div>
+    </header>
+    <main class="cs_body">
+      <div class="cs_left_menu"></div>
+      <div class="cs_content">
+        <center><h1>{cs_content_header}</h1></center>
+        {cs_content}
+      </div>
+      <div class="cs_right_menu"></div>
+    </main>
     <footer>
       {cs_footer}
       <pre class="catsooplogo" style="font-size:50%;">{cs_base_logo_text}</pre>
