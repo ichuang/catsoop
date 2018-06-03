@@ -19,18 +19,19 @@
     <!-- also move the target for anchors so the navbar doesn't hide them -->
     <script type="text/javascript">
       catsoop.scroll_header = function(){{
-          scrollBy(0, -$('#cs_main_navbar').height());
+          console.log('scrolling now');
+          scrollBy(0, -(document.getElementById('cs_header').scrollHeight));
       }}
 
       catsoop.set_top_margin = function(){{
-          $("#myPage").css('padding-top', $('#cs_main_navbar').height());
+          document.getElementById('cs_body').style['padding-top'] = '' + (document.getElementById('cs_header').scrollHeight+10) + 'px';
       }}
 
-      $(document).ready(function(){{catsoop.set_top_margin();}});
-      $(window).load(function(){{
-        if (location.hash) setTimeout(catsoop.scroll_header, 500);
-        window.addEventListener("hashchange", catsoop.scroll_header);
-        $(window).resize(catsoop.set_top_margin);
+      window.addEventListener("load", function() {{
+          catsoop.set_top_margin();
+          if (location.hash) setTimeout(catsoop.scroll_header, 1000);
+          window.addEventListener("hashchange", catsoop.scroll_header);
+          window.addEventListener("resize", catsoop.set_top_margin);
       }});
     </script>
 
@@ -62,12 +63,14 @@
   </head>
   <body style="margin: 0px;">
     <header id="cs_header">
-      <div><a class="cs_header_text" href="{cs_home_link}">{cs_header}</a></div>
-      <div></div>
-      <div class="cs_top_menu">Hello</div>
-      <div class="cs_menu_collapser">Hi</div>
+      <div class="nav-container">
+        <div><a class="cs_header_text" href="{cs_home_link}">{cs_header}</a></div>
+        <div></div>
+        <div class="cs_top_menu">Hello</div>
+        <div class="cs_menu_collapser">Hi</div>
+      </div>
     </header>
-    <main class="cs_body">
+    <main id="cs_body" class="cs_body">
       <div class="cs_left_menu"></div>
       <div class="cs_content">
         <center><h1>{cs_content_header}</h1></center>
