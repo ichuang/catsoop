@@ -176,6 +176,7 @@ header .downarrow {
     font-size: 1rem;
     margin-left: 1em;
     margin-right: 1em;
+    cursor: pointer;
 }
 
 header a {
@@ -193,6 +194,7 @@ header a {
     border-radius: 5px;
 }
 
+
 .dropdown-content a{
     color: #000;
     display: block;
@@ -206,16 +208,24 @@ header a {
     margin-right: 0;
 }
 
+
 .dropdown-content a:hover{
     text-decoration: none;
     background-color: var(--cs-light-color);
 }
 
-.dropdown:hover .dropdown-content{
+
+.dropdown:hover .dropdown-checkbox:checked + .dropdown-content{
     display:flex;
     flex-direction:column;
     justify-content: center;
 }
+
+
+.dropdown-checkbox {
+    display: none;
+}
+
 
 header .cs_header_text {
     font-size: 2.5rem;
