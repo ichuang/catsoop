@@ -2100,13 +2100,13 @@ ws_%(name)s.onmessage = function(event){
     }else if (j.type == 'inqueue'){
         ws_%(name)s_state = 0;
         try{clearInterval(ws_%(name)s_interval);}catch(err){}
-        thediv.classList = ['callout', 'callout-warning'];
+        thediv.classList = 'callout callout-warning';
         themessage.innerHTML = 'Your submission (id <code>%(magic)s</code>) is queued to be checked (position ' + j.position + ').';
         document.querySelectorAll('#%(name)s_buttons button').forEach(function(b){b.disabled = false;});
     }else if (j.type == 'running'){
         ws_%(name)s_state = 1;
         try{clearInterval(ws_%(name)s_interval);}catch(err){}
-        thediv.classList = ['callout', 'callout-info'];
+        thediv.classList = 'callout callout-info';
         themessage.innerHTML = 'Your submission is currently being checked<span id="%(name)s_ws_running_time"></span>.';
         document.querySelectorAll('#%(name)s_buttons button').forEach(function(b){b.disabled = false;});
         var sync = ((new Date()).valueOf()/1000 - j.now);
