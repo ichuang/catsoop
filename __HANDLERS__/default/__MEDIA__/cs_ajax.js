@@ -16,16 +16,14 @@
  */
 
 
-catsoop.switch_buttons = function (name, enabled){
-    var buttons = document.getElementsByTagName('button');
-    for(var i=0; i<=buttons.length; i++){
-        buttons[i].disabled = !enabled;
-    }
+catsoop.switch_buttons = function (qname, enabled){
+    document.getElementById('cs_qdiv_'+qname).querySelectorAll('button').forEach(function(b){b.disabled=!enabled});
 }
 
+
 document.addEventListener("DOMContentLoaded", function(event) {
-    catsoop.switch_buttons(true);
-}
+    document.querySelectorAll('button').forEach(function(b){b.disabled=false});
+});
 
 
 catsoop.setTimeSince = function (name, start, sync){
@@ -54,165 +52,143 @@ catsoop.setTimeSince = function (name, start, sync){
     document.getElementById(name + '_ws_running_time').innerText = ' (running for around ' + msg + ')';
 }
 
-catsoop.doFiles = function (lastDeferred, into, files){
-    var name = null;
-    var file = null;
-    var num = files.length;
-    var f = null;
-    var funcs = [];
-    for (var i=0; i<num; i++){
-        name = files[i][0];
-        file = files[i][1];
-        if (i==0){
-            f = function(NAME, thisIx){return function(){
-                var d = new $.Deferred();
-                d.done(function(){lastDeferred.resolve();});
-                var fr = new FileReader();
-                fr.onload = function(THING){return function(e){
-                                         into[NAME]=[(files[thisIx][1]).name, e.target.result];
-                                         THING.resolve();
-                                       };}(d);
-                fr.readAsDataURL(files[thisIx][1]);
-            }}(name, i);
-            funcs.push(f);
-        }else{
-            f = function(whichIx,NAME, thisIx){return function(){
-                var d = new $.Deferred();
-                d.done(function(){funcs[whichIx]();});
-                var fr = new FileReader();
-                fr.onload = function(THING){return function(e){
-                                         into[NAME]=[(files[thisIx][1]).name, e.target.result];
-                                         THING.resolve();
-                                       };}(d);
-                fr.readAsDataURL(files[thisIx][1]);
-            };}(funcs.length-1,name,i);
-            funcs.push(f);
-        }
-    }
 
-    if(files.length==0){
-        lastDeferred.resolve();
-    }else{
-        funcs[funcs.length-1]();
-    }
+catsoop.load_one_form_element = function(elt, name, into, action){
+    return new Promise(function(resolve, reject){
+        if (elt.getAttribute('type') === 'file'){
+            if(elt.files.length > 0){
+                var file = elt.files[0];
+                var fr = new FileReader();
+                fr.onload = function(e){
+                    into[name] = [file.name, e.target.result];
+                    resolve();
+                }
+                fr.readAsDataURL(file);
+            }else if(action === "submit"){
+                alert("Please select a file to upload");
+                reject();
+            }else{
+                into[name] = "";
+                resolve();
+            }
+        }else{
+            into[name] = elt.value;
+            resolve();
+        }
+    });
 }
 
 
 catsoop.ajaxrequest = function (names, action, done_function){
-    var fileD = new $.Deferred();
-    var FILES = [];
-    var num = names.length;
-    var names_to_add = [];
-    for (var i=0; i < num; i++){
-        $(':input[name^=__'+names[i]+']').each(function(x,y){names_to_add.push(y.name)});
-    }
-    for (var i=0; i < names_to_add.length; i++){
-        names.push(names_to_add[i]);
-    }
-    var out = {};
-    num = names.length;
-    for (var i=0; i<num; i++){
-        var name = names[i];
-        var field = $(':input[name="'+name+'"]');
-        catsoop.switch_buttons(name, false);
-        $('#'+name+'_loading').show();
-        $('#'+name+'_score_display').hide();
-        if (field.attr('type')==="file"){
-            if (field[0].files.length>0){
-                var file = field[0].files[0];
-                FILES.push([name, file]);
-            }else{
-                if(action==="submit"){
-                    alert("Please select a file to upload.");
-                    catsoop.switch_buttons(name,true);
-                    $('#'+name+'_loading').hide();
-                    $('#'+name+'_score_display').show();
-                    return;
-                }else{
-                    out[name] = "";
-                }
-            }
-        }else{
-            out[name] = field.val();
+    for (var i=0; i < names.length; i++){
+        var elts = document.querySelectorAll('input[name^=__'+names[i]+']');
+        for (var i=0; i<elts.length; i++){
+            names.push(elts[i].name)
         }
     }
-    fileD.done(function(){sendRequest(names, action, out, done_function);});
-    catsoop.doFiles(fileD, out, FILES);
+    var out = {};
+
+    var promises = [];
+    for (var i=0; i<names.length; i++){
+        var name = names[i];
+        var field = document.querySelector('input[name="'+name+'"]');
+        catsoop.switch_buttons(name, false);
+        document.getElementById(name+'_loading').style.display = '';
+        document.getElementById(name+'_score_display').style.display = 'none';
+        promises.push(catsoop.load_one_form_element(field, name, out, action));
+    }
+    Promise.all(promises).then(
+    function(){
+        //success.  all fields loaded, submit the request
+        catsoop.send_request(names, action, out, done_function);
+    },
+
+    function(){
+        //failure.  reset loading and score displays.
+        for (var i=0; i<names.length; i++){
+            var name = names[i];
+            document.getElementById(name+'_loading').style.display = 'none';
+            document.getElementById(name+'_score_display').style.display = '';
+        }
+    });
 }
 
-catsoop.ajaxDoneCallback = function(data, path, count) { return function(msg, textStatus, jqXHR){
-                    try{
-                        if(Object.keys(msg).length > 0){
-                            for (var name in msg){
-                                var thisone = msg[name];
-                                $('#'+name+'_loading').hide();
-                                $('#'+name+'_score_display').show();
-                                if('rerender' in thisone){
-                                    $('#'+name+'_rendered_question').html(thisone['rerender']);
-                                }
-                                if('clear' in thisone){
-                                    $('#'+name+'_solution_container').removeClass();
-                                    $('#'+name+'_solution').html('');
-                                    $('#'+name+'_solution_explanation').html('');
-                                }
-                                if ('save' in thisone){
-                                    $('#'+name+'_message').html('');
-                                }
-                                if('answer' in thisone){
-                                    $('#'+name+'_solution_container').removeClass();
-                                    $('#'+name+'_solution_container').addClass('solution');
-                                    $('#'+name+'_solution').html(thisone['answer']);
-                                    catsoop.render_all_math($('#cs_qdiv_'+name)[0]);
-                                }
-                                if('explanation' in thisone){
-                                    $('#'+name+'_solution_explanation').html(thisone['explanation']);
-                                    catsoop.render_all_math($('#cs_qdiv_'+name)[0]);
-                                }
-                                if (thisone['error_msg'] !== undefined){
-                                    $('#'+name+'_message').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>:<br />'+thisone['error_msg']+'</div>');
-                                }
-                                $('#'+name+'_score_display').html(thisone['score_display']);
-                                $('#'+name+'_message').html(thisone['message']);
-                                $('#'+name+'_nsubmits_left').html(thisone['nsubmits_left']);
-                                $('#'+name+'_buttons').html(thisone['buttons']);
-                                if(thisone['val'] !== undefined){
-                                    $('#'+name).val(thisone['val']);
-                                }
-                                catsoop.switch_buttons(name, true);
-                                catsoop.render_all_math($('#cs_qdiv_'+name)[0]);
-                            }
-                        }else{
-                            catsoop.switch_buttons(name, true);
-                            $('#'+name+'_loading').hide();
-                            alert('Error: no message');
-                        }
-                }catch(err){
-                   if(count < 5){
-                       console.log('retrying request: attempt ' + (count+2));
-                       setTimeout(function(){$.ajax({type:'POST',
-                               url: path,
-                               async: 'false',
-                               data: data}).done(catsoop.ajaxDoneCallback(data, path, count+1));}, 250);
-                   }else{
-                       var dnames = JSON.parse(data['names']);
-                       console.log('giving up on retrying request');
-                       for(var ix in dnames){
-                           var name = dnames[ix];
-                           $('#'+name+'_message').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please try again, and send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+JSON.stringify(jqXHR)+'\n'+JSON.stringify(err)+'</textarea>'+'</div>');
-                           catsoop.switch_buttons(name, true);
-                           $('#'+name+'_loading').hide();
-                       }
-                   }
-               }
+catsoop.run_all_scripts = function(selector){
+    var newscripts = document.querySelectorAll('#'+selector+' script');
+    for(var i=0; i<newscripts.length;i++){
+        eval(newscripts[i].innerText);
+    }
+}
+
+catsoop.ajaxDoneCallback = function(data, path, count) { return function(req_status, msg){
+    try{
+        if(req_status < 200 || req_status >= 400){
+            throw new Error('error code from server: ' + req_status)
+        }
+        msg = JSON.parse(msg);
+        if(Object.keys(msg).length > 0){
+            for (var name in msg){
+                var thisone = msg[name];
+                document.getElementById(name+'_loading').style.display = 'none';
+                document.getElementById(name+'_score_display').style.display = '';
+                if('rerender' in thisone){
+                    document.getElementById(name+'_rendered_question').innerHTML = thisone['rerender'];
+                }
+                if('clear' in thisone){
+                    document.getElementById(name+'_solution_container').classList = [];
+                    document.getElementById(name+'_solution').innerHTML = '';
+                    document.getElementById(name+'_solution_explanation').innerHTML = '';
+                }
+                if ('save' in thisone){
+                    document.getElementById(name+'_message').innerHTML = '';
+                }
+                if('answer' in thisone){
+                    document.getElementById(name+'_solution_container').classList = ['solution'];
+                    document.getElementById(name+'_solution').innerHTML = thisone['answer'];
+                    catsoop.run_all_scripts(name+'_solution');
+                }
+                if('explanation' in thisone){
+                    document.getElementById(name+'_solution_explanation').innerHTML = thisone['explanation'];
+                    catsoop.run_all_scripts(name+'_solution_explanation');
+                }
+                if (thisone['error_msg'] !== undefined){
+                    document.getElementById(name+'_message').innerHTML = '<div class="impsolution"><font color="red"><b>ERROR</b></font>:<br />'+thisone['error_msg']+'</div>';
+                }
+                for (var i of ['score_display', 'message', 'nsubmits_left', 'buttons']){
+                    document.getElementById(name+'_'+i).innerHTML = (thisone[i] || '');
+                }
+                catsoop.run_all_scripts(name+'_message');
+                if(thisone['val'] !== undefined){
+                    document.getElementById(name).value = thisone['val'];
+                }
+                catsoop.render_all_math(document.getElementById('cs_qdiv_'+name));
+                catsoop.switch_buttons(name, true);
+            }
+        }else{
+            catsoop.switch_buttons(name, true);
+            document.getElementById(name+'_loading').style.display = 'none';
+            alert('Error: no message');
+        }
+    }catch(err){
+        var dnames = JSON.parse(data['names']);
+        for(var ix in dnames){
+            var name = dnames[ix];
+            document.getElementById(name+'_message').innerHTML = '<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please try again after a while. <pre>' + err.stack + '</pre></div>';
+            catsoop.switch_buttons(name, true);
+            document.getElementById(name+'_loading').style.display = 'none';
+        }
+    }
 }}
 
-catsoop.ajaxErrorCallback = function(name) {return function(jqXHR, textStatus, msg){
+
+catsoop.ajaxErrorCallback = function(name) {return function(req_status, msg){
     catsoop.switch_buttons(name, true);
-    $('#'+name+'_loading').hide();
-    $('#'+name+'_message').html('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+msg+'\n'+jqXHR.responseText+'</textarea>'+'</div>');
+    document.getElementById(name+'_loading').style.display = 'none';
+    document.getElementById(name+'_message').innerHTML = ('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+req_status+'\n'+msg+'\n'+'</textarea>'+'</div>');
 }}
 
-function sendRequest(names,action,send,done_function){
+
+catsoop.send_request = function(names,action,send,done_function){
     var form = {};
     for (var key in send){if (send.hasOwnProperty(key)){form[key] = send[key];}}
     var d = {action: action,
@@ -220,24 +196,32 @@ function sendRequest(names,action,send,done_function){
              api_token: catsoop.api_token,
              data: JSON.stringify(form)};
     if (catsoop.imp != '') d['as'] = catsoop.imp;
-    if (done_function !== undefined){
-        var success_callback = function(msg, textStatus, jqXHR){
-            catsoop.ajaxDoneCallback(d, catsoop.this_path, 0)(msg, textStatus,jqXHR);
+
+    var encoded_form_pairs = [];
+    for (var name in d){
+        encoded_form_pairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(d[name]));
+    }
+    var form = encoded_form_pairs.join('&').replace(/%20/g, '+');
+
+    var request = new XMLHttpRequest();
+    request.onload = function(){
+        catsoop.ajaxDoneCallback(d, catsoop.this_path, 0)(request.status, request.response);
+        if(typeof done_function !== "undefined"){
             done_function(true);
         }
-        var error_callback = function(msg, textStatus, jqXHR){
-            catsoop.ajaxErrorCallback(names[0])(msg, textStatus, jqXHR);
+    }
+    request.onerror = function(){
+        catsoop.ajaxErrorCallback(names[0])(request.status, request.response);
+        if(typeof done_function !== "undefined"){
             done_function(false);
         }
-    }else{
-        var success_callback = catsoop.ajaxDoneCallback(d, catsoop.this_path, 0);
-        var error_callback = catsoop.ajaxErrorCallback(names[0]);
     }
-    $.ajax({type:'POST',
-            url: catsoop.this_path,
-            async: 'false',
-            data: d}).done(success_callback).fail(error_callback);
+    request.open('POST', catsoop.this_path, true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(form);
 };
+
+
 catsoop.submit = function (name){catsoop.ajaxrequest([name],'submit');};
 catsoop.check = function (name){catsoop.ajaxrequest([name],'check');};
 catsoop.viewanswernow = function (name){catsoop.ajaxrequest([name],'viewanswer');};

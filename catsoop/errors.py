@@ -93,7 +93,7 @@ def error_message_content(context, html=True):
 
     **Returns:** an error message appropriate for the last exception
     """
-    data_cache = os.path.join(context['cs_data_root'], '_cached')
+    data_cache = os.path.join(context.get('cs_data_root', base_context.cs_data_root), '_cached')
     e = sys.exc_info()
     tb_entries = traceback.extract_tb(e[2])
     new_entries = []

@@ -1380,7 +1380,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
         if os.path.isfile(checker_loc):
             with open(checker_loc, 'r') as f:
                 result = context['csm_cslog'].unprep(f.read())
-            message = '\n<script type="text/javascript">$("#%s_score_display").html(%r);</script>' % (name, result['score_box'])
+            message = '\n<script type="text/javascript">document.getElementById("%s_score_display").innerHTML = %r;</script>' % (name, result['score_box'])
             try:
                 result['response'] = result['response'].decode()
             except:
@@ -2053,7 +2053,7 @@ def handle_whdw(context):
 
 
 WEBSOCKET_RESPONSE = """
-<div class="bs-callout bs-callout-default" id="cs_partialresults_%(name)s">
+<div class="callout callout-default" id="cs_partialresults_%(name)s">
   <div id="cs_partialresults_%(name)s_body">
     <span id="cs_partialresults_%(name)s_message">Looking up your submission (id <code>%(magic)s</code>).  Watch here for updates.</span><br/>
     <center><img src="%(loading)s"/></center>
@@ -2070,9 +2070,9 @@ if (typeof ws_%(name)s != 'undefined'){
     var ws_%(name)s = undefined;
 }
 
-$('#%(name)s_score_display').html('<img src="%(loading)s" style="vertical-align: -6px; margin-left: 5px;"/>');
+document.getElementById('%(name)s_score_display').innerHTML =  '<img src="%(loading)s" style="vertical-align: -6px; margin-left: 5px;"/>';
 
-$('#%(name)s_buttons button').prop("disabled", true);
+document.querySelectorAll('#%(name)s_buttons button').forEach(function(b){b.disabled = true});
 
 var ws_%(name)s = new WebSocket(%(websocket)r);
 
@@ -2083,8 +2083,8 @@ ws_%(name)s.onopen = function(){
 ws_%(name)s.onclose = function(){
     if (this !== ws_%(name)s) return;
     if (ws_%(name)s_state != 2){
-        var thediv = $('#cs_partialresults_%(name)s')
-        thediv.html('Your connection to the server was lost.  Please reload the page.');
+        var thediv = document.getElementById('cs_partialresults_%(name)s')
+        thediv.innerHTML = 'Your connection to the server was lost.  Please reload the page.';
     }
 }
 
@@ -2093,42 +2093,37 @@ var ws_%(name)s_state = -1;
 ws_%(name)s.onmessage = function(event){
     var m = event.data;
     var j = JSON.parse(m);
-    var thediv = $('#cs_partialresults_%(name)s')
-    var themessage = $('#cs_partialresults_%(name)s_message');
+    var thediv = document.getElementById('cs_partialresults_%(name)s');
+    var themessage = document.getElementById('cs_partialresults_%(name)s_message');
     if (j.type == 'ping'){
         ws_%(name)s.send(JSON.stringify({type: 'pong'}));
     }else if (j.type == 'inqueue'){
         ws_%(name)s_state = 0;
         try{clearInterval(ws_%(name)s_interval);}catch(err){}
-        thediv[0].className = '';
-        thediv.addClass('bs-callout');
-        thediv.addClass('bs-callout-warning');
-        themessage.html('Your submission (id <code>%(magic)s</code>) is queued to be checked (position ' + j.position + ').');
-        $('#%(name)s_buttons button').prop("disabled", false);
+        thediv.classList = ['callout', 'callout-warning'];
+        themessage.innerHTML = 'Your submission (id <code>%(magic)s</code>) is queued to be checked (position ' + j.position + ').';
+        document.querySelectorAll('#%(name)s_buttons button').forEach(function(b){b.disabled = false;});
     }else if (j.type == 'running'){
         ws_%(name)s_state = 1;
         try{clearInterval(ws_%(name)s_interval);}catch(err){}
-        thediv[0].className = '';
-        thediv.addClass('bs-callout');
-        thediv.addClass('bs-callout-info');
-        themessage.html('Your submission is currently being checked<span id="%(name)s_ws_running_time"></span>.');
-        $('#%(name)s_buttons button').prop("disabled", false);
-        var sync = ((new Date()).valueOf()/1000 - j.now)
+        thediv.classList = ['callout', 'callout-info'];
+        themessage.innerHTML = 'Your submission is currently being checked<span id="%(name)s_ws_running_time"></span>.';
+        document.querySelectorAll('#%(name)s_buttons button').forEach(function(b){b.disabled = false;});
+        var sync = ((new Date()).valueOf()/1000 - j.now);
         ws_%(name)s_interval = setInterval(function(){catsoop.setTimeSince("%(name)s",
                                                                            j.started,
                                                                            sync);}, 1000);
     }else if (j.type == 'newresult'){
         ws_%(name)s_state = 2;
         try{clearInterval(ws_%(name)s_interval);}catch(err){}
-        $('#%(name)s_score_display').html(j.score_box);
-        thediv[0].className = '';
-        thediv.html(j.response);
-        $('#%(name)s_buttons button').prop("disabled", false);
+        document.getElementById('%(name)s_score_display').innerHTML = j.score_box;
+        thediv.classList = [];
+        thediv.innerHTML = j.response;
+        document.querySelectorAll('#%(name)s_buttons button').forEach(function(b){b.disabled = false;});
     }
 }
 
 ws_%(name)s.onerror = function(event){
-    console.log(event);
 }
 </script>
 """
