@@ -19,8 +19,9 @@ Methods for handling requests, or for routing them to the proper handlers
 
 import os
 import cgi
-import mimetypes
 import string
+import hashlib
+import mimetypes
 import urllib.parse
 
 from email.utils import formatdate
@@ -442,6 +443,10 @@ def _breadcrumbs_html(context):
     return out + '</ol>'
 
 
+def md5(x):
+    return hashlib.md5(x.encode()).hexdigest()
+
+
 def _top_menu_html(topmenu, header=True):
     if isinstance(topmenu, str):
         return topmenu
@@ -455,8 +460,10 @@ def _top_menu_html(topmenu, header=True):
         if isinstance(link, str):
             out += '\n<a href="%s">%s</a>' % (link, i['text'])
         else:
-            out += '\n<div class="dropdown">'
-            out += '\n<button class="dropbtn">%s<span class="downarrow">▼</span></button>' % i['text']
+            menu_id = md5(str(i))
+            out += '\n<div class="dropdown" onmouseleave="this.children[1].checked = false;">'
+            out += '\n<label class="dropbtn" for="cs_menu_%s">%s<span class="downarrow">▼</span></label>' % (menu_id, i['text'])
+            out += '\n<input type="checkbox" class="dropdown-checkbox" id="cs_menu_%s" checked="false"/>' % menu_id
             out += '\n<div class="dropdown-content">'
             out += _top_menu_html(link, False)
             out += '</div>'
