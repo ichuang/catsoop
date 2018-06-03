@@ -16,7 +16,7 @@
  */
 
 // Math rendering for CAT-SOOP
-// Expects jQuery, KaTeX, and MathJax to be loaded already
+// Expects KaTeX, and MathJax to be loaded already
 
 // configure MathJax not to typeset on startup
 MathJax.Hub.Config({skipStartupTypeset:true,
@@ -29,11 +29,11 @@ MathJax.Hub.Config({skipStartupTypeset:true,
 // fall back to mathjax (slow, but good support) if necessary
 catsoop.render_math = function (elt, render_now) {
     render_now = typeof render_now !== 'undefined' ? render_now : false;
-    elt = $(elt);
-    var tex = elt.text(); // TeX Source
-    var display = elt.hasClass('cs_displaymath');
+    var tex = elt.innerText; // TeX Source
+    var display = elt.classList.contains('cs_displaymath');
+    var need_mathjax = false;
     try{
-        katex.render(tex, elt.get(0), {displayMode: display});
+        katex.render(tex, elt, {displayMode: display});
     }catch(err){
         if(display){
             var b = "\\[";
@@ -42,26 +42,30 @@ catsoop.render_math = function (elt, render_now) {
             var b = "\\(";
             var e = "\\)";
         }
-        elt.text(b + tex + e);
+        elt.innerText = b + tex + e;
+        need_mathjax = true;
         if(render_now){
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, elt[0]]);
         }
     }
-    elt.removeClass('cs_math_to_render');
+    elt.classList.remove('cs_math_to_render');
+    return need_mathjax;
 }
 
 // render all math elements within a given DOM element
 catsoop.render_all_math = function (elt, immediate){
     immediate = typeof immediate !== 'undefined' ? immediate : false;
-    $('.cs_math_to_render', $(elt)).each(function(){
-            var elt = $(this);
-            catsoop.render_math(elt, immediate);
-    }).promise().done(function(){
-        if(!immediate){
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, elt]);
-        }
-    });
+    var mathelts = elt.getElementsByClassName('cs_math_to_render');
+    var need_mathjax = false;
+    while(mathelts.length > 0){
+        need_mathjax |= catsoop.render_math(mathelts[0], immediate);
+    }
+    if(need_mathjax && !immediate){
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, elt]);
+    }
 }
 
 // when the page loads, render all math elements on the page
-$(document).ready(function(){{catsoop.render_all_math(document)}});
+document.addEventListener("DOMContentLoaded", function(event) {
+      catsoop.render_all_math(document);
+});

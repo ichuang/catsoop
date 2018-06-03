@@ -54,9 +54,7 @@ listed below.  Licensing information for these components is included in this
 distribution, in the `LICENSE.included_software` file.
 
 CAT-SOOP includes verbatim copies of:
-  * Bootstrap (<http://getbootstrap.com/>)
   * highlight.js (<https://highlightjs.org/>)
-  * jQuery (<https://jquery.com/>)
   * KaTeX (<https://github.com/Khan/KaTeX>)
   * MathJax (<https://www.mathjax.org/>)
   * PLY (<http://www.dabeaz.com/ply/>)

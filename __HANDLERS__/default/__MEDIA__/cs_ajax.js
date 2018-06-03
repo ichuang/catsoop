@@ -15,10 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$(':button').prop("disabled",false);
 
 catsoop.switch_buttons = function (name, enabled){
-    $(":button", $("#cs_qdiv_"+name)).prop("disabled", !enabled);
+    var buttons = document.getElementsByTagName('button');
+    for(var i=0; i<=buttons.length; i++){
+        buttons[i].disabled = !enabled;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function(event) {
+    catsoop.switch_buttons(true);
 }
 
 
@@ -45,7 +51,7 @@ catsoop.setTimeSince = function (name, start, sync){
             }
         }
     }
-    $('#' + name + '_ws_running_time').html(' (running for around ' + msg + ')');
+    document.getElementById(name + '_ws_running_time').innerText = ' (running for around ' + msg + ')';
 }
 
 catsoop.doFiles = function (lastDeferred, into, files){
@@ -249,14 +255,9 @@ catsoop.viewanswer = function (name){
     else catsoop.confirmAndViewAnswer(name);
 };
 catsoop.viewanswer_skipalert = function (name){
-    var i = catsoop.skip_alert.length;
-    while (i--){
-        if (catsoop.skip_alert[i] === name){
-            return true
-        }
-    }
-    return false;
+    return catsoop.skip_alert.indexOf(name) !== -1;
 };
+
 catsoop.confirmAndViewAnswer = function(name) {
     swal({
       title: 'Are you sure?',
