@@ -36,7 +36,7 @@ def richtext_format(context, text, msg="Preview:"):
     out = out.replace('<script', '&lt;script')
     out = out.replace('</script', '&lt;script')
     out += ('<script type="text/javascript">'
-            'catsoop.render_all_math($("#cs_qdiv_%s"), true);'
+            'catsoop.render_all_math(document.getElementById("cs_qdiv_%s"), true);'
             '</script>') % context['csq_name']
     out += '</div>'
     return out

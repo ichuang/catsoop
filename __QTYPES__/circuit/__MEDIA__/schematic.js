@@ -1948,7 +1948,7 @@ var cktsim = (function() {
 // set up each schematic entry widget
 function update_schematics() {
     // set up each schematic on the page
-    var schematics = $('.schematic');
+    var schematics = document.querySelectorAll('.schematic');
     for (var i = 0; i < schematics.length; ++i)
     if (schematics[i].getAttribute("loaded") != "true") {
         try {
@@ -6144,45 +6144,10 @@ schematic = (function() {
         return new ISource(x,y,this.rotation,this.properties['name'],this.properties['value']);
     }
 
-    //  JQuery slider support for setting a component value
-
-    function component_slider(event,ui) {
-        var sname = $(this).slider("option","schematic");
-
-        // set value of specified component
-        var cname = $(this).slider("option","component");
-        var pname = $(this).slider("option","property");
-        var suffix = $(this).slider("option","suffix");
-        if (typeof suffix != "string")
-            suffix = "";
-
-        var v = ui.value;
-        $(this).slider("value",v);  // move slider's indicator
-
-        var choices = $(this).slider("option","choices");
-        if (choices instanceof Array)
-            v = choices[v];
-
-        // selector may match several schematics
-        $("." + sname).each(function(index,element) {
-            element.schematic.set_property(cname,pname,v.toString() + suffix);
-        })
-
-        // perform requested analysis
-        var analysis = $(this).slider("option","analysis");
-        if (analysis == "dc")
-            $("." + sname).each(function(index,element) {
-                                    element.schematic.dc_analysis();
-                                })
-
-        return false;
-    }
-
     //  Module definition
 
     var module = {
         'Schematic': Schematic,
-        'component_slider': component_slider
     }
     return module;
 }());

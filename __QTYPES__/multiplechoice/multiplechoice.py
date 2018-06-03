@@ -153,10 +153,13 @@ def render_html_checkbox(last_log, **info):
     out += (
         '\n<script type="text/javascript">'
         '\nvar %s_selected = {%s};'
-        '\n$("#%s").val(JSON.stringify(%s_selected));'
-        '\n$("input:checkbox[name^=%s_opt]").click(function(){'
-        '\n    %s_selected[$(this).attr("name")] = $(this).prop("checked");'
-        '\n    $("#%s").val(JSON.stringify(%s_selected));});'
+        '\ndocument.getElementById("%s").value = JSON.stringify(%s_selected);'
+        '\ndocument.querySelectorAll("input[type=checkbox][name^=%s_opt]").forEach(function(r){'
+        '\n    r.addEventListener("click", function(){'
+        '\n        %s_selected[this.getAttribute("name")] = this.checked;'
+        '\n    document.getElementById("%s").value = JSON.stringify(%s_selected);'
+        '\n    });'
+        '\n});'
         '\n</script>') % ((info['csq_name'],
                            checked_str, ) + (info['csq_name'], ) * 6)
     return out
@@ -182,8 +185,11 @@ def render_html_radio(last_log, **info):
     out += '<input type="hidden" name="%s" id="%s" value="%s">' % (name, name,
                                                                    last or '')
     out += ('\n<script type="text/javascript">'
-            '\n$("input:radio[name=%s_opts]").click(function(){'
-            '\n    $("#%s").val($(this).val());});'
+            '\ndocument.querySelectorAll("input[type=radio][name=%s_opts]").forEach(function(r){'
+            '\n    r.addEventListener("click", function(){'
+            '\n        document.getElementById("%s").value = this.value;'
+            '\n    });'
+            '\n});'
             '\n</script>') % (info['csq_name'], info['csq_name'])
     return out
 
