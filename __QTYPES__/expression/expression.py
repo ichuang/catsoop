@@ -482,7 +482,7 @@ def answer_display(**info):
                     '<displaymath>%s</displaymath></p>') % (count, i, a)
             count += 1
         out += '</div>'
-    out += '<script type="text/javascript">catsoop.render_all_math(document.getElementById("%s_soln"), true);</script>' % info[
+    out += '<script type="text/javascript">catsoop.render_all_math(document.getElementById("expr%s"), true);</script>' % info[
         'csq_name']
     return out
 

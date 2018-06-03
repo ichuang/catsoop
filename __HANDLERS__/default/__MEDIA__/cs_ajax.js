@@ -114,6 +114,7 @@ catsoop.ajaxrequest = function (names, action, done_function){
             var name = names[i];
             document.getElementById(name+'_loading').style.display = 'none';
             document.getElementById(name+'_score_display').style.display = '';
+            catsoop.switch_buttons(name, true);
         }
     });
 }
@@ -138,6 +139,7 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(req_sta
                 document.getElementById(name+'_score_display').style.display = '';
                 if('rerender' in thisone){
                     document.getElementById(name+'_rendered_question').innerHTML = thisone['rerender'];
+                    catsoop.run_all_scripts(name+'_rendered_question');
                 }
                 if('clear' in thisone){
                     document.getElementById(name+'_solution_container').classList = [];
