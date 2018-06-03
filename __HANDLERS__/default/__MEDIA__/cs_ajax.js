@@ -16,8 +16,15 @@
  */
 
 
-catsoop.switch_buttons = function (qname, enabled){
-    document.getElementById('cs_qdiv_'+qname).querySelectorAll('button').forEach(function(b){b.disabled=!enabled});
+catsoop.switch_buttons = function (name, enabled){
+    var buttons = document.getElementsByTagName('button');
+    for(var i=0; i<=buttons.length; i++){
+        buttons[i].disabled = !enabled;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function(event) {
+    catsoop.switch_buttons(true);
 }
 
 
