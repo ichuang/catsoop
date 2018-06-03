@@ -475,6 +475,9 @@ footer {
         flex-basis: 100%;
     }
 
+    header.responsive {
+        position: relative;
+    }
     header.responsive .nav-container {
         flex-direction: column;
         align-items: flex-start;
