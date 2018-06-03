@@ -21,7 +21,6 @@
     document.addEventListener('DOMContentLoaded', function(){{
         var menu_boxes = document.getElementsByClassName('dropdown-checkbox');
         for(var i=0; i<menu_boxes.length; i++){{
-            console.log(menu_boxes[i]);
             menu_boxes[i].checked = false;
         }}
     }});

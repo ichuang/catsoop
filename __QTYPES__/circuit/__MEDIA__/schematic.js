@@ -2620,7 +2620,6 @@ schematic = (function() {
     }
 
     Schematic.prototype.prepare_submission = function() {
-        console.log(this.submit_analyses);
         for (var i in this.submit_analyses){
             if (!this.submit_analyses.hasOwnProperty(i)){
                 continue;
@@ -2910,7 +2909,6 @@ schematic = (function() {
                 var submit = this.submit_analyses['tran'];
                 if (submit != undefined) {
                     // save a copy of the results for submission
-                    console.log(results);
                     this.transient_results = {'time': results['_time_']};
                     for (var i in results){
                         if (i != '_time_' && !results.hasOwnProperty(i)){
@@ -2966,9 +2964,6 @@ schematic = (function() {
 		    // run the analysis
             var n = sch.tran_npts;
             var s = sch.tran_tstop;
-            console.log('HELLLOOOO');
-            console.log(n);
-            console.log(s);
 		    var results = ckt.tran(ckt.parse_number(n), 0,
 					   ckt.parse_number(s), probe_names, false);
 
