@@ -460,10 +460,8 @@ def _top_menu_html(topmenu, header=True):
         if isinstance(link, str):
             out += '\n<a href="%s">%s</a>' % (link, i['text'])
         else:
-            menu_id = md5(str(i))
-            out += '\n<div class="dropdown" onmouseleave="this.children[1].checked = false;">'
-            out += '\n<label class="dropbtn" for="cs_menu_%s">%s<span class="downarrow">▼</span></label>' % (menu_id, i['text'])
-            out += '\n<input type="checkbox" class="dropdown-checkbox" id="cs_menu_%s" checked="false"/>' % menu_id
+            out += '\n<div class="dropdown">'
+            out += '\n<button class="dropbtn">%s<span class="downarrow">▼</span></button>' % i['text']
             out += '\n<div class="dropdown-content">'
             out += _top_menu_html(link, False)
             out += '</div>'

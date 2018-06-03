@@ -13,6 +13,10 @@
     <!-- set up JS namespace for catsoop -->
     <script type="text/javascript">
     var catsoop = {{plugins: {{}}}};
+
+    function toggleResponsiveHeader(){{
+        document.getElementsByTagName('header')[0].classList.toggle('responsive');
+    }}
     </script>
 
     <!-- load in katex and mathjax, and CAT-SOOP-specific math rendering  -->
@@ -40,12 +44,10 @@
   </head>
   <body style="margin: 0px;">
     <header id="cs_header">
-      <div class="nav-container">
-        <div><a class="cs_header_text" href="{cs_home_link}">{cs_header}</a></div>
-        <div></div>
-        <div class="cs_top_menu">Hello</div>
-        <div class="cs_menu_collapser">Hi</div>
-      </div>
+        <div class="nav-container">
+            <a class="cs_header_text" href="{cs_home_link}">{cs_header}</a>
+            {cs_top_menu_html}
+        </div>
     </header>
     <main id="cs_body" class="cs_body">
       <div class="cs_left_menu"></div>
