@@ -16,6 +16,10 @@ DEPRECATED:
 
 REMOVED:
 
+* Removed jQuery, Bootstrap, and SweetAlert2 (replaced with our own JS/CSS).
+
+* Removed cs_util/process_theme and removed dependence on outside fonts.
+
 FIXED:
 
 SECURITY:

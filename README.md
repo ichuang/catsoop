@@ -60,7 +60,6 @@ CAT-SOOP includes verbatim copies of:
   * PLY (<http://www.dabeaz.com/ply/>)
   * pyaes (<https://github.com/ricmoo/pyaes>)
   * Python-Markdown (<https://pythonhosted.org/Markdown/>)
-  * SweetAlert2 (<https://limonte.github.io/sweetalert2/>)
   * websockets (<https://github.com/aaugustin/websockets>)
 
 CAT-SOOP includes modified versions of:
