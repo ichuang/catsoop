@@ -211,8 +211,8 @@ def handle_submission(submissions, **info):
     if info['csq_always_show_tests']:
         msg = ''
     else:
-        msg = ('\n<br/><button onclick="$(\'#%s_result_showhide\').toggle()">'
-               'Show/Hide Detailed Results</button>') % info['csq_name']
+        msg = ('''\n<br/><button onclick="if(this.nextSibling.style.display === 'none'){this.nextSibling.style.display = 'block';}else{this.nextSibling.style.display = 'none';}">'''
+               'Show/Hide Detailed Results</button>')
     msg += ('<div class="response" id="%s_result_showhide" %s>'
             '<h2>Test Results:</h2>') % (info['csq_name'], 'style="display:none"'
                                                              if not info['csq_always_show_tests']
@@ -371,9 +371,13 @@ def render_html_upload(last_log, **info):
     out += ('''\n<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
             '''\n<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)
     out += ('''\n<script type="text/javascript">'''
-            '''\n$('#%s').val('');'''
-            '''\n$('#%s_select_button').click(function (){$("#%s").click();});'''
-            '''\n$('#%s').change(function (){$('#%s_selected_file').text($('#%s').val());});'''
+            '''\ndocument.getElementById('%s').value = '';'''
+            '''\ndocument.getElementById('%s_select_button').addEventListener('click', function (){'''
+            '''\n    document.getElementById("%s").click();'''
+            '''\n});'''
+            '''\ndocument.getElementById('%s').addEventListener('change', function (){'''
+            '''\n    document.getElementById('%s_selected_file').innerText = document.getElementById('%s').value);'''
+            '''\n});'''
             '''\n</script>''') % (name, name, name, name, name, name)
     return out
 
@@ -406,18 +410,18 @@ def render_html_ace(last_log, **info):
     editor%(name)s.getSession().setMode("ace/mode/python");
     editor%(name)s.setShowFoldWidgets(false);
     editor%(name)s.setValue(%(init)r)
-    $("#%(name)s").val(editor%(name)s.getValue());
+    document.getElementById("%(name)s").value = editor%(name)s.getValue();
     editor%(name)s.on("change",function(e){
         editor%(name)s.getSession().setUseSoftTabs(true);
-        $("#%(name)s").val(editor%(name)s.getValue());
+        document.getElementById("%(name)s").value = editor%(name)s.getValue();
     });
     editor%(name)s.clearSelection()
     editor%(name)s.getSession().setUseSoftTabs(true);
     editor%(name)s.on("paste",function(txt){editor%(name)s.getSession().setUseSoftTabs(false);});
     editor%(name)s.getSession().setTabSize(4);
     editor%(name)s.setFontSize("%(fontsize)spx");
-    $("#container%(name)s").height(%(height)s);
-    $("#editor%(name)s").height(%(height)s);
+    document.getElementById("container%(name)s").style.height = "%(height)spx";
+    document.getElementById("editor%(name)s").style.height = "%(height)spx";
     editor%(name)s.resize(true);
 </script>''' % params
 
@@ -441,5 +445,5 @@ def render_html(last_log, **info):
 def answer_display(**info):
     out = ('Here is the solution we wrote:<br/>'
            '<pre><code id="%s_soln_highlight" class="lang-python">%s</code></pre>'
-           '<script type="text/javascript">hljs.highlightBlock($("#%s_soln_highlight")[0]);</script>') % (info['csq_name'], info['csq_soln'].replace('<','&lt;'), info['csq_name'])
+           '<script type="text/javascript">hljs.highlightBlock(document.getElementById("%s_soln_highlight"));</script>') % (info['csq_name'], info['csq_soln'].replace('<','&lt;'), info['csq_name'])
     return out

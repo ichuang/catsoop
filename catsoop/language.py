@@ -624,6 +624,7 @@ def handle_custom_tags(context, text):
             sec.attrs['id'] = 'catsoop_label_%s' % lbl
         i.replace_with(sec)
         link = tree.new_tag('a')
+        link['class'] = 'anchor'
         link.attrs['name'] = linkname
         sec.insert_before(link)
 

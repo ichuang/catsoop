@@ -78,6 +78,13 @@ cs_base_color = "#0000CC"
 Special: The base color to use to customize the main theme, hexadecimal format.
 """
 
+cs_light_color = None
+"""
+Special: Light version of the color in the main theme, hexadeciaml format.  If
+value is `None`, an appropriate color will be computed based on
+`cs_base_color`.
+"""
+
 cs_process_theme = True
 """
 Special: Whether the theme should be "processed" by, e.g., evaluating Python

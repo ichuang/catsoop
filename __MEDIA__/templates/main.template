@@ -15,27 +15,6 @@
     var catsoop = {{plugins: {{}}}};
     </script>
 
-    <!-- automatically adjust the top padding so that the whole page is visible even if the navbar's height changes -->
-    <!-- also move the target for anchors so the navbar doesn't hide them -->
-    <script type="text/javascript">
-      catsoop.scroll_header = function(){{
-          console.log('scrolling now');
-          scrollBy(0, -(document.getElementById('cs_header').scrollHeight));
-      }}
-
-      catsoop.set_top_margin = function(){{
-          document.getElementById('cs_body').style['padding-top'] = '' + (document.getElementById('cs_header').scrollHeight+10) + 'px';
-      }}
-
-      window.addEventListener("load", function() {{
-          catsoop.set_top_margin();
-          if (location.hash) setTimeout(catsoop.scroll_header, 1000);
-          window.addEventListener("hashchange", catsoop.scroll_header);
-          window.addEventListener("resize", catsoop.set_top_margin);
-      }});
-    </script>
-
-
     <!-- load in katex and mathjax, and CAT-SOOP-specific math rendering  -->
     <script type="text/javascript" src="BASE/scripts/katex/katex.min.js"></script>
     <link rel="stylesheet" type="text/css" href="BASE/scripts/katex/katex.min.css" />
@@ -54,6 +33,7 @@
     <style>
       :root {{
         --cs-base-color: {cs_base_color};
+        --cs-light-color: {cs_light_color};
     }}
     </style>
 
