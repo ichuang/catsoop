@@ -21,9 +21,6 @@
     <script type="text/javascript" src="BASE/scripts/mathjax/MathJax.js?config=TeX-AMS_CHTML"></script>
     <script type="text/javascript" src="BASE/scripts/cs_math.js"></script>
 
-    <!-- CAT-SOOP Hashing -->
-    <script type="text/javascript" src="BASE/scripts/cs_hash.js"></script>
-
     <!-- Syntax Highlighting -->
     <link rel="stylesheet" href="BASE/scripts/highlight/styles/catsoop.css" />
     <script type="text/javascript" src="BASE/scripts/highlight/highlight.pack.js"></script>

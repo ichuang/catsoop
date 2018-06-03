@@ -109,6 +109,11 @@ def static_file_location(context, path):
         loc = os.path.join(
             context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__',
             path[1], '__MEDIA__')
+    elif path[0] == '__AUTH__':
+        # serving from qtype
+        loc = os.path.join(
+            context.get('cs_fs_root', base_context.cs_fs_root), '__AUTH__',
+            path[1], '__MEDIA__')
     else:
         # preprocess the path to prune out 'dots' and 'double-dots'
         course = path[0]
@@ -226,6 +231,8 @@ def serve_static_file(context,
     * `streamchunk` (default `4096`): the size, in bytes, of the chunks in the
         resulting stream
     """
+    with open('/tmp/catsoop', 'a') as f:
+        print(fname, file=f)
     environment = environment or {}
     try:
         status = ('200', 'OK')
@@ -313,7 +320,7 @@ def _real_url_helper(context, url):
         else:
             pre = u + new
     elif (url.startswith('__HANDLER__') or url.startswith('__QTYPE__') or
-          url.startswith('__PLUGIN__')):
+          url.startswith('__PLUGIN__') or url.startswith('__AUTH__')):
         pre = u
         end = [url]
     else:
@@ -328,8 +335,8 @@ def get_real_url(context, url):
     actually point the web browser to the right place.
 
     Links in CAT-SOOP can begin with `BASE`, `COURSE`, `CURRENT`, `__QTYPE__`,
-    `__HANDLER__`, or `__PLUGIN__`.  This function takes in a URL in that form
-    and returns the corresponding URL.
+    `__HANDLER__`, `__AUTH__`, or `__PLUGIN__`.  This function takes in a URL
+    in that form and returns the corresponding URL.
 
     **Parameters:**
 
@@ -413,7 +420,7 @@ def _breadcrumbs_html(context):
     _defined = context.get('cs_breadcrumbs_html', None)
     if callable(_defined):
         return _defined(context)
-    if context.get('cs_course', None) in {None, 'cs_util', '__QTYPE__', '__HANDLER__'}:
+    if context.get('cs_course', None) in {None, 'cs_util', '__QTYPE__', '__HANDLER__', '__PLUGIN__', '__AUTH__'}:
         return ''
     if len(context.get('cs_loader_states', [])) < 2:
         return ''
@@ -530,7 +537,7 @@ def main(environment):
 
         # SET SOME CONSTANTS FOR THE TEMPLATE (may be changed later)
         course = context.get('cs_course', None)
-        if course is None or course in {'cs_util', '__QTYPE__', '__HANDLER__'}:
+        if course is None or course in {'cs_util', '__QTYPE__', '__HANDLER__', '__PLUGIN__', '__AUTH__'}:
             context['cs_home_link'] = 'BASE'
             context['cs_source_qstring'] = ''
         else:
