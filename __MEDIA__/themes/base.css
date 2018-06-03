@@ -62,8 +62,18 @@ code, kbd, pre, samp {
   font-size: 0.85em;
 }
 
-a, b, del, em, i, ins, q, span, strong, u {
-    font-size: 1em;
+code {
+    padding: 2px;
+    border-radius: 5px;
+    background-color: #eee;
+    color: inherit;
+}
+
+pre {
+  padding: 1em;
+  white-space: pre-wrap;
+  border-radius: 5px;
+  background-color: #eee;
 }
 
 pre.catsooplogo {
@@ -151,6 +161,7 @@ main {
     flex: 1 0 auto;
     display: flex;
     padding: 2em;
+    padding-top: 5rem;
     align-items: stretch;
     justify-content: space-between;
 }
@@ -160,10 +171,11 @@ main {
     max-width: var(--cs-max-page-width);
 }
 
-* {
-  font-size: 1rem;
+a.anchor {
+    display: block;
+    position: relative;
+    top: -4rem;
 }
-
 
 footer {
   text-align: center;
@@ -176,6 +188,134 @@ footer {
   margin-left: 0px;
   margin-right: 0px;
   margin-top: 5rem;
+}
+
+/* Buttons */
+
+
+.btn{
+    display:inline-block;
+    padding:6px 12px;
+    margin-bottom:0;
+    font-weight:400;
+    line-height:1.42857143;
+    text-align:center;
+    white-space:nowrap;
+    vertical-align:middle;
+    -ms-touch-action:manipulation;
+    touch-action:manipulation;
+    cursor:pointer;
+    user-select:none;
+    background-image:none;
+    border:1px solid transparent;
+    border-radius:4px;
+    color: #ffffff;
+    background-color: var(--cs-base-color);
+    border-color: #000000;
+}
+.btn.focus,.btn:focus,.btn:hover,.btn.active.focus,
+.btn.active:focus,.btn.active:hover,.btn:active.focus,
+.btn:active:focus,.btn:active:hover{
+    color: #ffffff;
+    background-color: var(--cs-light-color);
+    border-color: #000000;
+}
+
+/* Various Kinds of Boxes */
+
+
+.response {
+ width:90%;
+ padding:10px;
+ margin-top:20px;
+ margin-bottom:20px;
+ margin-right:auto;
+ margin-left:auto;
+ background-color: #ffffff;
+ border-color: #000000;
+ border-style: solid;
+ border-width: 1px;
+ border-radius: 10px;
+}
+
+.question {
+ width:90%;
+ padding:15px;
+ margin-top:20px;
+ margin-bottom:20px;
+ margin-right:auto;
+ margin-left:auto;
+ background-color: #ffffff;
+ border-color: #000000;
+ border-style: solid;
+ border-width: 1px;
+ border-radius: 10px;
+}
+
+
+.checkoff {
+ width:90%;
+ padding:10px;
+ margin-top:20px;
+ margin-bottom:20px;
+ margin-right:auto;
+ margin-left:auto;
+ background-color: #ddddff;
+ border-color: #000000;
+ border-style: solid;
+ border-width: 3px;
+ border-radius: 10px;
+}
+
+
+.solution {
+ width:90%;
+ padding:10px;
+ margin-top:20px;
+ margin-bottom:20px;
+ margin-right:auto;
+ margin-left:auto;
+ background-color: #dbffdc;
+ border-color: #005702;
+ border-style: solid;
+ border-width: 1px;
+ border-radius: 10px;
+}
+
+.impsolution {
+ width:90%;
+ padding:10px;
+ margin-top:20px;
+ margin-bottom:20px;
+ margin-right:auto;
+ margin-left:auto;
+ background-color: #FFD9D9;
+ border-color: #FF0000;
+ border-style: solid;
+ border-width: 1px;
+ border-radius: 10px;
+}
+
+/* Ace Editor */
+
+.embedded_ace_code {
+    left: 0px;
+    top: 0px;
+    bottom: 1px;
+    right: 1px;
+    border-radius: 5px;
+    border-bottom-right-radius: 0px;
+    background: transparent;
+}
+
+.ace_editor_wrapper {
+   height: 275px;
+   position: relative;
+   border: 1px solid #DDD;
+   border-radius: 5px;
+   border-bottom-right-radius: 0px;
+   padding:2px;
+   margin-top: 5px;
 }
 
 @media print {

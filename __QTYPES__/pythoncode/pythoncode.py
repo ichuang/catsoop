@@ -376,7 +376,7 @@ def render_html_upload(last_log, **info):
             '''\n    document.getElementById("%s").click();'''
             '''\n});'''
             '''\ndocument.getElementById('%s').addEventListener('change', function (){'''
-            '''\n    document.getElementById('%s_selected_file').innerText = document.getElementById('%s').value;'''
+            '''\n    document.getElementById('%s_selected_file').innerText = document.getElementById('%s').value);'''
             '''\n});'''
             '''\n</script>''') % (name, name, name, name, name, name)
     return out
