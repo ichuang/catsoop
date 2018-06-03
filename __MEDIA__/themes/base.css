@@ -208,8 +208,14 @@ header a {
     margin-right: 0;
 }
 
-
 .dropdown-content a:hover{
+    color: #000;
+    text-decoration: none;
+    background-color: var(--cs-light-color);
+}
+
+.dropdown-content a:visited{
+    color: #000;
     text-decoration: none;
     background-color: var(--cs-light-color);
 }
@@ -475,7 +481,7 @@ footer {
         flex-basis: 100%;
     }
 
-    header.responsive {
+    header {
         position: relative;
     }
     header.responsive .nav-container {
