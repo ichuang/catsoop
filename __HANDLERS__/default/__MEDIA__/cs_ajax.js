@@ -16,16 +16,14 @@
  */
 
 
-catsoop.switch_buttons = function (name, enabled){
-    var buttons = document.getElementsByTagName('button');
-    for(var i=0; i<=buttons.length; i++){
-        buttons[i].disabled = !enabled;
-    }
+catsoop.switch_buttons = function (qname, enabled){
+    document.getElementById('cs_qdiv_'+qname).querySelectorAll('button').forEach(function(b){b.disabled=!enabled});
 }
 
+
 document.addEventListener("DOMContentLoaded", function(event) {
-    catsoop.switch_buttons(true);
-}
+    document.querySelectorAll('button').forEach(function(b){b.disabled=false});
+});
 
 
 document.addEventListener("DOMContentLoaded", function(event) {
@@ -116,7 +114,6 @@ catsoop.ajaxrequest = function (names, action, done_function){
             var name = names[i];
             document.getElementById(name+'_loading').style.display = 'none';
             document.getElementById(name+'_score_display').style.display = '';
-            catsoop.switch_buttons(name, true);
         }
     });
 }
@@ -141,7 +138,6 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(req_sta
                 document.getElementById(name+'_score_display').style.display = '';
                 if('rerender' in thisone){
                     document.getElementById(name+'_rendered_question').innerHTML = thisone['rerender'];
-                    catsoop.run_all_scripts(name+'_rendered_question');
                 }
                 if('clear' in thisone){
                     document.getElementById(name+'_solution_container').classList = [];
