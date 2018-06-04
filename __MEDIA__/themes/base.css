@@ -29,8 +29,13 @@ html {
 
 body {
     min-height: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: column;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
     overflow: auto;
 }
 
@@ -126,9 +131,15 @@ header {
     background-color: var(--cs-base-color);
     margin-left: 0px;
     margin-right: 0px;
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
     z-index: 1000;
     position: fixed;
     top: 0;
@@ -136,15 +147,22 @@ header {
 }
 
 .nav-container {
-    flex-basis: 80%;
+    -ms-flex-preferred-size: 80%;
+        flex-basis: 80%;
     height: 100%;
     margin: 0px;
     padding: 0px;
     max-width: var(--cs-max-page-width);
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
     vertical-align: middle;
-    align-items: center;
-    justify-content: space-between;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
 }
 
 header a, header a:visited {
@@ -180,7 +198,6 @@ header .downarrow {
     cursor: pointer;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
-    -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
@@ -196,7 +213,8 @@ header a {
     position: absolute;
     background-color: #fff;
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    -webkit-box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1001;
 }
 
@@ -225,9 +243,16 @@ header a {
 }
 
 .dropdown:hover .dropdown-checkbox:checked + .dropdown-content{
+    display:-webkit-box;
+    display:-ms-flexbox;
     display:flex;
-    flex-direction:column;
-    justify-content: center;
+    -webkit-box-orient:vertical;
+    -webkit-box-direction:normal;
+        -ms-flex-direction:column;
+            flex-direction:column;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
 }
 
 .dropdown-checkbox {
@@ -238,23 +263,35 @@ header .cs_header_text {
     font-size: 2.5rem;
     text-decoration: none;
     font-weight: bold;
-    flex-grow: 2;
+    -webkit-box-flex: 2;
+        -ms-flex-positive: 2;
+            flex-grow: 2;
     margin: 0px;
-    flex-basis: 33%;
+    -ms-flex-preferred-size: 33%;
+        flex-basis: 33%;
 }
 
 main {
-    flex: 1;
+    -webkit-box-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
     overflow: auto;
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
     padding: 2em;
     padding-top: 3.5rem;
-    align-items: stretch;
-    justify-content: space-between;
+    -webkit-box-align: stretch;
+        -ms-flex-align: stretch;
+            align-items: stretch;
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
 }
 
 .cs_content {
-    flex-basis: 60%;
+    -ms-flex-preferred-size: 60%;
+        flex-basis: 60%;
     max-width: var(--cs-max-page-width);
 }
 
@@ -333,7 +370,10 @@ table, th, td {
     -ms-touch-action:manipulation;
     touch-action:manipulation;
     cursor:pointer;
-    user-select:none;
+    -webkit-user-select:none;
+       -moz-user-select:none;
+        -ms-user-select:none;
+            user-select:none;
     background-image:none;
     border:1px solid transparent;
     border-radius:4px;
@@ -345,7 +385,8 @@ table, th, td {
 .btn.disabled, .btn[disabled] {
     cursor:not-allowed;
     filter:alpha(opacity=65);
-    box-shadow:none;
+    -webkit-box-shadow:none;
+            box-shadow:none;
     opacity:.65
 }
 
@@ -360,6 +401,8 @@ table, th, td {
 /* Modal Dialog */
 
 .modal-background {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
     z-index: 10000;
     padding-top: 100px;
@@ -379,8 +422,10 @@ table, th, td {
     background-color:#fff;
     position:relative;
     padding:0;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    flex-basis: 80%;
+    -webkit-box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    -ms-flex-preferred-size: 80%;
+        flex-basis: 80%;
     border-radius: 4px;
 }
 
@@ -505,7 +550,8 @@ table, th, td {
 @media screen and (max-width: 900px) {
     .nav-container {
         max-width: 100%;
-        flex-basis: 100%;
+        -ms-flex-preferred-size: 100%;
+            flex-basis: 100%;
     }
     .nav-container a:not(:first-child){
         display:none;
@@ -522,20 +568,28 @@ table, th, td {
     }
     .cs_content {
         max-width: 100%;
-        flex-basis: 100%;
+        -ms-flex-preferred-size: 100%;
+            flex-basis: 100%;
     }
     header {
         position: relative;
     }
     header.responsive .nav-container {
-        flex-direction: column;
-        align-items: flex-start;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+            -ms-flex-direction: column;
+                flex-direction: column;
+        -webkit-box-align: start;
+            -ms-flex-align: start;
+                align-items: flex-start;
     }
     header.responsive {
         height: auto;
     }
     header.responsive .nav-container a.cs_header_text{
-        align-self: center;
+        -ms-flex-item-align: center;
+            -ms-grid-row-align: center;
+            align-self: center;
     }
     header.responsive .nav-container a{
         display:block;
