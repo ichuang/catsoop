@@ -114,19 +114,11 @@ catsoop.groups_partner_all = function() {
 }
 
 catsoop.groups_confirm_and_partner_all = function() {
-    swal({
-      title: 'Are you sure?',
-      text: 'Really repartner all students?  This will delete all pre-existing groups and randomly assign everyone a new partner.',
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, repartner everyone!'
-    }).then(function(x) {
-        if (x.value){
+    catsoop.modal('Are you sure?', 'Really repartner all students?  This will delete all pre-existing groups and randomly assign everyone a new partner.', false)
+    .then(function(x) {
             catsoop.groups_partner_all(name);
-        }
     })
+    .catch(function(){});
 }
 
 catsoop.groups_add = function(){

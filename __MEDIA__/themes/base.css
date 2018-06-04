@@ -379,6 +379,7 @@ table, th, td {
     padding:0;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     flex-basis: 80%;
+    border-radius: 4px;
 }
 
 .modal-input {
@@ -399,8 +400,7 @@ table, th, td {
 }
 
 .modal-close:hover {
-    color: #fff;
-    background-color: #f00;
+    color: #f00;
 }
 
 /* Various Kinds of Boxes */

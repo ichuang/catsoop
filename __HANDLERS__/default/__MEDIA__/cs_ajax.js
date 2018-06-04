@@ -323,17 +323,7 @@ catsoop.modal = function(header, text, input){
 }
 
 catsoop.confirmAndViewAnswer = function(name) {
-    swal({
-      title: 'Are you sure?',
-      text: catsoop.viewans_confirm,
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, view answer!'
-    }).then(function(x) {
-        if(x.value){
-            catsoop.viewanswernow(name);
-        }
-    })
+    catsoop.modal('Are you sure?', catsoop.viewans_confirm, false).then(function(x) {
+        catsoop.viewanswernow(name);
+    }).catch(function(){});
 };
