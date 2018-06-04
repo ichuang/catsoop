@@ -347,17 +347,18 @@ table, th, td {
     opacity:.65
 }
 
-.btn.focus,.btn:focus,.btn:hover,.btn.active.focus,
-.btn.active:focus,.btn.active:hover,.btn:active.focus,
+.btn:focus,.btn:hover,.btn:active,
 .btn:active:focus,.btn:active:hover{
     color: #ffffff;
     background-color: var(--cs-light-color);
     border-color: #000000;
 }
 
+
 /* Modal Dialog */
 
 .modal-background {
+    display: flex;
     z-index: 10000;
     padding-top: 100px;
     position: fixed;
@@ -370,12 +371,36 @@ table, th, td {
 }
 
 .modal-content {
+    width: auto;
     z-index: 10001;
     margin:auto;
     background-color:#fff;
     position:relative;
     padding:0;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    flex-basis: 80%;
+}
+
+.modal-input {
+    margin-top: 1rem;
+    width: calc(100% - 2em);
+}
+
+.modal-body {
+    padding: 1em;
+}
+
+.modal-close {
+    cursor: pointer;
+    font-size: 2em;
+    padding: 0.5rem;
+    background-color: #fff;
+    float: right;
+}
+
+.modal-close:hover {
+    color: #fff;
+    background-color: #f00;
 }
 
 /* Various Kinds of Boxes */

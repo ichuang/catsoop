@@ -248,6 +248,80 @@ catsoop.viewanswer_skipalert = function (name){
     return catsoop.skip_alert.indexOf(name) !== -1;
 };
 
+
+catsoop.modal = function(header, text, input){
+    return new Promise(function(resolve, reject){
+        var background = document.createElement('div');
+        background.addEventListener('click', function(){
+            document.body.removeChild(background);
+            reject(false);
+        });
+        background.classList = ['modal-background'];
+
+        var content = document.createElement('div');
+        content.classList = ['modal-content'];
+        content.addEventListener('click', function(e){
+            e.stopPropagation();
+        });
+
+        var mbody = document.createElement('div');
+        mbody.classList = ['modal-body'];
+
+        var close_button = document.createElement('div');
+        close_button.classList = ['modal-close'];
+        close_button.innerHTML = '&times;'
+        close_button.addEventListener('click', function(){
+            document.body.removeChild(background);
+            reject(false);
+        });
+        mbody.append(close_button);
+
+        var title = document.createElement('h3');
+        title.appendChild(document.createTextNode(header));
+        mbody.appendChild(title);
+
+        var body = document.createElement('p');
+        body.innerHTML = text + '<br/>';
+        mbody.appendChild(body);
+
+        var buttons = document.createElement('span');
+        var okay_button = document.createElement('button');
+        okay_button.innerText = input ? 'Submit' : 'OK';
+        okay_button.classList = ['btn'];
+        okay_button.addEventListener('click', function(){
+            document.body.removeChild(background);
+            resolve(input ? input_field.value : true);
+        });
+        if (input){
+            var input_field = document.createElement('input');
+            input_field.classList = ['modal-input'];
+            input_field.setAttribute('type', 'text');
+            body.appendChild(input_field);
+            input_field.addEventListener('keypress', function(e){
+                if (e.which == 13){
+                    okay_button.click();
+                }
+            });
+        }
+
+        var cancel_button = document.createElement('button');
+        cancel_button.innerText = 'Cancel';
+        cancel_button.classList = ['btn'];
+        cancel_button.addEventListener('click', function(){
+            document.body.removeChild(background);
+            reject(false);
+        });
+        buttons.appendChild(okay_button);
+        buttons.appendChild(document.createTextNode(' '));
+        buttons.appendChild(cancel_button);
+        mbody.appendChild(buttons);
+
+        content.appendChild(mbody);
+        background.appendChild(content);
+        document.body.appendChild(background);
+    });
+}
+
 catsoop.confirmAndViewAnswer = function(name) {
     swal({
       title: 'Are you sure?',
