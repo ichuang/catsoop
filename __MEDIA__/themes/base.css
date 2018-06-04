@@ -17,7 +17,7 @@
 
 /* Basic Font Sizing/Styling */
  :root{
-     --cs-base-color: #000080;
+     --cs-base-bg-color: #000080;
      --cs-max-page-width: 1500px;
 }
  html {
@@ -39,11 +39,11 @@
      font-size: 1em;
 }
  a {
-     color: var(--cs-base-color);
+     color: var(--cs-base-bg-color);
      text-decoration: none;
 }
  a:visited {
-     color: var(--cs-base-color);
+     color: var(--cs-base-bg-color);
 }
  a:hover, a:focus {
      text-decoration: underline;
@@ -107,7 +107,7 @@
  header {
      width: 100%;
      height: 3rem;
-     background-color: var(--cs-base-color);
+     background-color: var(--cs-base-bg-color);
      margin-left: 0px;
      margin-right: 0px;
      display: -webkit-box;
@@ -143,7 +143,7 @@
      justify-content: space-between;
 }
  header a, header a:visited {
-     color: #fff;
+     color: var(--cs-base-font-color);
      text-decoration: none;
 }
  header a:hover{
@@ -161,7 +161,7 @@
  .dropdown .dropbtn {
      border: none;
      outline: none;
-     color: white;
+     color: var(--cs-base-font-color);
      background-color: inherit;
      font-family: inherit;
      margin: 0px;
@@ -197,14 +197,14 @@
      margin-right: 0;
 }
  .dropdown-content a:hover{
-     color: #000;
+     color: var(--cs-light-font-color);
      text-decoration: none;
-     background-color: var(--cs-light-color);
+     background-color: var(--cs-light-bg-color);
 }
  .dropdown-content a:visited{
-     color: #000;
+     color: var(--cs-light-font-color);
      text-decoration: none;
-     background-color: var(--cs-light-color);
+     background-color: var(--cs-light-bg-color);
 }
  .dropdown:hover .dropdown-checkbox:checked + .dropdown-content{
      display:-webkit-box;
@@ -321,8 +321,8 @@
      background-image:none;
      border:1px solid transparent;
      border-radius:4px;
-     color: #ffffff;
-     background-color: var(--cs-base-color);
+     color: var(--cs-base-font-color);
+     background-color: var(--cs-base-bg-color);
      border-color: #000000;
 }
  .btn[disabled] {
@@ -333,8 +333,8 @@
      opacity:.65
 }
  .btn:focus,.btn:hover,.btn:active, .btn:active:focus,.btn:active:hover{
-     color: #ffffff;
-     background-color: var(--cs-light-color);
+     color: var(--cs-light-font-color);
+     background-color: var(--cs-light-bg-color);
      border-color: #000000;
 }
 /* Modal Dialog */

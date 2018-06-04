@@ -31,6 +31,17 @@ import collections
 
 _prefix = 'cs_defaulthandler_'
 
+def _set_colors(context):
+    if context['cs_light_color'] is None:
+        context['cs_light_color'] = compute_light_color(context['cs_base_color'])
+
+    if context.get('cs_base_font_color', None) is None:
+        context['cs_base_font_color'] = _font_color_from_background(context['cs_base_color'])
+
+    if context.get('cs_light_font_color', None) is None:
+        context['cs_light_font_color'] = _font_color_from_background(context['cs_light_color'])
+
+
 def new_entry(context, qname, action):
     id_ = str(uuid.uuid4())
     obj = {'path': context['cs_path_info'],
@@ -72,6 +83,15 @@ def _hex_to_rgb(x):
         return (0, 0, 0)
 
 
+def _luminance(rgb_tuple):
+    r, g, b = rgb_tuple
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255
+
+
+def _font_color_from_background(bg):
+    return '#000' if _luminance(_hex_to_rgb(bg)) >= 0.5 else '#fff'
+
+
 def _hex(n):
     n = int(n)
     return hex(n)[2:4]
@@ -89,10 +109,12 @@ def _hsv_to_rgb(tup):
     return tuple(int(i*255) for i in colorsys.hsv_to_rgb(*tup))
 
 
+def _clip(x, lo=0, hi=1):
+    return min(hi, max(x, lo))
+
 def compute_light_color(base):
-    clip = lambda x, lo=0, hi=1: min(hi, max(x, lo))
     base_hsv = _rgb_to_hsv(_hex_to_rgb(base))
-    light_hsv = (base_hsv[0], clip(base_hsv[1]-0.2), clip(base_hsv[2]+0.2))
+    light_hsv = (base_hsv[0], _clip(base_hsv[1]-0.2), _clip(base_hsv[2]+0.2))
     return _rgb_to_hex(_hsv_to_rgb(light_hsv))
 
 
@@ -345,8 +367,7 @@ def handle_view(context):
     lastlog = context[_n('last_log')]
     lastsubmit = lastlog.get('last_submit', {})
 
-    if context['cs_light_color'] is None:
-        context['cs_light_color'] = compute_light_color(context['cs_base_color'])
+    _set_colors(context)
 
     if (_get(context, 'cs_auth_required', True, bool) and
             'view' not in perms and 'view_all' not in perms):

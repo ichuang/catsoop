@@ -68,8 +68,10 @@
     </script>
     <style>
       :root {{
-        --cs-base-color: {cs_base_color};
-        --cs-light-color: {cs_light_color};
+        --cs-base-bg-color: {cs_base_color};
+        --cs-light-bg-color: {cs_light_color};
+        --cs-base-font-color: {cs_base_font_color};
+        --cs-light-font-color: {cs_light_font_color};
     }}
     </style>
 
