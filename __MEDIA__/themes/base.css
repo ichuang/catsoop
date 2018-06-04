@@ -84,7 +84,6 @@ pre.catsooplogo {
     padding: .1em;
 }
 
-
 h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
 }
@@ -199,7 +198,6 @@ header a {
     z-index: 1001;
 }
 
-
 .dropdown-content a{
     color: #000;
     display: block;
@@ -224,18 +222,15 @@ header a {
     background-color: var(--cs-light-color);
 }
 
-
 .dropdown:hover .dropdown-checkbox:checked + .dropdown-content{
     display:flex;
     flex-direction:column;
     justify-content: center;
 }
 
-
 .dropdown-checkbox {
     display: none;
 }
-
 
 header .cs_header_text {
     font-size: 2.5rem;
@@ -245,8 +240,6 @@ header .cs_header_text {
     margin: 0px;
     flex-basis: 33%;
 }
-
-
 
 main {
     flex: 1;
@@ -293,8 +286,8 @@ table, th, td {
     padding: 0.25rem;
 }
 
-/* Callouts */
 
+/* Callouts */
 
 .callout {
     padding:20px;
@@ -303,18 +296,23 @@ table, th, td {
     border-left-width:5px;
     border-radius:3px
 }
+
 .callout-primary {
     border-left-color:#428bca
 }
+
 .callout-success {
     border-left-color:#5cb85c
 }
+
 .callout-danger {
     border-left-color:#d9534f
 }
+
 .callout-warning {
     border-left-color:#f0ad4e
 }
+
 .callout-info {
     border-left-color:#5bc0de
 }
@@ -341,12 +339,14 @@ table, th, td {
     background-color: var(--cs-base-color);
     border-color: #000000;
 }
+
 .btn.disabled, .btn[disabled] {
     cursor:not-allowed;
     filter:alpha(opacity=65);
     box-shadow:none;
     opacity:.65
 }
+
 .btn.focus,.btn:focus,.btn:hover,.btn.active.focus,
 .btn.active:focus,.btn.active:hover,.btn:active.focus,
 .btn:active:focus,.btn:active:hover{
@@ -355,8 +355,30 @@ table, th, td {
     border-color: #000000;
 }
 
-/* Various Kinds of Boxes */
+/* Modal Dialog */
 
+.modal-background {
+    z-index: 10000;
+    padding-top: 100px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color:rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    z-index: 10001;
+    margin:auto;
+    background-color:#fff;
+    position:relative;
+    padding:0;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+/* Various Kinds of Boxes */
 
 .response {
  width:90%;
@@ -386,7 +408,6 @@ table, th, td {
  border-radius: 10px;
 }
 
-
 .checkoff {
  width:90%;
  padding:10px;
@@ -400,7 +421,6 @@ table, th, td {
  border-width: 3px;
  border-radius: 10px;
 }
-
 
 .solution {
  width:90%;
@@ -452,53 +472,8 @@ table, th, td {
    margin-top: 5px;
 }
 
-@media print {
-    body * {
-        visibility: hidden;
-    }
 
-    #content * {
-        visibility: visible;
-    }
-
-    #content {
-        visibility: visible;
-        background-color: white;
-        position: absolute;
-        left:0px;
-        top:0px;
-    }
-
-    .pagebreak{
-        page-break-after: always;
-    }
-
-    .noprint{
-        display:none;
-    }
-
-    .printonly{
-        display:inline;
-        visibility: visible;
-    }
-
-    [id^="queue_"]{
-        display:none;
-    }
-
-    .question{
-        page-break-inside: avoid;
-    }
-
-    [id$="_message"]{
-        display: none;
-    }
-
-    [name="cs_footnotes"]{
-        page-break-before: always;
-    }
-
-}
+/* Small Screens */
 
 @media screen and (max-width: 900px) {
     .nav-container {
@@ -518,12 +493,10 @@ table, th, td {
         float:right;
         display:block;
     }
-
     .cs_content {
         max-width: 100%;
         flex-basis: 100%;
     }
-
     header {
         position: relative;
     }
@@ -569,5 +542,46 @@ table, th, td {
         position: absolute;
         top: 1.25em;
         right: 0;
+    }
+}
+
+
+/* Print Styles */
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #content * {
+        visibility: visible;
+    }
+    #content {
+        visibility: visible;
+        background-color: white;
+        position: absolute;
+        left:0px;
+        top:0px;
+    }
+    .pagebreak{
+        page-break-after: always;
+    }
+    .noprint{
+        display:none;
+    }
+    .printonly{
+        display:inline;
+        visibility: visible;
+    }
+    [id^="queue_"]{
+        display:none;
+    }
+    .question{
+        page-break-inside: avoid;
+    }
+    [id$="_message"]{
+        display: none;
+    }
+    [name="cs_footnotes"]{
+        page-break-before: always;
     }
 }

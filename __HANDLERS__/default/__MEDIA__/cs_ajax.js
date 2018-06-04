@@ -17,17 +17,12 @@
 
 
 catsoop.switch_buttons = function (qname, enabled){
-    document.getElementById('cs_qdiv_'+qname).querySelectorAll('button').forEach(function(b){b.disabled=!enabled});
+    for(var b of document.getElementById('cs_qdiv_'+qname).getElementsByTagName('button')) b.disabled = !enabled;
 }
 
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    document.querySelectorAll('button').forEach(function(b){b.disabled=false});
-});
-
-
-document.addEventListener("DOMContentLoaded", function(event) {
-    document.querySelectorAll('button').forEach(function(b){b.disabled=false});
+    for(var b of document.getElementsByTagName('button')) b.disabled = false;
 });
 
 
@@ -162,7 +157,9 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(req_sta
                     document.getElementById(name+'_message').innerHTML = '<div class="impsolution"><font color="red"><b>ERROR</b></font>:<br />'+thisone['error_msg']+'</div>';
                 }
                 for (var i of ['score_display', 'message', 'nsubmits_left', 'buttons']){
-                    document.getElementById(name+'_'+i).innerHTML = (thisone[i] || '');
+                    if(typeof thisone[i] !== 'undefined'){
+                        document.getElementById(name+'_'+i).innerHTML = thisone[i];
+                    }
                 }
                 catsoop.run_all_scripts(name+'_message');
                 if(thisone['val'] !== undefined){
@@ -188,11 +185,13 @@ catsoop.ajaxDoneCallback = function(data, path, count) { return function(req_sta
 }}
 
 
-catsoop.ajaxErrorCallback = function(name) {return function(req_status, msg){
-    catsoop.switch_buttons(name, true);
-    document.getElementById(name+'_loading').style.display = 'none';
-    document.getElementById(name+'_message').innerHTML = ('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.  Please send the following information to a staff member:<br />'+'<textarea cols="60" rows="10">'+req_status+'\n'+msg+'\n'+'</textarea>'+'</div>');
-}}
+catsoop.ajaxErrorCallback = function(name) {
+    return function(req_status, msg){
+        catsoop.switch_buttons(name, true);
+        document.getElementById(name+'_loading').style.display = 'none';
+        document.getElementById(name+'_message').innerHTML = ('<div class="impsolution"><font color="red"><b>ERROR</b></font>: Request Failed.<br />'+'<pre>'+req_status+'\n'+msg+'\n'+'</pre>'+'</div>');
+    }
+}
 
 
 catsoop.send_request = function(names,action,send,done_function){
