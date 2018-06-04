@@ -22,6 +22,8 @@ REMOVED:
 
 FIXED:
 
+* Added support for LibreJS.
+
 SECURITY:
 
 * Prevent submissions from being able to access materials defined in
