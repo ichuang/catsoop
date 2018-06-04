@@ -21,13 +21,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function(){
-    var timerelt = document.createElement('div');
-    timerelt.setAttribute('id', 'timer');
-    timerelt.classList.add('response');
-    timerelt.style = 'position:fixed;right:10px;bottom:0px;width:auto;z-index:10000;';
-    document.body.append(timerelt);
-}
+var timerelt = document.createElement('div');
+timerelt.setAttribute('id', 'timer');
+timerelt.classList.add('response');
+timerelt.style = 'position:fixed;right:10px;bottom:0px;width:auto;z-index:10000;';
+document.body.append(timerelt);
 
 document.addEventListener("DOMContentLoaded", function(event) {
     var timerelt = document.getElementById('timer');
