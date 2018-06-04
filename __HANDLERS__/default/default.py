@@ -1027,6 +1027,8 @@ def handle_submit(context):
 
 def manage_groups(context):
     # displays the screen to admins who are adjusting groups
+    if context['cs_light_color'] is None:
+        context['cs_light_color'] = compute_light_color(context['cs_base_color'])
     perms = context['cs_user_info'].get('permissions', [])
     if 'groups' not in perms and 'admin' not in perms:
         return 'You are not allowed to view this page.'

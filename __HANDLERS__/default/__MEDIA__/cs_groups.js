@@ -21,6 +21,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+function _encode_form(d){
+    var encoded_form_pairs = [];
+    for (var name in d){
+        encoded_form_pairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(d[name]));
+    }
+    return encoded_form_pairs.join('&').replace(/%20/g, '+');
+}
 
 function _sorted_keys(obj){
     var out = [];
@@ -38,16 +45,16 @@ catsoop.groups_selectors = ["cs_groups_name1", "cs_groups_name2", "cs_groups_nam
 
 catsoop.groups_clear_ui = function() {
     for (var i of catsoop.groups_buttons){
-        $('#'+i).prop('disabled', true);
+        document.getElementById(i).disabled = true;
     }
     for (var i of catsoop.groups_selectors){
-        $("#"+i).html('');
+        document.getElementById(i).innerHTML = '';
     }
 }
 
 catsoop.groups_enable_buttons = function() {
     for (var i of catsoop.groups_buttons){
-        $('#'+i).prop('disabled', false);
+        document.getElementById(i).disabled = false;
     }
 }
 
@@ -55,67 +62,90 @@ catsoop.update_group_list = function () {
     catsoop.groups_clear_ui();
     var all_students;
     var partner_list;
-    var section = $('#section').val();
-    $('#cs_groups_section').text(section);
-    var table = $('#cs_groups_table');
-    $.ajax(catsoop.url_root + '/cs_util/api/groups/list_groups',
-           {method: 'POST',
-            data: {'api_token': catsoop.api_token,
-                   'path': JSON.stringify(catsoop.path_info),
-                   'section': section}}
-    ).done(function(msg){
+    var section = document.getElementById('section').value;
+    document.getElementById('cs_groups_section').innerText = '' + section;
+    var table = document.getElementById('cs_groups_table');
+    var request = new XMLHttpRequest();
+    request.onload = function(){
+        msg = JSON.parse(request.response);
         console.log(JSON.stringify(msg));
         if (!msg.ok){
-            table.html('<font color="red">OH NO!</font> ' + msg.error);
+            table.innerHTML = '<font color="red">OH NO!</font> ' + msg.error;
         }else{
-            table.css('border', 'none');
+            table.style.border = 'none';
             msg = msg.groups;
             var allgroups = _sorted_keys(msg);
             if (Object.keys(msg).length == 1){
-                table.html('No groups currently assigned.')
+                table.innerHTML = 'No groups currently assigned.';
             }else{
-                table.html('<ul></ul>');
-                var ul = table.children(':last-child');
+                table.innerHTML = '<ul></ul>';
+                var ul = table.getElementsByTagName('ul')[0];
                 for (var i=0; i<allgroups.length; i++){
                     var grp = allgroups[i];
                     if (grp === '_unpartnered') continue;
                     var members = msg[grp];
-                    ul.append('<li><b>Group ' + grp + '</b>: </li>');
-                    var li = ul.children(':last-child');
+                    var li = document.createElement('li');
+                    var b = document.createElement('b');
+                    b.innerText = 'Group ' + grp + ': ';
+                    li.appendChild(b);
                     for (var j=0; j<members.length; j++){
-                        if (j>0) li.append(', ');
-                        li.append(members[j] + ' (<a onclick="catsoop.groups_remove(\'' + members[j] + '\', \'' + grp + '\');" class="remove" title="' + grp + ' ' + members[j] + '">remove</a>)');
+                        if (j>0) li.appendChild(document.createTextNode(', '));
+                        li.appendChild(document.createTextNode(members[j] + ' ('));
+                        var a = document.createElement('a');
+                        a.style.cursor = 'pointer';
+                        a.addEventListener('click', (function(name, group){return function(){catsoop.groups_remove(name, group)}})(members[j], grp));
+                        a.classList = 'remove';
+                        a.title = grp + ' ' + members[j];
+                        a.innerText = 'remove'
+                        li.appendChild(a);
+                        li.appendChild(document.createTextNode(')'));
                     }
+                    ul.append(li);
                 }
             }
             var un = msg['_unpartnered'];
             for (var i of catsoop.groups_selectors){
-                var menu = $("#"+i);
+                var menu = document.getElementById(i);
                 un.sort();
                 for (var j=0; j<un.length; j++){
                     var n = un[j];
-                    menu.append('<option value="'+n+'">'+n+'</option>');
+                    var opt = document.createElement('option');
+                    opt.value = n;
+                    opt.innerText = n;
+                    menu.appendChild(opt);
                 }
             }
-            var grpname = $('#cs_groups_groupadd');
-            grpname.html = '';
+            var grpname = document.getElementById('cs_groups_groupadd');
+            grpname.innerHTML = '';
             for (var i of catsoop.group_names){
-                grpname.append('<option value="'+i+'">'+i+'</option>');
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = i;
+                grpname.appendChild(opt);
             }
         }
         catsoop.groups_enable_buttons();
-    });
+    }
+
+    var form = _encode_form({'api_token': catsoop.api_token,
+                             'path': JSON.stringify(catsoop.path_info),
+                             'section': section});
+    request.open('POST', catsoop.url_root + '/cs_util/api/groups/list_groups', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(form);
 }
 
 catsoop.groups_partner_all = function() {
     catsoop.groups_clear_ui();
-    var section = $("#section").val();
-    $.ajax(catsoop.url_root + '/cs_util/api/groups/make_all_groups',
-           {method: 'POST',
-            data: {'api_token': catsoop.api_token,
-                   'path': JSON.stringify(catsoop.path_info),
-                   'section': section}}
-    ).done(catsoop.update_group_list);
+    var section = document.getElementById("section").value;
+    var form = _encode_form({'api_token': catsoop.api_token,
+                             'path': JSON.stringify(catsoop.path_info),
+                             'section': section});
+    var request = new XMLHttpRequest();
+    request.onload = catsoop.update_group_list;
+    request.open('POST', catsoop.url_root + '/cs_util/api/groups/make_all_groups', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(form);
     catsoop.groups_enable_buttons();
 }
 
@@ -128,53 +158,55 @@ catsoop.groups_confirm_and_partner_all = function() {
 }
 
 catsoop.groups_add = function(){
-    var name = $("#cs_groups_nameadd").val();
-    var grp = $("#cs_groups_groupadd").val();
+    var name = document.getElementById("cs_groups_nameadd").value;
+    var grp = document.getElementById("cs_groups_groupadd").value;
     catsoop.groups_clear_ui();
-    var section = $("#section").val();
-    $.ajax(catsoop.url_root + '/cs_util/api/groups/add_to_group',
-           {method: 'POST',
-            data: {'api_token': catsoop.api_token,
-                   'path': JSON.stringify(catsoop.path_info),
-                   'username': name,
-                   'group': grp}}
-    ).done(catsoop.update_group_list);
+    var form = _encode_form({'api_token': catsoop.api_token,
+                             'path': JSON.stringify(catsoop.path_info),
+                             'username': name,
+                             'group': grp});
+    var request = new XMLHttpRequest();
+    request.onload = catsoop.update_group_list;
+    request.open('POST', catsoop.url_root + '/cs_util/api/groups/add_to_group', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(form);
     catsoop.groups_enable_buttons();
 }
 
 catsoop.groups_remove = function(name, grp){
     catsoop.groups_clear_ui();
-    var section = $("#section").val();
-    $.ajax(catsoop.url_root + '/cs_util/api/groups/remove_from_group',
-           {method: 'POST',
-            data: {'api_token': catsoop.api_token,
-                   'path': JSON.stringify(catsoop.path_info),
-                   'username': name,
-                   'group': grp}}
-    ).done(catsoop.update_group_list);
+    var form = _encode_form({'api_token': catsoop.api_token,
+                             'path': JSON.stringify(catsoop.path_info),
+                             'username': name,
+                             'group': grp});
+    var request = new XMLHttpRequest();
+    request.onload = catsoop.update_group_list;
+    request.open('POST', catsoop.url_root + '/cs_util/api/groups/remove_from_group', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(form);
     catsoop.groups_enable_buttons();
 }
 
 catsoop.groups_partner = function(){
-    var name1 = $("#cs_groups_name1").val();
-    var name2 = $("#cs_groups_name2").val();
+    var name1 = document.getElementById("cs_groups_name1").value;
+    var name2 = document.getElementById("cs_groups_name2").value;
     catsoop.groups_clear_ui();
-    var section = $("#section").val();
-    $.ajax(catsoop.url_root + '/cs_util/api/groups/partner',
-           {method: 'POST',
-            data: {'api_token': catsoop.api_token,
-                   'path': JSON.stringify(catsoop.path_info),
-                   'username1': name1,
-                   'username2': name2}}
-    ).done(catsoop.update_group_list);
+    var form = _encode_form({'api_token': catsoop.api_token,
+                             'path': JSON.stringify(catsoop.path_info),
+                             'username1': name1,
+                             'username2': name2});
+    var request = new XMLHttpRequest();
+    request.onload = catsoop.update_group_list;
+    request.open('POST', catsoop.url_root + '/cs_util/api/groups/partner', true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(form);
     catsoop.groups_enable_buttons();
 }
 
-$(document).ready(
-    function(){
-        catsoop.update_group_list();
-        $('#section').change(catsoop.update_group_list);
-        $('#cs_groups_reassign').click(catsoop.groups_confirm_and_partner_all);
-        $('#cs_groups_addtogroup').click(catsoop.groups_add);
-        $('#cs_groups_newpartners').click(catsoop.groups_partner);
-   });
+document.addEventListener('DOMContentLoaded', function(){
+    catsoop.update_group_list();
+    document.getElementById('section').addEventListener('change', catsoop.update_group_list);
+    document.getElementById('cs_groups_reassign').addEventListener('click', catsoop.groups_confirm_and_partner_all);
+    document.getElementById('cs_groups_addtogroup').addEventListener('click', catsoop.groups_add);
+    document.getElementById('cs_groups_newpartners').addEventListener('click', catsoop.groups_partner);
+});
