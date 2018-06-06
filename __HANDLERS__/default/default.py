@@ -23,7 +23,6 @@ import random
 import shutil
 import string
 import hashlib
-import colorsys
 import tempfile
 import traceback
 import collections
@@ -31,15 +30,6 @@ import collections
 
 _prefix = 'cs_defaulthandler_'
 
-def _set_colors(context):
-    if context['cs_light_color'] is None:
-        context['cs_light_color'] = compute_light_color(context['cs_base_color'])
-
-    if context.get('cs_base_font_color', None) is None:
-        context['cs_base_font_color'] = _font_color_from_background(context['cs_base_color'])
-
-    if context.get('cs_light_font_color', None) is None:
-        context['cs_light_font_color'] = _font_color_from_background(context['cs_light_color'])
 
 
 def new_entry(context, qname, action):
@@ -70,52 +60,6 @@ def _unknown_handler(action):
 def _get(context, key, default, cast=lambda x: x):
     v = context.get(key, default)
     return cast(v(context) if isinstance(v, collections.Callable) else v)
-
-
-def _hex_to_rgb(x):
-    if x.startswith('#'):
-        return _hex_to_rgb(x[1:])
-    if len(x) == 3:
-        return _hex_to_rgb(''.join(i*2 for i in x))
-    try:
-        return tuple(int(x[i*2:i*2+2], 16) for i in range(3))
-    except:
-        return (0, 0, 0)
-
-
-def _luminance(rgb_tuple):
-    r, g, b = rgb_tuple
-    return (0.299 * r + 0.587 * g + 0.114 * b) / 255
-
-
-def _font_color_from_background(bg):
-    return '#000' if _luminance(_hex_to_rgb(bg)) >= 0.5 else '#fff'
-
-
-def _hex(n):
-    n = int(n)
-    return hex(n)[2:4]
-
-
-def _rgb_to_hex(tup):
-    return '#%s%s%s' % tuple(map(_hex, tup))
-
-
-def _rgb_to_hsv(tup):
-    return colorsys.rgb_to_hsv(*(i/255 for i in tup))
-
-
-def _hsv_to_rgb(tup):
-    return tuple(int(i*255) for i in colorsys.hsv_to_rgb(*tup))
-
-
-def _clip(x, lo=0, hi=1):
-    return min(hi, max(x, lo))
-
-def compute_light_color(base):
-    base_hsv = _rgb_to_hsv(_hex_to_rgb(base))
-    light_hsv = (base_hsv[0], _clip(base_hsv[1]-0.2), _clip(base_hsv[2]+0.2))
-    return _rgb_to_hex(_hsv_to_rgb(light_hsv))
 
 
 def handle(context):
@@ -366,8 +310,6 @@ def handle_view(context):
 
     lastlog = context[_n('last_log')]
     lastsubmit = lastlog.get('last_submit', {})
-
-    _set_colors(context)
 
     if (_get(context, 'cs_auth_required', True, bool) and
             'view' not in perms and 'view_all' not in perms):

@@ -21,6 +21,7 @@ import os
 import cgi
 import string
 import hashlib
+import colorsys
 import mimetypes
 import urllib.parse
 
@@ -473,6 +474,64 @@ def _top_menu_html(topmenu, header=True):
     return out
 
 
+def _set_colors(context):
+    if context['cs_light_color'] is None:
+        context['cs_light_color'] = _compute_light_color(context['cs_base_color'])
+
+    if context.get('cs_base_font_color', None) is None:
+        context['cs_base_font_color'] = _font_color_from_background(context['cs_base_color'])
+
+    if context.get('cs_light_font_color', None) is None:
+        context['cs_light_font_color'] = _font_color_from_background(context['cs_light_color'])
+
+
+def _hex_to_rgb(x):
+    if x.startswith('#'):
+        return _hex_to_rgb(x[1:])
+    if len(x) == 3:
+        return _hex_to_rgb(''.join(i*2 for i in x))
+    try:
+        return tuple(int(x[i*2:i*2+2], 16) for i in range(3))
+    except:
+        return (0, 0, 0)
+
+
+def _luminance(rgb_tuple):
+    r, g, b = rgb_tuple
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255
+
+
+def _font_color_from_background(bg):
+    return '#000' if _luminance(_hex_to_rgb(bg)) >= 0.5 else '#fff'
+
+
+def _hex(n):
+    n = int(n)
+    return hex(n)[2:4]
+
+
+def _rgb_to_hex(tup):
+    return '#%s%s%s' % tuple(map(_hex, tup))
+
+
+def _rgb_to_hsv(tup):
+    return colorsys.rgb_to_hsv(*(i/255 for i in tup))
+
+
+def _hsv_to_rgb(tup):
+    return tuple(int(i*255) for i in colorsys.hsv_to_rgb(*tup))
+
+
+def _clip(x, lo=0, hi=1):
+    return min(hi, max(x, lo))
+
+
+def _compute_light_color(base):
+    base_hsv = _rgb_to_hsv(_hex_to_rgb(base))
+    light_hsv = (base_hsv[0], _clip(base_hsv[1]-0.2), _clip(base_hsv[2]+0.2))
+    return _rgb_to_hex(_hsv_to_rgb(light_hsv))
+
+
 def main(environment):
     """
     Generate the page content associated with this request, properly handling
@@ -582,6 +641,8 @@ def main(environment):
             if x == 'missing':
                 return errors.do_404_message(context)
 
+            _set_colors(context)
+
             # AUTHENTICATE
             # doesn't happen until now because what we want to do might depend
             # on what is in the EARLY_LOAD files, unfortunately
@@ -643,6 +704,7 @@ def main(environment):
                 return redirect(
                     '/'.join([context.get('cs_url_root', base_context.cs_url_root), default_course]))
             else:
+                _set_colors(context)
                 root = context.get('cs_fs_root', base_context.cs_fs_root)
                 path = os.path.join(root, '__MEDIA__', 'mainpage.md')
                 with open(path) as f:
@@ -651,7 +713,6 @@ def main(environment):
                 context['cs_content'] = language.handle_python_tags(
                     context, context['cs_content'])
                 context['csm_language'].md_pre_handle(context)
-                context['cs_base_font_color'] = '#fff'
                 context['cs_handler'] = 'passthrough'
 
         res = tutor.handle_page(context)
