@@ -1,6 +1,8 @@
-# Current Developments
+########################
+# Current Developments #
+########################
 
-_Work toward next release.  Currently under development._
+Work toward next release.  Currently under development.
 
 ADDED:
 
@@ -18,7 +20,7 @@ REMOVED:
 
 * Removed jQuery, Bootstrap, and SweetAlert2 (replaced with our own JS/CSS).
 
-* Removed `cs_util/process_theme` and removed dependence on outside fonts.
+* Removed cs_util/process_theme and removed dependence on outside fonts.
 
 FIXED:
 
@@ -32,10 +34,11 @@ SECURITY:
 DOCUMENTATION:
 
 
+##################
+# Version 12.1.1 #
+##################
 
-# Version 12.1.1
-
-#### FIXED:
+FIXED:
 
 * Fixed an issue with unintentional "broadcasting" of `numpy` arrays in certain
   `'expression'` questions.
@@ -44,16 +47,18 @@ DOCUMENTATION:
   logged.
 
 
-# Version 12.1.0
+##################
+# Version 12.1.0 #
+##################
 
-#### ADDED:
+ADDED:
 
 * Added questions' types and grading modes to the `'question_info'` cache.
 
 * `datetime` and `timedelta` objects (from the `datetime` module) are now
   allowed in log entries.
 
-#### CHANGED:
+CHANGED:
 
 * The automatic source code download no longer saves cached copies, to avoid
   accidentally filling small disks.
@@ -66,12 +71,12 @@ DOCUMENTATION:
 
 * Upgraded PLY to version 3.11.
 
-#### REMOVED:
+REMOVED:
 
 * `'questions'` is no longer a valid key for `tutor.compute_page_stats`, as it is
   redundant with `'question_info'`.
 
-#### FIXED:
+FIXED:
 
 * Fixed an issue where invalid question names were failing silently.
 
@@ -107,20 +112,22 @@ DOCUMENTATION:
 * Fixed a broken link after an error message when using the `'openid_connect'`
   authentication type.
 
-#### SECURITY:
+SECURITY:
 
 * Prevented `as_role`  from affecting the `'role'` field in `cs_user_info` if the
   user does not have the `'impersonate'` permission.
 
 
-# Version 12.0.0
+##################
+# Version 12.0.0 #
+##################
 
-#### ADDED:
+ADDED:
 
 * Added a cache of question information, to avoid having to fake a page load
   to get question information in `tutor.compute_page_stats`.
 
-#### CHANGED:
+CHANGED:
 
 * CAT-SOOP can optionally be configured to use uWSGI, and the options for
   configuring the WSGI server have changed.
@@ -134,19 +141,21 @@ DOCUMENTATION:
 * `'question_points'` is no longer a valid key in `tutor.compute_page_stats`.
   `'question_info'` should be used instead.
 
-#### FIXED:
+FIXED:
 
 * Fixed a bug with rendering of scores when manual grades are submitted.
 
 
-# Version 11.1.2
+##################
+# Version 11.1.2 #
+##################
 
-#### ADDED:
+ADDED:
 
 * Added "Log In" / "Log Out" to top menu by default, and gave authentication
   types the ability to populate that menu.
 
-#### CHANGED:
+CHANGED:
 
 * Separated WSGI server into separate process, and allow `cs_wsgi_server_port` to
   be a list to start multiple servers (for load balancing).
@@ -163,7 +172,7 @@ DOCUMENTATION:
 * `cs_nosubmit_message` was replaced with `csq_nosubmit_message` (specific to
   each question).
 
-#### FIXED:
+FIXED:
 
 * Fixed an issue where checker results were stored in an invalid location in
   the case of some errors.
@@ -194,13 +203,15 @@ DOCUMENTATION:
 * Fixed a broken link in the OpenID Connect login page.
 
 
-# Version 11.1.1
+##################
+# Version 11.1.1 #
+##################
 
-#### ADDED:
+ADDED:
 
 * Added the `'legacy'` grading mode, which does not use the asynchronous checker.
 
-#### CHANGED:
+CHANGED:
 
 * Separated checker results into subdirectories to prevent a single directory
   growing too large.
@@ -213,11 +224,11 @@ DOCUMENTATION:
 
 * Attempts at improved error reporting throughout CAT-SOOP.
 
-#### REMOVED:
+REMOVED:
 
 * Removed the `PKiller` class, which is no longer used anywhere.
 
-#### FIXED:
+FIXED:
 
 * Temporary workaround for automatic scrolling to location of anchor.
 
@@ -226,18 +237,20 @@ DOCUMENTATION:
 
 * Fixed a bug with the name of uploaded files.
 
-#### SECURITY:
+SECURITY:
 
 * The current session ID and API token are now filtered from error messages.
 
-#### DOCUMENTATION:
+DOCUMENTATION:
 
 * Added (hopefully) meaningful docstrings to almost everything in the codebase.
 
 
-# Version 11.1.0
+##################
+# Version 11.1.0 #
+##################
 
-#### ADDED:
+ADDED:
 
 * Added cheroot (<https://github.com/cherrypy/cheroot>) as a `catsoop.tools`
   package.
@@ -245,14 +258,14 @@ DOCUMENTATION:
 * Added websockets (<https://github.com/aaugustin/websockets>) as a `catsoop.tools`
   package.
 
-#### CHANGED:
+CHANGED:
 
 * cheroot is now used instead of uWSGI.
 
 * File names for uploaded files now include the `csq_name` of the question they
   were uploaded for.
 
-#### FIXED:
+FIXED:
 
 * Fixed an issue whereby the Python sandbox could leave handles to deleted
   files open (eventually leading to an error from having too many files open).
@@ -261,15 +274,17 @@ DOCUMENTATION:
   to an assumed location of a Python interpreter) when `csq_python_interpreter` is
   not set.
 
-#### SECURITY:
+SECURITY:
 
 * File names for uploaded files now include a hash of their contents to limit
   the feasibility of a brute-force attack to grab a different user's files.
 
 
-# Version 11.0.5
+##################
+# Version 11.0.5 #
+##################
 
-#### ADDED:
+ADDED:
 
 * Added the `get_upload` utility for downloading uploaded files.
 
@@ -281,7 +296,7 @@ DOCUMENTATION:
   specified, it overrides any point values assigned to the individual test
   cases.
 
-#### CHANGED:
+CHANGED:
 
 * Changed the default checker used for multiple-choice-multiple-answer problems.
 
@@ -290,7 +305,7 @@ DOCUMENTATION:
 
 * Made changes to make sure that files are always closed after being opened.
 
-#### FIXED:
+FIXED:
 
 * Fixed a potential race condition in the `'pythoncode`' question type.
 
@@ -307,54 +322,66 @@ DOCUMENTATION:
 * Some small temporary fixes to AC analysis in the circuit simulator for the
   `'circuit'` question type.
 
-#### SECURITY:
+SECURITY:
 
 * Fixed an issue whereby `get_upload` could be used to read arbitrary files from
   disk via a carefully constructed request.
 
-# Version 11.0.4
 
-#### FIXED:
+##################
+# Version 11.0.4 #
+##################
+
+FIXED:
 
 * Fixed issue with matrix comparison in expression question type.
 
 * Fixed typo (`SyntaxError`) in handout handler.
 
-# Version 11.0.3
 
-#### FIXED:
+##################
+# Version 11.0.3 #
+##################
+
+FIXED:
 
 * Use <https://github.com/aaugustin/websockets> for websocket connections.
 
-#### REMOVED:
+REMOVED:
 
 * Removed the included simple websockets implementation.
 
 * Remove more traces of the abandoned queue.
 
 
-# Version 11.0.2
+##################
+# Version 11.0.2 #
+##################
 
-#### FIXED:
+FIXED:
 
 * Moving a file from `'running'` to `'results'` in the checker is now implemented
   as an atomic operation, to avoid the potential for corrupted results files.
 
 
-# Version 11.0.1
+##################
+# Version 11.0.1 #
+##################
 
-#### FIXED:
+FIXED:
 
 * Changes to the way the `'reporter'` process handles websocket connections.
 
 
-# Version 11.0.0
+##################
+# Version 11.0.0 #
+##################
 
-#### ADDED:
+ADDED:
 
 * Added script to migrate SQLite logs (and checker) to new format.
 
-#### CHANGED:
+CHANGED:
 
 * Logs are now, once again, stored in `catsoopdb` format.  No other options.
 
@@ -370,15 +397,18 @@ DOCUMENTATION:
 
 * The checker and reporter are now two separate processes.
 
-#### FIXED:
+FIXED:
 
 * Fixed serious bug (deadlock) with checker script / logging.
 
 * Fixed HTML rendering of pythoncode question type.
 
-# Version 10.4.0
 
-#### ADDED:
+##################
+# Version 10.4.0 #
+##################
+
+ADDED:
 
 * Added a means of viewing a page with different (lower) permissions by
   spoofing your role (the `as_role` query string argument).
@@ -393,7 +423,7 @@ DOCUMENTATION:
   `csq_score_message`.
 
 
-#### CHANGED:
+CHANGED:
 
 * pycs compiled files are now stored in `<cs_data_root>/_cached`, to avoid
   polluting the course itself.
@@ -415,17 +445,17 @@ DOCUMENTATION:
 
 * Cross/check images are now preceded by a newline.
 
-#### DEPRECATED:
+DEPRECATED:
 
 * `cs_score_message` has been deprecated, in favor of `csq_score_message`.
   `cs_score_message` will be removed in a future version.
 
-#### REMOVED:
+REMOVED:
 
 * Removed lots of unused imports, unused local variables, etc, courtesy of
   pyflakes.
 
-#### FIXED:
+FIXED:
 
 * Fixed a race condition related to clearing expired session data.
 
@@ -456,96 +486,114 @@ DOCUMENTATION:
 * Questions with the `'checkoff'` question type now render as totally empty if
   the description and name are empty, rather than as a single colon.
 
-#### SECURITY:
+SECURITY:
 
 * `nohup.out` files are now ignored when generating the `.zip` files of the
   CAT-SOOP source.
 
-# Version 10.3.0
 
-#### CHANGED:
+##################
+# Version 10.3.0 #
+##################
+
+CHANGED:
 
 * Moved all logs to one central location to make backups easier.
 
-# Version 10.2.2
 
-#### REMOVED:
+##################
+# Version 10.2.2 #
+##################
+
+REMOVED:
 
 * Removed several calls to the deprecated `cs_print` from the default "main"
   page.
 
 * Removed "Acknowledgments" section from the default "main" page.
 
-#### FIXED:
+FIXED:
 
 * Removed an extraneous print statement from the default handler.
 
 * Remove HTML formatting from course name in `source.zip` downloads.
 
-# Version 10.2.1
 
-#### CHANGED:
+##################
+# Version 10.2.1 #
+##################
+
+CHANGED:
 
 * Prevented the creation of extra directories when reading nonexistent logs.
 
-#### REMOVED:
+REMOVED:
 
 * Removed the defunct `checker_reporter.js` script.
 
-#### FIXED:
+FIXED:
 
 * Fixed a number of issues with sessions.
 
 * Fixed an issue with serializing Python sets for logging.
 
-# Version 10.2.0
 
-#### ADDED:
+##################
+# Version 10.2.0 #
+##################
+
+ADDED:
 
 * Added more options to modify the styling of the "login required" box.
 
-#### CHANGED:
+CHANGED:
 
 * Submission IDs are no longer visible by default, though they can be made
   visible with `cs_show_submission_id`.
 
 * Logs once again use SQLite instead of RethinkDB.
 
-#### REMOVED:
+REMOVED:
 
 * Removed RethinkDB completely.
 
-#### FIXED:
+FIXED:
 
 * Updated the location of the default remote sandbox.
 
-# Version 10.1.0
 
-#### ADDED:
+##################
+# Version 10.1.0 #
+##################
+
+ADDED:
 
 * `cs_user_info` and `cs_username` are now always defined, even on pages that don't
   require authentication
 
-#### CHANGED:
+CHANGED:
 
 * The built-in `print` function can now be used instead of `cs_print` to inject
   page content from within `<python>` tags.
 
-#### DEPRECATED:
+DEPRECATED:
 
 * `print` should now be used instead of `cs_print` to inject page content from
   within `<python>` tags.  `cs_print` will be removed in a future version.
 
-#### FIXED:
+FIXED:
 
 * Fixed issue with clearing session data.
 
 * Fixed an issue with QTYPEs' "init" functions being called with incorrect
   arguments.
 
-# Version 10.0.1
 
-#### CHANGED:
+##################
+# Version 10.0.1 #
+##################
+
+CHANGED:
 
   * RethinkDB is now used to store session data, as opposed to the file-based
     storage used in the past.
@@ -553,15 +601,18 @@ DOCUMENTATION:
   * Slight changes to the way version numbers are displayed in the default
     template.
 
-#### FIXED:
+FIXED:
 
   * Fixed multiple large issues with manually-graded submissions.
 
   * Fixed multiple large issues with the `'fileupload'` question type.
 
-# Version 10.0.0
 
-#### ADDED:
+##################
+# Version 10.0.0 #
+##################
+
+ADDED:
 
   * Added the dot product operator to expression question type.
 
@@ -571,7 +622,7 @@ DOCUMENTATION:
   * Added support for storing uploaded files on disk rather than in the
     database directly.
 
-#### CHANGED:
+CHANGED:
 
   * RethinkDB is now a hard dependency.
 
@@ -594,7 +645,7 @@ DOCUMENTATION:
 
   * Re-styled buttons throughout the system.
 
-#### REMOVED:
+REMOVED:
 
   * Removed CSS-only spinner, replaced with data URI for image in the base
     context.
@@ -604,27 +655,30 @@ DOCUMENTATION:
 
   * Removed SQLite and catsoopdb as backends for logging.
 
-#### FIXED:
+FIXED:
 
   * Improved the Javascript code responsible for making sure the top menu
     doesn't block text when moving around a page.
 
   * Errors in the registration form now prevent submitting the form.
 
-# Version 9.4.3
 
-#### ADDED:
+#################
+# Version 9.4.3 #
+#################
+
+ADDED:
 
   * Added the `'circuit'` question type.
 
   * Added support for nonscalar values in `'expression'` questions.
 
-#### CHANGED:
+CHANGED:
 
   * Changed exponentiation to be right-associative in the `'expression'` question
     type.
 
-#### FIXED:
+FIXED:
 
   * Fixed a bug with rendering implicit multiplication in `'expression'` questions.
 
@@ -634,9 +688,12 @@ DOCUMENTATION:
   * Fixed a bug with order of operations when using the Python syntax in
     `'expression'` questions.
 
-# Version 9.4.2
 
-#### ADDED:
+#################
+# Version 9.4.2 #
+#################
+
+ADDED:
 
   * Added the `<section*>` family of tags, for unnumbered sections.
 
@@ -645,15 +702,18 @@ DOCUMENTATION:
   * Added the ability to add an additional message to the default page, via
     `cs_main_page_text`.
 
-#### FIXED:
+FIXED:
 
   * Fixed an issue whereby expressions utilizing binary subtraction were not
     properly parenthesized in the "Check Syntax" rendering of expression
     questions.
 
-# Version 9.4.1
 
-#### FIXED:
+#################
+# Version 9.4.1 #
+#################
+
+FIXED:
 
   * Fixed an issue with rendering of certain test cases in the `'pythoncode'`
     question type.
@@ -664,9 +724,11 @@ DOCUMENTATION:
   * Modified error message handling in the Python sandbox to avoid long-running
     regex searches.
 
-# Version 9.4.0
+#################
+# Version 9.4.0 #
+#################
 
-#### ADDED:
+ADDED:
 
   * Added support for custom "submissions not allowed" messages via
     `cs_nosubmit_message`.
@@ -676,7 +738,7 @@ DOCUMENTATION:
   * Added the `code_pre` option to tests in the pythoncode question type, for
     code to be run before submitted code.
 
-#### CHANGED:
+CHANGED:
 
   * Code is now licensed under the GNU Affero General Public License, v3+.
     Footer text has been updated to reflect this change.
@@ -696,12 +758,12 @@ DOCUMENTATION:
 
   * Updated the "Formatting Help" page of the `'richtext'` question type.
 
-#### REMOVED:
+REMOVED:
 
   * Removed large pieces of the default MathJax install because they will not
     be used.
 
-#### FIXED:
+FIXED:
 
   * Fixed broken "home" link for pages in the `cs_util` "pseudo-course."
 
@@ -715,9 +777,12 @@ DOCUMENTATION:
 
   * Fixed a bug with HTML tags being ignored inside `<ref>` tags.
 
-# Version 9.3.0
 
-#### ADDED:
+#################
+# Version 9.3.0 #
+#################
+
+ADDED:
 
   * Default handler now logs scores of all questions in the `'problemactions'` log
     on `'submit'` actions.
@@ -732,7 +797,7 @@ DOCUMENTATION:
 
   * More options for rendering pages (`'content_only'` and `'raw_html'`).
 
-#### CHANGED:
+CHANGED:
 
   * Code is now released under version 2 of the Soopycat License.
 
@@ -746,12 +811,12 @@ DOCUMENTATION:
 
   * Several improvements to WHDW and stats displays.
 
-#### REMOVED:
+REMOVED:
 
   * Errors related to evaluating the expression are no longer displayed in the
     `'pythonic'` question type.
 
-#### FIXED:
+FIXED:
 
   * Allowed `'pythonic'` question type to accept tuples without parentheses.
 
@@ -798,18 +863,20 @@ DOCUMENTATION:
   * Fixed issue with processes not being properly closed with the Python
     sandbox.
 
-#### SECURITY:
+SECURITY:
 
   * Fixed a regression that opened a XSS vulnerability in `'pythoncode'` questions.
 
-#### DOCUMENTATION:
+DOCUMENTATION:
 
   * Use American spelling in documentation.
 
 
-# Version 9.2.0
+#################
+# Version 9.2.0 #
+#################
 
-#### ADDED:
+ADDED:
 
   * Added `render_single_question` to the default handler, for rendering a single
     question's contents.
@@ -822,7 +889,7 @@ DOCUMENTATION:
 
   * Added `'stats'` and `'whdw'` (Who Has Done What) actions to the default handler.
 
-#### CHANGED:
+CHANGED:
 
   * Better checks and display for `'checkoff'` question type.
 
@@ -839,7 +906,7 @@ DOCUMENTATION:
 
   * Removed confusing answer display from `'checkoff'` question type.
 
-#### FIXED:
+FIXED:
 
   * Fixed a bug with `cs_path_info` not being defined in certain situations.
 
@@ -877,9 +944,12 @@ DOCUMENTATION:
 
   * Fixed a typo in the `'checkoff'` question type.
 
-# Version 9.1.0
 
-#### ADDED:
+#################
+# Version 9.1.0 #
+#################
+
+ADDED:
 
   * Added `catsoop.path_info` added to javascript (for groups).
 
@@ -893,7 +963,7 @@ DOCUMENTATION:
 
   * Fleshed out the interactive group management page.
 
-#### CHANGED:
+CHANGED:
 
   * Navigational menu entries can now optionally be specified in a more
     straightforward (Pythonic) manner.
@@ -908,7 +978,7 @@ DOCUMENTATION:
 
   * Added a more complete message to the "log in" box for OpenID Connect.
 
-#### FIXED:
+FIXED:
 
   * Fixed bug with `cs_view_without_auth` flag.
 
@@ -930,14 +1000,17 @@ DOCUMENTATION:
   * Fixed a bug that prevented reading user information from the `__USERS__`
     directory from `catsoop.util.read_user_file`.
 
-#### SECURITY:
+SECURITY:
 
   * Logins are no longer carried over between courses (user must log in to each
     course separately).
 
-# Version 9.0.0
 
-#### ADDED:
+#################
+# Version 9.0.0 #
+#################
+
+ADDED:
 
   * Added back the catsoopdb format (last seen in version 4.0.1), with
     improvements to prevent collisions and a few bugfixes.
@@ -984,7 +1057,7 @@ DOCUMENTATION:
     defining a new QTYPE or handler (ability to affect the context before or
     after preload, before or after content load, and after handler is invoked).
 
-#### CHANGED:
+CHANGED:
 
   * CAT-SOOP is now only compatible with Python version 3.5+.  Python 2
     compatibility was dropped intentionally, but versions 3.0.0 <= x < 3.5 are
@@ -1041,7 +1114,7 @@ DOCUMENTATION:
 
   * Improved error reporting in `'pythonic'` question type.
 
-#### FIXED:
+FIXED:
 
   * Tracebacks in CAT-SOOP error messages now actually show useful information.
 
@@ -1065,7 +1138,7 @@ DOCUMENTATION:
 
   * Prevented PLY from writing its parsing tables to disk.
 
-#### SECURITY:
+SECURITY:
 
   * Included the option to tune the number of iterations used with PBKDF2, and
     increased the default number of iterations from 50,000 to 250,000.
@@ -1074,9 +1147,11 @@ DOCUMENTATION:
     of 5 (per the NIST recommendation at <https://pages.nist.gov/800-63-3/sp800-63b.html>)
 
 
-# Version 8.0.0
+#################
+# Version 8.0.0 #
+#################
 
-#### ADDED:
+ADDED:
 
   * `<label>` and `<ref>` tags are now available, for easier referencing of
     sections within a CAT-SOOP page.
@@ -1135,7 +1210,7 @@ DOCUMENTATION:
   * [MathJax](https://www.mathjax.org/) is now included directly, rather than
     loaded from their CDN.
 
-#### CHANGED:
+CHANGED:
 
   * Functions inside of question types no longer need to manually load default
     values; values from the defaults variable are automatically used when not
@@ -1209,7 +1284,7 @@ DOCUMENTATION:
 
   * Section labels are now rendered as id's of the associated headers.
 
-#### FIXED:
+FIXED:
 
   * Fixed a bug whereby `$` characters could not be escaped with backslash.
 
@@ -1271,7 +1346,7 @@ DOCUMENTATION:
   * Buttons are now re-enabled on page load, to prevent an issue whereby
     buttons would remain disabled after a refresh on Firefox.
 
-#### SECURITY:
+SECURITY:
 
   * PBKDF2 (https://en.wikipedia.org/wiki/PBKDF2) is now used for the `'login'`
     authentication mode.
@@ -1285,17 +1360,22 @@ DOCUMENTATION:
   * Logs can no longer be accessed/created outside of the appropriate `__LOGS__`
     directories.
 
-# Version 7.1.1
 
-#### FIXED:
+#################
+# Version 7.1.1 #
+#################
+
+FIXED:
 
   * Fixed an issue that prevented the last question on each page from being
     displayed.
 
 
-# Version 7.1.0
+#################
+# Version 7.1.0 #
+#################
 
-#### ADDED:
+ADDED:
 
   * Added the option to grade questions manually, from 6.02 fall 2015.
 
@@ -1307,20 +1387,25 @@ DOCUMENTATION:
 
   * Added checks for valid configuration options.
 
-#### CHANGED:
+CHANGED:
 
   * Rewrote the `'expression'` question type to use PLY for parsing, and included a
     default syntax for expressions that is more approachable to users not
     familiar with Python.
 
-# Version 7.0.1
 
-#### FIXED:
+#################
+# Version 7.0.1 #
+#################
+
+FIXED:
 
   * Fixed a syntax error in the expression question type.
 
 
-# Version 7.0.0
+#################
+# Version 7.0.0 #
+#################
 
 ADDED:
 
@@ -1353,7 +1438,7 @@ ADDED:
     variable to this question type, for setting up the environment into which
     `csq_soln` will be evaluated in string mode.
 
-#### CHANGED:
+CHANGED:
 
   * Math rendering now uses KaTeX (fast, but limited support) when possible,
     and falls back to MathJax (slow, but more support) when necessary.
@@ -1373,12 +1458,12 @@ ADDED:
 
   * Improved handling of footnotes.
 
-#### REMOVED:
+REMOVED:
 
   * Removed `jquery_typing` plugin, which is no longer needed for expression
     questions.
 
-#### FIXED:
+FIXED:
 
   * Fixed bug with newline handling in CGI interface.
 
@@ -1388,14 +1473,16 @@ ADDED:
   * The default theme now handles resizing of the containing window more
     smoothly.
 
-#### STYLE:
+STYLE:
 
   * Mostly embraced PEP8 style (https://www.python.org/dev/peps/pep-0008/).
 
 
-# Version 6.0.0
+#################
+# Version 6.0.0 #
+#################
 
-#### ADDED:
+ADDED:
 
   * Added `post_load` hook, which is executed after the content file is executed.
 
@@ -1408,7 +1495,7 @@ ADDED:
     but requires that the submission be a literal value (rather than the result
     of a more complicated expression).
 
-#### CHANGED:
+CHANGED:
 
   * Modified handling of footnotes.
 
@@ -1418,11 +1505,11 @@ ADDED:
   * Reorganized `'python...'` question types to properly inherit from one another
     to avoid duplicate code.
 
-#### REMOVED:
+REMOVED:
 
   * The `'problem'` activity type was removed, in favor of `'ajaxproblem'`.
 
-#### FIXED:
+FIXED:
 
   * Fixed an issue where `'last_submit'` was keeping information only about the
     most recent submission overall, instead of the most recent submission for
@@ -1431,12 +1518,15 @@ ADDED:
   * The `__LOGS__` directory will now be created if it does not exist, rather
     than crashing CAT-SOOP.
 
-#### SECURITY:
+SECURITY:
 
   * Error messages now show less information, to avoid displaying sensitive
     information.
 
-# Version 5.0.0
+
+#################
+# Version 5.0.0 #
+#################
 
 ADDED:
 
@@ -1459,7 +1549,7 @@ ADDED:
   * Added support for displaying explanations in addition to answers in
     particular question types.
 
-#### CHANGED:
+CHANGED:
 
   * Logs are now stored in [SQLite](https://www.sqlite.org/) databases.
 
@@ -1469,11 +1559,11 @@ ADDED:
   * Buttons in `'ajaxproblem'` question types are now disabled before processing
     the request, to avoid multiple identical submissions from mis-clicks.
 
-#### REMOVED:
+REMOVED:
 
   * Removed catsoopdb format, in favor of SQLite.
 
-#### FIXED:
+FIXED:
 
   * Renamed `logging.py` to `cslog.py` to prevent accidentically importing Python's
     built-in `logging` module.
@@ -1494,14 +1584,17 @@ ADDED:
 
   * Improved detection of static files.
 
-#### SECURITY:
+SECURITY:
 
   * Error messages no longer show information about the location of CAT-SOOP
     (or the course in question) on disk
 
-# Version 4.0.1
 
-#### FIXED:
+#################
+# Version 4.0.1 #
+#################
+
+FIXED:
 
   * Fixed issue whereby a missing `EARLY_LOAD.py` would crash CAT-SOOP.
 
@@ -1509,13 +1602,16 @@ ADDED:
 
   * Fixed bug related to authenticating in `'login'` mode.
 
-#### REMOVED:
+REMOVED:
 
   * Removed rendering time from default template.
 
-# Version 4.0.0
 
-#### ADDED:
+#################
+# Version 4.0.0 #
+#################
+
+ADDED:
 
   * Added the `'ajaxproblem'` activity type, which allows submitting individual
     questions without reloading the entire page.  Made `'ajaxproblem'` the default
@@ -1544,16 +1640,16 @@ ADDED:
   * Allowed question types and activity types to be specified in the course
     rather than in the base system.
 
-#### CHANGED:
+CHANGED:
 
   * Changed internal nomenclature: meta -> context everywhere to represent the
     context in which a page is rendered.
 
-#### REMOVED:
+REMOVED:
 
   * Removed several references to `sicp-s2.mit.edu` in the code.
 
-#### FIXED:
+FIXED:
 
   * Fixed impersonation glitch whereby permissions were inherited from the
     impersonated user.
@@ -1562,9 +1658,12 @@ ADDED:
 
   * Fixed inheritance bug in the pythonic question type.
 
-# Version 3.1.0
 
-#### ADDED:
+#################
+# Version 3.1.0 #
+#################
+
+ADDED:
 
   * Added WSGI interface (and moved main function elsewhere so WSGI and CGI can
     share code).
@@ -1575,9 +1674,12 @@ ADDED:
   * Question types and activity types are now pre-compiled to avoid having to
     re-parse them on every load.
 
-# Version 3.0.0
 
-#### ADDED:
+#################
+# Version 3.0.0 #
+#################
+
+ADDED:
 
   * problem activities now store due dates, to account for changes in due date
     after submitting.
@@ -1585,7 +1687,7 @@ ADDED:
   * Added support for the [ACE code editor](https://ace.c9.io/#nav=about) in
     Python code questions.
 
-#### CHANGED:
+CHANGED:
 
   * Separated loading from `METADATA.py` into `EARLY_LOAD.py` and `LATE_LOAD.py`.
     ``EARLY_LOAD files are executed all the way down the source tree (for the
@@ -1599,7 +1701,7 @@ ADDED:
 
   * Refactored main control loop.
 
-#### FIXED:
+FIXED:
 
   * Better sandboxing of Python code.
 
@@ -1611,18 +1713,23 @@ ADDED:
 
   * Several bug fixes in `'pythoncode'` question type.
 
-#### SECURITY:
+SECURITY:
 
   * Prune out `..` and `.` from URLs to avoid escaping the CAT-SOOP tree.
 
-# Version 2.0.0
+
+#################
+# Version 2.0.0 #
+#################
 
 Complete re-write.  First version used in 6.01 (spring 2013).  First version
 with any similarity to the current code.
 
 
-# Version 1.0.0
+#################
+# Version 1.0.0 #
+#################
 
 The original version, used in 6.003 fall 2011, and described in
-<http://dspace.mit.edu/handle/1721.1/77086>.  This version has _very little_ in common with
-later versions.
+<http://dspace.mit.edu/handle/1721.1/77086>.  This version has _very little_ in
+common with later versions.
