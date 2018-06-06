@@ -1,7 +1,4 @@
-# rethink logs and node modules
-scripts/node_modules/
-scripts/rethinkdb_data/
-scripts/package-lock.json
+syntax: glob
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
