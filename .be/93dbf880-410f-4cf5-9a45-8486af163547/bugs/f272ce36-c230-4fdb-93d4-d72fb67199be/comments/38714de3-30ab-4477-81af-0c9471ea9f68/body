@@ -1,0 +1,3 @@
+The `circuit` question type should be updated to use the newer version of the
+circuit solver (which, among other things, improves the modeling of op-amps).
+

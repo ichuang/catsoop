@@ -1,0 +1,18 @@
+This would be a really nice feature to support, but it would likely require
+some rethinking about the way things are structured internally.
+
+Requested via e-mail:
+
+> Is there a way to put a comment box at the end of a cat-soop solution?
+> For example, something like the following (which is malformed):
+>
+> <question expression>
+> csq_prompt='hello'
+> csq_soln=r'''
+> Do XYZ then PDQ.
+> <question smallbox>
+> csq_size = '20'
+> csq_prompt='Comments on the solution/confusing points?'
+> </question>
+> '''
+> </question>

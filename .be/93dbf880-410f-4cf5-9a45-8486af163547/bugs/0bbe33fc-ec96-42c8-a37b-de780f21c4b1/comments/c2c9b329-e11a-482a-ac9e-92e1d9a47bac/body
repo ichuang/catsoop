@@ -1,0 +1,11 @@
+Right now, default values for question types (within a course) are kind of a
+pain, in part because different question types use the same names, sometimes to
+mean different things.  This makes setting course-specific defaults for `csq_`
+options needlessly difficult, and it also leads to unfortunate naming issues
+like `cs_multiplechoice_renderer`.
+
+One approach would be a dictionary `cs_qtype_defaults` mapping question type
+names to dictionaries containing defaults for that question type.  This would
+probably want to be loaded into a question's environment after the page content
+but before the contents of the `<question>` tag itself.
+

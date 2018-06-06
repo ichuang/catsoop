@@ -1,0 +1,5 @@
+* Grading and impersonation should be separate permissions.
+* Assigning graders to individual students
+* Anonymizing students when displayed to graders
+* Better interface for viewing student submissions (e.g., to `richtext` questions).
+

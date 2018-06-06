@@ -1,0 +1,5 @@
+At one point, CAT-SOOP had a library of common checker functions (and/or
+checker function factories) built in. Right now it seems like a lot of people
+are re-implementing a lot of those functions in a lot of places (myself
+included), so it would be nice to have them readily available.
+

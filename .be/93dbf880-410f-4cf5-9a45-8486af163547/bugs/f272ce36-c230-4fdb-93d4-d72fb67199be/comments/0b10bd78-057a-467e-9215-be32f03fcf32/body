@@ -1,0 +1,4 @@
+I think we should also port Mike Mekonnen's schematic entry UI (part of
+https://github.com/mikemeko/6.01_Tools) over to Javascript.  In particular, the
+way wires were drawn was very nice.
+

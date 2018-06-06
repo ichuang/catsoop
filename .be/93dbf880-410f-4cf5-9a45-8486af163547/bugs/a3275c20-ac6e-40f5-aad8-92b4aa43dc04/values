@@ -1,0 +1,50 @@
+{
+
+
+
+
+
+
+    "creator": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "reporter": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "floating point precision issue in expression checker", 
+
+
+
+
+
+
+    "time": "Wed, 06 Jun 2018 15:06:09 +0000"
+
+
+
+
+
+
+}

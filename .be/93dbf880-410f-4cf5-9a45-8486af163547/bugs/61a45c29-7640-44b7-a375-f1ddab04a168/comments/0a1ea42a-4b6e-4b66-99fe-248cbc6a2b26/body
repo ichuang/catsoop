@@ -1,0 +1,11 @@
+Recommending bubblewrap (https://github.com/projectatomic/bubblewrap) for
+Python sandboxing (either instead of or in addition to the current AppArmor
+approach) might be a good idea.  It seems to work very nicely and is a big
+improvement over our current approach in terms of filesystem isolation, among
+other things.
+
+It might even be possible to automate its deployment, which would simplify the
+process of setting up a CAT-SOOP instance.
+
+An alternative would be to write our own little wrapper around Linux's user
+namespaces.

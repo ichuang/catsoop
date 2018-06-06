@@ -1,0 +1,5 @@
+This is a substantial change, replacing jQuery, Bootstrap, and SweetAlert2 with
+our own JS/CSS.  These tools feel like overkill for what we're using them for,
+and they are probably not worth the extra requests it takes to load them in.
+There are also likely efficiency gains from using vanilla JS instead of jQuery
+for manipulating the DOM.
