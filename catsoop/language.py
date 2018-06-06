@@ -624,6 +624,7 @@ def handle_custom_tags(context, text):
             sec.attrs['id'] = 'catsoop_label_%s' % lbl
         i.replace_with(sec)
         link = tree.new_tag('a')
+        link['class'] = 'anchor'
         link.attrs['name'] = linkname
         sec.insert_before(link)
 
@@ -675,13 +676,12 @@ def handle_custom_tags(context, text):
 
     for ix, i in enumerate(tree.find_all('showhide')):
         i.name = 'div'
-        i.attrs['id'] = "cs_showhide_%s" % _md5(str(i))
         i.attrs['style'] = "display:none;"
         wrap = tree.new_tag('div')
         wrap['class'] = ['response']
         i.wrap(wrap)
-        button = tree.new_tag(
-            'button', onclick="$('#%s').toggle();" % i.attrs['id'])
+#        button = tree.new_tag('button', onclick="function(){var x=document.getElementById(%r);if(x.style.indexOf('none')>-1){x.style='display: block';}else{x.style='display:none;'}}" % i.attrs['id'])
+        button = tree.new_tag('button', onclick="if(this.nextSibling.style.display === 'none'){this.nextSibling.style.display = 'block';}else{this.nextSibling.style.display = 'none';}")
         button.string = 'Show/Hide'
         i.insert_before(button)
 

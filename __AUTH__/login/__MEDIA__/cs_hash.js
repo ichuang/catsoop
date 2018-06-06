@@ -11,6 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License
  * for more details.
  *
+ * As an additional permission under GNU AGPL version 3 section 7, you may
+ * distribute non-source (e.g., minimized or compacted) forms of the code in
+ * this file without the copy of the GNU AGPL normally required by section 4,
+ * provided you include this license notice and a URL through which recipients
+ * can access the Corresponding Source.
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -413,30 +419,34 @@ function catsoop_hash(username, pass){
 exports.catsoop_hash = catsoop_hash;
 function cs_hash_passwords(fields, username, preserve, formId){
     //create a new dummy form
-    var newForm = $('<form>', {id: 'cs_realform_'+formId,
-                               action: $('#'+formId).attr('action'),
-                               method: 'POST'})
+    var oldForm = document.getElementById(formId);
+    var newForm = document.createElement('form');
+    newForm.setAttribute('id', 'cs_realform_'+formId);
+    newForm.setAttribute('method', 'POST');
+    newForm.setAttribute('action', oldForm.getAttribute('action'));
     var curIx = 0;
-    var username = $('#' + username).val();
+    var username = document.getElementById(username).value;
     for (var i=0; i < fields.length; i++){
-        var current = $('#' + fields[i]).val();
+        var current = document.getElementById(fields[i]).value;
         var hashed = catsoop.hashlib.catsoop_hash(username, current);
-        var newID = 'cs_hashed_' + newForm.children().length;
-        var newInp = $('<input>', {type: 'hidden',
-                                   value: hashed,
-                                   name: newID,
-                                   id: newID})
+        var newID = 'cs_hashed_' + newForm.children.length;
+        var newInp = document.createElement('input');
+        newInp.setAttribute('type', 'hidden');
+        newInp.value = hashed;
+        newInp.setAttribute('name', newID);
+        newInp.setAttribute('id', newID);
         newForm.append(newInp);
     }
     for (var i=0; i < preserve.length; i++){
         var name = preserve[i];
-        var newInp = $('<input>', {type: 'hidden',
-                                   value: $('#' + name).val(),
-                                   name: name,
-                                   id: name})
+        var newInp = document.createElement('input');
+        newInp.setAttribute('type', 'hidden');
+        newInp.value = document.getElementById(name).value;
+        newInp.setAttribute('name', name);
+        newInp.setAttribute('id', name);
         newForm.append(newInp);
     }
-    $('body').append(newForm);
+    document.body.append(newForm);
     newForm.submit();
 }
 exports.hash_passwords = cs_hash_passwords;

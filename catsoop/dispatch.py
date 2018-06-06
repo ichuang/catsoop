@@ -19,8 +19,10 @@ Methods for handling requests, or for routing them to the proper handlers
 
 import os
 import cgi
-import mimetypes
 import string
+import hashlib
+import colorsys
+import mimetypes
 import urllib.parse
 
 from email.utils import formatdate
@@ -108,6 +110,11 @@ def static_file_location(context, path):
         # serving from qtype
         loc = os.path.join(
             context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__',
+            path[1], '__MEDIA__')
+    elif path[0] == '__AUTH__':
+        # serving from qtype
+        loc = os.path.join(
+            context.get('cs_fs_root', base_context.cs_fs_root), '__AUTH__',
             path[1], '__MEDIA__')
     else:
         # preprocess the path to prune out 'dots' and 'double-dots'
@@ -226,6 +233,8 @@ def serve_static_file(context,
     * `streamchunk` (default `4096`): the size, in bytes, of the chunks in the
         resulting stream
     """
+    with open('/tmp/catsoop', 'a') as f:
+        print(fname, file=f)
     environment = environment or {}
     try:
         status = ('200', 'OK')
@@ -313,7 +322,7 @@ def _real_url_helper(context, url):
         else:
             pre = u + new
     elif (url.startswith('__HANDLER__') or url.startswith('__QTYPE__') or
-          url.startswith('__PLUGIN__')):
+          url.startswith('__PLUGIN__') or url.startswith('__AUTH__')):
         pre = u
         end = [url]
     else:
@@ -328,8 +337,8 @@ def get_real_url(context, url):
     actually point the web browser to the right place.
 
     Links in CAT-SOOP can begin with `BASE`, `COURSE`, `CURRENT`, `__QTYPE__`,
-    `__HANDLER__`, or `__PLUGIN__`.  This function takes in a URL in that form
-    and returns the corresponding URL.
+    `__HANDLER__`, `__AUTH__`, or `__PLUGIN__`.  This function takes in a URL
+    in that form and returns the corresponding URL.
 
     **Parameters:**
 
@@ -413,7 +422,7 @@ def _breadcrumbs_html(context):
     _defined = context.get('cs_breadcrumbs_html', None)
     if callable(_defined):
         return _defined(context)
-    if context.get('cs_course', None) in {None, 'cs_util', '__QTYPE__', '__HANDLER__'}:
+    if context.get('cs_course', None) in {None, 'cs_util', '__QTYPE__', '__HANDLER__', '__PLUGIN__', '__AUTH__'}:
         return ''
     if len(context.get('cs_loader_states', [])) < 2:
         return ''
@@ -435,34 +444,92 @@ def _breadcrumbs_html(context):
     return out + '</ol>'
 
 
+def md5(x):
+    return hashlib.md5(x.encode()).hexdigest()
+
+
 def _top_menu_html(topmenu, header=True):
     if isinstance(topmenu, str):
         return topmenu
-    if header:
-        out = '<div class="collapse navbar-collapse" id="catsoopnavbar">'
-        out += '<ul class="nav navbar-nav navbar-right">'
     else:
         out = ''
     for i in topmenu:
         if i == 'divider':
-            out += '\n<li class="divider"></li>'
+            out += '\n<div class="divider"></div>'
             continue
         link = i['link']
         if isinstance(link, str):
-            out += '\n<li><a href="%s">%s</a></li>' % (link, i['text'])
+            out += '\n<a href="%s">%s</a>' % (link, i['text'])
         else:
-            out += '\n<li class="dropdown">'
-            out += ('<a href="#" data-toggle="dropdown" '
-                    'class="dropdown-toggle" role="button" '
-                    'aria-expanded="false">')
-            out += i['text']
-            out += '<span class="caret"></span></a>'
-            out += '<ul class="dropdown-menu">'
+            menu_id = md5(str(i))
+            out += '\n<div class="dropdown" onmouseleave="this.children[1].checked = false;">'
+            out += '\n<label class="dropbtn" for="cs_menu_%s">%s<span class="downarrow">▼</span></label>' % (menu_id, i['text'])
+            out += '\n<input type="checkbox" class="dropdown-checkbox" id="cs_menu_%s" checked="false"/>' % menu_id
+            out += '\n<div class="dropdown-content">'
             out += _top_menu_html(link, False)
-            out += '</ul>'
+            out += '</div>'
+            out += '</div>'
     if header:
-        return out + '</ul></div>'
+        return out + '<a href="javascript:void(0);" class="icon" onclick="toggleResponsiveHeader()">&#9776;</a>'
     return out
+
+
+def _set_colors(context):
+    if context['cs_light_color'] is None:
+        context['cs_light_color'] = _compute_light_color(context['cs_base_color'])
+
+    if context.get('cs_base_font_color', None) is None:
+        context['cs_base_font_color'] = _font_color_from_background(context['cs_base_color'])
+
+    if context.get('cs_light_font_color', None) is None:
+        context['cs_light_font_color'] = _font_color_from_background(context['cs_light_color'])
+
+
+def _hex_to_rgb(x):
+    if x.startswith('#'):
+        return _hex_to_rgb(x[1:])
+    if len(x) == 3:
+        return _hex_to_rgb(''.join(i*2 for i in x))
+    try:
+        return tuple(int(x[i*2:i*2+2], 16) for i in range(3))
+    except:
+        return (0, 0, 0)
+
+
+def _luminance(rgb_tuple):
+    r, g, b = rgb_tuple
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255
+
+
+def _font_color_from_background(bg):
+    return '#000' if _luminance(_hex_to_rgb(bg)) >= 0.5 else '#fff'
+
+
+def _hex(n):
+    n = int(n)
+    return hex(n)[2:4]
+
+
+def _rgb_to_hex(tup):
+    return '#%s%s%s' % tuple(map(_hex, tup))
+
+
+def _rgb_to_hsv(tup):
+    return colorsys.rgb_to_hsv(*(i/255 for i in tup))
+
+
+def _hsv_to_rgb(tup):
+    return tuple(int(i*255) for i in colorsys.hsv_to_rgb(*tup))
+
+
+def _clip(x, lo=0, hi=1):
+    return min(hi, max(x, lo))
+
+
+def _compute_light_color(base):
+    base_hsv = _rgb_to_hsv(_hex_to_rgb(base))
+    light_hsv = (base_hsv[0], _clip(base_hsv[1]-0.2), _clip(base_hsv[2]+0.2))
+    return _rgb_to_hex(_hsv_to_rgb(light_hsv))
 
 
 def main(environment):
@@ -530,7 +597,7 @@ def main(environment):
 
         # SET SOME CONSTANTS FOR THE TEMPLATE (may be changed later)
         course = context.get('cs_course', None)
-        if course is None or course in {'cs_util', '__QTYPE__', '__HANDLER__'}:
+        if course is None or course in {'cs_util', '__QTYPE__', '__HANDLER__', '__PLUGIN__', '__AUTH__'}:
             context['cs_home_link'] = 'BASE'
             context['cs_source_qstring'] = ''
         else:
@@ -573,6 +640,8 @@ def main(environment):
                                      context, cfile)
             if x == 'missing':
                 return errors.do_404_message(context)
+
+            _set_colors(context)
 
             # AUTHENTICATE
             # doesn't happen until now because what we want to do might depend
@@ -635,6 +704,7 @@ def main(environment):
                 return redirect(
                     '/'.join([context.get('cs_url_root', base_context.cs_url_root), default_course]))
             else:
+                _set_colors(context)
                 root = context.get('cs_fs_root', base_context.cs_fs_root)
                 path = os.path.join(root, '__MEDIA__', 'mainpage.md')
                 with open(path) as f:

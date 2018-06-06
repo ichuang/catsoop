@@ -51,8 +51,12 @@ def render_html(last_log, **info):
     out += ('''<button class="btn btn-catsoop" id="%s_select_button">Select File</button>&nbsp;'''
             '''<tt><span id="%s_selected_file">No file selected</span></tt>''') % (name, name)
     out += ('''<script type="text/javascript">'''
-            '''$('#%s_select_button').click(function (){$("#%s").click();});'''
-            '''$('#%s').change(function (){$('#%s_selected_file').text($('#%s').val());});'''
+            '''\ndocument.getElementById('%s_select_button').addEventListener('click', function (){'''
+            '''\n    document.getElementById("%s").click();'''
+            '''\n});'''
+            '''\ndocument.getElementById('%s').addEventListener('change', function (){'''
+            '''\n    document.getElementById('%s_selected_file').innerText = document.getElementById('%s').value;'''
+            '''\n});'''
             '''</script>''') % (name, name, name, name, name)
     ll = last_log.get(name, None)
     if ll is not None:

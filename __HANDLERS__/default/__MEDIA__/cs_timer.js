@@ -11,13 +11,24 @@
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License
  * for more details.
  *
+ * As an additional permission under GNU AGPL version 3 section 7, you may
+ * distribute non-source (e.g., minimized or compacted) forms of the code in
+ * this file without the copy of the GNU AGPL normally required by section 4,
+ * provided you include this license notice and a URL through which recipients
+ * can access the Corresponding Source.
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$('body').append('<div id="timer" class="response" style="position:fixed;right:10px;bottom:0px;width:auto;z-index:10000;"></div><p>');
+var timerelt = document.createElement('div');
+timerelt.setAttribute('id', 'timer');
+timerelt.classList.add('response');
+timerelt.style = 'position:fixed;right:10px;bottom:0px;width:auto;z-index:10000;';
+document.body.append(timerelt);
 
-$(document).ready(function(){
+document.addEventListener("DOMContentLoaded", function(event) {
+    var timerelt = document.getElementById('timer');
     catsoop.timer_remaining = catsoop.timer_due-catsoop.timer_now;
     catsoop.timer = function () {
         catsoop.timer_remaining=catsoop.timer_remaining-1;
@@ -35,8 +46,7 @@ $(document).ready(function(){
             catsoop.timer_hours = Math.floor(catsoop.timer_remaining / 3600);
             catsoop.timer_minutes = Math.floor((catsoop.timer_remaining - (catsoop.timer_hours*3600)) / 60);
             catsoop.timer_seconds = catsoop.timer_remaining - (catsoop.timer_hours*3600) - (catsoop.timer_minutes*60);
-            $('#timer').html('Time Remaining: ');
-            $('#timer').append('' + catsoop.timer_hours + ' hours, ' + catsoop.timer_minutes + ' minutes, ' + catsoop.timer_seconds + ' seconds');
+            timerelt.innerText = ('Time Remaining: ' + catsoop.timer_hours + ' hours, ' + catsoop.timer_minutes + ' minutes, ' + catsoop.timer_seconds + ' seconds');
         }
     }
     catsoop.timer_counter = setInterval(catsoop.timer,1000);

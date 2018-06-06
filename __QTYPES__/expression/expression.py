@@ -412,7 +412,7 @@ def handle_submission(submissions, **info):
     msg += info['csq_msg_function'](submissions[info['csq_name']])
     msg = info['csm_language'].source_transform_string(info, msg)
     msg = ("""\n<script type="text/javascript">"""
-           """$('#image%s').html(%r);</script>\n""") % (n, msg)
+           """document.getElementById('image%s').innerHTML = %r;</script>\n""") % (n, msg)
     if info['csq_render_result']:
         msg += get_display(info, n, sub, False, _m or '')
     else:
@@ -455,7 +455,7 @@ def get_display(info, name, last, reparse=True, extra_msg=''):
     last += csm_language.source_transform_string(info, extra_msg)
     out = '<div id="expr%s">Your entry was parsed as:<br/>%s</div>' % (name,
                                                                        last)
-    out += '<script type="text/javascript">catsoop.render_all_math($("#expr%s"), true)</script>' % name
+    out += '<script type="text/javascript">catsoop.render_all_math(document.getElementById("expr%s"), true);</script>' % name
     return out
 
 
@@ -482,7 +482,7 @@ def answer_display(**info):
                     '<displaymath>%s</displaymath></p>') % (count, i, a)
             count += 1
         out += '</div>'
-    out += '<script type="text/javascript">catsoop.render_all_math($("#expr%s"), true)</script>' % info[
+    out += '<script type="text/javascript">catsoop.render_all_math(document.getElementById("%s_soln"), true);</script>' % info[
         'csq_name']
     return out
 

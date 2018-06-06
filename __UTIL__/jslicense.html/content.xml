@@ -1,0 +1,63 @@
+The following table contains information about the various Javascript files
+that are loaded by CAT-SOOP, including licensing information.
+
+<p>&nbsp;</p>
+
+<center>
+    <table id="jslicense-labels1" border=1>
+        <thead>
+            <tr><th>Script</th><th>License</th><th>Source</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><a href="__HANDLER__/default/cs_ajax.js">cs_ajax.js</a></td>
+                <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
+                <td><a href="__HANDLER__/default/cs_ajax.js">cs_ajax.js</a></td>
+            </tr>
+            <tr>
+                <td><a href="__HANDLER__/default/cs_groups.js">cs_groups.js</a></td>
+                <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
+                <td><a href="__HANDLER__/default/cs_groups.js">cs_groups.js</a></td>
+            </tr>
+            <tr>
+                <td><a href="__AUTH__/login/cs_hash.js">cs_hash.js</a></td>
+                <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
+                <td><a href="__AUTH__/login/cs_hash.js">cs_hash.js</a></td>
+            </tr>
+            <tr>
+                <td><a href="BASE/scripts/cs_math.js">cs_math.js</a></td>
+                <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
+                <td><a href="BASE/scripts/cs_math.js">cs_math.js</a></td>
+            </tr>
+            <tr>
+                <td><a href="__HANDLER__/default/cs_timer.js">cs_timer.js</a></td>
+                <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
+                <td><a href="__HANDLER__/default/cs_timer.js">cs_timer.js</a></td>
+            </tr>
+              <tr>
+                  <td><a href="BASE/scripts/katex/katex.min.js">katex.min.js</a></td>
+                  <td><a href="http://www.jclark.com/xml/copying.txt">Expat</a></td>
+                  <td><a href="BASE/scripts/katex/katex.js">katex.js</a></td>
+              </tr>
+              <tr>
+                  <td><a href="BASE/scripts/highlight/highlight.pack.js">highlight.pack.js</a></td>
+                  <td><a href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause</a></td>
+                  <td><a href="BASE/scripts/highlight/highlight.pack.js">highlight.pack.js</a></td>
+              </tr>
+              <tr>
+                  <td><a href="BASE/scripts/mathjax/MathJax.js">MathJax.js</a></td>
+                  <td><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache-2.0</a></td>
+                  <td><a href="BASE/scripts/mathjax/MathJax.js">MathJax.js</a></td>
+              </tr>
+<python>
+for i in mathjax_files:
+    print("""\
+              <tr>
+                  <td><a href="BASE/scripts/%s">%s</a></td>
+                  <td><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache-2.0</a></td>
+                  <td><a href="BASE/scripts/%s">%s</a></td>
+              </tr>""" % (i, i, i, i))
+</python>
+        </tbody>
+    </table>
+<center>

@@ -45,7 +45,7 @@ See the "installation quick-start guide" at <https://catsoop.mit.edu/website/doc
 Yes.
 
 
-### DEPENDENCIES AND INCLUDED SOFTWARE
+### INCLUDED SOFTWARE
 
 CAT-SOOP is built with the Python programming language, version 3.5+ (<https://www.python.org/>).
 
@@ -54,15 +54,12 @@ listed below.  Licensing information for these components is included in this
 distribution, in the `LICENSE.included_software` file.
 
 CAT-SOOP includes verbatim copies of:
-  * Bootstrap (<http://getbootstrap.com/>)
   * highlight.js (<https://highlightjs.org/>)
-  * jQuery (<https://jquery.com/>)
   * KaTeX (<https://github.com/Khan/KaTeX>)
   * MathJax (<https://www.mathjax.org/>)
   * PLY (<http://www.dabeaz.com/ply/>)
   * pyaes (<https://github.com/ricmoo/pyaes>)
   * Python-Markdown (<https://pythonhosted.org/Markdown/>)
-  * SweetAlert2 (<https://limonte.github.io/sweetalert2/>)
   * websockets (<https://github.com/aaugustin/websockets>)
 
 CAT-SOOP includes modified versions of:

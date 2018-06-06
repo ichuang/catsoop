@@ -93,7 +93,7 @@ def error_message_content(context, html=True):
 
     **Returns:** an error message appropriate for the last exception
     """
-    data_cache = os.path.join(context['cs_data_root'], '_cached')
+    data_cache = os.path.join(context.get('cs_data_root', base_context.cs_data_root), '_cached')
     e = sys.exc_info()
     tb_entries = traceback.extract_tb(e[2])
     new_entries = []
@@ -159,6 +159,7 @@ def do_error_message(context, msg=None):
     new['cs_source_qstring'] = ''
     new['cs_top_menu_html'] = ''
     new['cs_breadcrumbs_html'] = ''
+    new['cs_base_font_color'] = '#fff'
     s, h, o = dispatch.display_page(new)
     o = o.replace(new['cs_base_logo_text'], error_500_logo)
     return ('500', 'Internal Server Error'), h, o
@@ -193,6 +194,7 @@ def do_404_message(context):
     new['cs_source_qstring'] = ''
     new['cs_top_menu_html'] = ''
     new['cs_breadcrumbs_html'] = ''
+    new['cs_base_font_color'] = '#fff'
     s, h, o = dispatch.display_page(new)
     o = o.replace(new['cs_base_logo_text'], error_404_logo)
     return ('404', 'File Not Found'), h, o

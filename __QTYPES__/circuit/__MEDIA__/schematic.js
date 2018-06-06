@@ -1948,7 +1948,7 @@ var cktsim = (function() {
 // set up each schematic entry widget
 function update_schematics() {
     // set up each schematic on the page
-    var schematics = $('.schematic');
+    var schematics = document.querySelectorAll('.schematic');
     for (var i = 0; i < schematics.length; ++i)
     if (schematics[i].getAttribute("loaded") != "true") {
         try {
@@ -2620,7 +2620,6 @@ schematic = (function() {
     }
 
     Schematic.prototype.prepare_submission = function() {
-        console.log(this.submit_analyses);
         for (var i in this.submit_analyses){
             if (!this.submit_analyses.hasOwnProperty(i)){
                 continue;
@@ -2910,7 +2909,6 @@ schematic = (function() {
                 var submit = this.submit_analyses['tran'];
                 if (submit != undefined) {
                     // save a copy of the results for submission
-                    console.log(results);
                     this.transient_results = {'time': results['_time_']};
                     for (var i in results){
                         if (i != '_time_' && !results.hasOwnProperty(i)){
@@ -2966,9 +2964,6 @@ schematic = (function() {
 		    // run the analysis
             var n = sch.tran_npts;
             var s = sch.tran_tstop;
-            console.log('HELLLOOOO');
-            console.log(n);
-            console.log(s);
 		    var results = ckt.tran(ckt.parse_number(n), 0,
 					   ckt.parse_number(s), probe_names, false);
 
@@ -6144,45 +6139,10 @@ schematic = (function() {
         return new ISource(x,y,this.rotation,this.properties['name'],this.properties['value']);
     }
 
-    //  JQuery slider support for setting a component value
-
-    function component_slider(event,ui) {
-        var sname = $(this).slider("option","schematic");
-
-        // set value of specified component
-        var cname = $(this).slider("option","component");
-        var pname = $(this).slider("option","property");
-        var suffix = $(this).slider("option","suffix");
-        if (typeof suffix != "string")
-            suffix = "";
-
-        var v = ui.value;
-        $(this).slider("value",v);  // move slider's indicator
-
-        var choices = $(this).slider("option","choices");
-        if (choices instanceof Array)
-            v = choices[v];
-
-        // selector may match several schematics
-        $("." + sname).each(function(index,element) {
-            element.schematic.set_property(cname,pname,v.toString() + suffix);
-        })
-
-        // perform requested analysis
-        var analysis = $(this).slider("option","analysis");
-        if (analysis == "dc")
-            $("." + sname).each(function(index,element) {
-                                    element.schematic.dc_analysis();
-                                })
-
-        return false;
-    }
-
     //  Module definition
 
     var module = {
         'Schematic': Schematic,
-        'component_slider': component_slider
     }
     return module;
 }());

@@ -576,7 +576,8 @@ def generate_forgot_password_form(context):
     """
     base = _get_base_url(context)
     req_url = base + '?loginaction=forgot_password'
-    out = '<form method="POST" action="%s">' % req_url
+    out = INCLUDE_HASHLIB
+    out += '<form method="POST" action="%s">' % req_url
     msg = context['cs_session_data'].get('login_message', None)
     if msg is not None:
         out += '\n%s<p>' % msg
@@ -619,7 +620,8 @@ def generate_password_reset_form(context):
     req_url = base + '?loginaction=reset_password'
     req_url += '&username=%s' % context['cs_form']['username']
     req_url += '&token=%s' % context['cs_form']['token']
-    out = '<form method="POST" action="%s" id="pwdform">' % req_url
+    out = INCLUDE_HASHLIB
+    out += '<form method="POST" action="%s" id="pwdform">' % req_url
     msg = context['cs_session_data'].get('login_message', None)
     if msg is not None:
         out += '\n%s<p>' % msg
@@ -658,7 +660,8 @@ def generate_password_change_form(context):
     """
     base = _get_base_url(context)
     req_url = base + '?loginaction=change_password'
-    out = '<form method="POST" action="%s" id="pwdform">' % req_url
+    out = INCLUDE_HASHLIB
+    out += '<form method="POST" action="%s" id="pwdform">' % req_url
     msg = context['cs_session_data'].get('login_message', None)
     if msg is not None:
         out += '\n%s<p>' % msg
@@ -702,7 +705,8 @@ def generate_login_form(context):
     Generate a login form.
     """
     base = _get_base_url(context)
-    out = '<form method="POST" id="loginform" action="%s">' % (base + '?loginaction=login')
+    out = INCLUDE_HASHLIB
+    out += '<form method="POST" id="loginform" action="%s">' % (base + '?loginaction=login')
     msg = context['cs_session_data'].get('login_message', None)
     last_uname = context['cs_session_data'].get('last_form', {}).get(
         'login_uname', '')
@@ -757,7 +761,8 @@ def generate_registration_form(context):
     """
     base = _get_base_url(context)
     qstring = '?loginaction=register'
-    out = '<form method="POST" action="%s" id="regform">' % (base + qstring)
+    out = INCLUDE_HASHLIB
+    out += '<form method="POST" action="%s" id="regform">' % (base + qstring)
     last = context['cs_session_data'].get('last_form', {})
     msg = context['cs_session_data'].get('login_message', None)
     if msg is not None:
@@ -926,10 +931,10 @@ function check_form(){
     var p_msg = "";
 
     // validate email
-    var e_val = $("#email").val();
+    var e_val = document.getElementById("email").value;
     if(e_val.length == 0){
         e_msg = "Please enter an email address.";
-    }else if(e_val != $("#email2").val()){
+    }else if(e_val != document.getElementById("email2").value){
         e_msg = "E-mail addresses do not match.";
     }else{
         var e_check_result = _validate_email(e_val);
@@ -937,10 +942,10 @@ function check_form(){
             e_msg = e_check_result;
         }
     }
-    $("#email_check").html('<font color="red">' + e_msg + '</font>');
+    document.getElementById("email_check").innerHTML = '<font color="red">' + e_msg + '</font>';
 
     // validate username
-    var u_val = $("#uname").val();
+    var u_val = document.getElementById("uname").value;
     if(u_val.length == 0){
         u_msg = "Please enter a username.";
     }else{
@@ -949,11 +954,11 @@ function check_form(){
             u_msg = u_check_result;
         }
     }
-    $("#uname_check").html('<font color="red">' + u_msg + '</font>');
+    document.getElementById("uname_check").innerHTML = '<font color="red">' + u_msg + '</font>';
 
     // validate password
-    var p_val = $("#passwd").val();
-    if(p_val != $("#passwd2").val()){
+    var p_val = document.getElementById("passwd").value;
+    if(p_val != document.getElementById("passwd2").value){
         p_msg = "Passwords do not match.";
     }else{
         var p_check_result = _validate_password(p_val);
@@ -961,15 +966,11 @@ function check_form(){
             p_msg = p_check_result;
         }
     }
-    $("#pwd_check").html('<font color="red">' + p_msg + '</font>');
-    if (e_msg || u_msg || p_msg){
-        $('#regform_submitter').prop('disabled', true);
-    }else{
-        $('#regform_submitter').prop('disabled', false);
-    }
+    document.getElementById("pwd_check").innerHTML = '<font color="red">' + p_msg + '</font>';
+    document.getElementById('regform_submitter').disabled = !!(e_msg || u_msg || p_msg);
 }
-$(document).ready(check_form);
-$("#regform").keyup(check_form);
+document.addEventListener('DOMContentLoaded', check_form);
+document.getElementById("regform").addEventListener('keyup', check_form);
 </script>""" % (_validate_email_javascript, _validate_username_javascript,
                 _validate_password_javascript)
 "Javascript code for checking inputs to the registration form"
@@ -980,8 +981,8 @@ function check_form(){
     var p_msg = "";
 
     // validate password
-    var p_val = $("#passwd").val();
-    if(p_val != $("#passwd2").val()){
+    var p_val = document.getElementById("passwd").value;
+    if(p_val != document.getElementById("passwd2").value){
         p_msg = "Passwords do not match.";
     }else{
         var p_check_result = _validate_password(p_val);
@@ -989,15 +990,11 @@ function check_form(){
             p_msg = p_check_result;
         }
     }
-    $("#pwd_check").html('<font color="red">' + p_msg + '</font>');
-    if (p_msg){
-        $('#pwdform_submitter').prop('disabled', true);
-    }else{
-        $('#pwdform_submitter').prop('disabled', false);
-    }
+    document.getElementById("pwd_check").innerHTML = '<font color="red">' + p_msg + '</font>';
+    document.getElementById('pwdform_submitter').disabled = !!p_msg;
 }
-$(document).ready(check_form);
-$("#pwdform").keyup(check_form);
+document.addEventListener('DOMContentLoaded', check_form);
+document.getElementById("regform").addEventListener('keyup', check_form);
 </script>""" % _validate_password_javascript
 "Javascript code for checking inputs to the password change form"
 
@@ -1078,8 +1075,11 @@ def _submit_button(fields, username, preserve, form, value='Submit'):
            ' id="%s_submitter"'
            ' value="%s"'
            ' onclick="catsoop.hashlib.hash_passwords(%r, %r, %r, %r)" />')
-   base += '<script type="text/javascript">$("#%s input").keypress'
-   base += '(function(e){if(e.which == 13) $("#%s_submitter").click();});'
+   base += '<script type="text/javascript">document.querySelectorAll("#%s input").forEach(function(a){'
+   base += '    a.addEventListener("keypress",function(e){'
+   base += '        if(e.which == 13) document.getElementById("%s_submitter").click();'
+   base += '    });'
+   base += '});'
    base += '</script>'
    return base % (form, value, fields, username, preserve, form, form, form)
 
@@ -1088,4 +1088,8 @@ LOGIN_BOX = """
 <b><center>You are not logged in.</center></b><br/>
 If you are a current student, please <a href="%s?loginaction=login">Log In</a> for full access to this page.
 </div>
+"""
+
+INCLUDE_HASHLIB = """
+<script type="text/javascript" src="__AUTH__/login/cs_hash.js"></script>
 """

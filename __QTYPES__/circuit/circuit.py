@@ -170,9 +170,9 @@ def render_html(last_log, **info):
     return out + ('\n<script src="__QTYPE__/circuit/schematic.js"></script>'
                   '<script type="text/javascript">'
                   'update_schematics();'
-                  '$(document).ready(function(){'
-                      '$("#%s_buttons")[0].addEventListener("mouseover", function(){'
-                          '$("#%s")[0].schematic.prepare_submission();'
+                  'document.addEventListener('DOMContentLoaded', function(){'
+                      'document.getElementById("%s_buttons").addEventListener("mouseover", function(){'
+                          'document.getElementById("%s").schematic.prepare_submission();'
                       '});'
                   '});'
                   '</script>') % (name, name)
