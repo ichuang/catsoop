@@ -651,6 +651,7 @@ def main(environment):
                 context['cs_content'] = language.handle_python_tags(
                     context, context['cs_content'])
                 context['csm_language'].md_pre_handle(context)
+                context['cs_base_font_color'] = '#fff'
                 context['cs_handler'] = 'passthrough'
 
         res = tutor.handle_page(context)
