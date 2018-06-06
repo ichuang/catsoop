@@ -32,7 +32,7 @@
               <tr>
                   <td><a href="BASE/scripts/katex/katex.min.js">katex.min.js</a></td>
                   <td><a href="http://www.jclark.com/xml/copying.txt">Expat</a></td>
-                  <td><a href="BASE/scripts/katex/katex.js">katex.min.js</a></td>
+                  <td><a href="BASE/scripts/katex/katex.js">katex.js</a></td>
               </tr>
               <tr>
                   <td><a href="BASE/scripts/highlight/highlight.pack.js">highlight.pack.js</a></td>
