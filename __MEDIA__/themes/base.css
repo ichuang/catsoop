@@ -196,15 +196,14 @@
      margin-left: 0;
      margin-right: 0;
 }
- .dropdown-content a:hover{
+ .dropdown-content a:hover, .dropdown-content a:visited:hover{
      color: var(--cs-light-font-color);
      text-decoration: none;
      background-color: var(--cs-light-bg-color);
 }
  .dropdown-content a:visited{
-     color: var(--cs-light-font-color);
+     color: #000;
      text-decoration: none;
-     background-color: var(--cs-light-bg-color);
 }
  .dropdown:hover .dropdown-checkbox:checked + .dropdown-content{
      display:-webkit-box;
@@ -336,6 +335,9 @@
      color: var(--cs-light-font-color);
      background-color: var(--cs-light-bg-color);
      border-color: #000000;
+}
+ a.btn:visited {
+     color: var(--cs-base-font-color);
 }
 /* Modal Dialog */
  .modal-background {
