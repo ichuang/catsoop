@@ -118,7 +118,11 @@ def xml_pre_handle(context):
             if e[0] == SyntaxError:
                 tb_text = 'Syntax error in question tag:\n'
             elif func == '<module>':
-                tb_text = 'Error on line %d of question tag:\n    %s\n\n' % (lineno, code.splitlines()[lineno-1].strip())
+                tb_text = 'Error on line %d of question tag.' % lineno
+                try:
+                    tb_text += '\n    %s\n\n' % code.splitlines()[lineno-1].strip()
+                except:
+                    pass
             else:
                 tb_text = context['csm_errors'].error_message_content(context, html=False)
                 exc_only = ['']

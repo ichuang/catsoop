@@ -22,6 +22,8 @@ import cmath
 import random
 from collections import Sequence, defaultdict
 
+mpmath = csm_tools.mpmath
+
 numpy = None
 
 def check_numpy():
@@ -66,8 +68,9 @@ defaults = {
     'csq_render_result': True,
     'csq_syntax': 'base',
     'csq_num_trials': 20,
-    'csq_threshold': 1e-9,
-    'csq_ratio_check': True,
+    'csq_ratio_threshold': 1e-9,
+    'csq_absolute_threshold': None,
+    'csq_precision': 1000,
     'csq_soln': ['6', 'sqrt(2)'],
     'csq_npoints': 1,
     'csq_msg_function': lambda sub: (''),
@@ -75,7 +78,12 @@ defaults = {
     'csq_variable_dimensions': {},
 }
 
-default_names = {'pi': [math.pi], 'e': [math.e], 'j': [1j], 'i': [1j]}
+default_names = {
+    'pi': [mpmath.mpc(math.pi)],
+    'e': [mpmath.mpc(math.e)],
+    'j': [mpmath.mpc(1j)],
+    'i': [mpmath.mpc(1j)]
+}
 
 
 def _draw_sqrt(x):
@@ -167,7 +175,7 @@ def eval_name(context, names, funcs, n):
 
 
 def eval_number(context, names, funcs, n):
-    return ast.literal_eval(n[1])
+    return mpmath.mpf(n[1])
 
 
 def check_shapes(x, y):
@@ -227,7 +235,7 @@ _eval_map = {
 }
 
 
-def _run_one_test(context, sub, soln, funcs, threshold, ratio=True):
+def _run_one_test(context, sub, soln, funcs, ratio_threshold, absolute_threshold):
     _sub_names = _get_all_names(sub)
     _sol_names = _get_all_names(soln)
     maps_to_try = _get_all_mappings(context, _sub_names, _sol_names)
@@ -238,14 +246,25 @@ def _run_one_test(context, sub, soln, funcs, threshold, ratio=True):
             return False
         sol = eval_expr(context, m, funcs, soln)
 
-        context['cs_debug'](subm, sol)
-
         mag = abs
-        if check_numpy():
-            mag = numpy.linalg.norm
-        scale_factor = sol if ratio else 1
+        if len(context['csq_variable_dimensions']) > 0 and check_numpy():
+            def mag(x):
+                try:
+                    return numpy.linalg.norm(x)
+                except:
+                    return (x.real**2 + x.imag**2)**0.5
         try:
-            if mag(subm-sol) > mag(threshold*scale_factor):
+            r = ratio_threshold is not None
+            a = absolute_threshold is not None
+            if r and a:
+                threshold = max(ratio_threshold*sol, absolute_threshold)
+            elif r:
+                threshold = ratio_threshold*sol
+            elif a:
+                threshold = absolute_threshold
+            else:
+                return False
+            if mag(subm-sol) > threshold:
                 return False
         except:
             return False
@@ -266,7 +285,7 @@ def _get_all_names(tree):
 
 
 def _get_random_value():
-    return random.uniform(1, 30)
+    return mpmath.mpf(random.uniform(1, 30))
 
 
 def _get_all_mappings(context, soln_names, sub_names):
@@ -351,73 +370,74 @@ def _get_parser(context):
 
 
 def handle_submission(submissions, **info):
-    if len(info['csq_variable_dimensions']) > 0:
-        assert check_numpy()
+    with mpmath.workdps(info['csq_precision']):
 
-    _sub = sub = submissions[info['csq_name']]
-    solns = info['csq_soln']
+        if len(info['csq_variable_dimensions']) > 0:
+            assert check_numpy()
 
-    parser = _get_parser(info)
+        _sub = sub = submissions[info['csq_name']]
+        solns = info['csq_soln']
 
-    test_threshold = info['csq_threshold']
+        parser = _get_parser(info)
 
-    funcs = dict(default_funcs)
-    funcs.update(info.get('csq_funcs', {}))
+        funcs = dict(default_funcs)
+        funcs.update(info.get('csq_funcs', {}))
 
-    try:
-        sub = parser.parse(sub)
-    except:
-        return {'score': 0.0, 'msg': '<font color="red">Error: '
-                                     'could not parse input.</font>'}
-    _m = None
-    if sub is None:
-        result = False
-    else:
-        in_check = info['csq_input_check'](_sub, sub)
-        if in_check is not None:
+        try:
+            sub = parser.parse(sub)
+        except:
+            return {'score': 0.0, 'msg': '<font color="red">Error: '
+                                         'could not parse input.</font>'}
+        _m = None
+        if sub is None:
             result = False
-            _m = in_check
         else:
-            if not isinstance(solns, list):
-                solns = [solns]
-            solns = [parser.parse(i) for i in solns]
+            in_check = info['csq_input_check'](_sub, sub)
+            if in_check is not None:
+                result = False
+                _m = in_check
+            else:
+                if not isinstance(solns, list):
+                    solns = [solns]
+                solns = [parser.parse(i) for i in solns]
 
-            ratio = info['csq_ratio_check']
-            result = False
-            for soln in solns:
-                for attempt in range(info['csq_num_trials']):
-                    _sub_names = _get_all_names(sub)
-                    _sol_names = _get_all_names(soln)
-                    if info['csq_error_on_unknown_variable']:
-                        _unique_names = set(_sub_names).difference(_sol_names)
-                        if len(_unique_names) > 0:
-                            _s = "s" if len(_unique_names) > 1 else ""
-                            _v = ", ".join(tree2tex(info, funcs, ["NAME", i])[0]
-                                           for i in _unique_names)
-                            _m = "Unknown variable%s: $%s$" % (_s, _v)
-                    result = _run_one_test(info, sub, soln, funcs, test_threshold, ratio)
-                    if not result:
+                result = False
+                for soln in solns:
+                    for attempt in range(info['csq_num_trials']):
+                        _sub_names = _get_all_names(sub)
+                        _sol_names = _get_all_names(soln)
+                        if info['csq_error_on_unknown_variable']:
+                            _unique_names = set(_sub_names).difference(_sol_names)
+                            if len(_unique_names) > 0:
+                                _s = "s" if len(_unique_names) > 1 else ""
+                                _v = ", ".join(tree2tex(info, funcs, ["NAME", i])[0]
+                                               for i in _unique_names)
+                                _m = "Unknown variable%s: $%s$" % (_s, _v)
+                        result = _run_one_test(info, sub, soln, funcs,
+                                               info['csq_ratio_threshold'],
+                                               info['csq_absolute_threshold'])
+                        if not result:
+                            break
+                    if result:
                         break
-                if result:
-                    break
 
-    if info['csq_show_check']:
-        if result:
-            msg = '<img src="%s" />' % info['cs_check_image']
+        if info['csq_show_check']:
+            if result:
+                msg = '<img src="%s" />' % info['cs_check_image']
+            else:
+                msg = '<img src="%s" />' % info['cs_cross_image']
         else:
-            msg = '<img src="%s" />' % info['cs_cross_image']
-    else:
-        msg = ''
-    n = info['csq_name']
-    msg += info['csq_msg_function'](submissions[info['csq_name']])
-    msg = info['csm_language'].source_transform_string(info, msg)
-    msg = ("""\n<script type="text/javascript">"""
-           """document.getElementById('image%s').innerHTML = %r;</script>\n""") % (n, msg)
-    if info['csq_render_result']:
-        msg += get_display(info, n, sub, False, _m or '')
-    else:
-        msg += _m or ''
-    return {'score': float(result), 'msg': msg}
+            msg = ''
+        n = info['csq_name']
+        msg += info['csq_msg_function'](submissions[info['csq_name']])
+        msg = info['csm_language'].source_transform_string(info, msg)
+        msg = ("""\n<script type="text/javascript">"""
+               """document.getElementById('image%s').innerHTML = %r;</script>\n""") % (n, msg)
+        if info['csq_render_result']:
+            msg += get_display(info, n, sub, False, _m or '')
+        else:
+            msg += _m or ''
+        return {'score': float(result), 'msg': msg}
 
 
 checktext = "Check Syntax"
