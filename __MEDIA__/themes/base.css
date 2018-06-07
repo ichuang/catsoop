@@ -104,6 +104,10 @@
  h6 {
      font-size: calc(1rem / var(--heading-ratio));
 }
+ .cs_base_bold {
+     font-weight: bold;
+     color: var(--cs-base-bg-color);
+ }
  header {
      width: 100%;
      height: 3rem;
