@@ -53,8 +53,8 @@
      line-height: 1.5;
      -webkit-text-size-adjust: 100%;
 }
- code, kbd, pre, samp {
-     font-family: Menlo, Consolas, monospace;
+ code, kbd, pre, samp, tt {
+     font-family: Menlo, Consolas, Courier, Courier New, monospace;
      font-size: 0.85em;
 }
  code {

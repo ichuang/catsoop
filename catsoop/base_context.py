@@ -145,7 +145,7 @@ Special: Additional menu space
 
 cs_content_header = ('<span class="cs_base_bold">C</span>AT-SOOP is an '
                      '<span class="cs_base_bold">A</span>utomatic '
-                     '<span class="cs_base_bold">T</span>utor for '
+                     '<span class="cs_base_bold">T</span>utor<br/> for '
                      '<span class="cs_base_bold">S</span>ix-'
                      '<span class="cs_base_bold">O</span>h-'
                      '<span class="cs_base_bold">O</span>ne '
