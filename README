@@ -66,6 +66,7 @@ CAT-SOOP includes verbatim copies of:
   * highlight.js (https://highlightjs.org/)
   * KaTeX (https://github.com/Khan/KaTeX)
   * MathJax (https://www.mathjax.org/)
+  * mpmath (http://mpmath.org/)
   * PLY (http://www.dabeaz.com/ply/)
   * pyaes (https://github.com/ricmoo/pyaes)
   * Python-Markdown (https://pythonhosted.org/Markdown/)
