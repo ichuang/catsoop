@@ -36,6 +36,9 @@ REMOVED:
 
 FIXED:
 
+* Fixed an issue with error reporting when trying to log a tuple that contains
+  an element that can't be logged.
+
 SECURITY:
 
 * Prevent submissions from being able to access materials defined in
