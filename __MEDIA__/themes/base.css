@@ -268,7 +268,7 @@
      max-width: var(--cs-max-page-width);
 }
  .anchor {
-     display: block;
+     display: inline;
      position: relative;
      top: -4rem;
 }
