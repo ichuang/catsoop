@@ -1,2 +1,4 @@
-Currently, logging in or out of a page loses information about the page you were on (in particular, query string arguments are lost).  This feels like a bug.
+Currently, logging in or out of a page loses information about the page you
+were on (in particular, query string arguments are lost).  This feels like a
+bug.
 
