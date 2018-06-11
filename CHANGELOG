@@ -15,6 +15,9 @@ ADDED:
 * Made CAT-SOOP work properly with LibreJS
   (https://www.gnu.org/software/librejs/).
 
+* Added support for Python sandboxing via bubblewrap
+  (https://github.com/projectatomic/bubblewrap)
+
 CHANGED:
 
 * Updated KaTeX to version 0.10.0-alpha.
