@@ -87,9 +87,9 @@ catsoop.load_one_form_element = function(elt, name, into, action){
 
 catsoop.ajaxrequest = function (names, action, done_function){
     for (var i=0; i < names.length; i++){
-        var elts = document.querySelectorAll('input[name^=__'+names[i]+']');
-        for (var i=0; i<elts.length; i++){
-            names.push(elts[i].name)
+        var elts = document.querySelectorAll('[name^=__'+names[i]+']');
+        for (var j=0; j<elts.length; j++){
+            names.push(elts[j].name)
         }
     }
     var out = {};
@@ -97,7 +97,7 @@ catsoop.ajaxrequest = function (names, action, done_function){
     var promises = [];
     for (var i=0; i<names.length; i++){
         var name = names[i];
-        var field = document.querySelector('input[name="'+name+'"]');
+        var field = document.querySelector('[name="'+name+'"]');
         catsoop.switch_buttons(name, false);
         document.getElementById(name+'_loading').style.display = '';
         document.getElementById(name+'_score_display').style.display = 'none';
