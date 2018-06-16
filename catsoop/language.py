@@ -659,6 +659,7 @@ def handle_custom_tags(context, text):
         sup.wrap(link)
         ref = tree.new_tag('a')
         ref.attrs['name'] = "catsoop_footnote_ref_%d" % jx
+        ref['class'] = 'anchor'
         link.insert_before(ref)
 
     if len(footnotes) == 0:
@@ -667,7 +668,7 @@ def handle_custom_tags(context, text):
         fnote = '<br/>&nbsp;<hr/><b name="cs_footnotes">Footnotes</b>'
         for (ix, f) in enumerate(footnotes):
             ix = ix + 1
-            fnote += ('<p><a name="catsoop_footnote_%d"><sup>%d</sup> </a>'
+            fnote += ('<p><a class="anchor" name="catsoop_footnote_%d"></a><sup style="padding-right:0.25em;color:var(--cs-base-bg-color);">%d</sup>'
                       '%s <a href="#catsoop_footnote_ref_%d">'
                       '<span class="noprint">(click to return to text)</span>'
                       '</a></p>') % (ix, ix, f, ix)

@@ -57,6 +57,16 @@
      font-family: Menlo, Consolas, Courier, Courier New, monospace;
      font-size: 0.85em;
 }
+ blockquote {
+     font: 14px/22px normal helvetica, sans-serif;
+     margin-top: 10px;
+     margin-bottom: 10px;
+     margin-left: 50px;
+     padding-left: 15px;
+     border-left: 3px solid #ccc;
+     background-color: transparent;
+     color: #999;
+}
  code {
      padding: 2px;
      border-radius: 5px;
@@ -258,7 +268,7 @@
      max-width: var(--cs-max-page-width);
 }
  .anchor {
-     display: block;
+     display: inline;
      position: relative;
      top: -4rem;
 }
@@ -327,18 +337,24 @@
      color: var(--cs-base-font-color);
      background-color: var(--cs-base-bg-color);
      border-color: #000000;
+     text-decoration: none;
 }
  .btn[disabled] {
      cursor:not-allowed;
      filter:alpha(opacity=65);
      -webkit-box-shadow:none;
      box-shadow:none;
-     opacity:.65
+     opacity:.65;
+     text-decoration: none;
 }
- .btn:focus,.btn:hover,.btn:active, .btn:active:focus,.btn:active:hover{
+ .btn:focus{
+     text-decoration: none;
+ }
+ .btn:hover,.btn:active, .btn:active:hover{
      color: var(--cs-light-font-color);
      background-color: var(--cs-light-bg-color);
      border-color: #000000;
+     text-decoration: none;
 }
  a.btn:visited {
      color: var(--cs-base-font-color);

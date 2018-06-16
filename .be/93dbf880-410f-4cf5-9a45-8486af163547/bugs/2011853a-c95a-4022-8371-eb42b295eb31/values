@@ -1,0 +1,50 @@
+{
+
+
+
+
+
+
+    "creator": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "reporter": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "Logging In Should Not Lose Query String", 
+
+
+
+
+
+
+    "time": "Mon, 11 Jun 2018 01:43:46 +0000"
+
+
+
+
+
+
+}

@@ -90,6 +90,7 @@
       <div class="cs_content">
         <center><h1>{cs_content_header}</h1></center>
         {cs_content}
+        {cs_footnotes}
       </div>
       <div class="cs_right_menu"></div>
     </main>

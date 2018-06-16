@@ -994,7 +994,7 @@ function check_form(){
     document.getElementById('pwdform_submitter').disabled = !!p_msg;
 }
 document.addEventListener('DOMContentLoaded', check_form);
-document.getElementById("regform").addEventListener('keyup', check_form);
+document.getElementById("pwdform").addEventListener('keyup', check_form);
 </script>""" % _validate_password_javascript
 "Javascript code for checking inputs to the password change form"
 

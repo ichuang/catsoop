@@ -103,7 +103,7 @@ def update_log(db_name, path, logname, new, lock=True):
     * `lock` (default `True`): whether the database should be locked during
         this update
     """
-    assert can_log(new), "Can't log: %r" % new
+    assert can_log(new), "Can't log: %r" % (new, )
     fname = get_log_filename(db_name, path, logname)
     #get an exclusive lock on this file before making changes
     # look up the separator and the data
@@ -115,7 +115,7 @@ def update_log(db_name, path, logname, new, lock=True):
 
 
 def _overwrite_log(fname, new):
-    assert can_log(new), "Can't log: %r" % new
+    assert can_log(new), "Can't log: %r" % (new, )
     create_if_not_exists(os.path.dirname(fname))
     with open(fname, 'w') as f:
         f.write(prep(new) + sep)
@@ -222,7 +222,7 @@ def modify_most_recent(db_name, path, logname, default=None, transform_func=lamb
     with cm as lock:
         old_val = most_recent(db_name, path, logname, default, lock=False)
         new_val = transform_func(old_val)
-        assert can_log(new_val), "Can't log: %r" % new_val
+        assert can_log(new_val), "Can't log: %r" % (new_val, )
         if method == 'update':
             updater = update_log
         else:
