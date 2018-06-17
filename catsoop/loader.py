@@ -68,7 +68,7 @@ def get_file_data(context, form, name):
                 data = f.read()
             return data
         elif up == 'db':
-            return context['csm_tools'].data_uri.DataURI(data[1]).data
+            return context['csm_thirdparty'].data_uri.DataURI(data[1]).data
         else:
             raise Exception('unknown upload management style: %r' % up)
     elif isinstance(data, str):

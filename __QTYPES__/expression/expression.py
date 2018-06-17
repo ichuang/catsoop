@@ -22,7 +22,7 @@ import cmath
 import random
 from collections import Sequence, defaultdict
 
-mpmath = csm_tools.mpmath
+mpmath = csm_thirdparty.mpmath
 
 numpy = None
 
@@ -366,7 +366,8 @@ def _implicit_multiplication(context):
 
 
 def _get_parser(context):
-    return _get_syntax_module(context).parser(csm_tools.ply.lex, csm_tools.ply.yacc)
+    return _get_syntax_module(context).parser(csm_thirdparty.ply.lex,
+                                              csm_thirdparty.ply.yacc)
 
 
 def handle_submission(submissions, **info):

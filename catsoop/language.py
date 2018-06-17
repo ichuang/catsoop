@@ -42,12 +42,12 @@ from collections import OrderedDict
 from . import tutor
 from . import dispatch
 from . import markdown_math
-from .tools import markdown
+from .thirdparty import markdown
 from .errors import html_format, clear_info
-from .tools.markdown.extensions import tables
-from .tools.markdown.extensions import fenced_code
-from .tools.markdown.extensions import sane_lists
-from .tools.bs4 import BeautifulSoup
+from .thirdparty.markdown.extensions import tables
+from .thirdparty.markdown.extensions import fenced_code
+from .thirdparty.markdown.extensions import sane_lists
+from .thirdparty.bs4 import BeautifulSoup
 
 _nodoc = {'BeautifulSoup', 'OrderedDict', 'StringIO', 'clear_info',
           'html_format', 'PYTHON_REGEX', 'PYVAR_REGEX',

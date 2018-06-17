@@ -99,8 +99,8 @@ if error is None:
                 error = 'Server rejected request for JWK'
             if 'alg' not in key:
                 key['alg'] = ctx.get('cs_openid_default_algorithm', 'RS256')
-            key = csm_tools.jose.jwk.construct(key)
-            decoded_sig = csm_tools.jose.utils.base64url_decode(sig.encode())
+            key = csm_thirdparty.jose.jwk.construct(key)
+            decoded_sig = csm_thirdparty.jose.utils.base64url_decode(sig.encode())
             if not key.verify(id_token.encode(), decoded_sig):
                 error = 'Invalid signature on JWS.'
 

@@ -39,7 +39,7 @@ import contextlib
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
-from .tools.pretty import pretty
+from .thirdparty.pretty import pretty
 
 _nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'create_if_not_exists',
           'get_separator', 'good_separator', 'modify_most_recent', 'NoneType',
@@ -50,7 +50,7 @@ def passthrough():
     yield
 
 from . import base_context
-from .tools.filelock import FileLock
+from .thirdparty.filelock import FileLock
 
 
 def create_if_not_exists(directory):

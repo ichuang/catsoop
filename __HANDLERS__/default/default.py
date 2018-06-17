@@ -1633,7 +1633,7 @@ def pre_handle(context):
                 if name == '__names__':
                     continue
                 if isinstance(value, list):
-                    data = csm_tools.data_uri.DataURI(value[1]).data
+                    data = csm_thirdparty.data_uri.DataURI(value[1]).data
                     dir_ = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', *context['cs_path_info'])
                     os.makedirs(dir_, exist_ok=True)
                     value[0] = value[0].replace('<', '').replace('>', '').replace('"', '').replace('"', '')
@@ -1844,7 +1844,7 @@ def handle_stats(context):
             stats[name] = counts
             total = max(total, sum(counts.values()))
 
-    BeautifulSoup = context['csm_tools'].bs4.BeautifulSoup
+    BeautifulSoup = context['csm_thirdparty'].bs4.BeautifulSoup
     soup = BeautifulSoup('', 'html.parser')
     table = soup.new_tag('table')
     table['class'] = 'table table-bordered'
@@ -1912,7 +1912,7 @@ def handle_whdw(context):
         context['cs_path_info'],
     ).get(section, None)
 
-    BeautifulSoup = context['csm_tools'].bs4.BeautifulSoup
+    BeautifulSoup = context['csm_thirdparty'].bs4.BeautifulSoup
     soup = BeautifulSoup('', 'html.parser')
 
     if groups:

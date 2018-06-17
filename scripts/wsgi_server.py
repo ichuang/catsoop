@@ -22,7 +22,7 @@ if CATSOOP_LOC not in sys.path:
     sys.path.append(CATSOOP_LOC)
 
 from catsoop.wsgi import application
-from catsoop.tools.cheroot import wsgi
+from catsoop.thirdparty.cheroot import wsgi
 
 PORT_NUMBER = int(sys.argv[1])
 

@@ -6,6 +6,9 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* CAT-SOOP now includes python-jose (https://github.com/mpdavis/python-jose)
+  for verifying JSON web tokens.
+
 * CAT-SOOP now includes the mpmath library (http://mpmath.org/), and the
   'expression' question type makes use of it.
 
@@ -19,6 +22,9 @@ ADDED:
   (https://github.com/projectatomic/bubblewrap)
 
 CHANGED:
+
+* The catsoop.tools library was renamed to catsoop.thirdparty to better reflect
+  its contents.
 
 * Updated KaTeX to version 0.10.0-alpha.
 

@@ -79,10 +79,10 @@ def render_html(last_log, **info):
 def answer_display(**info):
     name = info['csq_soln_filename']
     if info['csq_soln_type'] == 'string':
-        data = csm_tools.data_uri.DataURI.make('text/plain', None, True,
+        data = csm_thirdparty.data_uri.DataURI.make('text/plain', None, True,
                                          info['csq_soln'])
     else:
-        data = csm_tools.data_uri.DataURI.from_file(info['csq_soln'])
+        data = csm_thirdparty.data_uri.DataURI.from_file(info['csq_soln'])
         ext = mimetypes.guess_extension(data.mimetype) or '.txt'
         name = name.rsplit('.', 1) + ext
     return ('<a href="%s" '

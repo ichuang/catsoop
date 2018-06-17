@@ -28,7 +28,7 @@ from http.cookies import SimpleCookie
 
 from . import base_context
 from . import cslog
-from .tools import filelock
+from .thirdparty import filelock
 
 importlib.reload(base_context)
 

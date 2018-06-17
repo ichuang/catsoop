@@ -21,7 +21,7 @@ the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
 
-_nodoc = {'contents', 'cs_all_pieces', 'cs_all_tools', 'f', 'i', 'root',
+_nodoc = {'contents', 'cs_all_pieces', 'cs_all_thirdparty', 'f', 'i', 'root',
           'cs_dummy_username', 'datetime'}
 
 cs_version = '(development version, v12.1.1+)'
@@ -304,21 +304,21 @@ except Exception as e:
 
 cs_all_pieces = [
     'api', 'auth', 'base_context', 'cslog', 'dispatch', 'errors', 'groups',
-    'language', 'loader', 'mail', 'process', 'session', 'time', 'tools',
+    'language', 'loader', 'mail', 'process', 'session', 'time', 'thirdparty',
     'tutor', 'util',
 ]
 
-cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4', 'pyaes',
-                'pretty', 'mpmath', 'jose']
+cs_all_thirdparty = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4', 'pyaes',
+                     'pretty', 'mpmath', 'jose']
 
 for i in cs_all_pieces:
     if i != 'base_context':
         exec('from . import %s' % i)
         exec('csm_%s = %s' % (i, i))
 
-for i in cs_all_tools:
-    exec('from .tools import %s' % i)
-    exec('csm_tools.%s = %s' % (i, i))
+for i in cs_all_thirdparty:
+    exec('from .thirdparty import %s' % i)
+    exec('csm_thirdparty.%s = %s' % (i, i))
 
 # Checks for valid Configuration
 
