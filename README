@@ -69,6 +69,7 @@ CAT-SOOP includes verbatim copies of:
   * mpmath (http://mpmath.org/)
   * PLY (http://www.dabeaz.com/ply/)
   * pyaes (https://github.com/ricmoo/pyaes)
+  * python-jose (https://github.com/mpdavis/python-jose)
   * Python-Markdown (https://pythonhosted.org/Markdown/)
   * websockets (https://github.com/aaugustin/websockets)
 

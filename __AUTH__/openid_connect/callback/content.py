@@ -89,15 +89,8 @@ if error is None:
         # verify JWT signature
         id_token, sig = resp['id_token'].rsplit('.', 1)
         if ctx.get('cs_openid_verify_signature', True):
-            try:
-                import jose
-            except:
-                error = ('Verifying JWT signatures requires installing '
-                         'python-jose (<tt>sudo pip3 install python-jose</tt>).')
 
         if error is None:
-            from jose import jwk
-            from jose.utils import base64url_decode
             # get JWK from the web
             url = '%s/jwk' % ctx.get('cs_openid_server', '')
             try:
@@ -106,8 +99,8 @@ if error is None:
                 error = 'Server rejected request for JWK'
             if 'alg' not in key:
                 key['alg'] = ctx.get('cs_openid_default_algorithm', 'RS256')
-            key = jwk.construct(key)
-            decoded_sig = base64url_decode(sig.encode())
+            key = csm_tools.jose.jwk.construct(key)
+            decoded_sig = csm_tools.jose.utils.base64url_decode(sig.encode())
             if not key.verify(id_token.encode(), decoded_sig):
                 error = 'Invalid signature on JWS.'
 

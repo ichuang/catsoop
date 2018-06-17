@@ -309,7 +309,7 @@ cs_all_pieces = [
 ]
 
 cs_all_tools = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4', 'pyaes',
-                'pretty', 'mpmath']
+                'pretty', 'mpmath', 'jose']
 
 for i in cs_all_pieces:
     if i != 'base_context':
