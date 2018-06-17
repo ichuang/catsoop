@@ -88,8 +88,7 @@ if error is None:
     if error is None:
         # verify JWT signature
         id_token, sig = resp['id_token'].rsplit('.', 1)
-        if ctx.get('cs_openid_verify_signature', True):
-
+            
         if error is None:
             # get JWK from the web
             url = '%s/jwk' % ctx.get('cs_openid_server', '')
