@@ -10,5 +10,5 @@ from .exceptions import JWSError
 from .exceptions import ExpiredSignatureError
 from .exceptions import JWTError
 
-import .jwk as jwk
-import .utils as utils
+from . import jwk
+from . import utils
