@@ -80,5 +80,6 @@ structure of imports and/or for Python 3 compatibility:
   * cheroot (https://pypi.python.org/pypi/Cheroot)
   * DataURI.py (https://gist.github.com/zacharyvoase/5538178)
   * fast-sha256-js (https://github.com/dchest/fast-sha256-js)
+  * pyasn1 (http://snmplabs.com/pyasn1/)
   * python-jose (https://github.com/mpdavis/python-jose)
   * python-rsa (https://github.com/sybrenstuvel/python-rsa)

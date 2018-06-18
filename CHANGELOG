@@ -8,6 +8,7 @@ ADDED:
 
 * CAT-SOOP now includes python-jose (https://github.com/mpdavis/python-jose)
   for verifying JSON web tokens.  As a result, it also now includes
+  pyasn1 (http://snmplabs.com/pyasn1/),
   python-ecdsa (https://github.com/warner/python-ecdsa),
   python-rsa (https://github.com/sybrenstuvel/python-rsa), and
   six (https://github.com/benjaminp/six)

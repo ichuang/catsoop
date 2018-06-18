@@ -1,6 +1,6 @@
 import six
-from pyasn1.codec.der import encoder
-from pyasn1.type import univ
+from ...pyasn1.codec.der import encoder
+from ...pyasn1.type import univ
 
 from ... import rsa as pyrsa
 from ...rsa import pem as pyrsa_pem
