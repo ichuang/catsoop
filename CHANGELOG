@@ -7,7 +7,10 @@ Work toward next release.  Currently under development.
 ADDED:
 
 * CAT-SOOP now includes python-jose (https://github.com/mpdavis/python-jose)
-  for verifying JSON web tokens.
+  for verifying JSON web tokens.  As a result, it also now includes
+  python-ecdsa (https://github.com/warner/python-ecdsa),
+  python-rsa (https://github.com/sybrenstuvel/python-rsa), and
+  six (https://github.com/benjaminp/six)
 
 * CAT-SOOP now includes the mpmath library (http://mpmath.org/), and the
   'expression' question type makes use of it.

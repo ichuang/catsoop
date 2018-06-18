@@ -5,12 +5,12 @@ import six
 
 from collections import Mapping, Iterable
 
-from jose import jwk
-from jose.constants import ALGORITHMS
-from jose.exceptions import JWSError
-from jose.exceptions import JWSSignatureError
-from jose.utils import base64url_encode
-from jose.utils import base64url_decode
+from . import jwk
+from .constants import ALGORITHMS
+from .exceptions import JWSError
+from .exceptions import JWSSignatureError
+from .utils import base64url_encode
+from .utils import base64url_decode
 
 
 def sign(payload, key, headers=None, algorithm=ALGORITHMS.HS256):

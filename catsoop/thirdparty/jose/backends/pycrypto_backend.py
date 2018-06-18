@@ -8,12 +8,12 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
 from Crypto.Util.asn1 import DerSequence
 
-from jose.backends.base import Key
-from jose.backends.rsa_backend import pem_to_spki
-from jose.utils import base64_to_long, long_to_base64
-from jose.constants import ALGORITHMS
-from jose.exceptions import JWKError
-from jose.utils import base64url_decode
+from .base import Key
+from .rsa_backend import pem_to_spki
+from ..utils import base64_to_long, long_to_base64
+from ..constants import ALGORITHMS
+from ..exceptions import JWKError
+from ..utils import base64url_decode
 
 
 # We default to using PyCryptodome, however, if PyCrypto is installed, it is

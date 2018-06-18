@@ -8,7 +8,7 @@ from datetime import datetime
 from datetime import timedelta
 from six import string_types
 
-from jose import jws
+from . import jws
 
 from .exceptions import JWSError
 from .exceptions import JWTClaimsError
@@ -434,7 +434,7 @@ def _validate_at_hash(claims, access_token, algorithm):
     except (TypeError, ValueError):
         msg = 'Unable to calculate at_hash to verify against token claims.'
         raise JWTClaimsError(msg)
-        
+
     if claims['at_hash'] != expected_hash:
         raise JWTClaimsError('at_hash claim does not match access_token.')
 

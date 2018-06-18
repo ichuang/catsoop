@@ -3,19 +3,19 @@ import hashlib
 import hmac
 import six
 
-from jose.constants import ALGORITHMS
-from jose.exceptions import JWKError
-from jose.utils import base64url_decode, base64url_encode
-from jose.utils import constant_time_string_compare
-from jose.backends.base import Key
+from .constants import ALGORITHMS
+from .exceptions import JWKError
+from .utils import base64url_decode, base64url_encode
+from .utils import constant_time_string_compare
+from .backends.base import Key
 
 try:
-    from jose.backends import RSAKey
+    from .backends import RSAKey
 except ImportError:
     pass
 
 try:
-    from jose.backends import ECKey
+    from .backends import ECKey
 except ImportError:
     pass
 
@@ -26,10 +26,10 @@ def get_key(algorithm):
     elif algorithm in ALGORITHMS.HMAC:
         return HMACKey
     elif algorithm in ALGORITHMS.RSA:
-        from jose.backends import RSAKey
+        from .backends import RSAKey
         return RSAKey
     elif algorithm in ALGORITHMS.EC:
-        from jose.backends import ECKey
+        from .backends import ECKey
         return ECKey
     return None
 

@@ -62,19 +62,23 @@ The CAT-SOOP distribution also includes several pieces of third-party software,
 listed below.  Licensing information for these components is included in this
 distribution, in the `LICENSE.included_software` file.
 
-CAT-SOOP includes verbatim copies of:
+CAT-SOOP includes verbatim copies of the following:
   * highlight.js (https://highlightjs.org/)
   * KaTeX (https://github.com/Khan/KaTeX)
   * MathJax (https://www.mathjax.org/)
   * mpmath (http://mpmath.org/)
   * PLY (http://www.dabeaz.com/ply/)
   * pyaes (https://github.com/ricmoo/pyaes)
-  * python-jose (https://github.com/mpdavis/python-jose)
+  * python-ecdsa (https://github.com/warner/python-ecdsa)
   * Python-Markdown (https://pythonhosted.org/Markdown/)
+  * six (https://pypi.python.org/pypi/six)
   * websockets (https://github.com/aaugustin/websockets)
 
-CAT-SOOP includes modified versions of:
+CAT-SOOP includes modified versions of the following, modified to change the
+structure of imports and/or for Python 3 compatibility:
   * BeautifulSoup (https://www.crummy.com/software/BeautifulSoup/)
   * cheroot (https://pypi.python.org/pypi/Cheroot)
   * DataURI.py (https://gist.github.com/zacharyvoase/5538178)
   * fast-sha256-js (https://github.com/dchest/fast-sha256-js)
+  * python-jose (https://github.com/mpdavis/python-jose)
+  * python-rsa (https://github.com/sybrenstuvel/python-rsa)

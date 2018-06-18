@@ -17,8 +17,8 @@
 
 from __future__ import absolute_import
 from __future__ import unicode_literals
-from .tools.markdown.extensions import Extension
-from .tools.markdown.inlinepatterns import HtmlPattern, SimpleTextPattern
+from .thirdparty.markdown.extensions import Extension
+from .thirdparty.markdown.inlinepatterns import HtmlPattern, SimpleTextPattern
 
 _nodoc = {'Extension', 'HtmlPattern', 'SimpleTextPattern', 'absolute_import',
 'unicode_literals'}
@@ -29,8 +29,8 @@ _ESCAPED_DOLLAR_RE = r'\\(\$)'
 
 
 class RawHtmlPattern(HtmlPattern):
-    """A subclass of `catsoop.tools.markdown.inlinepattern.HtmlPattern` used to
-    store raw inline html and return a placeholder."""
+    """A subclass of `catsoop.thirdparty.markdown.inlinepattern.HtmlPattern`
+    used to store raw inline html and return a placeholder."""
 
     def __init__(self, endtag, *args, **kwargs):
         self._hz_tag = endtag

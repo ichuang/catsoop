@@ -2,14 +2,14 @@ import six
 from pyasn1.codec.der import encoder
 from pyasn1.type import univ
 
-import rsa as pyrsa
-import rsa.pem as pyrsa_pem
-from rsa.asn1 import OpenSSLPubKey, AsnPubKey, PubKeyHeader
+from ... import rsa as pyrsa
+from ...rsa import pem as pyrsa_pem
+from ...rsa.asn1 import OpenSSLPubKey, AsnPubKey, PubKeyHeader
 
-from jose.backends.base import Key
-from jose.constants import ALGORITHMS
-from jose.exceptions import JWKError
-from jose.utils import base64_to_long, long_to_base64
+from .base import Key
+from ..constants import ALGORITHMS
+from ..exceptions import JWKError
+from ..utils import base64_to_long, long_to_base64
 
 
 PKCS8_RSA_HEADER = b'0\x82\x04\xbd\x02\x01\x000\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00'
