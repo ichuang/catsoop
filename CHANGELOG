@@ -26,7 +26,7 @@ CHANGED:
 * The catsoop.tools library was renamed to catsoop.thirdparty to better reflect
   its contents.
 
-* Updated KaTeX to version 0.10.0-alpha.
+* Updated KaTeX to version 0.10.0-beta.
 
 * Updated MathJax to version 2.7.4.
 
