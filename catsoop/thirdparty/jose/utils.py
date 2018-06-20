@@ -23,7 +23,7 @@ except ImportError:
             return _long_to_bytes(n, blocksize or None)
 
     except ImportError:
-        from ecdsa.ecdsa import int_to_string as _long_to_bytes
+        from ..ecdsa.ecdsa import int_to_string as _long_to_bytes
 
         def long_to_bytes(n, blocksize=0):
             ret = _long_to_bytes(n)
