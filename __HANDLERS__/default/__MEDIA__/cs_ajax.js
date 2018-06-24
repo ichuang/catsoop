@@ -98,9 +98,12 @@ catsoop.ajaxrequest = function (names, action, done_function){
     for (var i=0; i<names.length; i++){
         var name = names[i];
         var field = document.querySelector('[name="'+name+'"]');
-        catsoop.switch_buttons(name, false);
-        document.getElementById(name+'_loading').style.display = '';
-        document.getElementById(name+'_score_display').style.display = 'none';
+        try{
+            catsoop.switch_buttons(name, false);
+            document.getElementById(name+'_loading').style.display = '';
+            document.getElementById(name+'_score_display').style.display = 'none';
+        }catch(err){
+        }
         promises.push(catsoop.load_one_form_element(field, name, out, action));
     }
     Promise.all(promises).then(
