@@ -17,7 +17,7 @@
 import json
 import urllib.request, urllib.parse, urllib.error
 
-SANDBOX_URL = 'https://catsoop.mit.edu/python3_sandbox'
+SANDBOX_URL = 'https://cat-soop.org/python3_sandbox'
 
 
 def run_code(context, code, options):
