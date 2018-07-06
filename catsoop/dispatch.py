@@ -128,8 +128,7 @@ def static_file_location(context, path):
             elif cur == '..':
                 newpath = newpath[:-1]
             else:
-                dname = loader.get_directory_name(context, course, path[:ix],
-                                                  cur)
+                dname = loader.get_directory_name(context, course, path[:ix], cur)
                 newpath.append(dname if dname is not None else cur)
 
         # trace up the path to find the lowest point that has a
@@ -139,7 +138,10 @@ def static_file_location(context, path):
             course)
         for ix in range(len(newpath) - 1, -1, -1):
             rest = newpath[ix:]
-            loc = os.path.join(*([basepath] + newpath[:ix] + ['__STATIC__']))
+            loc = os.path.join(basepath, *newpath[:ix], '__STATIC__')
+            if os.path.isdir(loc):
+                break
+            loc = os.path.join(basepath, *newpath[:ix], '__MEDIA__')
             if os.path.isdir(loc):
                 break
 
