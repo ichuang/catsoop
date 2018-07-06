@@ -1049,7 +1049,7 @@ def manage_groups(context):
         all_group_names = sorted(all_group_names)
     all_group_names = list(all_group_names)
     out += '\n<script type="text/javascript">catsoop.group_names = %s</script>' % all_group_names
-    out += '\n<script type="text/javascript" src="__HANDLER__/default/cs_groups.js"></script>'
+    out += '\n<script type="text/javascript" src="_handler/default/cs_groups.js"></script>'
     return out + default_javascript(context)
 
 
@@ -1670,7 +1670,7 @@ def default_javascript(context):
         skip_alert = [name for (name, (q, args)) in list(namemap.items())
                       if _get(args, skipper, False, bool)]
     out = '''
-<script type="text/javascript" src="__HANDLER__/default/cs_ajax.js"></script>
+<script type="text/javascript" src="_handler/default/cs_ajax.js"></script>
 <script type="text/javascript">
 catsoop.all_questions = %(allqs)r;
 catsoop.username = %(uname)s;
@@ -1730,10 +1730,10 @@ def default_timer(context):
                 "\ncatsoop.time_url = %r;") % (
                     context['csm_time'].unix(context[_n('now')]),
                     context['csm_time'].unix(context[_n('due')]),
-                    context['cs_url_root'] + '/cs_util/time')
+                    context['cs_url_root'] + '/_util/time')
         out += '\n</script>'
         out += ('<script type="text/javascript" '
-                'src="__HANDLER__/default/cs_timer.js"></script>')
+                'src="_handler/default/cs_timer.js"></script>')
     return out
 
 

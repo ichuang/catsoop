@@ -27,12 +27,13 @@ ADDED:
 
 CHANGED:
 
-* The catsoop.tools library was renamed to catsoop.thirdparty to better reflect
-  its contents.
-
 * Updated KaTeX to version 0.10.0-beta.
 
 * Updated MathJax to version 2.7.4.
+
+* URL format for static files has changed (__STATIC__ -> _static).
+
+* URL format for utilities has changed (cs_util -> _util).
 
 * 'csq_threshold' and 'csq_ratio_check' have been replaced with
   'csq_ratio_threshold' and 'csq_absolute_threshold' in the 'expression'
@@ -40,6 +41,17 @@ CHANGED:
   behavior is the same as before.
 
 DEPRECATED:
+
+* The special directory name __MEDIA__ has been renamed to __STATIC__ to better
+  reflect its purpose.  __MEDIA__ will be removed in a future version.  Use
+  __STATIC__ instead.
+
+* The catsoop.tools library was renamed to catsoop.thirdparty to better reflect
+  its contents.  The csm_tools pointer to these libraries will be removed in a
+  future version.  Use csm_thirdparty instead.
+
+* print should now be used instead of cs_print to inject page content from
+  within <python> tags.  cs_print will be removed in a future version.
 
 REMOVED:
 
@@ -794,7 +806,7 @@ REMOVED:
 
 FIXED:
 
-  * Fixed broken "home" link for pages in the cs_util "pseudo-course."
+  * Fixed broken "home" link for pages in the _util "pseudo-course."
 
   * Fixed issue with HTML tags not rendering inside of <section> tags.
 
@@ -1228,7 +1240,7 @@ ADDED:
   * The 'pythoncode' question type can now handle Python 3 code.
 
   * Handlers and question types can now have viewable pages inside them,
-    viewable at <url_root>/__HANDLER__/default/page_name
+    viewable at <url_root>/_handler/default/page_name
 
   * Every page footer now links to both the terms of the license, and also to
     the "download source" link.
@@ -1457,7 +1469,7 @@ ADDED:
   * Added support for inline (runnable by users) test cases in 'pythoncode'
     question types.
 
-  * Added cs_util resources: time, which yields the current time (according to
+  * Added _util resources: time, which yields the current time (according to
     the server) for synchronization purposes; source.zip, which downloads a zip
     archive containing the CAT-SOOP source code; and license, which contains
     the text of CAT-SOOP's license.
@@ -1607,7 +1619,7 @@ FIXED:
   * Fixed a bug with displaying the solution for 'pythonic' question types whose
     solutions are strings.
 
-  * Fixed a bug related to handling of dynamic pages in the __BASE__ course.
+  * Fixed a bug related to handling of dynamic pages in the _base course.
 
   * Fixed numerous 'ajaxproblem' bugs.
 

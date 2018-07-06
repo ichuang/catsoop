@@ -69,16 +69,16 @@ def static_file_location(context, path):
     The given path is in CAT-SOOP's internal format, a list of strings.  The
     first string represents the course in question, or one of the following:
 
-    * `__BASE__` to look in the CAT-SOOP source directory
-    * `__QTYPE__` to look in a question type's directory
-    * `__HANDLER__` to look in a handler's directory
-    * `__PLUGIN__` to look in a plugin's directory
+    * `_base` to look in the CAT-SOOP source directory
+    * `_qtype` to look in a question type's directory
+    * `_handler` to look in a handler's directory
+    * `_plugin` to look in a plugin's directory
 
     Regardless of whether the first element is a course or one of the special
     values above, the function proceeds by working its way down the given
     directories (all elements but the last in the given list).  Upon arriving
-    in that directory, it looks for a directory called `__MEDIA__` containing a
-    file with the given name.
+    in that directory, it looks for a directory called `__STATIC__` containing
+    a file with the given name.
 
     **Parameters:**
 
@@ -90,32 +90,32 @@ def static_file_location(context, path):
     '''
     loc = ''
     rest = path[2:]
-    if path[0] == '__BASE__':
+    if path[0] == '_base':
         # serving from base
         loc = os.path.join(
-            context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__')
+            context.get('cs_fs_root', base_context.cs_fs_root), '__STATIC__')
         rest = path[1:]
-    elif path[0] == '__PLUGIN__':
+    elif path[0] == '_plugin':
         # serving from plugin
         course = context.get('cs_course', '')
         loc = os.path.join(
             context.get('cs_data_root', base_context.cs_data_root), 'courses',
-            course, '__PLUGINS__', path[1], '__MEDIA__')
-    elif path[0] == '__HANDLER__':
+            course, '__PLUGINS__', path[1], '__STATIC__')
+    elif path[0] == '_handler':
         # serving from handler
         loc = os.path.join(
             context.get('cs_fs_root', base_context.cs_fs_root), '__HANDLERS__',
-            path[1], '__MEDIA__')
-    elif path[0] == '__QTYPE__':
+            path[1], '__STATIC__')
+    elif path[0] == '_qtype':
         # serving from qtype
         loc = os.path.join(
             context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__',
-            path[1], '__MEDIA__')
-    elif path[0] == '__AUTH__':
+            path[1], '__STATIC__')
+    elif path[0] == '_auth':
         # serving from qtype
         loc = os.path.join(
             context.get('cs_fs_root', base_context.cs_fs_root), '__AUTH__',
-            path[1], '__MEDIA__')
+            path[1], '__STATIC__')
     else:
         # preprocess the path to prune out 'dots' and 'double-dots'
         course = path[0]
@@ -133,13 +133,13 @@ def static_file_location(context, path):
                 newpath.append(dname if dname is not None else cur)
 
         # trace up the path to find the lowest point that has a
-        # __MEDIA__ directory
+        # __STATIC__ directory
         basepath = os.path.join(
             context.get('cs_data_root', base_context.cs_data_root), 'courses',
             course)
         for ix in range(len(newpath) - 1, -1, -1):
-            loc = os.path.join(*([basepath] + newpath[:ix] + ['__MEDIA__']))
             rest = newpath[ix:]
+            loc = os.path.join(*([basepath] + newpath[:ix] + ['__STATIC__']))
             if os.path.isdir(loc):
                 break
 
@@ -297,11 +297,11 @@ def is_resource(context, path):
 
 
 def _real_url_helper(context, url):
-    u = [context.get('cs_url_root', base_context.cs_url_root), '__STATIC__']
+    u = [context.get('cs_url_root', base_context.cs_url_root), '_static']
     u2 = u[:1]
     end = url.split('/')[1:]
     if url.startswith('BASE'):
-        new = ['__BASE__']
+        new = ['_base']
         pre = u + new if is_static(context, new + end) else u2
     elif url.startswith('COURSE'):
         new = [str(context['cs_course'])]
@@ -321,8 +321,8 @@ def _real_url_helper(context, url):
             pre = u2 + new
         else:
             pre = u + new
-    elif (url.startswith('__HANDLER__') or url.startswith('__QTYPE__') or
-          url.startswith('__PLUGIN__') or url.startswith('__AUTH__')):
+    elif (url.startswith('_handler') or url.startswith('_qtype') or
+          url.startswith('_plugin') or url.startswith('_auth')):
         pre = u
         end = [url]
     else:
@@ -336,8 +336,8 @@ def get_real_url(context, url):
     Convert a location from our internal representation to something that will
     actually point the web browser to the right place.
 
-    Links in CAT-SOOP can begin with `BASE`, `COURSE`, `CURRENT`, `__QTYPE__`,
-    `__HANDLER__`, `__AUTH__`, or `__PLUGIN__`.  This function takes in a URL
+    Links in CAT-SOOP can begin with `BASE`, `COURSE`, `CURRENT`, `_qtype`,
+    `_handler`, `_auth`, or `_plugin`.  This function takes in a URL
     in that form and returns the corresponding URL.
 
     **Parameters:**
@@ -385,7 +385,7 @@ def display_page(context):
     `catsoop.wsgi.application`
     """
     if context['cs_process_theme']:
-        context['cs_theme'] = ("%s/cs_util/process_theme"
+        context['cs_theme'] = ("%s/_util/process_theme"
                                "?theme=%s"
                                "&preload=%s") % (context['cs_url_root'],
                                                  context['cs_theme'],
@@ -402,10 +402,10 @@ def display_page(context):
     context['cs_content'] = language.handle_custom_tags(
         context, context['cs_content'])
     default = os.path.join(
-        context.get('cs_fs_root', base_context.cs_fs_root), '__MEDIA__',
+        context.get('cs_fs_root', base_context.cs_fs_root), '__STATIC__',
         'templates', "main.template")
     temp = _real_url_helper(context, context['cs_template'])
-    if '__STATIC__' in temp:
+    if '_static' in temp:
         default = static_file_location(context, temp[2:])
     loader.run_plugins(context, context['cs_course'], 'post_render', context)
     f = open(default)
@@ -422,7 +422,7 @@ def _breadcrumbs_html(context):
     _defined = context.get('cs_breadcrumbs_html', None)
     if callable(_defined):
         return _defined(context)
-    if context.get('cs_course', None) in {None, 'cs_util', '__QTYPE__', '__HANDLER__', '__PLUGIN__', '__AUTH__'}:
+    if context.get('cs_course', None) in {None, '_util', '_qtype', '_handler', '_plugin', '_auth'}:
         return ''
     if len(context.get('cs_loader_states', [])) < 2:
         return ''
@@ -565,7 +565,7 @@ def main(environment):
         path_info = [i for i in path_info.split('/') if i != '']
 
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
-        if len(path_info) > 0 and path_info[0] == '__STATIC__':
+        if len(path_info) > 0 and path_info[0] == '_static':
             return serve_static_file(context,
                                      static_file_location(
                                          context, path_info[1:]), environment)
@@ -597,7 +597,7 @@ def main(environment):
 
         # SET SOME CONSTANTS FOR THE TEMPLATE (may be changed later)
         course = context.get('cs_course', None)
-        if course is None or course in {'cs_util', '__QTYPE__', '__HANDLER__', '__PLUGIN__', '__AUTH__'}:
+        if course is None or course in {'_util', '_qtype', '_handler', '_plugin', '_auth'}:
             context['cs_home_link'] = 'BASE'
             context['cs_source_qstring'] = ''
         else:
@@ -706,12 +706,11 @@ def main(environment):
             else:
                 _set_colors(context)
                 root = context.get('cs_fs_root', base_context.cs_fs_root)
-                path = os.path.join(root, '__MEDIA__', 'mainpage.md')
+                path = os.path.join(root, '__STATIC__', 'mainpage.md')
                 with open(path) as f:
                     context['cs_content'] = f.read()
                 context['cs_content'] = language.handle_includes(context, context['cs_content'])
-                context['cs_content'] = language.handle_python_tags(
-                    context, context['cs_content'])
+                context['cs_content'] = language.handle_python_tags(context, context['cs_content'])
                 context['csm_language'].md_pre_handle(context)
                 context['cs_handler'] = 'passthrough'
 

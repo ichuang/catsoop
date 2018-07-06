@@ -229,7 +229,7 @@ def load_global_data(into, check_values=True):
 def get_course_fs_location(context, course, join=True):
     """
     Returns the base location of the specified course on disk, including
-    "special" courses (`cs_util`, `__QTYPE__`, etc).
+    "special" courses (`_util`, `_qtype`, etc).
 
     **Parameters:**
 
@@ -246,12 +246,12 @@ def get_course_fs_location(context, course, join=True):
     **Returns:** depends on the value of `join` (see above).
     """
     fs_root = context.get('cs_fs_root', base_context.cs_fs_root)
-    if course == 'cs_util':
+    if course == '_util':
         rtn = [fs_root, '__UTIL__']
-    elif course == '__QTYPE__':
+    elif course == '_qtype':
         rtn = [fs_root, '__QTYPES__']
-    elif course == '__AUTH__':
-        rtn = [fs_root, '__AUTH__']
+    elif course == '_auth':
+        rtn = [fs_root, '_auth']
     else:
         data_root = context.get('cs_data_root', base_context.cs_data_root)
         rtn = [data_root, 'courses', course]
@@ -531,7 +531,7 @@ def do_late_load(context, course, path, into, content_file=None):
     last_mod = os.stat(content_file).st_mtime
     cache = into['csm_cslog'].most_recent('_question_info', [course] + path,
                                           'question_info', None)
-    if (course not in {None, 'cs_util'}
+    if (course not in {None, '_util'}
             and (cache is None or last_mod > cache['timestamp']) and
             'cs_problem_spec' in into):
         qs = OrderedDict()

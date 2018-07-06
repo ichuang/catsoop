@@ -52,7 +52,7 @@ def handle_check(submission, **info):
 
 def render_html(last_log, **info):
     out = _base_render_html(last_log, **info)
-    help_url = '/'.join([info['cs_url_root'], '__QTYPE__', 'richtext',
+    help_url = '/'.join([info['cs_url_root'], '_qtype', 'richtext',
                          'formatting.html'])
     out += ('''<a onClick="window.open('%s', '_blank', '''
             ''''');" '''

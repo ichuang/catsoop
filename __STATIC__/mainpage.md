@@ -42,9 +42,9 @@ if cs_main_page_text:
 CAT-SOOP is a tool for automatic collection and assessment of online exercises.
 CAT-SOOP is @{link("https://www.fsf.org/about/what-is-free-software", "free software")},
 available under the terms of the
-@{link("BASE/cs_util/license", "GNU Affero General Public License, version 3+")}.
+@{link("BASE/_util/license", "GNU Affero General Public License, version 3+")}.
 In accordance with the terms of this license, the source code of the base
-system that generated this page is available @{link("BASE/cs_util/source.zip",
+system that generated this page is available @{link("BASE/_util/source.zip",
 "here")} as a zip archive.
 
 Please note that these terms apply only to the CAT-SOOP system itself and

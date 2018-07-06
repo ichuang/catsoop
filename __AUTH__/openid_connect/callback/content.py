@@ -54,7 +54,7 @@ if error is None:
     id = ctx.get('cs_openid_client_id', '')
     secret = ctx.get('cs_openid_client_secret', '')
 
-    redir_url = '%s/__AUTH__/openid_connect/callback' % ctx['cs_url_root']
+    redir_url = '%s/_auth/openid_connect/callback' % ctx['cs_url_root']
     data = urllib.parse.urlencode({'grant_type': 'authorization_code',
                                    'code': cs_form['code'],
                                    'redirect_uri': redir_url,

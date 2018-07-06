@@ -10,19 +10,19 @@ that are loaded by CAT-SOOP, including licensing information.
         </thead>
         <tbody>
             <tr>
-                <td><a href="__HANDLER__/default/cs_ajax.js">cs_ajax.js</a></td>
+                <td><a href="_handler/default/cs_ajax.js">cs_ajax.js</a></td>
                 <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
-                <td><a href="__HANDLER__/default/cs_ajax.js">cs_ajax.js</a></td>
+                <td><a href="_handler/default/cs_ajax.js">cs_ajax.js</a></td>
             </tr>
             <tr>
-                <td><a href="__HANDLER__/default/cs_groups.js">cs_groups.js</a></td>
+                <td><a href="_handler/default/cs_groups.js">cs_groups.js</a></td>
                 <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
-                <td><a href="__HANDLER__/default/cs_groups.js">cs_groups.js</a></td>
+                <td><a href="_handler/default/cs_groups.js">cs_groups.js</a></td>
             </tr>
             <tr>
-                <td><a href="__AUTH__/login/cs_hash.js">cs_hash.js</a></td>
+                <td><a href="_auth/login/cs_hash.js">cs_hash.js</a></td>
                 <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
-                <td><a href="__AUTH__/login/cs_hash.js">cs_hash.js</a></td>
+                <td><a href="_auth/login/cs_hash.js">cs_hash.js</a></td>
             </tr>
             <tr>
                 <td><a href="BASE/scripts/cs_math.js">cs_math.js</a></td>
@@ -30,9 +30,9 @@ that are loaded by CAT-SOOP, including licensing information.
                 <td><a href="BASE/scripts/cs_math.js">cs_math.js</a></td>
             </tr>
             <tr>
-                <td><a href="__HANDLER__/default/cs_timer.js">cs_timer.js</a></td>
+                <td><a href="_handler/default/cs_timer.js">cs_timer.js</a></td>
                 <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
-                <td><a href="__HANDLER__/default/cs_timer.js">cs_timer.js</a></td>
+                <td><a href="_handler/default/cs_timer.js">cs_timer.js</a></td>
             </tr>
               <tr>
                   <td><a href="BASE/scripts/katex/katex.min.js">katex.min.js</a></td>

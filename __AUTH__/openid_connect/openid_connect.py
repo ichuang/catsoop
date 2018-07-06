@@ -59,7 +59,7 @@ def get_logged_in_user(context):
                                                   context['cs_openid_server'])
             return {'cs_render_now': True}
     elif action == 'login':
-        redir_url = '%s/__AUTH__/openid_connect/callback' % context['cs_url_root']
+        redir_url = '%s/_auth/openid_connect/callback' % context['cs_url_root']
         scope = context.get('cs_openid_scope', 'openid profile email')
         state = generate_token()
         nonce = generate_token()

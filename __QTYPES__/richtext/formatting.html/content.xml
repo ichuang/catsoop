@@ -119,8 +119,8 @@ def foo(x):
 </tr>
 
 <tr>
-<td><pre>![Image](https://catsoop.mit.edu/__STATIC__/__BASE__/images/logo.svg)</pre></td>
-<td><p><img alt="Image" src="https://catsoop.mit.edu/__STATIC__/__BASE__/images/logo.svg" /></p></td>
+<td><pre>![Image](https://catsoop.mit.edu/_static/_base/images/logo.svg)</pre></td>
+<td><p><img alt="Image" src="https://catsoop.mit.edu/_static/_base/images/logo.svg" /></p></td>
 </tr>
 
 </table>

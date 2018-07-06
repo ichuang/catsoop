@@ -67,7 +67,7 @@ def render_html(last_log, **info):
                                  'fname': loc})
             safe_fname = fname.replace('<', '').replace('>', '').replace('"', '').replace("'", '')
             out += '<br/>'
-            out += ('<a href="%s/cs_util/get_upload?%s" '
+            out += ('<a href="%s/_util/get_upload?%s" '
                     'download="%s">Download Most '
                     'Recent Submission</a>') % (info['cs_url_root'], qstring,
                                                 safe_fname)

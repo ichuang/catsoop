@@ -130,7 +130,7 @@ catsoop.update_group_list = function () {
     var form = _encode_form({'api_token': catsoop.api_token,
                              'path': JSON.stringify(catsoop.path_info),
                              'section': section});
-    request.open('POST', catsoop.url_root + '/cs_util/api/groups/list_groups', true);
+    request.open('POST', catsoop.url_root + '/_util/api/groups/list_groups', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.send(form);
 }
@@ -143,7 +143,7 @@ catsoop.groups_partner_all = function() {
                              'section': section});
     var request = new XMLHttpRequest();
     request.onload = catsoop.update_group_list;
-    request.open('POST', catsoop.url_root + '/cs_util/api/groups/make_all_groups', true);
+    request.open('POST', catsoop.url_root + '/_util/api/groups/make_all_groups', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.send(form);
     catsoop.groups_enable_buttons();
@@ -167,7 +167,7 @@ catsoop.groups_add = function(){
                              'group': grp});
     var request = new XMLHttpRequest();
     request.onload = catsoop.update_group_list;
-    request.open('POST', catsoop.url_root + '/cs_util/api/groups/add_to_group', true);
+    request.open('POST', catsoop.url_root + '/_util/api/groups/add_to_group', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.send(form);
     catsoop.groups_enable_buttons();
@@ -181,7 +181,7 @@ catsoop.groups_remove = function(name, grp){
                              'group': grp});
     var request = new XMLHttpRequest();
     request.onload = catsoop.update_group_list;
-    request.open('POST', catsoop.url_root + '/cs_util/api/groups/remove_from_group', true);
+    request.open('POST', catsoop.url_root + '/_util/api/groups/remove_from_group', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.send(form);
     catsoop.groups_enable_buttons();
@@ -197,7 +197,7 @@ catsoop.groups_partner = function(){
                              'username2': name2});
     var request = new XMLHttpRequest();
     request.onload = catsoop.update_group_list;
-    request.open('POST', catsoop.url_root + '/cs_util/api/groups/partner', true);
+    request.open('POST', catsoop.url_root + '/_util/api/groups/partner', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     request.send(form);
     catsoop.groups_enable_buttons();

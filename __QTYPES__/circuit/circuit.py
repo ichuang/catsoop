@@ -167,7 +167,7 @@ def render_html(last_log, **info):
     out += ' value="%s"' % escape(init)
     out += ' name="%s"' % name
     out += ' id="%s"/>' % name
-    return out + ('\n<script src="__QTYPE__/circuit/schematic.js"></script>'
+    return out + ('\n<script src="_qtype/circuit/schematic.js"></script>'
                   '<script type="text/javascript">'
                   'update_schematics();'
                   'document.addEventListener('DOMContentLoaded', function(){'

@@ -1091,5 +1091,5 @@ If you are a current student, please <a href="%s?loginaction=login">Log In</a> f
 """
 
 INCLUDE_HASHLIB = """
-<script type="text/javascript" src="__AUTH__/login/cs_hash.js"></script>
+<script type="text/javascript" src="_auth/login/cs_hash.js"></script>
 """

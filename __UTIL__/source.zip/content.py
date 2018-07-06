@@ -63,7 +63,7 @@ if course is not None:
     plugins_base = os.path.join(cs_data_root, 'courses', course, '__PLUGINS__')
     qtypes_base = os.path.join(cs_data_root, 'courses', course, '__QTYPES__')
     handlers_base = os.path.join(cs_data_root, 'courses', course, '__HANDLERS__')
-    authtypes_base = os.path.join(cs_data_root, 'courses', course, '__AUTH__')
+    authtypes_base = os.path.join(cs_data_root, 'courses', course, '_auth')
 
 out_bytes = io.BytesIO()
 
@@ -93,7 +93,7 @@ else:
                      'cat-soop-src/%s/__HANDLERS__' % course)
     add_files_to_zip(outfile,
                      authtypes_base,
-                     'cat-soop-src/%s/__AUTH__' % course)
+                     'cat-soop-src/%s/_auth' % course)
 outfile.close()
 
 cs_handler = 'raw_response'
