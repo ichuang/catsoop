@@ -134,7 +134,7 @@ def do_check(row):
         os.unlink(os.path.join(RUNNING, row['magic']))
         # finally, update the appropriate log
         lockname = context['csm_cslog'].get_log_filename(row['username'], row['path'], 'problemstate')
-        with context['csm_cslog'].FileLock(lockname) as lock:
+        with context['csm_cslog'].log_lock(lockname+'.lock') as lock:
             x = context['csm_cslog'].most_recent(row['username'], row['path'], 'problemstate', {}, lock=False)
             if row['action'] == 'submit':
                 x.setdefault('scores', {})[name] = row['score']

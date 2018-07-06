@@ -21,7 +21,7 @@ import random
 import string
 import hashlib
 
-from .thirdparty import pyaes
+import pyaes
 
 def user_menu_options(context):
     url = _get_base_url(context)

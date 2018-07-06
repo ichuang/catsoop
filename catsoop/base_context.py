@@ -316,11 +316,7 @@ cs_all_pieces = [
     'thirdparty', 'tutor', 'util',
 ]
 
-cs_all_thirdparty = [
-        'bs4', 'cheroot', 'data_uri', 'ecdsa', 'filelock', 'jose', 'markdown',
-        'mpmath', 'ply', 'pretty', 'pyaes', 'pyasn1', 'rsa', 'six',
-        'websockets',
-]
+cs_all_thirdparty = ['data_uri']
 
 for i in cs_all_pieces:
     if i != 'base_context':

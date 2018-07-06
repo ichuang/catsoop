@@ -1,0 +1,13 @@
+bs4
+cheroot
+ecdsa
+filelock
+html5lib
+jose
+markdown
+mpmath
+ply
+pyaes
+pyasn1
+rsa
+websockets

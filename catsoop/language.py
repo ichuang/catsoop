@@ -42,12 +42,13 @@ from collections import OrderedDict
 from . import tutor
 from . import dispatch
 from . import markdown_math
-from .thirdparty import markdown
 from .errors import html_format, clear_info
-from .thirdparty.markdown.extensions import tables
-from .thirdparty.markdown.extensions import fenced_code
-from .thirdparty.markdown.extensions import sane_lists
-from .thirdparty.bs4 import BeautifulSoup
+
+import markdown
+from markdown.extensions import tables
+from markdown.extensions import fenced_code
+from markdown.extensions import sane_lists
+from bs4 import BeautifulSoup
 
 _nodoc = {'BeautifulSoup', 'OrderedDict', 'StringIO', 'clear_info',
           'html_format', 'PYTHON_REGEX', 'PYVAR_REGEX',
@@ -581,7 +582,7 @@ def handle_custom_tags(context, text):
         return '<%s>%s</%s>' % (t, b, t)
     text = re.sub(section_star, _section_star_matcher, text)
 
-    tree = BeautifulSoup(text, 'html.parser')
+    tree = BeautifulSoup(text, 'html5lib')
 
     # handle sections, etc.
 
@@ -642,7 +643,7 @@ def handle_custom_tags(context, text):
 
         body = i.innerHTML or '<a href="{link}">{type} {number}</a>'
         body = body.format(**labels[lbl])
-        new = BeautifulSoup(body, 'html.parser')
+        new = BeautifulSoup(body, 'html5lib')
         i.replace_with(new)
 
     # footnotes

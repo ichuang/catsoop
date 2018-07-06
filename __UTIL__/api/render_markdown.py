@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import bs4
 import json
 
 if 'source' in cs_form:
@@ -28,8 +29,8 @@ cs_handler = 'raw_response'
 content_type = 'application/json'
 
 lang = csm_language
-soup = csm_thirdparty.bs4.BeautifulSoup
+soup = bs4.BeautifulSoup
 
 response = [csm_language._md_format_string(globals(), i, False) for i in sources]
-response = json.dumps([str(lang.handle_math_tags(soup(i, 'html.parser')))
+response = json.dumps([str(lang.handle_math_tags(soup(i, 'html5lib')))
                        for ix, i in enumerate(response)])

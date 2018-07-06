@@ -15,10 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''CAT-SOOP Math Mode Extension for PyMarkdown'''
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from .thirdparty.markdown.extensions import Extension
-from .thirdparty.markdown.inlinepatterns import HtmlPattern, SimpleTextPattern
+from markdown.extensions import Extension
+from markdown.inlinepatterns import HtmlPattern, SimpleTextPattern
 
 _nodoc = {'Extension', 'HtmlPattern', 'SimpleTextPattern', 'absolute_import',
 'unicode_literals'}

@@ -18,6 +18,9 @@ import json
 import base64
 import urllib.request, urllib.parse, urllib.error
 
+import jose.jwk
+import jose.utils
+
 stored_state = cs_session_data.get('_openid_state', None)
 state = cs_form.get('state', None)
 stored_nonce = cs_session_data.get('_openid_nonce', None)
@@ -88,7 +91,7 @@ if error is None:
     if error is None:
         # verify JWT signature
         id_token, sig = resp['id_token'].rsplit('.', 1)
-            
+
         if error is None:
             # get JWK from the web
             url = '%s/jwk' % ctx.get('cs_openid_server', '')
@@ -98,8 +101,8 @@ if error is None:
                 error = 'Server rejected request for JWK'
             if 'alg' not in key:
                 key['alg'] = ctx.get('cs_openid_default_algorithm', 'RS256')
-            key = csm_thirdparty.jose.jwk.construct(key)
-            decoded_sig = csm_thirdparty.jose.utils.base64url_decode(sig.encode())
+            key = jose.jwk.construct(key)
+            decoded_sig = jose.utils.base64url_decode(sig.encode())
             if not key.verify(id_token.encode(), decoded_sig):
                 error = 'Invalid signature on JWS.'
 

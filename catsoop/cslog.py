@@ -34,38 +34,52 @@ add new Python objects to a log.
 import os
 import re
 import ast
+import pprint
 import contextlib
 
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
-from .thirdparty.pretty import pretty
-
-_nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'create_if_not_exists',
-          'get_separator', 'good_separator', 'modify_most_recent', 'NoneType',
-          'OrderedDict', 'pretty'}
+_nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'get_separator',
+          'good_separator', 'modify_most_recent', 'NoneType', 'OrderedDict',
+          'datetime', 'timedelta'}
 
 @contextlib.contextmanager
 def passthrough():
     yield
 
 from . import base_context
-from .thirdparty.filelock import FileLock
+from filelock import FileLock
 
 
-def create_if_not_exists(directory):
-    os.makedirs(directory, exist_ok=True)
+def _split_path(path, sofar=[]):
+    folder, path = os.path.split(path)
+    if path == "":
+        return sofar[::-1]
+    elif folder == "":
+        return (sofar + [path])[::-1]
+    else:
+        return _split_path(folder, sofar + [path])
+
+
+_CHARACTER_MAP = {chr(o): '_%s' % chr(o+32) for o in range(65, 91)}
+_CHARACTER_MAP.update({'.': '_.', '_': '__'})
+
+def _convert_path(path):
+    return (''.join(_CHARACTER_MAP.get(i, i) for i in w) for w in _split_path(path))
+
+
+def log_lock(path):
+    lock_loc = os.path.join('/tmp/catsoop_locks', *_convert_path(path+'.lock'))
+    os.makedirs(os.path.dirname(lock_loc), exist_ok=True)
+    return FileLock(lock_loc)
 
 
 def prep(x):
     """
     Helper function to serialize a Python object.
     """
-    return pretty(x)
-
-
-def unprep(x):
-    return literal_eval(x)
+    return pprint.pformat(x).replace('datetime.', '')
 
 
 def get_log_filename(db_name, path, logname):
@@ -107,7 +121,7 @@ def update_log(db_name, path, logname, new, lock=True):
     fname = get_log_filename(db_name, path, logname)
     #get an exclusive lock on this file before making changes
     # look up the separator and the data
-    cm = FileLock(fname) if lock else passthrough()
+    cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
         os.makedirs(os.path.dirname(fname), exist_ok=True)
         with open(fname, 'a') as f:
@@ -116,7 +130,7 @@ def update_log(db_name, path, logname, new, lock=True):
 
 def _overwrite_log(fname, new):
     assert can_log(new), "Can't log: %r" % (new, )
-    create_if_not_exists(os.path.dirname(fname))
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
     with open(fname, 'w') as f:
         f.write(prep(new) + sep)
 
@@ -139,7 +153,7 @@ def overwrite_log(db_name, path, logname, new, lock=True):
     """
     #get an exclusive lock on this file before making changes
     fname = get_log_filename(db_name, path, logname)
-    cm = FileLock(fname) if lock else passthrough()
+    cm = log_lock(fname) if lock else passthrough()
     with cm as l:
         _overwrite_log(fname, new)
 
@@ -147,7 +161,7 @@ def overwrite_log(db_name, path, logname, new, lock=True):
 def _read_log(db_name, path, logname, lock=True):
     fname = get_log_filename(db_name, path, logname)
     #get an exclusive lock on this file before reading it
-    cm = FileLock(fname) if lock else passthrough()
+    cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
         try:
             f = open(fname, 'r')
@@ -210,7 +224,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
     if not os.path.isfile(fname):
         return default
     #get an exclusive lock on this file before reading it
-    cm = FileLock(fname) if lock else passthrough()
+    cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
         with open(fname, 'r') as f:
             return unprep(f.read().rsplit(sep, 2)[-2])
@@ -218,7 +232,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
 
 def modify_most_recent(db_name, path, logname, default=None, transform_func=lambda x: x, method='update', lock=True):
     fname = get_log_filename(db_name, path, logname)
-    cm = FileLock(fname) if lock else passthrough()
+    cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
         old_val = most_recent(db_name, path, logname, default, lock=False)
         new_val = transform_func(old_val)

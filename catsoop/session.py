@@ -28,7 +28,6 @@ from http.cookies import SimpleCookie
 
 from . import base_context
 from . import cslog
-from .thirdparty import filelock
 
 importlib.reload(base_context)
 
@@ -117,7 +116,7 @@ def get_session_data(context, sid):
     """
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
-    with filelock.FileLock(fname) as lock:
+    with cslog.log_lock(fname) as lock:
         try:
             with open(fname, 'r') as f:
                 out = cslog.unprep(f.read())
@@ -140,6 +139,6 @@ def set_session_data(context, sid, data):
     """
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
-    with filelock.FileLock(fname) as lock:
+    with cslog.log_lock(fname) as lock:
         with open(fname, 'w') as f:
             f.write(cslog.prep(data))

@@ -6,16 +6,6 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
-* CAT-SOOP now includes python-jose (https://github.com/mpdavis/python-jose)
-  for verifying JSON web tokens.  As a result, it also now includes
-  pyasn1 (http://snmplabs.com/pyasn1/),
-  python-ecdsa (https://github.com/warner/python-ecdsa),
-  python-rsa (https://github.com/sybrenstuvel/python-rsa), and
-  six (https://github.com/benjaminp/six)
-
-* CAT-SOOP now includes the mpmath library (http://mpmath.org/), and the
-  'expression' question type makes use of it.
-
 * The decimal precision of numbers in the 'expression' question type can now be
   altered via the 'csq_precision' variable.
 
@@ -55,7 +45,9 @@ DEPRECATED:
 
 * The catsoop.tools library was renamed to catsoop.thirdparty to better reflect
   its contents.  The csm_tools pointer to these libraries will be removed in a
-  future version.  Use csm_thirdparty instead.
+  future version.  Use csm_thirdparty instead.  Many of the libraries
+  themselves were also removed (and should be imported directly, rather than
+  accessed via csm_thirdparty)
 
 * print should now be used instead of cs_print to inject page content from
   within <python> tags.  cs_print will be removed in a future version.
@@ -69,6 +61,9 @@ REMOVED:
 * Removed jQuery, Bootstrap, and SweetAlert2 (replaced with our own JS/CSS).
 
 * Removed cs_util/process_theme and removed dependence on outside fonts.
+
+* Removed many bundled third-party applications, in favor of installation via
+  pip.
 
 FIXED:
 
