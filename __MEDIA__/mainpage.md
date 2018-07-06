@@ -61,9 +61,12 @@ else:
     print("""
 The following courses are hosted on this system:
 """)
-    for course_id, title in courses:
-        title = title.replace('<br>', ' ').replace('<br/>', ' ').replace('</br>', ' ').replace('<br />', ' ')
-        if title == course_id:
+    for course_id, title in sorted(courses):
+        if title is not None:
+            title = title.replace('<br>', ' ').replace('<br/>', ' ').replace('</br>', ' ').replace('<br />', ' ')
+        if title is None:
+            print('* <font color="red">Error loading course: %s</font>' % course_id)
+        elif title == course_id:
             print('* [%s](BASE/%s/)' % (course_id, course_id))
         else:
             print('* [%s](BASE/%s/): %s' % (course_id, course_id, title))

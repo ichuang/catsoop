@@ -522,7 +522,11 @@ def available_courses():
             continue
         if not os.path.isdir(os.path.join(base, course)):
             continue
-        data = loader.spoof_early_load([course])
+        try:
+            data = loader.spoof_early_load([course])
+        except:
+            out.append((course, None))
+            continue
         if data.get('cs_course_available', True):
             t = data.get('cs_long_name', course)
             out.append((course, t))
