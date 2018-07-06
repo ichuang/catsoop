@@ -311,13 +311,16 @@ except Exception as e:
 # Import all CAT-SOOP modules/subpackages
 
 cs_all_pieces = [
-    'api', 'auth', 'base_context', 'cslog', 'dispatch', 'errors', 'groups',
-    'language', 'loader', 'mail', 'process', 'session', 'time', 'thirdparty',
-    'tutor', 'util',
+    'api', 'auth', 'base_context', 'check', 'cslog', 'dispatch', 'errors',
+    'groups', 'language', 'loader', 'mail', 'process', 'session', 'time',
+    'thirdparty', 'tutor', 'util',
 ]
 
-cs_all_thirdparty = ['data_uri', 'filelock', 'ply', 'markdown', 'bs4', 'pyaes',
-                     'pretty', 'mpmath', 'jose']
+cs_all_thirdparty = [
+        'bs4', 'cheroot', 'data_uri', 'ecdsa', 'filelock', 'jose', 'markdown',
+        'mpmath', 'ply', 'pretty', 'pyaes', 'pyasn1', 'rsa', 'six',
+        'websockets',
+]
 
 for i in cs_all_pieces:
     if i != 'base_context':

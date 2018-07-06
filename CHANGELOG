@@ -28,6 +28,10 @@ ADDED:
 * The 'cs_question_type_defaults' variable can be used to set default values of
   variables for specific question types.
 
+* The 'catsoop.check' module is now available.  It provides access to a small
+  library of common check functions (to be used as 'csq_check_function' or
+  similar).  It is accessible during normal page loads as 'csm_check'.
+
 CHANGED:
 
 * Updated KaTeX to version 0.10.0-beta.
