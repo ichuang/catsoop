@@ -33,10 +33,9 @@ defaults = {
     'csq_msg_function': lambda sub: '',
     'csq_options': [],
     'csq_show_check': False,
-    'csq_multiplechoice_renderer': 'dropdown',
-    'csq_multiplechoice_soln_mode': 'value',
+    'csq_renderer': 'dropdown',
+    'csq_soln_mode': 'value',
 }
-
 
 def total_points(**info):
     return info['csq_npoints']
@@ -46,7 +45,7 @@ def handle_submission(submissions, **info):
     check = info['csq_check_function']
     soln = info['csq_soln']
     sub = submissions[info['csq_name']]
-    if info['csq_multiplechoice_renderer'] == 'checkbox':
+    if info.get('csq_multiplechoice_renderer', info['csq_renderer']) == 'checkbox':
         try:
             sub = json.loads(sub)
         except:
@@ -60,7 +59,7 @@ def handle_submission(submissions, **info):
             check = defaults['csq_checkbox_check_function']
     else:
         sub = int(sub)
-        if info['csq_multiplechoice_soln_mode'] == 'value':
+        if info.get('csq_multiplechoice_soln_mode', info['csq_soln_mode']) == 'value':
             sub = info['csq_options'][sub] if sub >= 0 else '--'
     check_result = check(sub, soln)
     if isinstance(check_result, collections.abc.Mapping):
@@ -93,7 +92,7 @@ def handle_submission(submissions, **info):
 
 
 def render_html(last_log, **info):
-    r = info['csq_multiplechoice_renderer']
+    r = info.get('csq_multiplechoice_renderer', info['csq_renderer'])
     if r in _renderers:
         return _renderers[r](last_log, **info)
     else:
@@ -202,7 +201,7 @@ _renderers = {
 
 
 def answer_display(**info):
-    if info['csq_multiplechoice_renderer'] == 'checkbox':
+    if info.get('csq_multiplechoice_renderer', info['csq_renderer']) == 'checkbox':
         out = "Solution: <table>"
         for c, i in zip(info['csq_soln'], info['csq_options']):
             out += '<tr style="height:30px;"></tr>'

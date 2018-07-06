@@ -25,6 +25,9 @@ ADDED:
 * Added support for Python sandboxing via bubblewrap
   (https://github.com/projectatomic/bubblewrap)
 
+* The 'cs_question_type_defaults' variable can be used to set default values of
+  variables for specific question types.
+
 CHANGED:
 
 * Updated KaTeX to version 0.10.0-beta.
@@ -52,6 +55,10 @@ DEPRECATED:
 
 * print should now be used instead of cs_print to inject page content from
   within <python> tags.  cs_print will be removed in a future version.
+
+* The 'csq_multiplechoice_renderer' and 'csq_multiplechoice_soln_mode' variables
+  have been renamed to 'csq_renderer' and 'csq_soln_mode'.  The options
+  including '_multiplechoice' will be removed in a future version.
 
 REMOVED:
 

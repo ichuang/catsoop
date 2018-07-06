@@ -327,6 +327,7 @@ def _wrapped_defaults_maker(context, name):
 
     def _wrapped_func(*args, **kwargs):
         info = dict(context.get('defaults', {}))
+        info.update(context['cs_question_type_defaults'].get(context['qtype'], {}))
         info.update(kwargs)
         return orig(*args, **info)
 
@@ -375,15 +376,13 @@ def question(context, qtype, **kwargs):
             context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__')
         loc = os.path.join(qtypes_folder, qtype)
         fname = os.path.join(loc, '%s.py' % qtype)
-    new = {}
+    new = dict(context)
     new['csm_base_context'] = new['base_context'] = base_context
-    for i in context:
-        if i.startswith('csm_'):
-            new[i] = new[i[4:]] = context[i]
     pre_code = ("import sys\n"
                 "_orig_path = sys.path\n"
                 "if %r not in sys.path:\n"
                 "    sys.path = [%r] + sys.path\n\n") % (loc, loc)
+    new['qtype'] = qtype
     x = loader.cs_compile(
         fname, pre_code=pre_code, post_code="sys.path = _orig_path")
     exec(x, new)
@@ -393,7 +392,6 @@ def question(context, qtype, **kwargs):
     }:
         if i in new:
             new[i] = _wrapped_defaults_maker(new, i)
-    new['qtype'] = qtype
     return (new, kwargs)
 
 

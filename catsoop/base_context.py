@@ -161,7 +161,8 @@ Special: The content of the page
 
 cs_footnotes = ''
 """
-Special: A string containing footnotes, if any
+Special: A string containing footnotes, if any.  Automatically populated by the
+default handler.
 """
 
 cs_template = 'BASE/templates/main.template'
@@ -202,7 +203,14 @@ cs_course = None
 The course associated with the given request (should not be manually set)
 """
 
-# Checker
+# Questions / Checker
+
+cs_question_type_defaults = {}
+"""
+Special: A dictionary mapping question type names to dictionaries containing
+default values to use for that question type.  These values are loaded in
+before the values in a <question> tag are evaluated.
+"""
 
 cs_checker_websocket = 'ws://localhost:6011'
 """
