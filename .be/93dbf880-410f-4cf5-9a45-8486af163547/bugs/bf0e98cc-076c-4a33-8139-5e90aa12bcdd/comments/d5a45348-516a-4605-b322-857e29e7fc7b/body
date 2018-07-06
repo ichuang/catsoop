@@ -1,0 +1,6 @@
+With cs_checker_parallel_checks >= 1, there is a chance that the results
+recorded to the problemstate log are not actually associated with the most
+recent submission.  A check should be added to make sure that the result we
+just computed is actually associated with the most recent submission before
+writing to the problemstate log.
+
