@@ -1,12 +1,12 @@
-The typical CAT-SOOP distribution is an "aggregate" consisting of CAT-SOOP and
-several other pieces of software.  This file includes information about the
-licenses of those pieces of software, separated by the string ######
+The CAT-SOOP distribution is an "aggregate" consisting of CAT-SOOP and several
+other pieces of software.  This file includes information about the licenses of
+those pieces of software, separated by the string ######
 
 
 ########
 
 
-CAT-SOOP distributions typically contain a verbatim copy of highlight.js, a
+The CAT-SOOP distribution contains a verbatim copy of highlight.js, a
 Javascript library for syntax highlighting (https://highlightjs.org/), in the
 __STATIC__/scripts/highlight directory.  highlight.js is licensed according to
 the following terms:
@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ########
 
 
-CAT-SOOP distributions typically contain a verbatim copy of KaTeX, a Javascript
+The CAT-SOOP distribution contains a verbatim copy of KaTeX, a Javascript
 library for fast math rendering in the browser (https://khan.github.io/KaTeX/),
 in the __STATIC__/scripts/katex directory.  Some fonts included with KaTeX are
 licensed under the SIL Open Font License (version 1.1).  KaTeX itself is
@@ -76,8 +76,8 @@ SOFTWARE.
 ########
 
 
-CAT-SOOP distributions typically contain a verbatim copy of Mathjax, a
-Javascript library for math rendering in the browser
-(https://www.mathjax.org/), in the __STATIC__/scripts/mathjax directory.
-Mathjax is licensed under the Apache License (version 2.0):
+The CAT-SOOP distribution contains a verbatim copy of Mathjax, a Javascript
+library for math rendering in the browser (https://www.mathjax.org/), in the
+__STATIC__/scripts/mathjax directory.  Mathjax is licensed under the Apache
+License (version 2.0):
     https://github.com/mathjax/MathJax/blob/master/LICENSE

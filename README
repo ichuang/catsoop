@@ -62,6 +62,6 @@ CAT-SOOP itself incorporates pieces of third-party software.  Licensing
 information for the original programs is available in the
 `LICENSE.included_software` file.
 
-A typical CAT-SOOP distribution also includes several pieces of third-party
-software.  Licensing information for these programs is included in this
-distribution, in the `LICENSE.bundled_software` file.
+The CAT-SOOP distribution also includes several pieces of third-party software.
+Licensing information for these programs is included in this distribution, in
+the `LICENSE.bundled_software` file.
