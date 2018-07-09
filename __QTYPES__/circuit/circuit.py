@@ -17,6 +17,11 @@
 import json
 import collections.abc
 
+
+def js_files(context):
+    return ["_qtype/circuit/schematic.js"]
+
+
 defaults = {
     'csq_soln': '{}',
     'csq_check_function': lambda sub, soln: sub['circuit'] == soln['circuit'],
@@ -167,10 +172,9 @@ def render_html(last_log, **info):
     out += ' value="%s"' % escape(init)
     out += ' name="%s"' % name
     out += ' id="%s"/>' % name
-    return out + ('\n<script src="_qtype/circuit/schematic.js"></script>'
-                  '<script type="text/javascript">'
+    return out + ('\n<script type="text/javascript">'
                   'update_schematics();'
-                  'document.addEventListener('DOMContentLoaded', function(){'
+                  'document.addEventListener("DOMContentLoaded", function(){'
                       'document.getElementById("%s_buttons").addEventListener("mouseover", function(){'
                           'document.getElementById("%s").schematic.prepare_submission();'
                       '});'

@@ -338,12 +338,24 @@ def handle_view(context):
                  'The questions below are due on %s.'
                  '<br/><hr><br/></center></tutoronly>') % duetime
 
+    js_loads = set()
     for elt in context['cs_problem_spec']:
         if isinstance(elt, str):
             page += elt
         else:
             # this is a question
             page += render_question(elt, context, lastsubmit)
+
+            # handle javascript if necessary
+            if 'js_files' in elt[0]:
+                a = elt[0].get('defaults', {})
+                a.update(elt[1])
+                js_loads |= set(elt[0]['js_files'](a))
+
+    if js_loads:
+        context['cs_scripts'] += ('\n\n    <!--JS for questions-->\n    ' +
+                                  '\n    '.join('<script type="text/javascript" src="%s"></script>' % context['csm_dispatch'].get_real_url(context, i)
+                                                for i in js_loads))
 
     page += default_javascript(context)
     page += default_timer(context)

@@ -32,6 +32,13 @@ def get_sandbox(context):
     _execfile(base, context)
 
 
+def js_files(info):
+    if info['csq_interface'] == 'ace':
+        return ['https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js']
+    else:
+        return []
+
+
 def html_format(string):
     s = string.replace('&', '&amp;').replace('<', '&lt;').replace(
         '>', '&gt;').replace('\t', '    ').splitlines(False)
@@ -402,7 +409,6 @@ def render_html_ace(last_log, **info):
 <div id="editor%(name)s" name="editor%(name)s" class="embedded_ace_code">%(safeinit)s</div></div>
 <input type="hidden" name="%(name)s" id="%(name)s" />
 <input type="hidden" name="%(name)s_log" id="%(name)s_log" />
-<script type="text/javascript" src="https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js"></script>
 <script type="text/javascript">
     var log%(name)s = new Array();
     var editor%(name)s = ace.edit("editor%(name)s");

@@ -6,6 +6,9 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* Added support for question types to have a 'js_files' function that returns a
+  list of Javsacript files that should be loaded before rendering the question.
+
 * The decimal precision of numbers in the 'expression' question type can now be
   altered via the 'csq_precision' variable.
 
