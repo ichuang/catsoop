@@ -101,6 +101,13 @@ def get_log_filename(db_name, path, logname):
 
 sep = '\n\n'
 
+
+def _update_log(fname, new):
+        assert can_log(new), "Can't log: %r" % (new, )
+        os.makedirs(os.path.dirname(fname), exist_ok=True)
+        with open(fname, 'a') as f:
+            f.write(prep(new) + sep)
+
 def update_log(db_name, path, logname, new, lock=True):
     """
     Adds a new entry to the end of the specified log.
@@ -117,15 +124,12 @@ def update_log(db_name, path, logname, new, lock=True):
     * `lock` (default `True`): whether the database should be locked during
         this update
     """
-    assert can_log(new), "Can't log: %r" % (new, )
     fname = get_log_filename(db_name, path, logname)
     #get an exclusive lock on this file before making changes
     # look up the separator and the data
     cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
-        os.makedirs(os.path.dirname(fname), exist_ok=True)
-        with open(fname, 'a') as f:
-            f.write(prep(new) + sep)
+        _update_log(fname, new)
 
 
 def _overwrite_log(fname, new):
