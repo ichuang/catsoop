@@ -559,10 +559,10 @@
      body * {
          visibility: hidden;
     }
-     #content * {
+     .cs_content * {
          visibility: visible;
     }
-     #content {
+     .cs_content {
          visibility: visible;
          background-color: white;
          position: absolute;
