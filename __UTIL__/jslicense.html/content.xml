@@ -40,7 +40,7 @@ that are loaded by CAT-SOOP, including licensing information.
                   <td><a href="BASE/scripts/katex/katex.js">katex.js</a></td>
               </tr>
               <tr>
-                  <td><a href="BASE/scripts/highlight/highlight.pack.js">highlight.pack.js</a></td>
+                  <td><a href="BASE/scripts/highlight/highlight.pack.min.js">highlight.pack.min.js</a></td>
                   <td><a href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause</a></td>
                   <td><a href="BASE/scripts/highlight/highlight.pack.js">highlight.pack.js</a></td>
               </tr>
