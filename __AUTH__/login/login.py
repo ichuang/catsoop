@@ -16,7 +16,7 @@
 
 import os
 import re
-import base64
+import struct
 import random
 import string
 import hashlib
@@ -40,8 +40,6 @@ def get_logged_in_user(context):
 
     hash_iterations = context.get('cs_password_hash_iterations', 500000)
     url = _get_base_url(context)
-
-    aes_key_loc = context.get('cs_login_aes_key_location', None)
 
     # if the user is trying to log out, do that.
     if action == 'logout':
@@ -96,7 +94,7 @@ def get_logged_in_user(context):
                 clear_session_vars(context, 'login_message')
                 # store new password.
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt, hash_iterations, aes_key_loc=aes_key_loc)
+                phash = compute_password_hash(context, passwd, salt, hash_iterations)
                 login_info['password_salt'] = salt
                 login_info['password_hash'] = phash
                 logging.update_log('_logininfo', [], uname, login_info)
@@ -236,7 +234,7 @@ def get_logged_in_user(context):
                 # store new password.
                 login_info = logging.most_recent('_logininfo', [], u, {})
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt, hash_iterations, aes_key_loc=aes_key_loc)
+                phash = compute_password_hash(context, passwd, salt, hash_iterations)
                 login_info['password_salt'] = salt
                 login_info['password_hash'] = phash
                 logging.update_log('_logininfo', [], u, login_info)
@@ -413,7 +411,7 @@ def get_logged_in_user(context):
                 clear_session_vars(context, 'login_message', 'last_form')
                 # generate new salt and password hash
                 salt = get_new_password_salt()
-                phash = compute_password_hash(passwd, salt, hash_iterations, aes_key_loc=aes_key_loc)
+                phash = compute_password_hash(context, passwd, salt, hash_iterations)
                 # if necessary, send confirmation e-mail
                 # otherwise, treat like already confirmed
                 if (mail.can_send_email(context) and
@@ -514,11 +512,11 @@ def check_password(context, provided, uname, iterations=500000):
     user_login_info = logging.most_recent('_logininfo', [], uname, {})
     pass_hash = user_login_info.get('password_hash', None)
     if pass_hash is not None:
+        if context['csm_cslog'].ENCRYPT_KEY is not None:
+            pass_hash = context['csm_cslog'].FERNET.decrypt(pass_hash)
         salt = user_login_info.get('password_salt', None)
-        hashed_pass = compute_password_hash(provided, salt, iterations,
-                                            aes_key_loc=context.get('cs_login_aes_key_location', None))
-        if hashed_pass == pass_hash:
-            return True
+        hashed_pass = compute_password_hash(context, provided, salt, iterations, encrypt=False)
+        return hashed_pass == pass_hash
     return False
 
 
@@ -541,22 +539,15 @@ def _ensure_bytes(x):
         return x
 
 
-def compute_password_hash(password, salt=None, iterations=500000, aes_key_loc=None):
+def compute_password_hash(context, password, salt=None, iterations=500000, encrypt=True):
     """
     Given a password, and (optionally) an associated salt, return a hash value.
     """
     hash_ = hashlib.pbkdf2_hmac('sha512', _ensure_bytes(password),
                                 _ensure_bytes(salt),
                                 iterations)
-    if aes_key_loc is not None:
-        if not os.path.isfile(aes_key_loc):
-            with open(aes_key_loc, 'wb') as f:
-                key = get_new_password_salt(32)
-                f.write(_ensure_bytes(key))
-        with open(aes_key_loc, 'rb') as f:
-            key = f.read()
-        aes = pyaes.AESModeOfOperationCTR(key)
-        hash_ = aes.encrypt(hash_)
+    if encrypt and (context['csm_cslog'].ENCRYPT_KEY is not None):
+        hash_ = context['csm_cslog'].FERNET.encrypt(hash_)
     return hash_
 
 

@@ -41,6 +41,8 @@ if error is None:
         content_type = mimetypes.guess_type(fname)[0] or 'text/plain'
         with open(loc, 'rb') as f:
             response = f.read()
+        if csm_cslog.ENCRYPT_KEY is not None:
+            response = csm_cslog.decompress_decrypt(response)
     except:
         error = 'There was an error retrieving the file.'
 

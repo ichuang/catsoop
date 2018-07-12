@@ -119,7 +119,7 @@ def do_check(row):
 
         # make temporary file to write results to
         _, temploc = tempfile.mkstemp()
-        with open(temploc, 'w') as f:
+        with open(temploc, 'wb') as f:
             f.write(context['csm_cslog'].prep(row))
         # move that file to results, close the handle to it.
         magic = row['magic']
@@ -166,7 +166,7 @@ while True:
                                    "because the checker ran for too long.</b></font>")
                 magic = row['magic']
                 newloc = os.path.join(RESULTS, magic[0], magic[1], magic)
-                with open(newloc, 'w') as f:
+                with open(newloc, 'wb') as f:
                     f.write(cslog.prep(row))
                 # then remove from running
                 os.unlink(os.path.join(RUNNING, row['magic']))
@@ -185,7 +185,7 @@ while True:
         if waiting:
             # grab the first thing off the queue, move it to the "running" dir
             first = waiting[0]
-            with open(os.path.join(QUEUED, first), 'r') as f:
+            with open(os.path.join(QUEUED, first), 'rb') as f:
                 row = cslog.unprep(f.read())
             _, magic = first.split('_')
             row['magic'] = magic

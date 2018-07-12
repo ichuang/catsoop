@@ -23,6 +23,7 @@ import random
 import shutil
 import string
 import hashlib
+import binascii
 import tempfile
 import traceback
 import collections
@@ -43,7 +44,7 @@ def new_entry(context, qname, action):
            'action': action}
     loc = os.path.join(tempfile.gettempdir(), 'staging', id_)
     os.makedirs(os.path.dirname(loc), exist_ok=True)
-    with open(loc, 'w') as f:
+    with open(loc, 'wb') as f:
         f.write(context['csm_cslog'].prep(obj))
     newloc = os.path.join(context['cs_data_root'], '__LOGS__', '_checker', 'queued', '%s_%s' % (time.time(), id_))
     shutil.move(loc, newloc)
@@ -112,7 +113,7 @@ def handle_get_state(context):
         try:
             with open(os.path.join(context['cs_data_root'], '__LOGS__',
                                    '_checker', 'results', v[0], v[1], v),
-                      'r') as f:
+                      'rb') as f:
                 row = context['csm_cslog'].unprep(f.read())
         except:
             row = None
@@ -1356,7 +1357,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
                                    '_checker', 'results',
                                    magic[0], magic[1], magic)
         if os.path.isfile(checker_loc):
-            with open(checker_loc, 'r') as f:
+            with open(checker_loc, 'rb') as f:
                 result = context['csm_cslog'].unprep(f.read())
             message = '\n<script type="text/javascript">document.getElementById("%s_score_display").innerHTML = %r;</script>' % (name, result['score_box'])
             try:
@@ -1647,15 +1648,27 @@ def pre_handle(context):
                     continue
                 if isinstance(value, list):
                     data = csm_thirdparty.data_uri.DataURI(value[1]).data
-                    dir_ = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', *context['cs_path_info'])
+                    if context['csm_cslog'].ENCRYPT_KEY is not None:
+                        _path = [context['csm_cslog']._e(i, repr(context['cs_path_info'])) for i in context['cs_path_info']]
+                    else:
+                        _path = context['cs_path_info']
+                    dir_ = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', *_path)
                     os.makedirs(dir_, exist_ok=True)
                     value[0] = value[0].replace('<', '').replace('>', '').replace('"', '').replace('"', '')
+                    if '.' in value[0]:
+                        fname, fileext = value[0].rsplit('.', 1)
+                    else:
+                        fname, fileext = value[0], ''
                     hstring = hashlib.md5(data).hexdigest()
-                    fname = '%s___%s___%.06f___%s___%s' % (context['cs_username'], name, time.time(), hstring, value[0])
+                    fname = '%s___%s___%.06f___%s___%s' % (context['cs_username'], name, time.time(), hstring, fname)
+                    if context['csm_cslog'].ENCRYPT_KEY is not None:
+                        fname = context['csm_cslog']._e(fname, context['cs_username']+repr(context['cs_path_info']))
+                    if fileext:
+                        fname = '.'.join([fname, fileext])
                     fullname = os.path.join(dir_, fname)
                     with open(fullname, 'wb') as f:
-                        f.write(data)
-                    value[1] = os.path.join(*context['cs_path_info'], fname)
+                        f.write(context['csm_cslog'].compress_encrypt(data))
+                    value[1] = os.path.join(*_path, fname)
         elif context['cs_upload_management'] == 'db':
             pass
         else:

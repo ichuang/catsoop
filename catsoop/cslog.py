@@ -34,9 +34,12 @@ add new Python objects to a log.
 import os
 import re
 import ast
-import zlib
+import lzma
 import pyaes
+import base64
 import pprint
+import random
+import struct
 import hashlib
 import binascii
 import importlib
@@ -44,6 +47,8 @@ import contextlib
 
 from collections import OrderedDict
 from datetime import datetime, timedelta
+
+from .fernet import RawFernet
 
 _nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'get_separator',
           'good_separator', 'modify_most_recent', 'NoneType', 'OrderedDict',
@@ -58,15 +63,18 @@ from filelock import FileLock
 
 importlib.reload(base_context)
 
-ENCRYPT_KEY = base_context.cs_log_encryption_passphrase
+COMPRESS = base_context.cs_log_compression
+
+ENCRYPT_PASS = ENCRYPT_KEY = base_context.cs_log_encryption_passphrase
 if ENCRYPT_KEY is not None:
-    salt = base_context.cs_log_encryption_salt
-    if not isinstance(salt, bytes):
+    SALT = base_context.cs_log_encryption_salt
+    if not isinstance(SALT, bytes):
         try:
-            salt = binascii.unhexlify(salt)
+            SALT = binascii.unhexlify(SALT)
         except:
-            salt = salt.encode()
-    ENCRYPT_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_KEY.encode(), salt, 100000, dklen=32)
+            SALT = SALT.encode('utf8')
+    ENCRYPT_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_KEY.encode('utf8'), SALT, 100000, dklen=32)
+    FERNET = RawFernet(ENCRYPT_KEY)
 
 
 def _split_path(path, sofar=[]):
@@ -82,6 +90,7 @@ def _split_path(path, sofar=[]):
 _CHARACTER_MAP = {chr(o): '_%s' % chr(o+32) for o in range(65, 91)}
 _CHARACTER_MAP.update({'.': '_.', '_': '__'})
 
+
 def _convert_path(path):
     return (''.join(_CHARACTER_MAP.get(i, i) for i in w) for w in _split_path(path))
 
@@ -91,37 +100,56 @@ def log_lock(path):
     os.makedirs(os.path.dirname(lock_loc), exist_ok=True)
     return FileLock(lock_loc)
 
-def encrypt(x):
-    aes = pyaes.AESModeOfOperationCTR(ENCRYPT_KEY)
-    return binascii.hexlify(aes.encrypt(zlib.compress(x.encode()))).decode()
+def compress_encrypt(x):
+    if COMPRESS:
+        x = lzma.compress(x)
+    if ENCRYPT_KEY is not None:
+        x = FERNET.encrypt(x)
+    return x
 
-def decrypt(x):
-    aes = pyaes.AESModeOfOperationCTR(ENCRYPT_KEY)
-    return zlib.decompress(aes.decrypt(binascii.unhexlify(x))).decode()
+
+def prep(x):
+    """
+    Helper function to serialize a Python object.
+    """
+    out = compress_encrypt(pprint.pformat(x).replace('datetime.', '').encode('utf8'))
+    if COMPRESS or (ENCRYPT_KEY is not None):
+        out = base64.b85encode(out)
+    return out
 
 
-if ENCRYPT_KEY is None:
-    def prep(x):
-        """
-        Helper function to serialize a Python object.
-        """
-        return pprint.pformat(x).replace('datetime.', '')
-    def unprep(x):
-        """
-        Helper function to deserialize a Python object.
-        """
-        return literal_eval(x)
-else:
-    def prep(x):
-        """
-        Helper function to serialize a Python object.
-        """
-        return encrypt(pprint.pformat(x).replace('datetime.', ''))
-    def unprep(x):
-        """
-        Helper function to deserialize a Python object.
-        """
-        return literal_eval(decrypt(x))
+def decompress_decrypt(x):
+    if ENCRYPT_KEY is not None:
+        x = FERNET.decrypt(x)
+    if COMPRESS:
+        x = lzma.decompress(x)
+    return x
+
+
+def unprep(x):
+    """
+    Helper function to deserialize a Python object.
+    """
+    if COMPRESS or (ENCRYPT_KEY is not None):
+        x = base64.b85decode(x)
+    return literal_eval(decompress_decrypt(x).decode('utf8'))
+
+
+def _e(x, seed=0):
+    r = random.Random()
+    r.seed(seed)
+    cstr = bytes(r.randint(0, 255) for i in range(2))
+    cnt = struct.unpack('H', cstr)[0]
+    ctext = pyaes.AESModeOfOperationCTR(ENCRYPT_KEY, counter=pyaes.Counter(cnt)).encrypt(x.encode('utf8'))
+    return binascii.hexlify(cstr + ctext).decode('utf8')
+
+
+def _d(x):
+    x = binascii.unhexlify(x)
+    cstr = x[:2]
+    cnt = struct.unpack('H', cstr)[0]
+    ctext = x[2:]
+    return pyaes.AESModeOfOperationCTR(ENCRYPT_KEY, counter=pyaes.Counter(cnt)).decrypt(ctext).decode('utf8')
 
 
 def get_log_filename(db_name, path, logname):
@@ -135,9 +163,10 @@ def get_log_filename(db_name, path, logname):
     * `logname`: the name of the log
     '''
     if ENCRYPT_KEY is not None:
-        path = [encrypt(i) for i in path]
-        db_name = encrypt(db_name)
-        logname = encrypt(logname)
+        seed = ENCRYPT_PASS + (path[0] if path else db_name)
+        path = [_e(i, seed+i) for i in path]
+        db_name = _e(db_name, seed+db_name)
+        logname = _e(logname, seed+repr(path))
     if path:
         course = path[0]
         return os.path.join(base_context.cs_data_root, '__LOGS__', '_courses', course, db_name, *(path[1:]), '%s.log' % logname)
@@ -145,14 +174,16 @@ def get_log_filename(db_name, path, logname):
         return os.path.join(base_context.cs_data_root, '__LOGS__', db_name, *path, '%s.log' % logname)
 
 
-sep = '\n\n'
+sep = b'\n\n'
 
 
 def _update_log(fname, new):
         assert can_log(new), "Can't log: %r" % (new, )
         os.makedirs(os.path.dirname(fname), exist_ok=True)
-        with open(fname, 'a') as f:
-            f.write(prep(new) + sep)
+        with open(fname, 'ab') as f:
+            f.write(prep(new))
+            f.write(sep)
+
 
 def update_log(db_name, path, logname, new, lock=True):
     """
@@ -181,8 +212,9 @@ def update_log(db_name, path, logname, new, lock=True):
 def _overwrite_log(fname, new):
     assert can_log(new), "Can't log: %r" % (new, )
     os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, 'w') as f:
-        f.write(prep(new) + sep)
+    with open(fname, 'wb') as f:
+        f.write(prep(new))
+        f.write(sep)
 
 
 def overwrite_log(db_name, path, logname, new, lock=True):
@@ -214,7 +246,7 @@ def _read_log(db_name, path, logname, lock=True):
     cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
         try:
-            f = open(fname, 'r')
+            f = open(fname, 'rb')
             for i in f.read().split(sep):
                 if i:
                     yield unprep(i)
@@ -276,7 +308,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
     #get an exclusive lock on this file before reading it
     cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
-        with open(fname, 'r') as f:
+        with open(fname, 'rb') as f:
             return unprep(f.read().rsplit(sep, 2)[-2])
 
 

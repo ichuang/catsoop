@@ -39,6 +39,16 @@ For more information, please refer to <http://unlicense.org/>
 ########
 
 
+CAT-SOOP contains a slightly-modified version of fernet.py from the
+cryptography Python library (https://github.com/pyca/cryptography).  It was
+modified to work with raw bytes instead of with URL-safe base64-encoded
+strings.  The original file was dual-licensed under the BSD 3-clause license OR
+the Apache License (version 2.0).
+
+
+########
+
+
 CAT-SOOP contains a slightly-modified version of highlight.js, a Javascript
 library for syntax highlighting (https://highlightjs.org/).  In particular,
 syntax highlighting of Python code was modified to include more built-in names.

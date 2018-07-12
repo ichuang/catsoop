@@ -262,6 +262,11 @@ running
 
 # Log Encryption
 
+cs_log_compression = False
+"""
+Special: Boolean indicating whether log entries should be compressed.
+"""
+
 cs_log_encryption_passphrase = None
 """
 Special: Passphrase to be used when encrypting logs, or None for no encryption.
@@ -326,8 +331,8 @@ except Exception as e:
 
 cs_all_pieces = [
     'api', 'auth', 'base_context', 'check', 'cslog', 'dispatch', 'errors',
-    'groups', 'language', 'loader', 'mail', 'process', 'session', 'time',
-    'thirdparty', 'tutor', 'util',
+    'fernet', 'groups', 'language', 'loader', 'mail', 'process', 'session',
+    'time', 'thirdparty', 'tutor', 'util',
 ]
 
 cs_all_thirdparty = ['data_uri']

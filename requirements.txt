@@ -1,6 +1,6 @@
 bs4
 cheroot
-ecdsa
+cryptography
 filelock
 html5lib
 jose
@@ -8,6 +8,4 @@ markdown
 mpmath
 ply
 pyaes
-pyasn1
-rsa
 websockets

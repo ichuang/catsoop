@@ -63,7 +63,11 @@ def render_html(last_log, **info):
         try:
             fname, loc = ll
             loc = os.path.basename(loc)
-            qstring = urlencode({'path': json.dumps(info['cs_path_info']),
+            if info['csm_cslog'].ENCRYPT_KEY is not None:
+                _path = [info['csm_cslog']._e(i, repr(info['cs_path_info'])) for i in info['cs_path_info']]
+            else:
+                _path = info['cs_path_info']
+            qstring = urlencode({'path': json.dumps(_path),
                                  'fname': loc})
             safe_fname = fname.replace('<', '').replace('>', '').replace('"', '').replace("'", '')
             out += '<br/>'

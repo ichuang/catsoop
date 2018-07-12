@@ -365,7 +365,11 @@ def render_html_upload(last_log, **info):
         try:
             fname, loc = last_log[name]
             loc = os.path.basename(loc)
-            qstring = urlencode({'path': json.dumps(info['cs_path_info']),
+            if info['csm_cslog'].ENCRYPT_KEY is not None:
+                _path = [info['csm_cslog']._e(i, repr(info['cs_path_info'])) for i in info['cs_path_info']]
+            else:
+                _path = info['cs_path_info']
+            qstring = urlencode({'path': json.dumps(_path),
                                  'fname': loc})
             out += '<br/>'
             safe_fname = fname.replace('<', '').replace('>', '').replace('"', '').replace("'", '')

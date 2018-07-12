@@ -118,7 +118,7 @@ def get_session_data(context, sid):
     fname = os.path.join(SESSION_DIR, sid)
     with cslog.log_lock(fname) as lock:
         try:
-            with open(fname, 'r') as f:
+            with open(fname, 'rb') as f:
                 out = cslog.unprep(f.read())
         except:
             out = {}  # default to returning empty session
@@ -140,5 +140,5 @@ def set_session_data(context, sid, data):
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
     with cslog.log_lock(fname) as lock:
-        with open(fname, 'w') as f:
+        with open(fname, 'wb') as f:
             f.write(cslog.prep(data))
