@@ -260,6 +260,20 @@ Special: The maximum number of worker processes the UWSGI server should have
 running
 """
 
+# Log Encryption
+
+cs_log_encryption_passphrase = None
+"""
+Special: Passphrase to be used when encrypting logs, or None for no encryption.
+"""
+
+cs_log_encryption_salt = None
+"""
+Special: Salt to be used when encrypting logs, or None for no encryption.  Must
+be specified is cs_log_encryption_passphrase is specified.  Can either be a
+hex-encoded string, or a bytestring.
+"""
+
 # File Upload Type
 
 cs_upload_management = 'file'

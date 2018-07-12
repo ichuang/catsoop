@@ -25,6 +25,9 @@ ADDED:
   library of common check functions (to be used as 'csq_check_function' or
   similar).  It is accessible during normal page loads as 'csm_check'.
 
+* CAT-SOOP can now optionally encrypt (and compress) log entries, with keys
+  specified via 'cs_log_encryption_passphrase' and 'cs_log_encryption_salt'
+
 CHANGED:
 
 * Updated KaTeX to version 0.10.0-beta.

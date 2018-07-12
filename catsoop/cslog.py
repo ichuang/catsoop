@@ -34,7 +34,12 @@ add new Python objects to a log.
 import os
 import re
 import ast
+import zlib
+import pyaes
 import pprint
+import hashlib
+import binascii
+import importlib
 import contextlib
 
 from collections import OrderedDict
@@ -50,6 +55,18 @@ def passthrough():
 
 from . import base_context
 from filelock import FileLock
+
+importlib.reload(base_context)
+
+ENCRYPT_KEY = base_context.cs_log_encryption_passphrase
+if ENCRYPT_KEY is not None:
+    salt = base_context.cs_log_encryption_salt
+    if not isinstance(salt, bytes):
+        try:
+            salt = binascii.unhexlify(salt)
+        except:
+            salt = salt.encode()
+    ENCRYPT_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_KEY.encode(), salt, 100000, dklen=32)
 
 
 def _split_path(path, sofar=[]):
@@ -74,12 +91,37 @@ def log_lock(path):
     os.makedirs(os.path.dirname(lock_loc), exist_ok=True)
     return FileLock(lock_loc)
 
+def encrypt(x):
+    aes = pyaes.AESModeOfOperationCTR(ENCRYPT_KEY)
+    return binascii.hexlify(aes.encrypt(zlib.compress(x.encode()))).decode()
 
-def prep(x):
-    """
-    Helper function to serialize a Python object.
-    """
-    return pprint.pformat(x).replace('datetime.', '')
+def decrypt(x):
+    aes = pyaes.AESModeOfOperationCTR(ENCRYPT_KEY)
+    return zlib.decompress(aes.decrypt(binascii.unhexlify(x))).decode()
+
+
+if ENCRYPT_KEY is None:
+    def prep(x):
+        """
+        Helper function to serialize a Python object.
+        """
+        return pprint.pformat(x).replace('datetime.', '')
+    def unprep(x):
+        """
+        Helper function to deserialize a Python object.
+        """
+        return literal_eval(x)
+else:
+    def prep(x):
+        """
+        Helper function to serialize a Python object.
+        """
+        return encrypt(pprint.pformat(x).replace('datetime.', ''))
+    def unprep(x):
+        """
+        Helper function to deserialize a Python object.
+        """
+        return literal_eval(decrypt(x))
 
 
 def get_log_filename(db_name, path, logname):
@@ -92,6 +134,10 @@ def get_log_filename(db_name, path, logname):
     * `path`: the path to the page associated with the log
     * `logname`: the name of the log
     '''
+    if ENCRYPT_KEY is not None:
+        path = [encrypt(i) for i in path]
+        db_name = encrypt(db_name)
+        logname = encrypt(logname)
     if path:
         course = path[0]
         return os.path.join(base_context.cs_data_root, '__LOGS__', '_courses', course, db_name, *(path[1:]), '%s.log' % logname)
@@ -248,7 +294,7 @@ def modify_most_recent(db_name, path, logname, default=None, transform_func=lamb
         updater(db_name, path, logname, new_val, lock=False)
     return new_val
 
-_unprep_funcs = {
+_literal_eval_funcs = {
     'OrderedDict': OrderedDict,
     'frozenset': frozenset,
     'set': set,
@@ -256,7 +302,7 @@ _unprep_funcs = {
     'timedelta': timedelta,
 }
 
-def unprep(node_or_string):
+def literal_eval(node_or_string):
     """
     Helper function to read a log entry and return the associated Python
     object.  Forked from Python 3.5's ast.literal_eval function:
@@ -308,8 +354,8 @@ def unprep(node_or_string):
                 return left - right
         elif isinstance(node, ast.Call) and \
              isinstance(node.func, ast.Name) and \
-             node.func.id in _unprep_funcs:
-            return _unprep_funcs[node.func.id](*(_convert(i) for i in node.args))
+             node.func.id in _literal_eval_funcs:
+            return _literal_eval_funcs[node.func.id](*(_convert(i) for i in node.args))
         raise ValueError('malformed node or string: ' + repr(node))
     return _convert(node_or_string)
 
