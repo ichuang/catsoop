@@ -89,6 +89,16 @@ cs_fs_root = ask('Where is the root of your CAT-SOOP installation?',
                  transform=lambda x:os.path.abspath(os.path.expanduser(x)),
                  check_ok=is_catsoop_installation)
 
+config_loc = os.path.join(cs_fs_root, 'catsoop', 'config.py')
+if os.path.isfile(config_loc):
+    res = yesno('CAT-SOOP configuration at %s already exists.\n'
+                'Continuing will overwrite it.\n'
+                'Do you wish to continue?' % config_loc,
+                default='N')
+    if not res:
+        print('Okay.  Exiting.')
+        sys.exit(1)
+
 # determine cs_data_root and logging info (encryption, etc)
 
 default_log_dir = os.path.abspath(os.path.join(base_dir, '..', 'cat-soop-data'))

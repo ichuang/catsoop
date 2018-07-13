@@ -31,6 +31,24 @@ os.setpgrp()
 scripts_dir = os.path.abspath(os.path.dirname(__file__))
 base_dir = os.path.abspath(os.path.join(scripts_dir, '..'))
 
+cs_logo = r'''
+
+\
+/    /\__/\
+\__=(  o_O )=
+(__________)
+ |_ |_ |_ |_
+
+  CAT-SOOP
+'''
+
+
+print(cs_logo)
+config_loc = os.path.join(base_dir, 'catsoop', 'config.py')
+if not os.path.isfile(config_loc):
+    print('%s does not exist.  Please configure CAT-SOOP first, either by editing that file manually, or by running setup_catsoop.py' % config_loc)
+    sys.exit(1)
+
 if base_dir not in sys.path:
     sys.path.append(base_dir)
 
