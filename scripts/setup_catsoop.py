@@ -53,6 +53,21 @@ def yesno(question, default='Y'):
     else:
         return False
 
+def password(prompt):
+    out = None
+    while not out:
+        try:
+            out = getpass.getpass(prompt)
+        except EOFError:
+            print()
+            print('Caught EOF.  Exiting.')
+            sys.exit(1)
+        except KeyboardInterrupt:
+            print()
+            out = None
+            continue
+    return out
+
 
 # print welcome message
 
@@ -84,10 +99,12 @@ def is_catsoop_installation(x):
 scripts_dir = os.path.abspath(os.path.dirname(__file__))
 base_dir = os.path.abspath(os.path.join(scripts_dir, '..'))
 
-cs_fs_root = ask('Where is the root of your CAT-SOOP installation?',
-                 default=base_dir,
-                 transform=lambda x:os.path.abspath(os.path.expanduser(x)),
-                 check_ok=is_catsoop_installation)
+if is_catsoop_installation(base_dir) is not None:
+    print('This does not appear to be a CAT-SOOP source tree.  Exiting.')
+    sys.exit(1)
+
+print('Setting up for CAT-SOOP at %s' % base_dir)
+cs_fs_root = base_dir
 
 config_loc = os.path.join(cs_fs_root, 'catsoop', 'config.py')
 if os.path.isfile(config_loc):
@@ -127,8 +144,8 @@ should_encrypt = yesno('Since CAT-SOOP logs can store personally identifiable '
 if should_encrypt:
     # choose encryption passphrase
     while True:
-        cs_log_encryption_passphrase = getpass.getpass('Enter an encryption passphrase: ')
-        cs_log_encryption_passphrase_2 = getpass.getpass('Confirm encryption passphrase: ')
+        cs_log_encryption_passphrase = password('Enter an encryption passphrase: ')
+        cs_log_encryption_passphrase_2 = password('Confirm encryption passphrase: ')
         if cs_log_encryption_passphrase == cs_log_encryption_passphrase_2:
             break
         else:
