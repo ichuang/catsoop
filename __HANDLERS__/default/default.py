@@ -1660,6 +1660,7 @@ def pre_handle(context):
                     info = {'filename': value[0],
                             'username': context['cs_username'],
                             'time': context['cs_now'],
+                            'question': name,
                             'hash': hstring}
 
                     disk_fname = '_csfile.%s%s' % (uuid.uuid4().hex, hstring)
