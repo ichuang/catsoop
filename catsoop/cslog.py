@@ -257,7 +257,7 @@ def _read_log(db_name, path, logname, lock=True):
                 if i:
                     yield unprep(i)
         except:
-            raise StopIteration
+            return
 
 
 def read_log(db_name, path, logname, lock=True):

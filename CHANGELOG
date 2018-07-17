@@ -31,6 +31,8 @@ ADDED:
 * CAT-SOOP can now optionally compress log entries, by setting
   'cs_log_compression' = True.
 
+* Added support for Python 3.7.
+
 CHANGED:
 
 * Updated KaTeX to version 0.10.0-beta.
