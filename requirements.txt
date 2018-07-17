@@ -7,5 +7,4 @@ jose
 markdown
 mpmath
 ply
-pyaes
 websockets

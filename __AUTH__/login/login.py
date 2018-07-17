@@ -21,8 +21,6 @@ import random
 import string
 import hashlib
 
-import pyaes
-
 def user_menu_options(context):
     url = _get_base_url(context)
     return [{'text': 'Change Password', 'link': '%s?loginaction=change_password' % url}]
