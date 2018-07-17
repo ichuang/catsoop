@@ -64,7 +64,8 @@ def render_html(last_log, **info):
             fname, loc = ll
             loc = os.path.basename(loc)
             if info['csm_cslog'].ENCRYPT_KEY is not None:
-                _path = [info['csm_cslog']._e(i, repr(info['cs_path_info'])) for i in info['cs_path_info']]
+                seed = info['cs_path_info'][0] if info['cs_path_info'] else info['cs_path_info']
+                _path = [info['csm_cslog']._e(i, repr(seed)) for i in info['cs_path_info']]
             else:
                 _path = info['cs_path_info']
             qstring = urlencode({'path': json.dumps(_path),

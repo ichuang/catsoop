@@ -1649,26 +1649,27 @@ def pre_handle(context):
                 if isinstance(value, list):
                     data = csm_thirdparty.data_uri.DataURI(value[1]).data
                     if context['csm_cslog'].ENCRYPT_KEY is not None:
-                        _path = [context['csm_cslog']._e(i, repr(context['cs_path_info'])) for i in context['cs_path_info']]
+                        seed = context['cs_path_info'][0] if context['cs_path_info'] else context['cs_path_info']
+                        _path = [context['csm_cslog']._e(i, repr(seed)) for i in context['cs_path_info']]
                     else:
                         _path = context['cs_path_info']
                     dir_ = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', *_path)
                     os.makedirs(dir_, exist_ok=True)
                     value[0] = value[0].replace('<', '').replace('>', '').replace('"', '').replace('"', '')
-                    if '.' in value[0]:
-                        fname, fileext = value[0].rsplit('.', 1)
-                    else:
-                        fname, fileext = value[0], ''
-                    hstring = hashlib.md5(data).hexdigest()
-                    fname = '%s___%s___%.06f___%s___%s' % (context['cs_username'], name, time.time(), hstring, fname)
-                    if context['csm_cslog'].ENCRYPT_KEY is not None:
-                        fname = context['csm_cslog']._e(fname, context['cs_username']+repr(context['cs_path_info']))
-                    if fileext:
-                        fname = '.'.join([fname, fileext])
-                    fullname = os.path.join(dir_, fname)
-                    with open(fullname, 'wb') as f:
+                    hstring = hashlib.blake2b(data).hexdigest()
+                    info = {'filename': value[0],
+                            'username': context['cs_username'],
+                            'time': context['cs_now'],
+                            'hash': hstring}
+
+                    disk_fname = '_csfile.%s%s' % (uuid.uuid4().hex, hstring)
+                    dirname = os.path.join(dir_, disk_fname)
+                    os.makedirs(dirname, exist_ok=True)
+                    with open(os.path.join(dirname, 'content'), 'wb') as f:
                         f.write(context['csm_cslog'].compress_encrypt(data))
-                    value[1] = os.path.join(*_path, fname)
+                    with open(os.path.join(dirname, 'info'), 'wb') as f:
+                        f.write(context['csm_cslog'].prep(info))
+                    value[1] = dirname
         elif context['cs_upload_management'] == 'db':
             pass
         else:

@@ -39,9 +39,11 @@ CHANGED:
 
 * Updated highlight.js to version 9.12.0.
 
-* URL format for static files has changed (__STATIC__ -> _static).
+* The location and format in which uploaded files are stored on disk as changed.
 
-* URL format for utilities has changed (cs_util -> _util).
+* The URL format for static files has changed (__STATIC__ -> _static).
+
+* The URL format for utilities has changed (cs_util -> _util).
 
 * 'csq_threshold' and 'csq_ratio_check' have been replaced with
   'csq_ratio_threshold' and 'csq_absolute_threshold' in the 'expression'

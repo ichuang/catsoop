@@ -35,7 +35,6 @@ import os
 import re
 import ast
 import lzma
-import pyaes
 import base64
 import pprint
 import random
@@ -48,6 +47,8 @@ import contextlib
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from .fernet import RawFernet
 
 _nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'get_separator',
@@ -65,15 +66,17 @@ importlib.reload(base_context)
 
 COMPRESS = base_context.cs_log_compression
 
-ENCRYPT_PASS = ENCRYPT_KEY = base_context.cs_log_encryption_passphrase
-if ENCRYPT_KEY is not None:
+ENCRYPT_KEY = None
+ENCRYPT_PASS = base_context.cs_log_encryption_passphrase
+if ENCRYPT_PASS is not None:
     SALT = base_context.cs_log_encryption_salt
     if not isinstance(SALT, bytes):
         try:
             SALT = binascii.unhexlify(SALT)
         except:
             SALT = SALT.encode('utf8')
-    ENCRYPT_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_KEY.encode('utf8'), SALT, 100000, dklen=32)
+    ENCRYPT_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_PASS.encode('utf8'), SALT, 100000, dklen=32)
+    XTS_KEY = hashlib.pbkdf2_hmac('sha512', ENCRYPT_PASS.encode('utf8'), SALT, 100000)
     FERNET = RawFernet(ENCRYPT_KEY)
 
 
@@ -135,21 +138,24 @@ def unprep(x):
     return literal_eval(decompress_decrypt(x).decode('utf8'))
 
 
-def _e(x, seed=0):
-    r = random.Random()
-    r.seed(seed)
-    cstr = bytes(r.randint(0, 255) for i in range(2))
-    cnt = struct.unpack('H', cstr)[0]
-    ctext = pyaes.AESModeOfOperationCTR(ENCRYPT_KEY, counter=pyaes.Counter(cnt)).encrypt(x.encode('utf8'))
-    return binascii.hexlify(cstr + ctext).decode('utf8')
+def _e(x, seed):  # not sure seed is the right term here...
+    x = x.encode('utf8') + bytes([0]*(16-len(x)))
+    b = hashlib.blake2b(seed.encode('utf8'), key=ENCRYPT_KEY, salt=SALT[16:], digest_size=16)
+    c = Cipher(algorithms.AES(XTS_KEY),
+               modes.XTS(b.digest()),
+               backend=default_backend())
+    e = c.encryptor()
+    return base64.urlsafe_b64encode(e.update(x) + e.finalize()).decode('utf8')
 
 
-def _d(x):
-    x = binascii.unhexlify(x)
-    cstr = x[:2]
-    cnt = struct.unpack('H', cstr)[0]
-    ctext = x[2:]
-    return pyaes.AESModeOfOperationCTR(ENCRYPT_KEY, counter=pyaes.Counter(cnt)).decrypt(ctext).decode('utf8')
+def _d(x, seed):  # not sure seed is the right term here...
+    x = base64.urlsafe_b64decode(x)
+    b = hashlib.blake2b(seed.encode('utf8'), key=ENCRYPT_KEY, salt=SALT[16:], digest_size=16)
+    c = Cipher(algorithms.AES(XTS_KEY),
+               modes.XTS(b.digest()),
+               backend=default_backend())
+    d = c.decryptor()
+    return (d.update(x) + d.finalize()).rstrip(b'\x00').decode('utf8')
 
 
 def get_log_filename(db_name, path, logname):
@@ -163,7 +169,7 @@ def get_log_filename(db_name, path, logname):
     * `logname`: the name of the log
     '''
     if ENCRYPT_KEY is not None:
-        seed = ENCRYPT_PASS + (path[0] if path else db_name)
+        seed = (path[0] if path else db_name)
         path = [_e(i, seed+i) for i in path]
         db_name = _e(db_name, seed+db_name)
         logname = _e(logname, seed+repr(path))
