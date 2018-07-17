@@ -89,6 +89,9 @@ FIXED:
 * Fixed an issue that caused CAT-SOOP's main page to crash if a course with a
   malformed preload.py was present.
 
+* Removed some redundant calls to cslog.most_recent from the default handler to
+  improve efficiency.
+
 SECURITY:
 
 * Prevent submissions from being able to access materials defined in

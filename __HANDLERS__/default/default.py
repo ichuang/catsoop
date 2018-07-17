@@ -548,10 +548,7 @@ def handle_lock(context):
                 c = dict(context)
                 c[_n('question_names')] = [name]
                 o = json.loads(handle_viewanswer(c)[2])
-                ll = context['csm_cslog'].most_recent(
-                    context.get('cs_username', 'None'),
-                    context['cs_path_info'],
-                    'problemstate', {})
+                ll = context[_n('last_log')]
                 newstate['answer_viewed'] = ll.get('answer_viewed', set())
                 newstate['explanation_viewed'] = ll.get('explanation_viewed',
                                                         set())
@@ -606,7 +603,7 @@ def handle_grade(context):
                            'timestamp': context['cs_timestamp']})
         _, args = context[_n('name_map')][name]
         outdict[name] = {
-            'score_display': context['csm_tutor'].make_score_display(context, args, name, score / npoints),
+            'score_display': context['csm_tutor'].make_score_display(context, args, name, score / npoints, last_log=context[_n('last_log')]),
             'message': "<b>Grader's Comments:</b><br/><br/>%s" % context['csm_language']._md_format_string(context, comments),
             'score': score / npoints,
         }
@@ -823,10 +820,7 @@ def handle_submit(context):
     uname = context[_n('uname')]
 
 
-    lastlog = context['csm_cslog'].most_recent(uname,
-                                               context['cs_path_info'],
-                                               'problemstate',
-                                               {})
+    lastlog = context[_n('last_log')]
 
     nsubmits_used = context[_n('nsubmits_used')]
 
@@ -917,7 +911,8 @@ def handle_submit(context):
             out['message'] = newstate['cached_responses'][name] = msg
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, score,
-                assume_submit=True)
+                assume_submit=True,
+                last_log=context[_n('last_log')])
             newstate['extra_data'][name] = out['extra_data'] = extra
 
             # auto lock if the option is set.
@@ -925,10 +920,7 @@ def handle_submit(context):
                 c = dict(context)
                 c[_n('question_names')] = [name]
                 o = json.loads(handle_lock(c)[2])
-                ll = context['csm_cslog'].most_recent(
-                    uname,
-                    context['cs_path_info'],
-                    'problemstate')
+                ll = context[_n('last_log')]
                 newstate['locked'] = ll.get('locked', set())
                 outdict[name].update(o[name])
 
@@ -942,10 +934,7 @@ def handle_submit(context):
                     c = dict(context)
                     c[_n('question_names')] = [name]
                     o = json.loads(handle_viewanswer(c)[2])
-                    ll = context['csm_cslog'].most_recent(uname,
-                                                          context['cs_path_info'],
-                                                          'problemstate',
-                                                          {})
+                    ll = context[_n('last_log')]
                     newstate['answer_viewed'] = ll.get('answer_viewed', set())
                     newstate['explanation_viewed'] = ll.get('explanation_viewed',
                                                             set())
@@ -955,7 +944,8 @@ def handle_submit(context):
             out['message'] = 'Submission received for manual grading.'
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, None,
-                assume_submit=True)
+                assume_submit=True,
+                last_log=context[_n('last_log')])
             if name in newstate['checker_ids']:
                 del newstate['checker_ids'][name]
             newstate['cached_responses'][name] = out['message']
@@ -963,7 +953,8 @@ def handle_submit(context):
             out['message'] = '<font color="red">Unknown grading mode: %s.  Please contact staff.</font>' % grading_mode
             out['score_display'] = context['csm_tutor'].make_score_display(
                 context, args, name, 0.0,
-                assume_submit=True)
+                assume_submit=True,
+                last_log=context[_n('last_log')])
             if name in newstate['checker_ids']:
                 del newstate['checker_ids'][name]
             newstate['cached_responses'][name] = out['message']
@@ -1317,7 +1308,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += ('\n<span id="%s_loading" style="display:none;"><img src="%s"/>'
             '</span>') % (name, context['cs_loading_image'])
     out += (('\n<span id="%s_score_display">' % args['csq_name']) +
-            context['csm_tutor'].make_score_display(context, args, name, None) + '</span>')
+            context['csm_tutor'].make_score_display(context, args, name, None, last_log=context[_n('last_log')]) + '</span>')
     out += (('\n<div id="%s_nsubmits_left" class="nsubmits_left">' % name) +
             nsubmits_left(context, name)[1] + "</div>")
     out += '</div>'
@@ -1560,9 +1551,6 @@ def make_buttons(context, name):
 
 def pre_handle(context):
     # enumerate the questions in this problem
-    global CHECKER_DB_LOC
-    CHECKER_DB_LOC = os.path.join(context['cs_data_root'], '__LOGS__',
-                                  '_checker.db')
     context[_n('name_map')] = collections.OrderedDict()
     for elt in context['cs_problem_spec']:
         if isinstance(elt, tuple):
@@ -1599,10 +1587,6 @@ def pre_handle(context):
 
     # determine the right log name to look up, and grab the most recent entry
     loghead = '___'.join(context['cs_path_info'][1:])
-    ps_name = '%s___problemstate' % loghead
-    pa_name = '%s___problemactions' % loghead
-    pg_name = '%s___problemgrades' % loghead
-    grp_name = '%s___group' % loghead
     ll = context['csm_cslog'].most_recent(uname,
                                           context['cs_path_info'],
                                           'problemstate',
@@ -1620,11 +1604,6 @@ def pre_handle(context):
     if uname not in _gm:
         _gm.append(uname)
     context[_n('last_log')] = ll
-    context[_n('logname_state')] = ps_name
-    context[_n('logname_actions')] = pa_name
-    context[_n('logname_grades')] = pg_name
-    context[_n('logname_group')] = grp_name
-    context[_n('logname_groups')] = '%ss' % grp_name
 
     context[_n('locked')] = set(ll.get('locked', set()))
     context[_n('answer_viewed')] = set(ll.get('answer_viewed', set()))

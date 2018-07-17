@@ -79,7 +79,7 @@ def get_manual_grading_entry(context, name):
     return out
 
 
-def make_score_display(context, args, name, score=None, assume_submit=False):
+def make_score_display(context, args, name, score=None, assume_submit=False, last_log=None):
     """
     Helper function to generate the display that users should see for their
     score.
@@ -115,10 +115,7 @@ def make_score_display(context, args, name, score=None, assume_submit=False):
 
     **Returns:** a string containing HTML representing the rendered score
     """
-    last_log = context['csm_cslog'].most_recent(context['cs_username'],
-                                                context['cs_path_info'],
-                                                'problemstate',
-                                                {})
+    last_log = last_log or None
     if not _get(args, 'csq_show_score', True, bool):
         if name in last_log.get('scores', {}) or assume_submit:
             return 'Submission received.'
@@ -130,7 +127,7 @@ def make_score_display(context, args, name, score=None, assume_submit=False):
         if log is not None:
             score = log['score']
     elif score is None:
-            score = last_log.get('scores', {}).get(name, None)
+        score = last_log.get('scores', {}).get(name, None)
     if score is None:
         if name in last_log.get('scores', {}) or assume_submit:
             return 'Grade not available.'
