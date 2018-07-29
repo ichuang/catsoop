@@ -76,7 +76,7 @@ if ENCRYPT_PASS is not None:
         except:
             SALT = SALT.encode('utf8')
     ENCRYPT_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_PASS.encode('utf8'), SALT, 100000, dklen=32)
-    XTS_KEY = hashlib.pbkdf2_hmac('sha512', ENCRYPT_PASS.encode('utf8'), SALT, 100000)
+    XTS_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_PASS.encode('utf8'), SALT, 100000)
     FERNET = RawFernet(ENCRYPT_KEY)
 
 
@@ -140,9 +140,9 @@ def unprep(x):
 
 def _e(x, seed):  # not sure seed is the right term here...
     x = x.encode('utf8') + bytes([0]*(16-len(x)))
-    b = hashlib.blake2b(seed.encode('utf8'), key=ENCRYPT_KEY, salt=SALT[16:], digest_size=16)
+    b = hashlib.sha512(seed.encode('utf8') + ENCRYPT_KEY + SALT).digest()[-16:]
     c = Cipher(algorithms.AES(XTS_KEY),
-               modes.XTS(b.digest()),
+               modes.XTS(b),
                backend=default_backend())
     e = c.encryptor()
     return base64.urlsafe_b64encode(e.update(x) + e.finalize()).decode('utf8')
@@ -150,9 +150,9 @@ def _e(x, seed):  # not sure seed is the right term here...
 
 def _d(x, seed):  # not sure seed is the right term here...
     x = base64.urlsafe_b64decode(x)
-    b = hashlib.blake2b(seed.encode('utf8'), key=ENCRYPT_KEY, salt=SALT[16:], digest_size=16)
+    b = hashlib.sha512(seed.encode('utf8') + ENCRYPT_KEY + SALT).digest()[-16:]
     c = Cipher(algorithms.AES(XTS_KEY),
-               modes.XTS(b.digest()),
+               modes.XTS(b),
                backend=default_backend())
     d = c.decryptor()
     return (d.update(x) + d.finalize()).rstrip(b'\x00').decode('utf8')

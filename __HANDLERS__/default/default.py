@@ -1635,7 +1635,7 @@ def pre_handle(context):
                     dir_ = os.path.join(context['cs_data_root'], '__LOGS__', '_uploads', *_path)
                     os.makedirs(dir_, exist_ok=True)
                     value[0] = value[0].replace('<', '').replace('>', '').replace('"', '').replace('"', '')
-                    hstring = hashlib.blake2b(data).hexdigest()
+                    hstring = hashlib.sha256(data).hexdigest()
                     info = {'filename': value[0],
                             'username': context['cs_username'],
                             'time': context['cs_now'],
