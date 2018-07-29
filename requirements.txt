@@ -3,7 +3,7 @@ cheroot
 cryptography
 filelock
 html5lib
-jose
+python-jose
 markdown
 mpmath
 ply
