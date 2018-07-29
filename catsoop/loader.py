@@ -251,7 +251,7 @@ def get_course_fs_location(context, course, join=True):
     elif course == '_qtype':
         rtn = [fs_root, '__QTYPES__']
     elif course == '_auth':
-        rtn = [fs_root, '_auth']
+        rtn = [fs_root, '__AUTH__']
     else:
         data_root = context.get('cs_data_root', base_context.cs_data_root)
         rtn = [data_root, 'courses', course]
