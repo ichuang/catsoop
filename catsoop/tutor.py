@@ -115,7 +115,7 @@ def make_score_display(context, args, name, score=None, assume_submit=False, las
 
     **Returns:** a string containing HTML representing the rendered score
     """
-    last_log = last_log or None
+    last_log = last_log or {}
     if not _get(args, 'csq_show_score', True, bool):
         if name in last_log.get('scores', {}) or assume_submit:
             return 'Submission received.'
