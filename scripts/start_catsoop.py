@@ -138,6 +138,7 @@ if __name__ == '__main__':
             pphrase = getpass.getpass('Encryption passphrase: ')
             h = hashlib.pbkdf2_hmac('sha512', pphrase.encode('utf8'), salt, 100000)
             if h == phash:
+                os.environ['CATSOOP_PASSPHRASE'] = pphrase
                 main()
                 break
             else:
