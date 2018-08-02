@@ -206,6 +206,7 @@ cs_dummy_username = %r
        cs_dummy_username)
 
 #TODO: Ask about courses that exist, automatically symlink them.
+#TODO: Initialize courses with proper Git/Hg hooks set
 #TODO: Automatically set up virtual environment and install packages.
 #TODO: Automatically set up local Python sandbox.
 
@@ -213,7 +214,7 @@ config_path = os.path.join(cs_fs_root, 'catsoop', 'config.py')
 if yesno('This configuration will be written to %s.  OK?' % config_path):
     with open(config_path, 'w') as f:
         f.write(config_file_content)
-    os.makedirs(cs_data_root, exist_ok=True)
+    os.makedirs(os.path.join(cs_data_root, 'courses'), exist_ok=True)
     print()
     print('Configuration written to %s' % config_path)
     print('You can check that this configuration information by opening this file in a text editor.')
