@@ -18,7 +18,7 @@
 /* Basic Font Sizing/Styling */
  :root{
      --cs-base-bg-color: #000080;
-     --cs-max-page-width: 1500px;
+     --cs-max-page-width: 1100px;
 }
  html {
      height: 100%;
