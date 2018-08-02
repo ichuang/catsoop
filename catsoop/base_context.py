@@ -267,16 +267,9 @@ cs_log_compression = False
 Special: Boolean indicating whether log entries should be compressed.
 """
 
-cs_log_encryption_passphrase = None
+cs_log_encryption = False
 """
-Special: Passphrase to be used when encrypting logs, or None for no encryption.
-"""
-
-cs_log_encryption_salt = None
-"""
-Special: Salt to be used when encrypting logs, or None for no encryption.  Must
-be specified is cs_log_encryption_passphrase is specified.  Can either be a
-hex-encoded string, or a bytestring.
+Special: Boolean indicating whether log entries should be encrypted.
 """
 
 # File Upload Type

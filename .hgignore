@@ -7,6 +7,8 @@ __pycache__/
 # CAT-SOOP Specifics
 *.pycs*
 catsoop/config.py
+.encryption_*
+
 
 # BugsEverywhere cache
 .be/id-cache

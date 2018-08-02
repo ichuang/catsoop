@@ -19,6 +19,7 @@
 import os
 import sys
 import getpass
+import hashlib
 
 def ask(prompt, default='', transform=lambda x: x, check_ok=lambda x: None):
     out = None
@@ -143,6 +144,9 @@ should_encrypt = yesno('Since CAT-SOOP logs can store personally identifiable '
 
 if should_encrypt:
     # choose encryption passphrase
+    print('Files are encrypted using a passphrase of your choosing.  You will '
+          'need to enter this passphrase whenever you start the CAT-SOOP '
+          'server.')
     while True:
         cs_log_encryption_passphrase = password('Enter an encryption passphrase: ')
         cs_log_encryption_passphrase_2 = password('Confirm encryption passphrase: ')
@@ -154,6 +158,7 @@ if should_encrypt:
             continue
 
     cs_log_encryption_salt = os.urandom(32)
+    cs_log_encryption_passphrase_hash = hashlib.pbkdf2_hmac('sha512', cs_log_encryption_passphrase.encode('utf8'), cs_log_encryption_salt, 100000)
 
 print()
 print(cs_logo)
@@ -192,16 +197,14 @@ config_file_content = '''cs_fs_root = %r
 cs_data_root = %r
 
 cs_log_compression = %r
-cs_log_encryption_passphrase = %r
-cs_log_encryption_salt = %r
+cs_log_encryption = %r
 
 cs_url_root = %r
 cs_checker_websocket = %r
 
 cs_dummy_username = %r
 ''' % (cs_fs_root, cs_data_root, should_compress,
-       cs_log_encryption_passphrase if should_encrypt else None,
-       cs_log_encryption_salt if should_encrypt else None,
+       should_encrypt,
        cs_url_root, cs_checker_websocket,
        cs_dummy_username)
 
@@ -215,6 +218,22 @@ if yesno('This configuration will be written to %s.  OK?' % config_path):
     with open(config_path, 'w') as f:
         f.write(config_file_content)
     os.makedirs(os.path.join(cs_data_root, 'courses'), exist_ok=True)
+    _enc_salt_file = os.path.join(cs_fs_root, '.encryption_salt')
+    _enc_hash_file = os.path.join(cs_fs_root, '.encryption_passphrase_hash')
+    if should_encrypt:
+        with open(_enc_salt_file, 'wb') as f:
+            f.write(cs_log_encryption_salt)
+        with open(_enc_hash_file, 'wb') as f:
+            f.write(cs_log_encryption_passphrase_hash)
+    else:
+        try:
+            os.unlink(_enc_salt_file)
+        except:
+            pass
+        try:
+            os.unlink(_enc_hash_file)
+        except:
+            pass
     print()
     print('Configuration written to %s' % config_path)
     print('You can check that this configuration information by opening this file in a text editor.')

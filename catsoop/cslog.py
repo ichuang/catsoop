@@ -67,14 +67,10 @@ importlib.reload(base_context)
 COMPRESS = base_context.cs_log_compression
 
 ENCRYPT_KEY = None
-ENCRYPT_PASS = base_context.cs_log_encryption_passphrase
+ENCRYPT_PASS = os.environ.get('CATSOOP_PASSPHRASE', None)
 if ENCRYPT_PASS is not None:
-    SALT = base_context.cs_log_encryption_salt
-    if not isinstance(SALT, bytes):
-        try:
-            SALT = binascii.unhexlify(SALT)
-        except:
-            SALT = SALT.encode('utf8')
+    with open(os.path.join(base_context.cs_fs_root, '.encryption_salt'), 'rb') as f:
+        SALT = f.read()
     ENCRYPT_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_PASS.encode('utf8'), SALT, 100000, dklen=32)
     XTS_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_PASS.encode('utf8'), SALT, 100000)
     FERNET = RawFernet(ENCRYPT_KEY)
