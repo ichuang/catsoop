@@ -265,7 +265,7 @@ def _run_one_test(context, sub, soln, funcs, ratio_threshold, absolute_threshold
                 threshold = absolute_threshold
             else:
                 return False
-            if mag(subm-sol) > threshold:
+            if mag(subm-sol) > mag(threshold):
                 return False
         except:
             return False
