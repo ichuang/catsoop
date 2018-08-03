@@ -75,7 +75,8 @@ def run_code(context, code, options):
                          bufsize=0,
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+                         stderr=subprocess.PIPE,
+                         env={})
 
     out = ''
     err = ''
