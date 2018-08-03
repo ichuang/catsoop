@@ -133,7 +133,7 @@ if __name__ == '__main__':
             salt = f.read()
         with open(_enc_hash_file, 'rb') as f:
             phash = f.read()
-        print("CAT-SOOP's logs are encrypted.  Please enter the encryption passphrase below, and confirm that the secret token matches the value you expect.")
+        print("CAT-SOOP's logs are encrypted.  Please enter the encryption passphrase below.")
         while True:
             pphrase = getpass.getpass('Encryption passphrase: ')
             h = hashlib.pbkdf2_hmac('sha512', pphrase.encode('utf8'), salt, 100000)
