@@ -139,7 +139,7 @@ if __name__ == '__main__':
             h = hashlib.pbkdf2_hmac('sha512', pphrase.encode('utf8'), salt, 100000)
             if h == phash:
                 os.environ['CATSOOP_PASSPHRASE'] = pphrase
-                main()
                 break
             else:
                 print('Passphrase does not match stored hash.  Try again.')
+    main()
