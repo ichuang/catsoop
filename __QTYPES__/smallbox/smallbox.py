@@ -26,7 +26,7 @@ defaults = {
 
 
 def escape(s):
-    return s.replace('"', '&quot;')
+    return s.replace('&', '&amp;').replace('"', '&quot;')
 
 
 def total_points(**info):
