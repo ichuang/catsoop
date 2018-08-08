@@ -12,6 +12,9 @@ ADDED:
 * The decimal precision of numbers in the 'expression' question type can now be
   altered via the 'csq_precision' variable.
 
+* Added the 'multiexpression' question type for questions about multiple
+  related expressions.
+
 * Made CAT-SOOP work properly with LibreJS
   (https://www.gnu.org/software/librejs/).
 

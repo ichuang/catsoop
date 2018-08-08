@@ -387,7 +387,7 @@ def handle_submission(submissions, **info):
         try:
             sub = parser.parse(sub)
         except:
-            return {'score': 0.0, 'msg': '<font color="red">Error: '
+            return {'score': False, 'msg': '<font color="red">Error: '
                                          'could not parse input.</font>'}
         _m = None
         if sub is None:
@@ -438,7 +438,7 @@ def handle_submission(submissions, **info):
             msg += get_display(info, n, sub, False, _m or '')
         else:
             msg += _m or ''
-        return {'score': float(result), 'msg': msg}
+        return {'score': result, 'msg': msg}
 
 
 checktext = "Check Syntax"
