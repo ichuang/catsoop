@@ -388,6 +388,8 @@ def handle_clearanswer(context):
 
     outdict = {}  # dictionary containing the responses for each question
     for name in names:
+        if name.startswith('__'):
+            continue
         out = {}
 
         error = clearanswer_msg(context, context[_n('perms')], name)
@@ -442,6 +444,8 @@ def handle_viewexplanation(context):
 
     outdict = {}  # dictionary containing the responses for each question
     for name in names:
+        if name.startswith('__'):
+            continue
         out = {}
 
         error = viewexp_msg(context, context[_n('perms')], name)
@@ -490,6 +494,8 @@ def handle_viewanswer(context):
 
     outdict = {}  # dictionary containing the responses for each question
     for name in names:
+        if name.startswith('__'):
+            continue
         out = {}
 
         error = viewanswer_msg(context, context[_n('perms')], name)
@@ -538,6 +544,8 @@ def handle_lock(context):
 
     outdict = {}  # dictionary containing the responses for each question
     for name in names:
+        if name.startswith('__'):
+            continue
         q, args = context[_n('name_map')][name]
         outdict[name] = {}
         locked.add(name)
@@ -672,7 +680,11 @@ def handle_save(context):
     outdict = {}  # dictionary containing the responses for each question
     saved_names = []
     for name in names:
+        sub = context[_n('form')].get(name, '')
         out = {}
+        if name.startswith('__'):
+            newstate['last_submit'][name] = sub
+            continue
 
         error = save_msg(context, context[_n('perms')], name)
         if error is not None:
@@ -681,11 +693,6 @@ def handle_save(context):
             continue
 
         question, args = context[_n('name_map')].get(name)
-        sub = context[_n('form')].get(name, '')
-
-        if sub == "":  # don't overwrite things with blank strings
-            outdict[name] = {}
-            continue
 
         saved_names.append(name)
 
@@ -852,6 +859,8 @@ def handle_submit(context):
     entry_ids = {}
     submit_succeeded = True
     for name in names:
+        sub = context[_n('form')].get(name, '')
+        newstate['last_submit'][name] = sub
         if name.startswith('__'):
             name = name[2:].rsplit('_', 1)[0]
         if name in names_done:
@@ -859,7 +868,6 @@ def handle_submit(context):
 
         names_done.add(name)
         out = {}
-        sub = context[_n('form')].get(name, '')
 
         error = submit_msg(context, context[_n('perms')], name)
         if error is not None:
@@ -871,7 +879,6 @@ def handle_submit(context):
 
         # if we are here, no errors occurred.  go ahead with submitting.
         nsubmits_used[name] = nsubmits_used.get(name, 0) + 1
-        newstate['last_submit'][name] = sub
 
         question, args = namemap[name]
         grading_mode = _get(args, 'csq_grading_mode', 'auto', str)

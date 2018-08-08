@@ -78,6 +78,8 @@ catsoop.load_one_form_element = function(elt, name, into, action){
                 resolve();
             }
         }else{
+            console.log(elt);
+            console.log(elt.value);
             into[name] = elt.value;
             resolve();
         }
@@ -98,17 +100,19 @@ catsoop.ajaxrequest = function (names, action, done_function){
     for (var i=0; i<names.length; i++){
         var name = names[i];
         var field = document.querySelector('[name="'+name+'"]');
-        try{
+        if (!name.startsWith('__')){
             catsoop.switch_buttons(name, false);
             document.getElementById(name+'_loading').style.display = '';
             document.getElementById(name+'_score_display').style.display = 'none';
-        }catch(err){
         }
-        promises.push(catsoop.load_one_form_element(field, name, out, action));
+        if(document.getElementById(name) !== null){
+            promises.push(catsoop.load_one_form_element(field, name, out, action));
+        }
     }
     Promise.all(promises).then(
     function(){
         //success.  all fields loaded, submit the request
+        console.log('hey?');
         catsoop.send_request(names, action, out, done_function);
     },
 
@@ -116,9 +120,11 @@ catsoop.ajaxrequest = function (names, action, done_function){
         //failure.  reset loading and score displays.
         for (var i=0; i<names.length; i++){
             var name = names[i];
-            document.getElementById(name+'_loading').style.display = 'none';
-            document.getElementById(name+'_score_display').style.display = '';
-            catsoop.switch_buttons(name, true);
+            if (!name.startsWith('__')){
+                document.getElementById(name+'_loading').style.display = 'none';
+                document.getElementById(name+'_score_display').style.display = '';
+                catsoop.switch_buttons(name, true);
+            }
         }
     });
 }

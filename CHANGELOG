@@ -94,6 +94,9 @@ FIXED:
 * Removed some redundant calls to cslog.most_recent from the default handler to
   improve efficiency.
 
+* Fixed multiple instances of improper handling of questions with multiple
+  boxes.
+
 SECURITY:
 
 * Prevent submissions from being able to access materials defined in
