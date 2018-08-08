@@ -67,7 +67,14 @@ def handle_submission(submissions, **info):
 
         results.append(this_question)
 
-    return {'score': info['csq_combine_results'](results), 'msg': get_parsed_reps(submissions, **info)}
+    msg = get_parsed_reps(submissions, **info)
+
+    score = info['csq_combine_results'](results)
+    if isinstance(score, (list, tuple)):
+        score, extra_msg = score
+        msg = '%s<hr/>%s' % (msg, extra_msg)
+
+    return {'score': score, 'msg': msg}
 
 
 def escape(s):
