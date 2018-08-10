@@ -7,4 +7,5 @@ python-jose
 markdown
 mpmath
 ply
+uwsgi
 websockets
