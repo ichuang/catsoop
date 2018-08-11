@@ -175,21 +175,12 @@ should_compress = yesno('Should CAT-SOOP compress its logs?', default='Y' if sho
 
 # Web Stuff
 print(cs_logo)
-cs_url_root = ask('What is the root public-facing URL associated with this instance?\n'
-                  'If this is a local copy, you should leave this as-is.',
+cs_url_root = ask('What is the root public-facing URL associated with this instance?',
                   default='http://localhost:6010',
                   transform=lambda x: x.rstrip('/'))
-cs_checker_websocket = ask('What is the public-facing URL associated with the checker\'s websocket connection?\n'
-                  'If this is a local copy, you should leave this as-is.',
+cs_checker_websocket = ask('What is the public-facing URL associated with the checker\'s websocket connection?',
                   default='ws://localhost:6011',
                   transform=lambda x: x.rstrip('/'))
-
-# Authentication
-print(cs_logo)
-print('Some courses set up local copies to use "dummy" encryption that always logs you in with a particular username.')
-cs_dummy_username = ask('For courses that use "dummy" encryption, what username should be used?',
-                        default='',
-                        check_ok=lambda x: None if x else 'Please enter a username.')
 
 
 # write config file
@@ -201,17 +192,10 @@ cs_log_encryption = %r
 
 cs_url_root = %r
 cs_checker_websocket = %r
-
-cs_dummy_username = %r
 ''' % (cs_fs_root, cs_data_root, should_compress,
        should_encrypt,
-       cs_url_root, cs_checker_websocket,
-       cs_dummy_username)
+       cs_url_root, cs_checker_websocket)
 
-#TODO: Ask about courses that exist, automatically symlink them.
-#TODO: Initialize courses with proper Git/Hg hooks set
-#TODO: Automatically set up virtual environment and install packages.
-#TODO: Automatically set up local Python sandbox.
 
 config_path = os.path.join(cs_fs_root, 'catsoop', 'config.py')
 if yesno('This configuration will be written to %s.  OK?' % config_path):
