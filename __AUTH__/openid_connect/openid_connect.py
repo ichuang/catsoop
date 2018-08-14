@@ -33,7 +33,7 @@ def get_logged_in_user(context):
     if action == 'logout':
         context['cs_session_data'] = {}
         return {'cs_reload': True}
-    elif 'username' in session and session.get('course', None) == context['cs_course']:
+    elif 'username' in session:
         uname = session['username']
         return {'username': uname,
                 'name': session.get('name', uname),
