@@ -104,7 +104,7 @@ def render_html(last_log, **info):
 def render_html_dropdown(last_log, **info):
     if last_log is None:
         last_log = {}
-    out = '\n<select name="%s" >' % info['csq_name']
+    out = '\n<select id="%s" name="%s" >' % (info['csq_name'], info['csq_name'])
     for (ix, i) in enumerate(['--'] + info['csq_options']):
         out += '\n<option value="%s" ' % (ix - 1)
         if last_log.get(info['csq_name'], '-1') == str(ix - 1):

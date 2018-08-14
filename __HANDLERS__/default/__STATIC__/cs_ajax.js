@@ -78,8 +78,6 @@ catsoop.load_one_form_element = function(elt, name, into, action){
                 resolve();
             }
         }else{
-            console.log(elt);
-            console.log(elt.value);
             into[name] = elt.value;
             resolve();
         }
@@ -112,7 +110,6 @@ catsoop.ajaxrequest = function (names, action, done_function){
     Promise.all(promises).then(
     function(){
         //success.  all fields loaded, submit the request
-        console.log('hey?');
         catsoop.send_request(names, action, out, done_function);
     },
 
