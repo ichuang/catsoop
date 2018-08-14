@@ -1,5 +1,0 @@
-Right now, question types can define a behavior that is referred to as `check`.
-It's used in a number of question types (running the code for `pyhoncode`,
-checking syntax for `expression`, etc).  But this idea isn't very general.  It
-would be good to let question types have multiple possible custom actions.
-

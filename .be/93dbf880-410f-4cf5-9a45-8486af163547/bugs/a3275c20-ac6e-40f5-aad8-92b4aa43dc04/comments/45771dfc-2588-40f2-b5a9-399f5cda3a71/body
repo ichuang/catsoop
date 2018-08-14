@@ -1,6 +1,0 @@
-The expression checker can get a little bit confused when comparing small
-numbers (particularly when using the ratio as a check).  Maybe we could use
-fractions.Fraction to keep infinite precision where possible?
-
-Another option would be math.isclose, which handles both ratio and absolute
-thresholds.

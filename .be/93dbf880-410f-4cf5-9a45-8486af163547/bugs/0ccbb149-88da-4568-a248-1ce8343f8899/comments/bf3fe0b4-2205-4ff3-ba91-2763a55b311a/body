@@ -1,7 +1,0 @@
-I've not been able to pinpoint the cause of this yet, but sometimes processes
-are left running and eating a bunch of CPU rather than properly dying. This has
-been an issue in 6.009, where it has caused problems with timeouts (because the
-spinning processes slow everything down, code that should pass in time is
-sometimes hitting the timeouts).
-
-Will need to look into this more closely.

@@ -1,4 +1,0 @@
-CAT-SOOP is not currently compatible with Python 3.7 (which was recently
-released).  The breaking change seems to be related to async/await.  It's
-possible that updating the websockets package will fix.
-

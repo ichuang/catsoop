@@ -1,6 +1,0 @@
-This is indeed just waiting on a new release of the websockets module.  See
-https://github.com/aaugustin/websockets/issues/405.
-
-The fix is already in place on their master branch; just need to wait for it to
-be available through PyPI.
-

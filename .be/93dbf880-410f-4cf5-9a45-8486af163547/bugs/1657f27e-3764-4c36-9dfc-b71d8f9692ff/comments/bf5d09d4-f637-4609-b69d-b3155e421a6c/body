@@ -1,9 +1,0 @@
-CAT-SOOP 1.0 had a question type where users were asked to enter an expression
-whose answer was a _range_ of numbers.  For example, `[0,3)U(4,7]` was a
-well-formed input representing a range from 0 (inclusive) to 3 (exclusive) and
-from 4 (exclusive) and 7 (inclusive).
-
-I've had a couple of requests to bring this back.  CAT-SOOP has changed a lot
-since then, but I think it's possible that it would be a relatively
-straightforward port of the code from 1.0.
-

@@ -1,6 +1,0 @@
-Should be resolved now.  I also changed the way thresholds are specified.
-
-Since part of the resolution was including the mpmath library, the associated
-changesets should also make implementing 93d/35e (derivatives/integrals)
-easier.
-

@@ -1,6 +1,0 @@
-Currently, files in `__MEDIA__` are always publicly viewable (they are handled
-before authentication is attempted).
-
-It might be nice to have an easy way of doing access control for static files.
-The `handout` handler works, but it is pretty clunky.
-
