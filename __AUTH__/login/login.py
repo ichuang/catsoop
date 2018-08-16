@@ -145,7 +145,7 @@ def get_logged_in_user(context):
 
     # if the session tells us someone is logged in, return their
     # information
-    elif 'username' in session and session.get('course', None) == context['cs_course']:
+    elif 'username' in session:
         uname = session['username']
         clear_session_vars(context, 'login_message', 'last_form')
         return {'username': uname,
