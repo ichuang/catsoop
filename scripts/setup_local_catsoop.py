@@ -127,8 +127,8 @@ cs_data_root = ask('Where should CAT-SOOP store its logs?\n(this directory will 
 
 # Authentication
 print(cs_logo)
-print('Some courses set up local copies to use "dummy" encryption that always logs you in with a particular username.')
-cs_dummy_username = ask('For courses that use "dummy" encryption, what username should be used?',
+print('Some courses set up local copies to use "dummy" authentication that always logs you in with a particular username.')
+cs_dummy_username = ask('For courses that use "dummy" authentication, what username should be used?',
                         default='',
                         check_ok=lambda x: None if x else 'Please enter a username.')
 
