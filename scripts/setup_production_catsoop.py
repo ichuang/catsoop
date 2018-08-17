@@ -125,66 +125,61 @@ cs_data_root = ask('Where should CAT-SOOP store its logs?\n(this directory will 
                    default = default_log_dir)
 
 
-is_restore = yesno('Is this a restoration of an encrypted CAT-SOOP backup?', default='N')
 
-if is_restore:
-    restore_salt_str = input('Please enter the salt used for the encrypted backup: ')
-    cs_log_encryption_salt = bytes.fromhex(restore_salt_str)
-    restore_passphrase_hash_str = input('Please enter the hash used for the encrypted backup: ')
-    restore_passphrase_hash = bytes.fromhex(restore_passphrase_hash_str)
-    should_encrypt = True
+print()
+print(cs_logo)
+print('By default, CAT-SOOP logs are not encrypted.')
+print('Encryption can improve the privacy of people using CAT-SOOP by making'
+    ' the logs difficult to read for anyone without a particular passphrase.'
+    ' Encrypted logs also mitigate the risks associated with backing up'
+    ' CAT-SOOP logs to servers you don\'t control.  Encryption comes with the'
+    ' downside that encrypted logs are not human readable, and that reading'
+    ' and writing encrypted logs is slower.')
 
-else:
-    print()
-    print(cs_logo)
-    print('By default, CAT-SOOP logs are not encrypted.')
-    print('Encryption can improve the privacy of people using CAT-SOOP by making'
-        ' the logs difficult to read for anyone without a particular passphrase.'
-        ' Encrypted logs also mitigate the risks associated with backing up'
-        ' CAT-SOOP logs to servers you don\'t control.  Encryption comes with the'
-        ' downside that encrypted logs are not human readable, and that reading'
-        ' and writing encrypted logs is slower.')
-
-    should_encrypt = yesno('Since CAT-SOOP logs can store personally identifiable '
-                       'student information, you are strongly encouraged to '
-                       'encrypt the logs if you are running CAT-SOOP on a '
-                       'machine where logs are not already encrypted through '
-                       'some other means.\n'
-                       'Should CAT-SOOP encrypt its logs?', default='Y')
+should_encrypt = yesno('Since CAT-SOOP logs can store personally identifiable '
+                   'student information, you are strongly encouraged to '
+                   'encrypt the logs if you are running CAT-SOOP on a '
+                   'machine where logs are not already encrypted through '
+                   'some other means.\n'
+                   'Should CAT-SOOP encrypt its logs?', default='Y')
 
 if should_encrypt:
+    is_restore = yesno('Will this instance use an encryption password/salt from a previous installation?', default='N')
+
+    if is_restore:
+        restore_salt_str = input('Please enter the salt used for the encrypted logs: ')
+        cs_log_encryption_salt = bytes.fromhex(restore_salt_str)
+        restore_passphrase_hash_str = input('Please enter the password hash used for the encrypted logs: ')
+        restore_passphrase_hash = bytes.fromhex(restore_passphrase_hash_str)
+        should_encrypt = True
     # choose encryption passphrase
     print('Files are encrypted using a passphrase of your choosing.  You will '
           'need to enter this passphrase whenever you start the CAT-SOOP '
           'server.')
     if is_restore:
-        print('Please verify that your encryption passphrase is valid for this backup.')
+        print('Please verify that your encryption passphrase is valid.')
     while True:
-        cs_log_encryption_passphrase = password('Enter an encryption passphrase: ')
-        cs_log_encryption_passphrase_2 = password('Confirm encryption passphrase: ')
-        if cs_log_encryption_passphrase == cs_log_encryption_passphrase_2:
-            if is_restore:
-                passphrase_hash = hashlib.pbkdf2_hmac('sha512', cs_log_encryption_passphrase.encode('utf8'), cs_log_encryption_salt, 100000)
-                if restore_passphrase_hash != passphrase_hash:
-                    print('Passphrase is not valid for this backup; try again.')
-                else:
-                    break
+        cs_log_encryption_passphrase = password('Enter %sencryption passphrase: ' % ('' if is_restore else 'an '))
+        if is_restore:
+            passphrase_hash = hashlib.pbkdf2_hmac('sha512', cs_log_encryption_passphrase.encode('utf8'), cs_log_encryption_salt, 100000)
+            if restore_passphrase_hash != passphrase_hash:
+                print('Passphrase is not valid for this backup; try again.')
+                print()
             else:
                 break
         else:
-            print('Passphrases do not match; try again.')
-            print()
-            continue
+            cs_log_encryption_passphrase_2 = password('Confirm encryption passphrase: ')
+            if cs_log_encryption_passphrase != cs_log_encryption_passphrase_2:
+                print('Passphrases do not match; try again.')
+                print()
+            else:
+                break
 
     if not is_restore:
         cs_log_encryption_salt = os.urandom(32)
     cs_log_encryption_salt_printable = cs_log_encryption_salt.hex()
     cs_log_encryption_passphrase_hash = hashlib.pbkdf2_hmac('sha512', cs_log_encryption_passphrase.encode('utf8'), cs_log_encryption_salt, 100000)
     cs_log_encryption_passphrase_hash_printable = cs_log_encryption_passphrase_hash.hex()
-    print("In order to restore a backup of this CAT-SOOP instance, you'll need to save the following two pieces of information for your own records:")
-    print()
-    print("Encryption salt:",cs_log_encryption_salt_printable)
-    print("Encryption passphrase hash:",cs_log_encryption_passphrase_hash_printable)
 
 
 print()
@@ -250,5 +245,11 @@ if yesno('This configuration will be written to %s.  OK?' % config_path):
     print('You can check that this configuration information by opening this file in a text editor.')
     print(cs_logo)
     print('Setup is complete.  You can now start CAT-SOOP by running the start_catsoop.py script.')
+    print()
+    if should_encrypt and not is_restore:
+        print("Please save the following two pieces of information, which are necessary in case you need another CAT-SOOP instance to read logs encrypted by this instance.")
+        print()
+        print("Encryption salt:", cs_log_encryption_salt_printable)
+        print("Encryption passphrase hash:", cs_log_encryption_passphrase_hash_printable)
 else:
     print('Configuration not written.  Exiting.')
