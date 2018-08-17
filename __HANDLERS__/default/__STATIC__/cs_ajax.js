@@ -23,7 +23,7 @@
 
 
 catsoop.switch_buttons = function (qname, enabled){
-    for(var b of document.getElementById('cs_qdiv_'+qname).getElementsByTagName('button')) b.disabled = !enabled;
+    for(var b of document.getElementById(qname + '_buttons').getElementsByTagName('button')) b.disabled = !enabled;
 }
 
 
