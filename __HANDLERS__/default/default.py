@@ -1312,8 +1312,9 @@ def render_question(elt, context, lastsubmit, wrap=True):
     out += '<div>'
     out += (('\n<span id="%s_buttons">' % name) + make_buttons(context, name) +
             "</span>")
-    out += ('\n<span id="%s_loading" style="display:none;"><img src="%s"/>'
-            '</span>') % (name, context['cs_loading_image'])
+    out += ('\n<span id="%s_loading_wrapper">'
+            '\n<span id="%s_loading" style="display:none;"><img src="%s"/>'
+            '</span>\n</span>') % (name, name, context['cs_loading_image'])
     out += (('\n<span id="%s_score_display">' % args['csq_name']) +
             context['csm_tutor'].make_score_display(context, args, name, None, last_log=context[_n('last_log')]) + '</span>')
     out += (('\n<div id="%s_nsubmits_left" class="nsubmits_left">' % name) +
