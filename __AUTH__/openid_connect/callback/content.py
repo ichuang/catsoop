@@ -167,6 +167,8 @@ if error is None:
 
 path = [csm_base_context.cs_url_root] + cs_session_data.get('_openid_path', ['/'])
 redirect_location = '/'.join(path)
+if cs_session_data.get('cs_query_string', ''):
+    redirect_location += '?' + cs_session_data['cs_query_string']
 if error is None:
     # we made it! set session data and redirect to original page
     csm_session.set_session_data(globals(), cs_sid, session)

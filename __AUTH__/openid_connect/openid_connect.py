@@ -19,6 +19,7 @@ import urllib.parse
 
 def get_logged_in_user(context):
     session = context['cs_session_data']
+    print(session)
 
     logintype = context['csm_auth'].get_auth_type_by_name(context, 'login')
 
@@ -46,7 +47,9 @@ def get_logged_in_user(context):
                     old_postload(context)
                 if 'cs_login_box' in context:
                     lbox = context['cs_login_box'](context)
+
                 else:
+
                     lbox = LOGIN_BOX % (_get_base_url(context),
                                         context['cs_openid_server'])
                 context['cs_content'] = lbox + context['cs_content']
@@ -74,6 +77,7 @@ def get_logged_in_user(context):
         session['_openid_path'] = context['cs_path_info']
         session['_openid_nonce'] = nonce
         session['_openid_state'] = state
+
         qstring = urllib.parse.urlencode(get_data)
         return {'cs_redirect': '%s/authorize?%s' % (openid_url, qstring)}
     else:
