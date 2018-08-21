@@ -27,6 +27,7 @@ def get_logged_in_user(context):
         return logintype['generate_confirmation_token'](50)
 
     _get_base_url = logintype['_get_base_url']
+    print(context['cs_path_info'])
 
     # if the session tells us someone is logged in, return their
     # information
@@ -41,8 +42,6 @@ def get_logged_in_user(context):
                 'email': session.get('email', uname)}
     elif action is None:
         if context.get('cs_view_without_auth', True):
-            session['cs_query_string'] = context['cs_env'].get('QUERY_STRING','')
-
             old_postload = context.get('cs_post_load', None)
             def new_postload(context):
                 if old_postload is not None:

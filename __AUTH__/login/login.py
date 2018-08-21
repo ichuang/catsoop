@@ -470,8 +470,6 @@ def get_logged_in_user(context):
 
     # no one is logged in; show the login form.
     if context.get('cs_view_without_auth', True) and action != 'login':
-        session['cs_query_string'] = context['cs_env'].get('QUERY_STRING','')
-
         old_postload = context.get('cs_post_load', None)
         def new_postload(context):
             if old_postload is not None:
