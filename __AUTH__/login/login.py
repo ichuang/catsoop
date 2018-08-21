@@ -34,7 +34,6 @@ def get_logged_in_user(context):
     mail = context['csm_mail']
 
     session = context['cs_session_data']
-    print(session)
     action = form.get('loginaction', '')
 
     hash_iterations = context.get('cs_password_hash_iterations', 500000)

@@ -19,7 +19,6 @@ import urllib.parse
 
 def get_logged_in_user(context):
     session = context['cs_session_data']
-    print(session)
 
     logintype = context['csm_auth'].get_auth_type_by_name(context, 'login')
 
@@ -27,7 +26,6 @@ def get_logged_in_user(context):
         return logintype['generate_confirmation_token'](50)
 
     _get_base_url = logintype['_get_base_url']
-    print(context['cs_path_info'])
 
     # if the session tells us someone is logged in, return their
     # information
