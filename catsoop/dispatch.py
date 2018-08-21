@@ -638,10 +638,6 @@ def main(environment):
         session_data = session.get_session_data(context, context['cs_sid'])
         context['cs_session_data'] = session_data
 
-        # IF NOT DOING A LOG IN ACTION, STORE QUERY STRING
-        if 'loginaction' not in context['cs_env'].get('QUERY_STRING',''):
-            context['cs_session_data']['cs_query_string'] = context['cs_env'].get('QUERY_STRING','')
-
         # DO EARLY LOAD FOR THIS REQUEST
         if context['cs_course'] is not None:
             cfile = content_file_location(context,
@@ -670,6 +666,7 @@ def main(environment):
                                      context['cs_path_info'])
                     if session_data.get('cs_query_string',''):
                         redir += '?' + session_data['cs_query_string']
+                        del session_data['cs_query_string']
                 if redir is None:
                     redir = user_info.get('cs_redirect', None)
                 if redir is not None:

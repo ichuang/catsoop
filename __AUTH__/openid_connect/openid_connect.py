@@ -41,6 +41,8 @@ def get_logged_in_user(context):
                 'email': session.get('email', uname)}
     elif action is None:
         if context.get('cs_view_without_auth', True):
+            session['cs_query_string'] = context['cs_env'].get('QUERY_STRING','')
+
             old_postload = context.get('cs_post_load', None)
             def new_postload(context):
                 if old_postload is not None:
