@@ -261,7 +261,9 @@ catsoop.viewanswer_skipalert = function (name){
 };
 
 
-catsoop.modal = function(header, text, input){
+catsoop.modal = function(header, text, input, cancel){
+    input = typeof input === 'undefined' ? false : input;
+    cancel = typeof cancel === 'undefined' ? true : cancel;
     return new Promise(function(resolve, reject){
         var background = document.createElement('div');
         background.addEventListener('click', function(){
@@ -316,15 +318,20 @@ catsoop.modal = function(header, text, input){
             });
         }
 
-        var cancel_button = document.createElement('button');
-        cancel_button.innerText = 'Cancel';
-        cancel_button.classList = ['btn'];
-        cancel_button.addEventListener('click', function(){
-            document.body.removeChild(background);
-            reject(false);
-        });
+        if (cancel){
+            var cancel_button = document.createElement('button');
+            cancel_button.innerText = 'Cancel';
+            cancel_button.classList = ['btn'];
+            cancel_button.addEventListener('click', function(){
+                document.body.removeChild(background);
+                reject(false);
+            });
+        }
         buttons.appendChild(okay_button);
-        buttons.appendChild(document.createTextNode(' '));
+        if (cancel) {
+            buttons.appendChild(document.createTextNode(' '));
+            buttons.appendChild(cancel_button);
+        }
         buttons.appendChild(cancel_button);
         mbody.appendChild(buttons);
 
