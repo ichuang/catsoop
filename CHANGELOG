@@ -103,6 +103,9 @@ FIXED:
 * Fixed a bug related to improper handling of internal links with trailing
   slashes.
 
+* "Log In" and "Log Out" no longer discard the query string associated with the
+  current page.
+
 SECURITY:
 
 * Prevent submissions from being able to access materials defined in
