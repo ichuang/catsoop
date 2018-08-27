@@ -353,7 +353,11 @@ def get_real_url(context, url):
     '''
     u = urllib.parse.urlparse(url)
     original = urllib.parse.urlunparse(u[:3] + ('', '', ''))
-    new_url = '/'.join(_real_url_helper(context, original))
+    end = ''
+    if original.endswith('/'):
+        original = original[:-1]
+        end = '/'
+    new_url = '/'.join(_real_url_helper(context, original)) + end
     u = ('', '', new_url, ) + u[3:]
     return urllib.parse.urlunparse(u)
 

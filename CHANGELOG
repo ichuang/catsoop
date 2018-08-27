@@ -100,6 +100,9 @@ FIXED:
 * Fixed multiple instances of improper handling of questions with multiple
   boxes.
 
+* Fixed a bug related to improper handling of internal links with trailing
+  slashes.
+
 SECURITY:
 
 * Prevent submissions from being able to access materials defined in
