@@ -25,7 +25,7 @@ import threading
 import subprocess
 import multiprocessing
 
-_nodoc = {'i'}
+_nodoc = {"i"}
 
 # libc lives in different places on different OS
 libc = None
@@ -33,7 +33,7 @@ libc = None
 The `ctypes.CDLL` object representing libc (which lives in different places on
 different platforms).  Used in `catsoop.process.set_pdeathsig`.
 """
-for i in ('libc.so.6', 'libc.dylib', 'cygwin1.dll', 'msys-2.0.dll'):
+for i in ("libc.so.6", "libc.dylib", "cygwin1.dll", "msys-2.0.dll"):
     try:
         libc = ctypes.CDLL(i)
     except:
@@ -43,7 +43,7 @@ for i in ('libc.so.6', 'libc.dylib', 'cygwin1.dll', 'msys-2.0.dll'):
 assert libc is not None
 
 
-def set_pdeathsig(sig = signal.SIGTERM):
+def set_pdeathsig(sig=signal.SIGTERM):
     """
     Create a function that can be used to set the signal that the calling
     process receives when its parent process dies (not supported on Mac OSX).
@@ -61,11 +61,14 @@ def set_pdeathsig(sig = signal.SIGTERM):
     On Mac OSX, instead returns a function of no arguments that does nothing
     when called.
     """
-    if hasattr(libc, 'prctl'):
+    if hasattr(libc, "prctl"):
+
         def callable():
             return libc.prctl(1, sig)
+
     else:
         # on mac osx, there is no such thing as prctl.
         def callable():
             pass
+
     return callable

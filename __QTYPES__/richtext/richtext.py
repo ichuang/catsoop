@@ -14,31 +14,32 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-tutor.qtype_inherit('bigbox')
+tutor.qtype_inherit("bigbox")
 
 _base_render_html = render_html
 
-defaults.update({
-    'csq_soln': '',
-    'csq_npoints': 1,
-    'csq_show_check': False,
-})
+defaults.update({"csq_soln": "", "csq_npoints": 1, "csq_show_check": False})
+
 
 def markdownify(context, text):
-    return context['csm_language']._md(text)
+    return context["csm_language"]._md(text)
+
 
 def richtext_format(context, text, msg="Preview:"):
-    #text = text.replace('<', '&lt;').replace('>', '&gt;')
-    out = '</br>%s<br/>' % msg
-    out += ('<div style="background-color: #eeeeee;'
-            'padding:10px; border-radius:10px;">')
+    # text = text.replace('<', '&lt;').replace('>', '&gt;')
+    out = "</br>%s<br/>" % msg
+    out += (
+        '<div style="background-color: #eeeeee;' 'padding:10px; border-radius:10px;">'
+    )
     out += markdownify(context, text)
-    out = out.replace('<script', '&lt;script')
-    out = out.replace('</script', '&lt;script')
-    out += ('<script type="text/javascript">'
-            'catsoop.render_all_math(document.getElementById("cs_qdiv_%s"), true);'
-            '</script>') % context['csq_name']
-    out += '</div>'
+    out = out.replace("<script", "&lt;script")
+    out = out.replace("</script", "&lt;script")
+    out += (
+        '<script type="text/javascript">'
+        'catsoop.render_all_math(document.getElementById("cs_qdiv_%s"), true);'
+        "</script>"
+    ) % context["csq_name"]
+    out += "</div>"
     return out
 
 
@@ -46,16 +47,17 @@ checktext = "Preview"
 
 
 def handle_check(submission, **info):
-    last = submission.get(info['csq_name'])
+    last = submission.get(info["csq_name"])
     return richtext_format(info, last)
 
 
 def render_html(last_log, **info):
     out = _base_render_html(last_log, **info)
-    help_url = '/'.join([info['cs_url_root'], '_qtype', 'richtext',
-                         'formatting.html'])
-    out += ('''<a onClick="window.open('%s', '_blank', '''
-            ''''');" '''
-            '''style="cursor:pointer; cursor:hand;">'''
-            '''Formatting Help</a>''') % help_url
+    help_url = "/".join([info["cs_url_root"], "_qtype", "richtext", "formatting.html"])
+    out += (
+        """<a onClick="window.open('%s', '_blank', """
+        """'');" """
+        """style="cursor:pointer; cursor:hand;">"""
+        """Formatting Help</a>"""
+    ) % help_url
     return out

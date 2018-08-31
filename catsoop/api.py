@@ -22,9 +22,10 @@ import uuid
 import random
 import string
 
-_nodoc = {'CHARACTERS'}
+_nodoc = {"CHARACTERS"}
 
 CHARACTERS = string.ascii_letters + string.digits
+
 
 def new_api_token(context, username):
     """
@@ -39,11 +40,11 @@ def new_api_token(context, username):
     **Returns:** a new API token for the given user, with length as given by
     `cs_api_token_length`.
     """
-    length = context.get('cs_api_token_length', 70)
+    length = context.get("cs_api_token_length", 70)
     seed = username + uuid.uuid4().hex
     r = random.Random()
     r.seed(seed)
-    return ''.join(r.choice(CHARACTERS) for i in range(length))
+    return "".join(r.choice(CHARACTERS) for i in range(length))
 
 
 def initialize_api_token(context, user_info):
@@ -60,14 +61,11 @@ def initialize_api_token(context, user_info):
     **Returns:** the newly-generated API token
     """
     user_info = {
-        k: v
-        for (k, v) in user_info.items() if k in {'username', 'name', 'email'}
+        k: v for (k, v) in user_info.items() if k in {"username", "name", "email"}
     }
-    token = new_api_token(context, user_info['username'])
-    context['csm_cslog'].overwrite_log('_api_tokens', [], str(token),
-                                       user_info)
-    context['csm_cslog'].update_log('_api_users', [], user_info['username'],
-                                    token)
+    token = new_api_token(context, user_info["username"])
+    context["csm_cslog"].overwrite_log("_api_tokens", [], str(token), user_info)
+    context["csm_cslog"].update_log("_api_users", [], user_info["username"], token)
     return token
 
 
@@ -85,8 +83,7 @@ def userinfo_from_token(context, tok):
     `'username'`, `'name'`, and `'email'`.  Returns `None` if the given token
     is invalid.
     """
-    return context['csm_cslog'].most_recent('_api_tokens', [], str(tok),
-                                            None)
+    return context["csm_cslog"].most_recent("_api_tokens", [], str(tok), None)
 
 
 def get_logged_in_user(context):
@@ -102,22 +99,19 @@ def get_logged_in_user(context):
     user who holds the given API token; it will contain the key `api_token`, as
     well as some subset of the keys `'username'`, `'name'`, and `'email'`.
     """
-    form = context.get('cs_form', {})
-    if 'api_token' in form:
-        tok = form['api_token']
+    form = context.get("cs_form", {})
+    if "api_token" in form:
+        tok = form["api_token"]
         log = userinfo_from_token(context, tok)
         if log is not None:
-            log['api_token'] = tok
+            log["api_token"] = tok
             return log
     return None
 
 
-def get_user_information(context,
-                         uname=None,
-                         passwd=None,
-                         api_token=None,
-                         course=None,
-                         _as=None):
+def get_user_information(
+    context, uname=None, passwd=None, api_token=None, course=None, _as=None
+):
     """
     Return the information associated with a user identified by an API token or
     a username and password.
@@ -149,61 +143,59 @@ def get_user_information(context,
     * If `'ok`' maps to `True`, then the additional key is `'user_info'`, which
         maps to a dictionary containing the user's information.
     """
-    login = context['csm_auth'].get_auth_type_by_name(context, 'login')
+    login = context["csm_auth"].get_auth_type_by_name(context, "login")
 
     user = None
     error = None
 
-    log = context['csm_cslog']
+    log = context["csm_cslog"]
     if api_token is not None:
         # if there is an API token, check it.
         user = userinfo_from_token(context, api_token)
         if user is None:
             error = "Invalid API token: %s" % api_token
         else:
-            user['api_token'] = api_token
-            extra_info = log.most_recent('_extra_info', [], user['username'],
-                                         {})
+            user["api_token"] = api_token
+            extra_info = log.most_recent("_extra_info", [], user["username"], {})
             user.update(extra_info)
     else:
         if uname is not None and passwd is not None:
             # if no API token was given, but username and password were, check
             # those.
-            hash_iters = context.get('cs_password_hash_iterations', 500000)
-            pwd_check = login.check_password(context, passwd, uname,
-                                             hash_iters)
+            hash_iters = context.get("cs_password_hash_iterations", 500000)
+            pwd_check = login.check_password(context, passwd, uname, hash_iters)
             if not pwd_check:
-                error = 'Invalid username or password.'
+                error = "Invalid username or password."
             else:
-                user = log.most_recent('_logininfo', [], user['username'],
-                                       None)
+                user = log.most_recent("_logininfo", [], user["username"], None)
         else:
-            error = 'API token or username and password hash required.'
+            error = "API token or username and password hash required."
 
     if user is None and error is None:
         # catch-all error: if we haven't authenticated but don't have an error
         # messge, use this one.
-        error = 'Could not authenticate'
+        error = "Could not authenticate"
 
     if error is None and course is not None:
         # if we have successfully logged in and a course is specified, we need to
         # look up extra information from the course in question.
-        ctx = context['csm_loader'].spoof_early_load([course])
+        ctx = context["csm_loader"].spoof_early_load([course])
 
-        ctx['cs_form'] = {}
+        ctx["cs_form"] = {}
         if _as is not None:
-            ctx['cs_form']['as'] = _as
+            ctx["cs_form"]["as"] = _as
 
-        base_loc = os.path.join(context['cs_data_root'], 'courses', course)
+        base_loc = os.path.join(context["cs_data_root"], "courses", course)
         if os.path.isdir(base_loc):
-            uname = user['username']
-            ctx['cs_user_info'] = user
-            user = context['csm_auth']._get_user_information(
-                ctx, user, course, uname, do_preload=True)
+            uname = user["username"]
+            ctx["cs_user_info"] = user
+            user = context["csm_auth"]._get_user_information(
+                ctx, user, course, uname, do_preload=True
+            )
         else:
-            error = 'No such course: %s' % course
+            error = "No such course: %s" % course
 
     if error is not None:
-        return {'ok': False, 'error': error}
+        return {"ok": False, "error": error}
     else:
-        return {'ok': True, 'user_info': user}
+        return {"ok": True, "user_info": user}

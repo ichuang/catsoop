@@ -31,7 +31,7 @@ from . import cslog
 
 importlib.reload(base_context)
 
-_nodoc = {'SimpleCookie', 'make_session_dir'}
+_nodoc = {"SimpleCookie", "make_session_dir"}
 
 VALID_SESSION_RE = re.compile(r"^[A-Fa-f0-9]{32}$")
 """
@@ -81,12 +81,12 @@ def get_session_id(environ):
         fullname = os.path.join(SESSION_DIR, i)
         try:
             if os.stat(fullname).st_mtime < now - EXPIRE:
-                    os.unlink(fullname)
+                os.unlink(fullname)
         except:
             pass
-    if 'HTTP_COOKIE' in environ:
+    if "HTTP_COOKIE" in environ:
         try:
-            cookie_sid = SimpleCookie(environ['HTTP_COOKIE'])['sid'].value
+            cookie_sid = SimpleCookie(environ["HTTP_COOKIE"])["sid"].value
             if VALID_SESSION_RE.match(cookie_sid) is None:
                 return new_session_id(), True
             return cookie_sid, False
@@ -118,7 +118,7 @@ def get_session_data(context, sid):
     fname = os.path.join(SESSION_DIR, sid)
     with cslog.log_lock(fname) as lock:
         try:
-            with open(fname, 'rb') as f:
+            with open(fname, "rb") as f:
                 out = cslog.unprep(f.read())
         except:
             out = {}  # default to returning empty session
@@ -140,5 +140,5 @@ def set_session_data(context, sid, data):
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
     with cslog.log_lock(fname) as lock:
-        with open(fname, 'wb') as f:
+        with open(fname, "wb") as f:
             f.write(cslog.prep(data))

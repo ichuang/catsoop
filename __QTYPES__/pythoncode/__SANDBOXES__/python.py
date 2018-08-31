@@ -25,9 +25,9 @@ import resource
 import subprocess
 
 _resource_mapper = {
-    'CPUTIME': (resource.RLIMIT_CPU, lambda x: (x, x + 1)),
-    'MEMORY': (resource.RLIMIT_AS, lambda x: (x, x)),
-    'FILESIZE': (resource.RLIMIT_FSIZE, lambda x: (x, x)),
+    "CPUTIME": (resource.RLIMIT_CPU, lambda x: (x, x + 1)),
+    "MEMORY": (resource.RLIMIT_AS, lambda x: (x, x)),
+    "FILESIZE": (resource.RLIMIT_FSIZE, lambda x: (x, x)),
 }
 
 
@@ -41,7 +41,7 @@ def safe_close(fd):
 def run_code(context, code, options):
     rlimits = [(resource.RLIMIT_NPROC, (0, 0))]
     for key, val in _resource_mapper.items():
-        if key == 'MEMORY' and options[key] <= 0:
+        if key == "MEMORY" and options[key] <= 0:
             continue
         rlimits.append((val[0], val[1](options[key])))
 
@@ -49,39 +49,42 @@ def run_code(context, code, options):
         os.setsid()
         for i in rlimits:
             resource.setrlimit(*i)
-        context['csm_process'].set_pdeathsig()()
+        context["csm_process"].set_pdeathsig()()
 
-    tmpdir = context.get('csq_sandbox_dir', '/tmp/sandbox')
-    this_one = hashlib.sha512(('%s-%s' % (context.get('cs_username', 'None'),
-                                         time.time())).encode()).hexdigest()
+    tmpdir = context.get("csq_sandbox_dir", "/tmp/sandbox")
+    this_one = hashlib.sha512(
+        ("%s-%s" % (context.get("cs_username", "None"), time.time())).encode()
+    ).hexdigest()
     tmpdir = os.path.join(tmpdir, this_one)
     os.makedirs(tmpdir, 0o777)
-    for f in options['FILES']:
+    for f in options["FILES"]:
         typ = f[0].strip().lower()
-        if typ == 'copy':
+        if typ == "copy":
             shutil.copyfile(f[1], os.path.join(tmpdir, f[2]))
-        elif typ == 'string':
-            with open(os.path.join(tmpdir, f[1]), 'w') as fileobj:
+        elif typ == "string":
+            with open(os.path.join(tmpdir, f[1]), "w") as fileobj:
                 fileobj.write(f[2])
-    fname = '%s.py' % this_one
-    with open(os.path.join(tmpdir, fname), 'w') as fileobj:
-        fileobj.write(code.replace('\r\n', '\n'))
+    fname = "%s.py" % this_one
+    with open(os.path.join(tmpdir, fname), "w") as fileobj:
+        fileobj.write(code.replace("\r\n", "\n"))
 
-    interp = context.get('csq_python_interpreter', sys.executable)
+    interp = context.get("csq_python_interpreter", sys.executable)
 
-    p = subprocess.Popen([interp, '-E', '-B', fname],
-                         cwd=tmpdir,
-                         preexec_fn=limiter,
-                         bufsize=0,
-                         stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE,
-                         env={})
+    p = subprocess.Popen(
+        [interp, "-E", "-B", fname],
+        cwd=tmpdir,
+        preexec_fn=limiter,
+        bufsize=0,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env={},
+    )
 
-    out = ''
-    err = ''
+    out = ""
+    err = ""
     try:
-        out, err = p.communicate(options['STDIN'] or '', timeout=options['CLOCKTIME'])
+        out, err = p.communicate(options["STDIN"] or "", timeout=options["CLOCKTIME"])
     except subprocess.TimeoutExpired:
         p.kill()
         p.wait()

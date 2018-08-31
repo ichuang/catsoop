@@ -18,8 +18,18 @@ import ast
 
 
 def parser(lex=None, yacc=None):
-    tokens = ("PLUS", "MINUS", "TIMES", "DIVIDE", "EXP", "COMMA", "LPAREN",
-              "RPAREN", "NAME", "NUMBER")
+    tokens = (
+        "PLUS",
+        "MINUS",
+        "TIMES",
+        "DIVIDE",
+        "EXP",
+        "COMMA",
+        "LPAREN",
+        "RPAREN",
+        "NAME",
+        "NUMBER",
+    )
 
     t_ignore = " \t"
 
@@ -37,10 +47,12 @@ def parser(lex=None, yacc=None):
 
     lex.lex()
 
-    precedence = (('left', 'PLUS', 'MINUS'),
-                  ('left', 'TIMES', 'DIVIDE'),
-                  ('right', 'UMINUS'),
-                  ('right', 'EXP'),)
+    precedence = (
+        ("left", "PLUS", "MINUS"),
+        ("left", "TIMES", "DIVIDE"),
+        ("right", "UMINUS"),
+        ("right", "EXP"),
+    )
 
     def p_expression_binop(t):
         """
@@ -55,9 +67,9 @@ def parser(lex=None, yacc=None):
         if len(t) == 4:
             t[0] = [t[2], t[1], t[3]]
         elif len(t) == 5:
-            t[0] = ['*', t[1], ['^', t[2], t[4]]]
+            t[0] = ["*", t[1], ["^", t[2], t[4]]]
         else:
-            t[0] = ['*', t[1], t[2]]
+            t[0] = ["*", t[1], t[2]]
 
     def p_expression_grouped(t):
         """
@@ -69,7 +81,7 @@ def parser(lex=None, yacc=None):
         """
         expression : name LPAREN list_of_expressions RPAREN
         """
-        t[0] = ['CALL', t[1], t[3]]
+        t[0] = ["CALL", t[1], t[3]]
 
     def p_expression_impmul(t):
         """
@@ -77,9 +89,9 @@ def parser(lex=None, yacc=None):
                    | number LPAREN expression RPAREN
         """
         if len(t) == 5:
-            t[0] = ['*', t[1], t[3]]
+            t[0] = ["*", t[1], t[3]]
         else:
-            t[0] = ['*', t[2], t[5]]
+            t[0] = ["*", t[2], t[5]]
 
     def p_list_of_expressions(t):
         """
@@ -105,7 +117,7 @@ def parser(lex=None, yacc=None):
         """
         expression : MINUS expression %prec UMINUS
         """
-        t[0] = ['u-', t[2]]
+        t[0] = ["u-", t[2]]
 
     def p_expression_atom(t):
         """
@@ -118,13 +130,13 @@ def parser(lex=None, yacc=None):
         """
         number : NUMBER
         """
-        t[0] = ['NUMBER', t[1]]
+        t[0] = ["NUMBER", t[1]]
 
     def p_name(t):
         """
         name : NAME
         """
-        t[0] = ['NAME', t[1]]
+        t[0] = ["NAME", t[1]]
 
     def p_empty(p):
         """

@@ -14,10 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 def get_logged_in_user(context):
-    if context.get('cs_form', {}).get('loginaction', None) == 'logout':
+    if context.get("cs_form", {}).get("loginaction", None) == "logout":
         return {}
-    uname = context['cs_dummy_username']
-    return {'username': uname,
-            'name': context.get('cs_dummy_name', uname),
-            'email': context.get('cs_dummy_email', uname)}
+    uname = context["cs_dummy_username"]
+    return {
+        "username": uname,
+        "name": context.get("cs_dummy_name", uname),
+        "email": context.get("cs_dummy_email", uname),
+    }

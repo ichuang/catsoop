@@ -1,1 +1,1 @@
-cs_auth_required=False
+cs_auth_required = False

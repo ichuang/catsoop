@@ -37,7 +37,8 @@ from . import base_context
 
 importlib.reload(base_context)
 
-_nodoc = {'timedelta'}
+_nodoc = {"timedelta"}
+
 
 def _get(context, key, default, cast=lambda x: x):
     v = context.get(key, default)
@@ -69,17 +70,18 @@ def get_manual_grading_entry(context, name):
         from `catsoop.time.detailed_timestamp`
 
     """
-    uname = context['cs_user_info'].get('username', 'None')
-    log = context['csm_cslog'].read_log(uname, context['cs_path_info'],
-                                        'problemgrades')
+    uname = context["cs_user_info"].get("username", "None")
+    log = context["csm_cslog"].read_log(uname, context["cs_path_info"], "problemgrades")
     out = None
     for i in log:
-        if i['qname'] == name:
+        if i["qname"] == name:
             out = i
     return out
 
 
-def make_score_display(context, args, name, score=None, assume_submit=False, last_log=None):
+def make_score_display(
+    context, args, name, score=None, assume_submit=False, last_log=None
+):
     """
     Helper function to generate the display that users should see for their
     score.
@@ -116,24 +118,24 @@ def make_score_display(context, args, name, score=None, assume_submit=False, las
     **Returns:** a string containing HTML representing the rendered score
     """
     last_log = last_log or {}
-    if not _get(args, 'csq_show_score', True, bool):
-        if name in last_log.get('scores', {}) or assume_submit:
-            return 'Submission received.'
+    if not _get(args, "csq_show_score", True, bool):
+        if name in last_log.get("scores", {}) or assume_submit:
+            return "Submission received."
         else:
-            return ''
-    gmode = _get(args, 'csq_grading_mode', 'auto', str)
-    if gmode == 'manual' and score is None:
+            return ""
+    gmode = _get(args, "csq_grading_mode", "auto", str)
+    if gmode == "manual" and score is None:
         log = get_manual_grading_entry(context, name)
         if log is not None:
-            score = log['score']
+            score = log["score"]
     elif score is None:
-        score = last_log.get('scores', {}).get(name, None)
+        score = last_log.get("scores", {}).get(name, None)
     if score is None:
-        if name in last_log.get('scores', {}) or assume_submit:
-            return 'Grade not available.'
+        if name in last_log.get("scores", {}) or assume_submit:
+            return "Grade not available."
         else:
-            return ''
-    c = args.get('csq_score_message', args.get('cs_score_message', None))
+            return ""
+    c = args.get("csq_score_message", args.get("cs_score_message", None))
     try:
         return c(score)
     except:
@@ -141,8 +143,9 @@ def make_score_display(context, args, name, score=None, assume_submit=False, las
         r = max(0, 200 - colorthing)
         g = min(200, colorthing)
         s = score * 100
-        return ('<span style="color:rgb(%d,%d,0);font-weight:bolder;">'
-                '%.02f%%</span>') % (r, g, s)
+        return (
+            '<span style="color:rgb(%d,%d,0);font-weight:bolder;">' "%.02f%%</span>"
+        ) % (r, g, s)
 
 
 def read_checker_result(context, magic):
@@ -182,9 +185,19 @@ def read_checker_result(context, magic):
         * `'extra_data'`: any extra data returned by the checker, or `None` for
             question types that don't return extra data
     """
-    with open(os.path.join(context['cs_data_root'], '__LOGS__', '_checker',
-              'results', magic[0], magic[1], magic), 'rb') as f:
-        out = context['csm_cslog'].unprep(f.read())
+    with open(
+        os.path.join(
+            context["cs_data_root"],
+            "__LOGS__",
+            "_checker",
+            "results",
+            magic[0],
+            magic[1],
+            magic,
+        ),
+        "rb",
+    ) as f:
+        out = context["csm_cslog"].unprep(f.read())
     return out
 
 
@@ -236,27 +249,24 @@ def compute_page_stats(context, user, path, keys=None):
     """
     logging = cslog
     if keys is None:
-        keys = [
-            'context', 'question_info', 'state', 'actions',
-            'manual_grades',
-        ]
+        keys = ["context", "question_info", "state", "actions", "manual_grades"]
     keys = list(keys)
 
     out = {}
-    if 'state' in keys:
-        keys.remove('state')
-        out['state'] = logging.most_recent(user, path, 'problemstate', {})
-    if 'actions' in keys:
-        keys.remove('actions')
-        out['actions'] = logging.read_log(user, path, 'problemactions')
-    if 'manual_grades' in keys:
-        keys.remove('manual_grades')
-        out['manual_grades'] = logging.read_log(user, path, 'problemgrades')
-    if 'question_info' in keys and 'context' not in keys:
-        qi_log = logging.most_recent('_question_info', path, 'question_info', None)
+    if "state" in keys:
+        keys.remove("state")
+        out["state"] = logging.most_recent(user, path, "problemstate", {})
+    if "actions" in keys:
+        keys.remove("actions")
+        out["actions"] = logging.read_log(user, path, "problemactions")
+    if "manual_grades" in keys:
+        keys.remove("manual_grades")
+        out["manual_grades"] = logging.read_log(user, path, "problemgrades")
+    if "question_info" in keys and "context" not in keys:
+        qi_log = logging.most_recent("_question_info", path, "question_info", None)
         if qi_log is not None:
-            keys.remove('question_info')
-            out['question_info'] = qi_log['questions']
+            keys.remove("question_info")
+            out["question_info"] = qi_log["questions"]
 
     if len(keys) == 0:
         return out
@@ -264,36 +274,35 @@ def compute_page_stats(context, user, path, keys=None):
     # spoof loading the page for the user in question
     new = dict(context)
     loader.load_global_data(new)
-    new['cs_path_info'] = path
-    cfile = context['csm_dispatch'].content_file_location(
-        context, new['cs_path_info'])
+    new["cs_path_info"] = path
+    cfile = context["csm_dispatch"].content_file_location(context, new["cs_path_info"])
     loader.do_early_load(context, path[0], path[1:], new, cfile)
-    new['cs_course'] = path[0]
-    new['cs_username'] = user
-    new['cs_form'] = {'action': 'passthrough'}
-    new['cs_user_info'] = {'username': user}
-    new['cs_user_info'] = auth.get_user_information(new)
+    new["cs_course"] = path[0]
+    new["cs_username"] = user
+    new["cs_form"] = {"action": "passthrough"}
+    new["cs_user_info"] = {"username": user}
+    new["cs_user_info"] = auth.get_user_information(new)
     loader.do_late_load(context, path[0], path[1:], new, cfile)
-    if 'cs_post_load' in new:
-        new['cs_post_load'](new)
+    if "cs_post_load" in new:
+        new["cs_post_load"](new)
     handle_page(new)
-    if 'cs_post_handle' in new:
-        new['cs_post_handle'](new)
+    if "cs_post_handle" in new:
+        new["cs_post_handle"](new)
 
-    if 'context' in keys:
-        keys.remove('context')
-        out['context'] = new
-    if 'question_info' in keys:
-        keys.remove('question_info')
-        items = new['cs_defaulthandler_name_map'].items()
-        out['question_info'] = OrderedDict()
+    if "context" in keys:
+        keys.remove("context")
+        out["context"] = new
+    if "question_info" in keys:
+        keys.remove("question_info")
+        items = new["cs_defaulthandler_name_map"].items()
+        out["question_info"] = OrderedDict()
         for (n, (q, a)) in items:
-            qi = out['question_info'][n] = {}
-            qi['csq_name'] = n
-            qi['csq_npoints'] = q['total_points'](**a)
-            qi['csq_display_name'] = a.get('csq_display_name', 'csq_name')
-            qi['qtype'] = q['qtype']
-            qi['csq_grading_mode'] = a.get('csq_grading_mode', 'auto')
+            qi = out["question_info"][n] = {}
+            qi["csq_name"] = n
+            qi["csq_npoints"] = q["total_points"](**a)
+            qi["csq_display_name"] = a.get("csq_display_name", "csq_name")
+            qi["qtype"] = q["qtype"]
+            qi["csq_grading_mode"] = a.get("csq_grading_mode", "auto")
     for k in keys:
         out[k] = None
     return out
@@ -323,8 +332,8 @@ def _wrapped_defaults_maker(context, name):
     orig = context[name]
 
     def _wrapped_func(*args, **kwargs):
-        info = dict(context.get('defaults', {}))
-        info.update(context['cs_question_type_defaults'].get(context['qtype'], {}))
+        info = dict(context.get("defaults", {}))
+        info.update(context["cs_question_type_defaults"].get(context["qtype"], {}))
         info.update(kwargs)
         return orig(*args, **info)
 
@@ -361,31 +370,39 @@ def question(context, qtype, **kwargs):
     the &lt;question&gt; tag).
     """
     try:
-        course = context['cs_course']
+        course = context["cs_course"]
         qtypes_folder = os.path.join(
-            context.get('cs_data_root', base_context.cs_data_root), 'courses',
-            course, '__QTYPES__')
+            context.get("cs_data_root", base_context.cs_data_root),
+            "courses",
+            course,
+            "__QTYPES__",
+        )
         loc = os.path.join(qtypes_folder, qtype)
-        fname = os.path.join(loc, '%s.py' % qtype)
+        fname = os.path.join(loc, "%s.py" % qtype)
         assert os.path.isfile(fname)
     except:
         qtypes_folder = os.path.join(
-            context.get('cs_fs_root', base_context.cs_fs_root), '__QTYPES__')
+            context.get("cs_fs_root", base_context.cs_fs_root), "__QTYPES__"
+        )
         loc = os.path.join(qtypes_folder, qtype)
-        fname = os.path.join(loc, '%s.py' % qtype)
+        fname = os.path.join(loc, "%s.py" % qtype)
     new = dict(context)
-    new['csm_base_context'] = new['base_context'] = base_context
-    pre_code = ("import sys\n"
-                "_orig_path = sys.path\n"
-                "if %r not in sys.path:\n"
-                "    sys.path = [%r] + sys.path\n\n") % (loc, loc)
-    new['qtype'] = qtype
-    x = loader.cs_compile(
-        fname, pre_code=pre_code, post_code="sys.path = _orig_path")
+    new["csm_base_context"] = new["base_context"] = base_context
+    pre_code = (
+        "import sys\n"
+        "_orig_path = sys.path\n"
+        "if %r not in sys.path:\n"
+        "    sys.path = [%r] + sys.path\n\n"
+    ) % (loc, loc)
+    new["qtype"] = qtype
+    x = loader.cs_compile(fname, pre_code=pre_code, post_code="sys.path = _orig_path")
     exec(x, new)
     for i in {
-            'total_points', 'handle_submission', 'handle_check', 'render_html',
-            'answer_display'
+        "total_points",
+        "handle_submission",
+        "handle_check",
+        "render_html",
+        "answer_display",
     }:
         if i in new:
             new[i] = _wrapped_defaults_maker(new, i)
@@ -411,23 +428,29 @@ def handler(context, handler, check_course=True):
     **Returns:** a dictionary containing the variables defined by the handler
     """
     new = {}
-    new['csm_base_context'] = new['base_context'] = base_context
+    new["csm_base_context"] = new["base_context"] = base_context
     for i in context:
-        if i.startswith('csm_'):
+        if i.startswith("csm_"):
             new[i] = new[i[4:]] = context[i]
     try:
         assert check_course
-        course = context['cs_course']
+        course = context["cs_course"]
         qtypes_folder = os.path.join(
-            context.get('cs_data_root', base_context.cs_data_root), 'courses',
-            course, '__HANDLERS__')
+            context.get("cs_data_root", base_context.cs_data_root),
+            "courses",
+            course,
+            "__HANDLERS__",
+        )
         loc = os.path.join(qtypes_folder, handler)
-        fname = os.path.join(loc, '%s.py' % handler)
+        fname = os.path.join(loc, "%s.py" % handler)
         assert os.path.isfile(fname)
     except:
         fname = os.path.join(
-            context.get('cs_fs_root', base_context.cs_fs_root), '__HANDLERS__',
-            handler, '%s.py' % handler)
+            context.get("cs_fs_root", base_context.cs_fs_root),
+            "__HANDLERS__",
+            handler,
+            "%s.py" % handler,
+        )
     code = loader.cs_compile(fname)
     exec(code, new)
     return new
@@ -451,11 +474,11 @@ def get_release_date(context):
     **Returns:** an instance of `datetime.datetime` representing the page's
     release date.
     """
-    rel = context.get('cs_release_date', 'ALWAYS')
+    rel = context.get("cs_release_date", "ALWAYS")
     if callable(rel):
         rel = rel(context)
-    realize = context.get('cs_realize_time', time.realize_time)
-    return realize(context, context.get('cs_release_date', 'ALWAYS'))
+    realize = context.get("cs_realize_time", time.realize_time)
+    return realize(context, context.get("cs_release_date", "ALWAYS"))
 
 
 def get_due_date(context, do_extensions=False):
@@ -479,16 +502,16 @@ def get_due_date(context, do_extensions=False):
     **Returns:** an instance of `datetime.datetime` representing the page's due
     date.
     """
-    due = context.get('cs_due_date', 'NEVER')
+    due = context.get("cs_due_date", "NEVER")
     if callable(due):
         due = due(context)
-    realize = context.get('cs_realize_time', time.realize_time)
+    realize = context.get("cs_realize_time", time.realize_time)
     due = realize(context, due)
     try:
         if do_extensions:
-            extensions = context['cs_user_info'].get('extensions', [])
+            extensions = context["cs_user_info"].get("extensions", [])
             for ex in extensions:
-                if all(i==j for i,j in zip(e[0], path)):
+                if all(i == j for i, j in zip(e[0], path)):
                     due += timedelta(days=ex[1])
     except:
         pass
@@ -508,12 +531,12 @@ def available_courses():
     course, and `longname` is a more descriptive name (governed by the value of
     `cs_long_name` in that course's `preload.py` file).
     """
-    base = os.path.join(base_context.cs_data_root, 'courses')
+    base = os.path.join(base_context.cs_data_root, "courses")
     if not os.path.isdir(base):
         return []
     out = []
     for course in os.listdir(base):
-        if course.startswith('_') or course.startswith('.'):
+        if course.startswith("_") or course.startswith("."):
             continue
         if not os.path.isdir(os.path.join(base, course)):
             continue
@@ -522,8 +545,8 @@ def available_courses():
         except:
             out.append((course, None))
             continue
-        if data.get('cs_course_available', True):
-            t = data.get('cs_long_name', course)
+        if data.get("cs_course_available", True):
+            t = data.get("cs_long_name", course)
             out.append((course, t))
     return out
 
@@ -552,34 +575,34 @@ def handle_page(context):
     **Returns:** a value based on the result of the chosen handler's `handle`
     function (see above).
     """
-    hand = context.get('cs_handler', 'default')
+    hand = context.get("cs_handler", "default")
     h = handler(context, hand)
-    result = h['handle'](context)
+    result = h["handle"](context)
     if isinstance(result, tuple):
         return result
-    context['cs_content'] = result
+    context["cs_content"] = result
 
 
 def _new_random_seed(n=100):
     try:
         return os.urandom(n)
     except:
-        return ''.join(random.choice(string.ascii_letters) for i in range(n))
+        return "".join(random.choice(string.ascii_letters) for i in range(n))
 
 
 def _get_random_seed(context, n=100, force_new=False):
-    uname = context['cs_username']
+    uname = context["cs_username"]
     if force_new:
         stored = None
     else:
-        stored = context['csm_cslog'].most_recent(uname,
-                                                  context['cs_path_info'],
-                                                  'random_seed',
-                                                  None)
+        stored = context["csm_cslog"].most_recent(
+            uname, context["cs_path_info"], "random_seed", None
+        )
     if stored is None:
         stored = _new_random_seed(n)
-        context['csm_cslog'].update_log(uname, context['cs_path_info'],
-                                        'random_seed', stored)
+        context["csm_cslog"].update_log(
+            uname, context["cs_path_info"], "random_seed", stored
+        )
     return stored
 
 
@@ -608,7 +631,7 @@ def init_random(context):
     try:
         seed = _get_random_seed(context)
     except:
-        seed = '___'.join([context['cs_username']] + context['cs_path_info'])
-    context['cs_random_seed'] = seed
-    context['cs_random'].seed(seed)
-    context['cs_random_inited'] = True
+        seed = "___".join([context["cs_username"]] + context["cs_path_info"])
+    context["cs_random_seed"] = seed
+    context["cs_random"].seed(seed)
+    context["cs_random_inited"] = True

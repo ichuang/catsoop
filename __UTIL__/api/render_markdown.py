@@ -17,20 +17,21 @@
 import bs4
 import json
 
-if 'source' in cs_form:
+if "source" in cs_form:
     try:
-        sources = json.loads(cs_form['source'])
+        sources = json.loads(cs_form["source"])
     except:
-        sources = [cs_form['source']]
+        sources = [cs_form["source"]]
 else:
     sources = []
 
-cs_handler = 'raw_response'
-content_type = 'application/json'
+cs_handler = "raw_response"
+content_type = "application/json"
 
 lang = csm_language
 soup = bs4.BeautifulSoup
 
 response = [csm_language._md_format_string(globals(), i, False) for i in sources]
-response = json.dumps([str(lang.handle_math_tags(soup(i, 'html5lib')))
-                       for ix, i in enumerate(response)])
+response = json.dumps(
+    [str(lang.handle_math_tags(soup(i, "html5lib"))) for ix, i in enumerate(response)]
+)

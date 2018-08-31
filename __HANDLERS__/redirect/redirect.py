@@ -16,4 +16,4 @@
 
 
 def handle(context):
-    return context['csm_dispatch'].redirect(context['redirect_location'])
+    return context["csm_dispatch"].redirect(context["redirect_location"])

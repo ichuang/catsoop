@@ -16,10 +16,10 @@
 
 import json
 
-api_token = cs_form.get('api_token', None)
-path = cs_form.get('path', None)
-section = cs_form.get('section', None)
-groups = cs_form.get('groups', None)
+api_token = cs_form.get("api_token", None)
+path = cs_form.get("path", None)
+section = cs_form.get("section", None)
+groups = cs_form.get("groups", None)
 
 error = None
 
@@ -34,11 +34,13 @@ except:
     error = "invalid path: %s" % path
 
 if error is None:
-    output = csm_api.get_user_information(globals(), api_token=api_token, course=path[0])
-    if output['ok']:
-        uinfo = output['user_info']
-        if 'groups' not in uinfo['permissions'] and 'admin' not in uinfo['permissions']:
-            error = 'Permission Denied'
+    output = csm_api.get_user_information(
+        globals(), api_token=api_token, course=path[0]
+    )
+    if output["ok"]:
+        uinfo = output["user_info"]
+        if "groups" not in uinfo["permissions"] and "admin" not in uinfo["permissions"]:
+            error = "Permission Denied"
 
 try:
     groups = json.loads(groups)
@@ -50,10 +52,10 @@ if error is None:
     error = csm_groups.overwrite_groups(ctx, path, section, groups)
 
 if error is not None:
-    output = {'ok': False, 'error': error}
+    output = {"ok": False, "error": error}
 else:
-    output = {'ok': True}
+    output = {"ok": True}
 
-cs_handler = 'raw_response'
-content_type = 'application/json'
+cs_handler = "raw_response"
+content_type = "application/json"
 response = json.dumps(output)

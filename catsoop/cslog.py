@@ -51,13 +51,24 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from .fernet import RawFernet
 
-_nodoc = {'passthrough', 'FileLock', 'SEP_CHARS', 'get_separator',
-          'good_separator', 'modify_most_recent', 'NoneType', 'OrderedDict',
-          'datetime', 'timedelta'}
+_nodoc = {
+    "passthrough",
+    "FileLock",
+    "SEP_CHARS",
+    "get_separator",
+    "good_separator",
+    "modify_most_recent",
+    "NoneType",
+    "OrderedDict",
+    "datetime",
+    "timedelta",
+}
+
 
 @contextlib.contextmanager
 def passthrough():
     yield
+
 
 from . import base_context
 from filelock import FileLock
@@ -67,12 +78,14 @@ importlib.reload(base_context)
 COMPRESS = base_context.cs_log_compression
 
 ENCRYPT_KEY = None
-ENCRYPT_PASS = os.environ.get('CATSOOP_PASSPHRASE', None)
+ENCRYPT_PASS = os.environ.get("CATSOOP_PASSPHRASE", None)
 if ENCRYPT_PASS is not None:
-    with open(os.path.join(base_context.cs_fs_root, '.encryption_salt'), 'rb') as f:
+    with open(os.path.join(base_context.cs_fs_root, ".encryption_salt"), "rb") as f:
         SALT = f.read()
-    ENCRYPT_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_PASS.encode('utf8'), SALT, 100000, dklen=32)
-    XTS_KEY = hashlib.pbkdf2_hmac('sha256', ENCRYPT_PASS.encode('utf8'), SALT, 100000)
+    ENCRYPT_KEY = hashlib.pbkdf2_hmac(
+        "sha256", ENCRYPT_PASS.encode("utf8"), SALT, 100000, dklen=32
+    )
+    XTS_KEY = hashlib.pbkdf2_hmac("sha256", ENCRYPT_PASS.encode("utf8"), SALT, 100000)
     FERNET = RawFernet(ENCRYPT_KEY)
 
 
@@ -86,18 +99,19 @@ def _split_path(path, sofar=[]):
         return _split_path(folder, sofar + [path])
 
 
-_CHARACTER_MAP = {chr(o): '_%s' % chr(o+32) for o in range(65, 91)}
-_CHARACTER_MAP.update({'.': '_.', '_': '__'})
+_CHARACTER_MAP = {chr(o): "_%s" % chr(o + 32) for o in range(65, 91)}
+_CHARACTER_MAP.update({".": "_.", "_": "__"})
 
 
 def _convert_path(path):
-    return (''.join(_CHARACTER_MAP.get(i, i) for i in w) for w in _split_path(path))
+    return ("".join(_CHARACTER_MAP.get(i, i) for i in w) for w in _split_path(path))
 
 
 def log_lock(path):
-    lock_loc = os.path.join('/tmp/catsoop_locks', *_convert_path(path+'.lock'))
+    lock_loc = os.path.join("/tmp/catsoop_locks", *_convert_path(path + ".lock"))
     os.makedirs(os.path.dirname(lock_loc), exist_ok=True)
     return FileLock(lock_loc)
+
 
 def compress_encrypt(x):
     if COMPRESS:
@@ -111,7 +125,7 @@ def prep(x):
     """
     Helper function to serialize a Python object.
     """
-    out = compress_encrypt(pprint.pformat(x).replace('datetime.', '').encode('utf8'))
+    out = compress_encrypt(pprint.pformat(x).replace("datetime.", "").encode("utf8"))
     if COMPRESS or (ENCRYPT_KEY is not None):
         out = base64.b85encode(out)
     return out
@@ -131,31 +145,27 @@ def unprep(x):
     """
     if COMPRESS or (ENCRYPT_KEY is not None):
         x = base64.b85decode(x)
-    return literal_eval(decompress_decrypt(x).decode('utf8'))
+    return literal_eval(decompress_decrypt(x).decode("utf8"))
 
 
 def _e(x, seed):  # not sure seed is the right term here...
-    x = x.encode('utf8') + bytes([0]*(16-len(x)))
-    b = hashlib.sha512(seed.encode('utf8') + ENCRYPT_KEY + SALT).digest()[-16:]
-    c = Cipher(algorithms.AES(XTS_KEY),
-               modes.XTS(b),
-               backend=default_backend())
+    x = x.encode("utf8") + bytes([0] * (16 - len(x)))
+    b = hashlib.sha512(seed.encode("utf8") + ENCRYPT_KEY + SALT).digest()[-16:]
+    c = Cipher(algorithms.AES(XTS_KEY), modes.XTS(b), backend=default_backend())
     e = c.encryptor()
-    return base64.urlsafe_b64encode(e.update(x) + e.finalize()).decode('utf8')
+    return base64.urlsafe_b64encode(e.update(x) + e.finalize()).decode("utf8")
 
 
 def _d(x, seed):  # not sure seed is the right term here...
     x = base64.urlsafe_b64decode(x)
-    b = hashlib.sha512(seed.encode('utf8') + ENCRYPT_KEY + SALT).digest()[-16:]
-    c = Cipher(algorithms.AES(XTS_KEY),
-               modes.XTS(b),
-               backend=default_backend())
+    b = hashlib.sha512(seed.encode("utf8") + ENCRYPT_KEY + SALT).digest()[-16:]
+    c = Cipher(algorithms.AES(XTS_KEY), modes.XTS(b), backend=default_backend())
     d = c.decryptor()
-    return (d.update(x) + d.finalize()).rstrip(b'\x00').decode('utf8')
+    return (d.update(x) + d.finalize()).rstrip(b"\x00").decode("utf8")
 
 
 def get_log_filename(db_name, path, logname):
-    '''
+    """
     Helper function, returns the filename where a given log is stored on disk.
 
     **Parameters:**
@@ -163,28 +173,38 @@ def get_log_filename(db_name, path, logname):
     * `db_name`: the name of the database to look in
     * `path`: the path to the page associated with the log
     * `logname`: the name of the log
-    '''
+    """
     if ENCRYPT_KEY is not None:
-        seed = (path[0] if path else db_name)
-        path = [_e(i, seed+i) for i in path]
-        db_name = _e(db_name, seed+db_name)
-        logname = _e(logname, seed+repr(path))
+        seed = path[0] if path else db_name
+        path = [_e(i, seed + i) for i in path]
+        db_name = _e(db_name, seed + db_name)
+        logname = _e(logname, seed + repr(path))
     if path:
         course = path[0]
-        return os.path.join(base_context.cs_data_root, '__LOGS__', '_courses', course, db_name, *(path[1:]), '%s.log' % logname)
+        return os.path.join(
+            base_context.cs_data_root,
+            "__LOGS__",
+            "_courses",
+            course,
+            db_name,
+            *(path[1:]),
+            "%s.log" % logname
+        )
     else:
-        return os.path.join(base_context.cs_data_root, '__LOGS__', db_name, *path, '%s.log' % logname)
+        return os.path.join(
+            base_context.cs_data_root, "__LOGS__", db_name, *path, "%s.log" % logname
+        )
 
 
-sep = b'\n\n'
+sep = b"\n\n"
 
 
 def _update_log(fname, new):
-        assert can_log(new), "Can't log: %r" % (new, )
-        os.makedirs(os.path.dirname(fname), exist_ok=True)
-        with open(fname, 'ab') as f:
-            f.write(prep(new))
-            f.write(sep)
+    assert can_log(new), "Can't log: %r" % (new,)
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
+    with open(fname, "ab") as f:
+        f.write(prep(new))
+        f.write(sep)
 
 
 def update_log(db_name, path, logname, new, lock=True):
@@ -204,7 +224,7 @@ def update_log(db_name, path, logname, new, lock=True):
         this update
     """
     fname = get_log_filename(db_name, path, logname)
-    #get an exclusive lock on this file before making changes
+    # get an exclusive lock on this file before making changes
     # look up the separator and the data
     cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
@@ -212,9 +232,9 @@ def update_log(db_name, path, logname, new, lock=True):
 
 
 def _overwrite_log(fname, new):
-    assert can_log(new), "Can't log: %r" % (new, )
+    assert can_log(new), "Can't log: %r" % (new,)
     os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, 'wb') as f:
+    with open(fname, "wb") as f:
         f.write(prep(new))
         f.write(sep)
 
@@ -235,7 +255,7 @@ def overwrite_log(db_name, path, logname, new, lock=True):
     * `lock` (default `True`): whether the database should be locked during
         this update
     """
-    #get an exclusive lock on this file before making changes
+    # get an exclusive lock on this file before making changes
     fname = get_log_filename(db_name, path, logname)
     cm = log_lock(fname) if lock else passthrough()
     with cm as l:
@@ -244,11 +264,11 @@ def overwrite_log(db_name, path, logname, new, lock=True):
 
 def _read_log(db_name, path, logname, lock=True):
     fname = get_log_filename(db_name, path, logname)
-    #get an exclusive lock on this file before reading it
+    # get an exclusive lock on this file before reading it
     cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
         try:
-            f = open(fname, 'rb')
+            f = open(fname, "rb")
             for i in f.read().split(sep):
                 if i:
                     yield unprep(i)
@@ -277,7 +297,7 @@ def read_log(db_name, path, logname, lock=True):
 
 
 def most_recent(db_name, path, logname, default=None, lock=True):
-    '''
+    """
     Ignoring most of the log, grab the last entry.
 
     This code works by reading backward through the log until the separator is
@@ -303,38 +323,48 @@ def most_recent(db_name, path, logname, default=None, lock=True):
 
     **Returns:** a single Python object representing the most recent entry in
     the log.
-    '''
+    """
     fname = get_log_filename(db_name, path, logname)
     if not os.path.isfile(fname):
         return default
-    #get an exclusive lock on this file before reading it
+    # get an exclusive lock on this file before reading it
     cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
-        with open(fname, 'rb') as f:
+        with open(fname, "rb") as f:
             return unprep(f.read().rsplit(sep, 2)[-2])
 
 
-def modify_most_recent(db_name, path, logname, default=None, transform_func=lambda x: x, method='update', lock=True):
+def modify_most_recent(
+    db_name,
+    path,
+    logname,
+    default=None,
+    transform_func=lambda x: x,
+    method="update",
+    lock=True,
+):
     fname = get_log_filename(db_name, path, logname)
     cm = log_lock(fname) if lock else passthrough()
     with cm as lock:
         old_val = most_recent(db_name, path, logname, default, lock=False)
         new_val = transform_func(old_val)
-        assert can_log(new_val), "Can't log: %r" % (new_val, )
-        if method == 'update':
+        assert can_log(new_val), "Can't log: %r" % (new_val,)
+        if method == "update":
             updater = update_log
         else:
             updater = overwrite_log
         updater(db_name, path, logname, new_val, lock=False)
     return new_val
 
+
 _literal_eval_funcs = {
-    'OrderedDict': OrderedDict,
-    'frozenset': frozenset,
-    'set': set,
-    'datetime': datetime,
-    'timedelta': timedelta,
+    "OrderedDict": OrderedDict,
+    "frozenset": frozenset,
+    "set": set,
+    "datetime": datetime,
+    "timedelta": timedelta,
 }
+
 
 def literal_eval(node_or_string):
     """
@@ -349,9 +379,10 @@ def literal_eval(node_or_string):
     Modified for CAT-SOOP to include collections.OrderedDict.
     """
     if isinstance(node_or_string, str):
-        node_or_string = ast.parse(node_or_string, mode='eval')
+        node_or_string = ast.parse(node_or_string, mode="eval")
     if isinstance(node_or_string, ast.Expression):
         node_or_string = node_or_string.body
+
     def _convert(node):
         if isinstance(node, (ast.Str, ast.Bytes)):
             return node.s
@@ -364,45 +395,57 @@ def literal_eval(node_or_string):
         elif isinstance(node, ast.Set):
             return set(map(_convert, node.elts))
         elif isinstance(node, ast.Dict):
-            return dict((_convert(k), _convert(v)) for k, v
-                        in zip(node.keys, node.values))
+            return dict(
+                (_convert(k), _convert(v)) for k, v in zip(node.keys, node.values)
+            )
         elif isinstance(node, ast.NameConstant):
             return node.value
-        elif isinstance(node, ast.UnaryOp) and \
-             isinstance(node.op, (ast.UAdd, ast.USub)) and \
-             isinstance(node.operand, (ast.Num, ast.UnaryOp, ast.BinOp)):
+        elif (
+            isinstance(node, ast.UnaryOp)
+            and isinstance(node.op, (ast.UAdd, ast.USub))
+            and isinstance(node.operand, (ast.Num, ast.UnaryOp, ast.BinOp))
+        ):
             operand = _convert(node.operand)
             if isinstance(node.op, ast.UAdd):
-                return + operand
+                return +operand
             else:
-                return - operand
-        elif isinstance(node, ast.BinOp) and \
-             isinstance(node.op, (ast.Add, ast.Sub)) and \
-             isinstance(node.right, (ast.Num, ast.UnaryOp, ast.BinOp)) and \
-             isinstance(node.left, (ast.Num, ast.UnaryOp, ast.BinOp)):
+                return -operand
+        elif (
+            isinstance(node, ast.BinOp)
+            and isinstance(node.op, (ast.Add, ast.Sub))
+            and isinstance(node.right, (ast.Num, ast.UnaryOp, ast.BinOp))
+            and isinstance(node.left, (ast.Num, ast.UnaryOp, ast.BinOp))
+        ):
             left = _convert(node.left)
             right = _convert(node.right)
             if isinstance(node.op, ast.Add):
                 return left + right
             else:
                 return left - right
-        elif isinstance(node, ast.Call) and \
-             isinstance(node.func, ast.Name) and \
-             node.func.id in _literal_eval_funcs:
+        elif (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id in _literal_eval_funcs
+        ):
             return _literal_eval_funcs[node.func.id](*(_convert(i) for i in node.args))
-        raise ValueError('malformed node or string: ' + repr(node))
+        raise ValueError("malformed node or string: " + repr(node))
+
     return _convert(node_or_string)
 
 
 NoneType = type(None)
+
+
 def can_log(x):
     """
     Checks whether a given value can be a log entry.
     """
-    if isinstance(x, (str, bytes, int, float, complex, NoneType, bool, datetime, timedelta)):
+    if isinstance(
+        x, (str, bytes, int, float, complex, NoneType, bool, datetime, timedelta)
+    ):
         return True
     elif isinstance(x, (list, tuple, set, frozenset)):
         return all(can_log(i) for i in x)
     elif isinstance(x, (dict, OrderedDict)):
-        return all((can_log(k) and can_log(v)) for k,v in x.items())
+        return all((can_log(k) and can_log(v)) for k, v in x.items())
     return False

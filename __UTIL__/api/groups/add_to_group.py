@@ -16,10 +16,10 @@
 
 import json
 
-api_token = cs_form.get('api_token', None)
-path = cs_form.get('path', None)
-username = cs_form.get('username', None)
-group = cs_form.get('group', None)
+api_token = cs_form.get("api_token", None)
+path = cs_form.get("path", None)
+username = cs_form.get("username", None)
+group = cs_form.get("group", None)
 
 error = None
 
@@ -36,21 +36,23 @@ except:
     error = "invalid path: %s" % path
 
 if error is None:
-    output = csm_api.get_user_information(globals(), api_token=api_token, course=path[0])
-    if output['ok']:
-        uinfo = output['user_info']
-        if 'groups' not in uinfo['permissions'] and 'admin' not in uinfo['permissions']:
-            error = 'Permission Denied'
+    output = csm_api.get_user_information(
+        globals(), api_token=api_token, course=path[0]
+    )
+    if output["ok"]:
+        uinfo = output["user_info"]
+        if "groups" not in uinfo["permissions"] and "admin" not in uinfo["permissions"]:
+            error = "Permission Denied"
 
 if error is None:
     ctx = csm_loader.spoof_early_load(opath)
     error = csm_groups.add_to_group(ctx, path, username, group)
 
 if error is not None:
-    output = {'ok': False, 'error': error}
+    output = {"ok": False, "error": error}
 else:
-    output = {'ok': True}
+    output = {"ok": True}
 
-cs_handler = 'raw_response'
-content_type = 'application/json'
+cs_handler = "raw_response"
+content_type = "application/json"
 response = json.dumps(output)

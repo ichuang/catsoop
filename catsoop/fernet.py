@@ -50,9 +50,7 @@ class RawFernet(object):
             backend = default_backend()
 
         if len(key) != 32:
-            raise ValueError(
-                "Fernet key must be 32 bytes."
-            )
+            raise ValueError("Fernet key must be 32 bytes.")
 
         self._signing_key = key[:16]
         self._encryption_key = key[16:]
@@ -78,9 +76,7 @@ class RawFernet(object):
         ).encryptor()
         ciphertext = encryptor.update(padded_data) + encryptor.finalize()
 
-        basic_parts = (
-            b"\x80" + struct.pack(">Q", current_time) + iv + ciphertext
-        )
+        basic_parts = b"\x80" + struct.pack(">Q", current_time) + iv + ciphertext
 
         h = HMAC(self._signing_key, hashes.SHA256(), backend=self._backend)
         h.update(basic_parts)

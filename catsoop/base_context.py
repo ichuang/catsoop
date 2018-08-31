@@ -21,31 +21,39 @@ the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
 
-_nodoc = {'contents', 'cs_all_pieces', 'cs_all_thirdparty', 'f', 'i', 'root',
-          'cs_dummy_username', 'datetime'}
+_nodoc = {
+    "contents",
+    "cs_all_pieces",
+    "cs_all_thirdparty",
+    "f",
+    "i",
+    "root",
+    "cs_dummy_username",
+    "datetime",
+}
 
-cs_version = '(development version, v12.1.1+)'
+cs_version = "(development version, v12.1.1+)"
 """
 CAT-SOOP's version number
 """
 
-cs_fs_root = '/home/cat-soop/cat-soop'
+cs_fs_root = "/home/cat-soop/cat-soop"
 """
 The directory where CAT-SOOP's source is located (no trailing slash).
 """
 
-cs_data_root = r'/home/cat-soop/data'
+cs_data_root = r"/home/cat-soop/data"
 """
 The directory where CAT-SOOP's data files are located (no trailing slash).
 """
 
-cs_url_root = 'http://localhost:6010'
+cs_url_root = "http://localhost:6010"
 """
 The URL root (without trailing slash).  Going to this URL should lead the user
 to CAT-SOOP's information page.
 """
 
-cs_auth_type = 'login'
+cs_auth_type = "login"
 """
 Special: Which authentication type to use (`'login'` to use a form, `'cert'` to
 read client certificates, `'openid_connect'` to use OpenID Connect, or some
@@ -53,16 +61,18 @@ other value for a course-specific or other custom authentication type).
 """
 
 # Default Page Content
-cs_title = 'CAT-SOOP'
+cs_title = "CAT-SOOP"
 """
 Special: The page title, to be displayed in the browser's title bar
 """
 
-cs_base_logo_text = ('\            '
-                   '\n/    /\__/\  '
-                   '\n\__=(  o_O )='
-                   '\n(__________) '
-                   '\n |_ |_ |_ |_ ')
+cs_base_logo_text = (
+    "\            "
+    "\n/    /\__/\  "
+    "\n\__=(  o_O )="
+    "\n(__________) "
+    "\n |_ |_ |_ |_ "
+)
 """
 Special: Text representing the CAT-SOOP Logo
 """
@@ -102,17 +112,17 @@ Special: The main header, displayed at the top-left of the page in the base
 theme.
 """
 
-cs_subheader = ''
+cs_subheader = ""
 """
 Special: Sub-header, displayed below the main header
 """
 
-cs_footer = ''
+cs_footer = ""
 """
 Special: Footer, displayed in addition to the "powered by CAT-SOOP" link
 """
 
-cs_top_menu = ''
+cs_top_menu = ""
 """
 Special: Navigation menu.
 
@@ -128,71 +138,73 @@ In the case where a dictionary is specified, the appropriate HTML for use with
 the base theme will be generated.
 """
 
-cs_scripts = ''
+cs_scripts = ""
 """
 Special: HTML to import additional scripts; included in the page's <head> tags
 """
 
-cs_side_menu = ''
+cs_side_menu = ""
 """
 Special: Additional menu space
 """
 
-cs_bottom_menu = ''
+cs_bottom_menu = ""
 """
 Special: Additional menu space
 """
 
-cs_content_header = ('<span class="cs_base_bold">C</span>AT-SOOP is an '
-                     '<span class="cs_base_bold">A</span>utomatic '
-                     '<span class="cs_base_bold">T</span>utor<br/> for '
-                     '<span class="cs_base_bold">S</span>ix-'
-                     '<span class="cs_base_bold">O</span>h-'
-                     '<span class="cs_base_bold">O</span>ne '
-                     '<span class="cs_base_bold">P</span>roblems')
+cs_content_header = (
+    '<span class="cs_base_bold">C</span>AT-SOOP is an '
+    '<span class="cs_base_bold">A</span>utomatic '
+    '<span class="cs_base_bold">T</span>utor<br/> for '
+    '<span class="cs_base_bold">S</span>ix-'
+    '<span class="cs_base_bold">O</span>h-'
+    '<span class="cs_base_bold">O</span>ne '
+    '<span class="cs_base_bold">P</span>roblems'
+)
 """
 Special: The text to be displayed at the top of the "content" block.
 """
 
-cs_content = ''
+cs_content = ""
 """
 Special: The content of the page
 """
 
-cs_footnotes = ''
+cs_footnotes = ""
 """
 Special: A string containing footnotes, if any.  Automatically populated by the
 default handler.
 """
 
-cs_template = 'BASE/templates/main.template'
+cs_template = "BASE/templates/main.template"
 """
 Special: The template file to use to render the page
 """
 
 # Default Look and Feel
 
-cs_theme = 'BASE/themes/base.css'
+cs_theme = "BASE/themes/base.css"
 """
 Special: A URL pointing to the page's CSS stylesheet
 """
 
-cs_icon_url = 'data:image/gif;base64,R0lGODlhEAAQAKEAAAAAAAAzZv///wAAACH5BAEKAAMALAAAAAAQABAAAAI+nBdpGTdwWnQPQOSYsUBAmT1e9ymIQnYedaiWMHKyq8L2bb/4rfc17Bp5gDziK5gz0nY+nMyp2/EgsypnUAAAOw=='
+cs_icon_url = "data:image/gif;base64,R0lGODlhEAAQAKEAAAAAAAAzZv///wAAACH5BAEKAAMALAAAAAAQABAAAAI+nBdpGTdwWnQPQOSYsUBAmT1e9ymIQnYedaiWMHKyq8L2bb/4rfc17Bp5gDziK5gz0nY+nMyp2/EgsypnUAAAOw=="
 """
 Special: A URL pointing to the page's favicon
 """
 
-cs_loading_image = 'data:image/gif;base64,R0lGODlhEAAQAPIGAMLCwkJCQgAAAGJiYoKCgpKSkv///wAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAGACwAAAAAEAAQAAADMmi63P4wyklrAyEAGoQInAdOmGYBw7AxwLoMGcG2rkHEQFHQLTsQOd2mB9ERCpTWzpEAACH5BAkKAAYALAAAAgAKAA4AAAMraAYRoNAEIUJUs97VHgTD4EVDQ2xEM2wgMV5AUbyKLKNEvoxA3P8sYNCQAAAh+QQJCgAGACwAAAAACgAOAAADLWi6EAFrBSGCAmQ0as1wROFABuEM0TUQ5FUU7fK+aRkWNYDFqV4bOl8v+BMuEgAh+QQJCgAGACwAAAAADgAKAAADKmi6QAMrrhECkaaVVl+FRiFuAwEEghAoYxGhqgI0oPxlNSbPOcb3PqAkAQAh+QQJCgAGACwCAAAADgAKAAADKWhqUAUrLuekApA+MiDD4BYExAVGwzgsmNR0lgWMXmwEghDYCq7zDFoCACH5BAkKAAYALAYAAAAKAA4AAAMqaADWros9GEuRUBE7jeUTYGEhMZANEQREN6xDJ54PsKJGIAhBp/OyWyMBACH5BAkKAAYALAYAAgAKAA4AAAMpaKoA+609Fie1C5Tipt7WRhRWw0ED0T1DEAyMq7mEEghCAKTdnZcySwIAIfkEBQoABgAsAgAGAA4ACgAAAytoumwALb4X2YR1URACVkBRYIEgBIw4KuUJDERIzGD3doMhfguBZyAYT5EAADs='
+cs_loading_image = "data:image/gif;base64,R0lGODlhEAAQAPIGAMLCwkJCQgAAAGJiYoKCgpKSkv///wAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAGACwAAAAAEAAQAAADMmi63P4wyklrAyEAGoQInAdOmGYBw7AxwLoMGcG2rkHEQFHQLTsQOd2mB9ERCpTWzpEAACH5BAkKAAYALAAAAgAKAA4AAAMraAYRoNAEIUJUs97VHgTD4EVDQ2xEM2wgMV5AUbyKLKNEvoxA3P8sYNCQAAAh+QQJCgAGACwAAAAACgAOAAADLWi6EAFrBSGCAmQ0as1wROFABuEM0TUQ5FUU7fK+aRkWNYDFqV4bOl8v+BMuEgAh+QQJCgAGACwAAAAADgAKAAADKmi6QAMrrhECkaaVVl+FRiFuAwEEghAoYxGhqgI0oPxlNSbPOcb3PqAkAQAh+QQJCgAGACwCAAAADgAKAAADKWhqUAUrLuekApA+MiDD4BYExAVGwzgsmNR0lgWMXmwEghDYCq7zDFoCACH5BAkKAAYALAYAAAAKAA4AAAMqaADWros9GEuRUBE7jeUTYGEhMZANEQREN6xDJ54PsKJGIAhBp/OyWyMBACH5BAkKAAYALAYAAgAKAA4AAAMpaKoA+609Fie1C5Tipt7WRhRWw0ED0T1DEAyMq7mEEghCAKTdnZcySwIAIfkEBQoABgAsAgAGAA4ACgAAAytoumwALb4X2YR1URACVkBRYIEgBIw4KuUJDERIzGD3doMhfguBZyAYT5EAADs="
 """
 A URI pointing to an image to be used as a loading icon.
 """
 
-cs_check_image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAMAAADzapwJAAABQVBMVEUAAAAGDQAAAAAAAAAAAAAAAAAAAACGqlBIfBNciiZGeg9Eeg5Feg5Gew9CdgpCdgxDehJvmDN1nj9plTVWhRtOgRlMfxZjkS5Geg9EeA5Geg5HfBBHew5GeQ5Cdg1CeAxDegtHgACVtmV+pURPgBp4oEBEeQx+o0p8oklFeg5YiCJIfRFEdQ5GehBHeg9CdwtEdQxEeg5Fdw5DeQ1Eegs2YQlCdwpCeAxDeQ0PHgBGdA9AdgkAAAAAAAARIgChwGKPs0qjwXKStUyFqD6CqDfJ3p+91Ji00XqlwmypyGihwGiauluWtlicwFKXulGTuEmMr0WOs0OKr0CGrDuEqjrR46zC2Ji+1ZC804640oK1z4CxzHywynqsx3enw3WYuWidvF+fwlqgxFePsFWSs1KIrE2Wu0uOr0qGqkeCpj50nDHRgoCJAAAAP3RSTlMABA0HEgoQ/ff17+jbxi8nDvz39vb29fTy7dPQoJeLVRUJ/f39+vn49/f118jAvrKWcW9jWllJQjkiIRwZFg8RajNxAAAA+klEQVQY06XQ1bLCMBAGYNJCHXfnuLtrFXc5gru+/wMQhhZouWRvMvNt/kx2dbvUC+V/3tY9OhZzX5i0HDqNxn/aRo2aXb/JXtR+p2HjfjUb5xmg1kfyL9v9d76q1UK1kqPaSWAFy1TQVs+zvCci4wd9fA8PE9HM5Rvkg5JlcJ68iuh8OFtkcb/ywrUtlUscUTfniaKQIlaj0AdsoZTuH2aEUsceXM/AuNNcmcsIZW7otWwsIuCacBVJqgycYdWPwx7rWJQKVu0y3n0OUZyemVUIAPp9S8wcIQRBDCgAsqIGBNM/eS/fPr/02KKx5IXDBixsfV2OwCYERebVjyGAvqhE3QAAAABJRU5ErkJggg=='
+cs_check_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAMAAADzapwJAAABQVBMVEUAAAAGDQAAAAAAAAAAAAAAAAAAAACGqlBIfBNciiZGeg9Eeg5Feg5Gew9CdgpCdgxDehJvmDN1nj9plTVWhRtOgRlMfxZjkS5Geg9EeA5Geg5HfBBHew5GeQ5Cdg1CeAxDegtHgACVtmV+pURPgBp4oEBEeQx+o0p8oklFeg5YiCJIfRFEdQ5GehBHeg9CdwtEdQxEeg5Fdw5DeQ1Eegs2YQlCdwpCeAxDeQ0PHgBGdA9AdgkAAAAAAAARIgChwGKPs0qjwXKStUyFqD6CqDfJ3p+91Ji00XqlwmypyGihwGiauluWtlicwFKXulGTuEmMr0WOs0OKr0CGrDuEqjrR46zC2Ji+1ZC804640oK1z4CxzHywynqsx3enw3WYuWidvF+fwlqgxFePsFWSs1KIrE2Wu0uOr0qGqkeCpj50nDHRgoCJAAAAP3RSTlMABA0HEgoQ/ff17+jbxi8nDvz39vb29fTy7dPQoJeLVRUJ/f39+vn49/f118jAvrKWcW9jWllJQjkiIRwZFg8RajNxAAAA+klEQVQY06XQ1bLCMBAGYNJCHXfnuLtrFXc5gru+/wMQhhZouWRvMvNt/kx2dbvUC+V/3tY9OhZzX5i0HDqNxn/aRo2aXb/JXtR+p2HjfjUb5xmg1kfyL9v9d76q1UK1kqPaSWAFy1TQVs+zvCci4wd9fA8PE9HM5Rvkg5JlcJ68iuh8OFtkcb/ywrUtlUscUTfniaKQIlaj0AdsoZTuH2aEUsceXM/AuNNcmcsIZW7otWwsIuCacBVJqgycYdWPwx7rWJQKVu0y3n0OUZyemVUIAPp9S8wcIQRBDCgAsqIGBNM/eS/fPr/02KKx5IXDBixsfV2OwCYERebVjyGAvqhE3QAAAABJRU5ErkJggg=="
 """
 A URI pointing to an image to be used for the "check" (correct) image.
 """
 
-cs_cross_image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAMAAADzapwJAAAA0lBMVEUAAAC/AAC/QEAAAADALS2qCwsAAAAAAAC7Jia3Hx+zGRm4ICCxFBTKQkLJPj68JycEAADMRUXMSEixFRXENjahBwe+KSmuEBDEMTEIAAALAAANAAAAAADGOTm+LCzCMjK1GxuzGRmuDw8AAAAsAADMR0fMSkrEMjLNQEDjbm7gYGDYUVHPRkbKPT3iZGTng4PmfHzld3fkcnLiZmbeW1vVVVXUTU3SSEjIODjpi4voiIjiamrfamrcZGTYW1vcV1faVVXST0/WTk7RTU3QRETlfn4RycE0AAAAKHRSTlMABAQEtrcvD/X19ba29fW2Kvb19fS2rKysJhsWCvX187a2tiER9vWsKh9QBQAAAP9JREFUGNOVzNdygkAYhuEsSChSVSxg1yQsvSliN+r935KL++N46jc7y8vDDF+fj+n3Gai/qqAbP60GQ+u3KlBjW5K3qlplaYB31QinW0Njqu9pGild4HiX4UjRNCXCGb6rlBlNTbJwFytKjMlD1eDnqDlKQzdMkoxcoyYiBN7Bbu6Sgzugte/z0ynfg9Y8nRzOnnc+TKboTWfjo/fvkXMcz9BLZWG1Ltar5yXI6KVX/1ZcBOFS3Pxr7T3RdxzHF2UZokdZCoLAEecIzUWHpEQZcdJmI3HorcDbbW7Jky2rAmWHtmkO9G8yXTdNix+ylHnbWjxdHywsm2cJw1i6Gh6M9B+39Tnr2wAAAABJRU5ErkJggg=='
+cs_cross_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAMAAADzapwJAAAA0lBMVEUAAAC/AAC/QEAAAADALS2qCwsAAAAAAAC7Jia3Hx+zGRm4ICCxFBTKQkLJPj68JycEAADMRUXMSEixFRXENjahBwe+KSmuEBDEMTEIAAALAAANAAAAAADGOTm+LCzCMjK1GxuzGRmuDw8AAAAsAADMR0fMSkrEMjLNQEDjbm7gYGDYUVHPRkbKPT3iZGTng4PmfHzld3fkcnLiZmbeW1vVVVXUTU3SSEjIODjpi4voiIjiamrfamrcZGTYW1vcV1faVVXST0/WTk7RTU3QRETlfn4RycE0AAAAKHRSTlMABAQEtrcvD/X19ba29fW2Kvb19fS2rKysJhsWCvX187a2tiER9vWsKh9QBQAAAP9JREFUGNOVzNdygkAYhuEsSChSVSxg1yQsvSliN+r935KL++N46jc7y8vDDF+fj+n3Gai/qqAbP60GQ+u3KlBjW5K3qlplaYB31QinW0Njqu9pGild4HiX4UjRNCXCGb6rlBlNTbJwFytKjMlD1eDnqDlKQzdMkoxcoyYiBN7Bbu6Sgzugte/z0ynfg9Y8nRzOnnc+TKboTWfjo/fvkXMcz9BLZWG1Ltar5yXI6KVX/1ZcBOFS3Pxr7T3RdxzHF2UZokdZCoLAEecIzUWHpEQZcdJmI3HorcDbbW7Jky2rAmWHtmkO9G8yXTdNix+ylHnbWjxdHywsm2cJw1i6Gh6M9B+39Tnr2wAAAABJRU5ErkJggg=="
 """
 A URI pointing to an image to be used for the "cross" (incorrect) image.
 """
@@ -212,7 +224,7 @@ default values to use for that question type.  These values are loaded in
 before the values in a <question> tag are evaluated.
 """
 
-cs_checker_websocket = 'ws://localhost:6011'
+cs_checker_websocket = "ws://localhost:6011"
 """
 Special: The location to which the browser should connect to the checker's
 "reporter" process.
@@ -238,7 +250,7 @@ Special: The number of checks the checker should run simultaneously.
 
 # UWSGI Server
 
-cs_wsgi_server = 'cheroot'
+cs_wsgi_server = "cheroot"
 """
 The WSGI server to use.  Currently, must be 'cheroot' or 'uwsgi'
 """
@@ -274,7 +286,7 @@ Special: Boolean indicating whether log entries should be encrypted.
 
 # File Upload Type
 
-cs_upload_management = 'file'
+cs_upload_management = "file"
 """
 Special: defines how CAT-SOOP should handle file uploads.  Must be `'file'` or
 `'db'`.
@@ -292,22 +304,21 @@ import os
 
 from datetime import datetime
 
-cs_debug_log_location = '/tmp/catsoop.log'
+cs_debug_log_location = "/tmp/catsoop.log"
 """
 The filename where the user debug log should be stored (via cs_debug)
 """
 
 
-def cs_debug(*values, tag=''):
+def cs_debug(*values, tag=""):
     """
     Write values to cs_debug_log_location, with a timestamp and an optional tag.
     If cs_debug_log_location is None, do nothing.
     """
     if cs_debug_log_location is None:
         return
-    with open(cs_debug_log_location, 'a') as myfile:
+    with open(cs_debug_log_location, "a") as myfile:
         print(datetime.now().time(), tag, *values, file=myfile)
-
 
 
 _cs_config_errors = []
@@ -315,52 +326,66 @@ _cs_config_errors = []
 # try to import configuration from config.py
 
 try:
-    with open(os.path.join(os.path.dirname(__file__), 'config.py')) as f:
+    with open(os.path.join(os.path.dirname(__file__), "config.py")) as f:
         exec(f.read())
 except Exception as e:
-    _cs_config_errors.append('error in config.py: %s' % (e, ))
+    _cs_config_errors.append("error in config.py: %s" % (e,))
 
 # Import all CAT-SOOP modules/subpackages
 
 cs_all_pieces = [
-    'api', 'auth', 'base_context', 'check', 'cslog', 'dispatch', 'errors',
-    'fernet', 'groups', 'language', 'loader', 'mail', 'process', 'session',
-    'time', 'thirdparty', 'tutor', 'util',
+    "api",
+    "auth",
+    "base_context",
+    "check",
+    "cslog",
+    "dispatch",
+    "errors",
+    "fernet",
+    "groups",
+    "language",
+    "loader",
+    "mail",
+    "process",
+    "session",
+    "time",
+    "thirdparty",
+    "tutor",
+    "util",
 ]
 
-cs_all_thirdparty = ['data_uri']
+cs_all_thirdparty = ["data_uri"]
 
 for i in cs_all_pieces:
-    if i != 'base_context':
-        exec('from . import %s' % i)
-        exec('csm_%s = %s' % (i, i))
+    if i != "base_context":
+        exec("from . import %s" % i)
+        exec("csm_%s = %s" % (i, i))
 
-exec('csm_tools = csm_thirdparty')
+exec("csm_tools = csm_thirdparty")
 
 for i in cs_all_thirdparty:
-    exec('from .thirdparty import %s' % i)
-    exec('csm_thirdparty.%s = %s' % (i, i))
+    exec("from .thirdparty import %s" % i)
+    exec("csm_thirdparty.%s = %s" % (i, i))
 
 # Checks for valid Configuration
 
 # check for valid fs_root
-_fs_root_error = ('cs_fs_root must be a directory containing the '
-                  'cat-soop source code')
+_fs_root_error = "cs_fs_root must be a directory containing the " "cat-soop source code"
 if not os.path.isdir(cs_fs_root):
     _cs_config_errors.append(_fs_root_error)
 else:
-    root = os.path.join(cs_fs_root, 'catsoop')
+    root = os.path.join(cs_fs_root, "catsoop")
     if not os.path.isdir(root):
         _cs_config_errors.append(_fs_root_error)
     else:
         contents = os.listdir(root)
-        if not all(('%s.py' % i in contents or i in contents)
-                   for i in cs_all_pieces):
+        if not all(("%s.py" % i in contents or i in contents) for i in cs_all_pieces):
             _cs_config_errors.append(_fs_root_error)
 # check for valid data_root
 if not os.path.isdir(cs_data_root):
-    _cs_config_errors.append('cs_data_root must be an existing directory')
+    _cs_config_errors.append("cs_data_root must be an existing directory")
 else:
     if not os.access(cs_data_root, os.W_OK):
-        _cs_config_errors.append('the web server must be able to write to '
-                                 'cs_data_root')
+        _cs_config_errors.append(
+            "the web server must be able to write to " "cs_data_root"
+        )

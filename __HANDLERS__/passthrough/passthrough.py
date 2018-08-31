@@ -16,4 +16,4 @@
 
 
 def handle(context):
-    return context.get('cs_content', '')
+    return context.get("cs_content", "")

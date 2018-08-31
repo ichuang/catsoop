@@ -31,9 +31,9 @@ from datetime import datetime
 os.setpgrp()
 
 scripts_dir = os.path.abspath(os.path.dirname(__file__))
-base_dir = os.path.abspath(os.path.join(scripts_dir, '..'))
+base_dir = os.path.abspath(os.path.join(scripts_dir, ".."))
 
-cs_logo = r'''
+cs_logo = r"""
 
 \
 /    /\__/\
@@ -42,7 +42,7 @@ cs_logo = r'''
  |_ |_ |_ |_
 
   CAT-SOOP
-'''
+"""
 
 
 def main():
@@ -50,96 +50,113 @@ def main():
     from catsoop.process import set_pdeathsig
 
     # Make sure the checker database is set up
-    checker_db_loc = os.path.join(base_context.cs_data_root,
-                                  '__LOGS__',
-                                  '_checker')
+    checker_db_loc = os.path.join(base_context.cs_data_root, "__LOGS__", "_checker")
 
-    for subdir in ('queued', 'running', 'results'):
+    for subdir in ("queued", "running", "results"):
         os.makedirs(os.path.join(checker_db_loc, subdir), exist_ok=True)
 
-
     procs = [
-        (scripts_dir, [sys.executable, 'checker.py'], 0.1, 'Checker'),
-        (scripts_dir, [sys.executable, 'reporter.py'], 0.1, 'Reporter'),
+        (scripts_dir, [sys.executable, "checker.py"], 0.1, "Checker"),
+        (scripts_dir, [sys.executable, "reporter.py"], 0.1, "Reporter"),
     ]
 
     # set up WSGI options
 
-    if base_context.cs_wsgi_server == 'cheroot':
+    if base_context.cs_wsgi_server == "cheroot":
         wsgi_ports = base_context.cs_wsgi_server_port
 
         if not isinstance(wsgi_ports, list):
             wsgi_ports = [wsgi_ports]
 
         for port in wsgi_ports:
-            procs.append((scripts_dir,
-                          [sys.executable, 'wsgi_server.py', str(port)],
-                          0.1,
-                          'WSGI Server at Port %d' % port))
-    elif base_context.cs_wsgi_server == 'uwsgi':
-        if base_context.cs_wsgi_server_min_processes >= base_context.cs_wsgi_server_max_processes:
-            uwsgi_opts = ['--processes', str(base_context.cs_wsgi_server_min_processes)]
+            procs.append(
+                (
+                    scripts_dir,
+                    [sys.executable, "wsgi_server.py", str(port)],
+                    0.1,
+                    "WSGI Server at Port %d" % port,
+                )
+            )
+    elif base_context.cs_wsgi_server == "uwsgi":
+        if (
+            base_context.cs_wsgi_server_min_processes
+            >= base_context.cs_wsgi_server_max_processes
+        ):
+            uwsgi_opts = ["--processes", str(base_context.cs_wsgi_server_min_processes)]
         else:
             uwsgi_opts = [
-                '--cheaper', str(base_context.cs_wsgi_server_min_processes),
-                '--workers', str(base_context.cs_wsgi_server_max_processes),
-                '--cheaper-step', '1',
-                '--cheaper-initial', str(base_context.cs_wsgi_server_min_processes),
+                "--cheaper",
+                str(base_context.cs_wsgi_server_min_processes),
+                "--workers",
+                str(base_context.cs_wsgi_server_max_processes),
+                "--cheaper-step",
+                "1",
+                "--cheaper-initial",
+                str(base_context.cs_wsgi_server_min_processes),
             ]
 
         uwsgi_opts = [
-            '--http', ':%s' % base_context.cs_wsgi_server_port,
-            '--thunder-lock',
-            '--wsgi-file', os.path.join('catsoop', 'wsgi.py'),
-            '--touch-reload', os.path.join('catsoop', 'wsgi.py'),
+            "--http",
+            ":%s" % base_context.cs_wsgi_server_port,
+            "--thunder-lock",
+            "--wsgi-file",
+            os.path.join("catsoop", "wsgi.py"),
+            "--touch-reload",
+            os.path.join("catsoop", "wsgi.py"),
         ] + uwsgi_opts
 
-        procs.append((base_dir, ['uwsgi'] + uwsgi_opts, 0.1, 'WSGI Server'))
+        procs.append((base_dir, ["uwsgi"] + uwsgi_opts, 0.1, "WSGI Server"))
     else:
-        raise ValueError('unsupported wsgi server: %r' % base_context.cs_wsgi_server)
+        raise ValueError("unsupported wsgi server: %r" % base_context.cs_wsgi_server)
 
     running = []
 
     for (ix, (wd, cmd, slp, name)) in enumerate(procs):
-        print('Starting', name)
-        running.append(subprocess.Popen(cmd, cwd=wd,
-                                        preexec_fn=set_pdeathsig(signal.SIGTERM)))
+        print("Starting", name)
+        running.append(
+            subprocess.Popen(cmd, cwd=wd, preexec_fn=set_pdeathsig(signal.SIGTERM))
+        )
         time.sleep(slp)
 
     def _kill_children():
         for ix, i in enumerate(running):
             os.kill(i.pid, signal.SIGTERM)
+
     atexit.register(_kill_children)
 
     while True:
         time.sleep(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(cs_logo)
-    config_loc = os.path.join(base_dir, 'catsoop', 'config.py')
+    config_loc = os.path.join(base_dir, "catsoop", "config.py")
     if not os.path.isfile(config_loc):
-        print('%s does not exist.  Please configure CAT-SOOP first, either by editing that file manually, or by running setup_catsoop.py' % config_loc)
+        print(
+            "%s does not exist.  Please configure CAT-SOOP first, either by editing that file manually, or by running setup_catsoop.py"
+            % config_loc
+        )
         sys.exit(1)
 
     if base_dir not in sys.path:
         sys.path.append(base_dir)
 
-
-    _enc_salt_file = os.path.join(base_dir, '.encryption_salt')
-    _enc_hash_file = os.path.join(base_dir, '.encryption_passphrase_hash')
+    _enc_salt_file = os.path.join(base_dir, ".encryption_salt")
+    _enc_hash_file = os.path.join(base_dir, ".encryption_passphrase_hash")
     if os.path.isfile(_enc_salt_file):
-        with open(_enc_salt_file, 'rb') as f:
+        with open(_enc_salt_file, "rb") as f:
             salt = f.read()
-        with open(_enc_hash_file, 'rb') as f:
+        with open(_enc_hash_file, "rb") as f:
             phash = f.read()
-        print("CAT-SOOP's logs are encrypted.  Please enter the encryption passphrase below.")
+        print(
+            "CAT-SOOP's logs are encrypted.  Please enter the encryption passphrase below."
+        )
         while True:
-            pphrase = getpass.getpass('Encryption passphrase: ')
-            h = hashlib.pbkdf2_hmac('sha512', pphrase.encode('utf8'), salt, 100000)
+            pphrase = getpass.getpass("Encryption passphrase: ")
+            h = hashlib.pbkdf2_hmac("sha512", pphrase.encode("utf8"), salt, 100000)
             if h == phash:
-                os.environ['CATSOOP_PASSPHRASE'] = pphrase
+                os.environ["CATSOOP_PASSPHRASE"] = pphrase
                 break
             else:
-                print('Passphrase does not match stored hash.  Try again.')
+                print("Passphrase does not match stored hash.  Try again.")
     main()

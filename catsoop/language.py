@@ -50,14 +50,23 @@ from markdown.extensions import fenced_code
 from markdown.extensions import sane_lists
 from bs4 import BeautifulSoup
 
-_nodoc = {'BeautifulSoup', 'OrderedDict', 'StringIO', 'clear_info',
-          'html_format', 'PYTHON_REGEX', 'PYVAR_REGEX',
-          'remove_common_leading_whitespace', 'source_formats',
-          'source_format_string'}
+_nodoc = {
+    "BeautifulSoup",
+    "OrderedDict",
+    "StringIO",
+    "clear_info",
+    "html_format",
+    "PYTHON_REGEX",
+    "PYVAR_REGEX",
+    "remove_common_leading_whitespace",
+    "source_formats",
+    "source_format_string",
+}
 
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
 _valid_qname = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
+
 
 def xml_pre_handle(context):
     """
@@ -74,18 +83,18 @@ def xml_pre_handle(context):
 
     **Returns:** `None`
     """
-    text = context['cs_content']
-    text = re.sub(_environment_matcher('comment'), '', text)
-    tmp = text.split('<question')
+    text = context["cs_content"]
+    text = re.sub(_environment_matcher("comment"), "", text)
+    tmp = text.split("<question")
     qcount = 0
     o = [tmp[0]]
     for piece in tmp[1:]:
-        chunks = piece.strip().split('>', 1)
+        chunks = piece.strip().split(">", 1)
         if len(chunks) != 2:
             o.append(_malformed_question)
             break
         type_, rest = chunks
-        otherrest = rest.split('</question>', 1)
+        otherrest = rest.split("</question>", 1)
         if len(otherrest) != 2:
             o.append(_malformed_question)
             break
@@ -94,49 +103,63 @@ def xml_pre_handle(context):
         try:
             code = remove_common_leading_whitespace(code)
             if isinstance(code, int):
-                o.append(("<div><font color='red'><b>A Python Error Occurred:</b></font>"
-                          '<p><pre>'
-                          'Inconsistent indentation on line %d of question tag'
-                          '</pre></p></div>') % code)
+                o.append(
+                    (
+                        "<div><font color='red'><b>A Python Error Occurred:</b></font>"
+                        "<p><pre>"
+                        "Inconsistent indentation on line %d of question tag"
+                        "</pre></p></div>"
+                    )
+                    % code
+                )
                 o.append(rest)
                 continue
             exec(code, e)
-            if 'csq_name' not in e:
-                e['csq_name'] = 'q%06d' % qcount
+            if "csq_name" not in e:
+                e["csq_name"] = "q%06d" % qcount
                 qcount += 1
-            if _valid_qname.match(e['csq_name']):
+            if _valid_qname.match(e["csq_name"]):
                 o.append(tutor.question(context, type_, **e))
             else:
-                o.append(('<div class="question">'
-                          '<font color="red">'
-                          'ERROR: Invalid question name <code>%r</code>'
-                          '</font></div>') % e['csq_name'])
+                o.append(
+                    (
+                        '<div class="question">'
+                        '<font color="red">'
+                        "ERROR: Invalid question name <code>%r</code>"
+                        "</font></div>"
+                    )
+                    % e["csq_name"]
+                )
         except:
             e = sys.exc_info()
             tb_entries = traceback.extract_tb(e[2])
             fname, lineno, func, text = tb_entries[-1]
             exc_only = traceback.format_exception_only(e[0], e[1])
             if e[0] == SyntaxError:
-                tb_text = 'Syntax error in question tag:\n'
-            elif func == '<module>':
-                tb_text = 'Error on line %d of question tag.' % lineno
+                tb_text = "Syntax error in question tag:\n"
+            elif func == "<module>":
+                tb_text = "Error on line %d of question tag." % lineno
                 try:
-                    tb_text += '\n    %s\n\n' % code.splitlines()[lineno-1].strip()
+                    tb_text += "\n    %s\n\n" % code.splitlines()[lineno - 1].strip()
                 except:
                     pass
             else:
-                tb_text = context['csm_errors'].error_message_content(context, html=False)
-                exc_only = ['']
-            tb_text = ''.join([tb_text] + exc_only)
+                tb_text = context["csm_errors"].error_message_content(
+                    context, html=False
+                )
+                exc_only = [""]
+            tb_text = "".join([tb_text] + exc_only)
 
             err = html_format(clear_info(context, tb_text))
-            ret = ("<div><font color='red'>"
-                   "<b>A Python Error Occurred:</b>"
-                   "<p><pre>%s</pre><p>"
-                   "</font></div>") % err
+            ret = (
+                "<div><font color='red'>"
+                "<b>A Python Error Occurred:</b>"
+                "<p><pre>%s</pre><p>"
+                "</font></div>"
+            ) % err
             o.append(ret)
         o.append(rest)
-    context['cs_problem_spec'] = o
+    context["cs_problem_spec"] = o
 
 
 def _md(x):
@@ -146,8 +169,9 @@ def _md(x):
             tables.TableExtension(),
             fenced_code.FencedCodeExtension(),
             sane_lists.SaneListExtension(),
-            markdown_math.MathExtension()
-        ])
+            markdown_math.MathExtension(),
+        ],
+    )
     return o
 
 
@@ -167,13 +191,13 @@ def md_pre_handle(context, xml=True):
 
     **Returns:** `None`
     """
-    text = context['cs_content']
+    text = context["cs_content"]
 
-    text = re.sub(_environment_matcher('comment'), '', text)
+    text = re.sub(_environment_matcher("comment"), "", text)
 
     text = _md_format_string(context, text, False)
 
-    context['cs_content'] = text
+    context["cs_content"] = text
     if xml:
         xml_pre_handle(context)
 
@@ -200,8 +224,7 @@ def _md_format_string(context, s, xml=True):
     # generate a unique string to split around
     splitter = None
     while splitter is None or splitter in s:
-        splitter = ''.join(
-            random.choice(string.ascii_letters) for i in range(20))
+        splitter = "".join(random.choice(string.ascii_letters) for i in range(20))
 
     # extract tags, replace with splitter
     tag_contents = []
@@ -210,11 +233,11 @@ def _md_format_string(context, s, xml=True):
         tag_contents.append(m.groups())
         return splitter
 
-    tags_to_replace = context.get('cs_markdown_ignore_tags', tuple())
-    tags = ('pre', 'question', '(?:display)?math',
-            'script') + tuple(tags_to_replace)
-    checker = re.compile(r'<(%s)(.*?)>(.*?)</\1>' % '|'.join(tags),
-                         re.MULTILINE | re.DOTALL)
+    tags_to_replace = context.get("cs_markdown_ignore_tags", tuple())
+    tags = ("pre", "question", "(?:display)?math", "script") + tuple(tags_to_replace)
+    checker = re.compile(
+        r"<(%s)(.*?)>(.*?)</\1>" % "|".join(tags), re.MULTILINE | re.DOTALL
+    )
 
     text = re.sub(checker, _replacer, s)
 
@@ -222,15 +245,15 @@ def _md_format_string(context, s, xml=True):
 
     num_tags = len(tag_contents)
     pieces = text.split(splitter)
-    o = ''
+    o = ""
     for ix, piece in enumerate(pieces):
         o += piece
         if ix < num_tags:
             t, r, b = tag_contents[ix]
-            o += '<%s%s>%s</%s>' % (t, r, b, t)
+            o += "<%s%s>%s</%s>" % (t, r, b, t)
     text = o
 
-    if text.startswith('<p>') and text.endswith('</p>'):
+    if text.startswith("<p>") and text.endswith("</p>"):
         text = text[3:-4]
 
     return _xml_format_string(context, text) if xml else text
@@ -240,13 +263,14 @@ def _xml_format_string(context, s):
     return handle_custom_tags(context, s)
 
 
-source_formats = OrderedDict([('md', md_pre_handle), ('xml', xml_pre_handle),
-                              ('py', py_pre_handle)])
+source_formats = OrderedDict(
+    [("md", md_pre_handle), ("xml", xml_pre_handle), ("py", py_pre_handle)]
+)
 """OrderedDict mapping source format names to formatting handlers"""
 
-source_format_string = OrderedDict([('md', _md_format_string),
-                                    ('xml', _xml_format_string),
-                                    ('py', _xml_format_string)])
+source_format_string = OrderedDict(
+    [("md", _md_format_string), ("xml", _xml_format_string), ("py", _xml_format_string)]
+)
 """OrderedDict mapping source format names to formatters"""
 
 
@@ -266,7 +290,7 @@ def source_transform_string(context, s):
 
     **Returns:** the translated string
     """
-    src_format = context.get('cs_source_format', None)
+    src_format = context.get("cs_source_format", None)
     if src_format is not None:
         return source_format_string[src_format](context, s)
     else:
@@ -277,26 +301,29 @@ def source_transform_string(context, s):
 
 
 def _environment_matcher(tag):
-    return re.compile("""<%s>(?P<body>.*?)</%s>""" % (tag, tag),
-                      re.MULTILINE | re.DOTALL | re.IGNORECASE)
+    return re.compile(
+        """<%s>(?P<body>.*?)</%s>""" % (tag, tag),
+        re.MULTILINE | re.DOTALL | re.IGNORECASE,
+    )
 
 
-_matcher = r'[\#0\- +]*\d*(?:.\d+)?[hlL]?[diouxXeEfFgGcrs]'
-_matcher = r'(?:%%%s|%s)?' % (_matcher, _matcher)
+_matcher = r"[\#0\- +]*\d*(?:.\d+)?[hlL]?[diouxXeEfFgGcrs]"
+_matcher = r"(?:%%%s|%s)?" % (_matcher, _matcher)
 _pyvar_matcher = r"(?P<lead>^|[^\\])@(?P<fmt>%s){(?P<body>.+?)}" % _matcher
 PYVAR_REGEX = re.compile(_pyvar_matcher, re.DOTALL | re.IGNORECASE)
 """Regular expression for matching `@{}` syntax"""
 
 PYTHON_REGEX = re.compile(
     r"""<(?P<tag>python|printf) *(?P<opts>.*?)>(?P<body>.*?)</(?P=tag)>""",
-    re.MULTILINE | re.DOTALL | re.IGNORECASE)
+    re.MULTILINE | re.DOTALL | re.IGNORECASE,
+)
 """Regular expression for matching &lt;python&gt; tags"""
 
 
 def remove_common_leading_whitespace(x):
     lines = x.splitlines()
     if len(lines) == 0:
-        return ''
+        return ""
     for ix in range(len(lines)):
         if lines[ix].strip():
             break
@@ -311,17 +338,25 @@ def remove_common_leading_whitespace(x):
         if not i.startswith(candidate):
             return ix
     lc = len(candidate)
-    return '\n'.join(i[lc:] for i in lines)
+    return "\n".join(i[lc:] for i in lines)
+
 
 def _tab_replacer(x):
-    return x.group(1).replace('\t', '    ')
+    return x.group(1).replace("\t", "    ")
 
-_indent_regex = re.compile(r'^(\s*)')
+
+_indent_regex = re.compile(r"^(\s*)")
+
 
 def _replace_indentation_tabs(x):
     return re.sub(_indent_regex, _tab_replacer, x)
 
-_string_regex = re.compile(r"""(\"\"\"[^"\\]*(?:(?:\\.|"(?!""))[^"\\]*)*\"\"\"|'''[^'\\]*(?:(?:\\.|'(?!''))[^'\\]*)*'''|'[^\n'\\]*(?:\\.[^\n'\\]*)*'|"[^\n"\\]*(?:\\.[^\n"\\]*)*")""", re.MULTILINE|re.DOTALL)
+
+_string_regex = re.compile(
+    r"""(\"\"\"[^"\\]*(?:(?:\\.|"(?!""))[^"\\]*)*\"\"\"|'''[^'\\]*(?:(?:\\.|'(?!''))[^'\\]*)*'''|'[^\n'\\]*(?:\\.[^\n'\\]*)*'|"[^\n"\\]*(?:\\.[^\n"\\]*)*")""",
+    re.MULTILINE | re.DOTALL,
+)
+
 
 def indent_code(c):
     strings = {}
@@ -329,13 +364,14 @@ def indent_code(c):
     def _replacer(x):
         new_id = None
         while new_id is None or new_id in strings or new_id in c:
-            new_id = ''.join(random.choice(string.ascii_letters) for i in range(20))
+            new_id = "".join(random.choice(string.ascii_letters) for i in range(20))
         strings[new_id] = x.group(1)
         return new_id
+
     c = re.sub(_string_regex, _replacer, c)
     # now that strings are out of the way, change the indentation of every line
-    c = '\n'.join('    %s' % _replace_indentation_tabs(i) for i in c.splitlines())
-    c = '    pass\n%s' % c
+    c = "\n".join("    %s" % _replace_indentation_tabs(i) for i in c.splitlines())
+    c = "    pass\n%s" % c
     # finally, reintroduce strings
     for k, v in strings.items():
         c = c.replace(k, v)
@@ -343,7 +379,7 @@ def indent_code(c):
 
 
 def get_python_output(context, code, variables, line_offset=0):
-    '''
+    """
     Helper function.  Evaluate code in the given environment, and return its
     output, if any.
 
@@ -367,70 +403,88 @@ def get_python_output(context, code, variables, line_offset=0):
         source file
 
     **Returns:** a string containing any values written to `cs___WEBOUT`
-    '''
-    variables.update({'cs___WEBOUT': StringIO()})
+    """
+    variables.update({"cs___WEBOUT": StringIO()})
     try:
         code = remove_common_leading_whitespace(code)
         if isinstance(code, int):
-            return ("<div><font color='red'><b>A Python Error Occurred:</b></font>"
-                    '<p><pre>'
-                    'Inconsistent indentation on line %d of python tag (line %d of source)'
-                    '</pre></p></div>') % (code, code + line_offset + 1)
+            return (
+                "<div><font color='red'><b>A Python Error Occurred:</b></font>"
+                "<p><pre>"
+                "Inconsistent indentation on line %d of python tag (line %d of source)"
+                "</pre></p></div>"
+            ) % (code, code + line_offset + 1)
         code = indent_code(code)
-        code = (('_cs_oprint = print\n'
-                 'def myprint(*args, **kwargs):\n'
-                 '    if "file" not in kwargs:\n'
-                 '        kwargs["file"] = cs___WEBOUT\n'
-                 '    _cs_oprint(*args, **kwargs)\n'
-                 'print = cs_print = myprint\n'
-                 'try:\n\n')
-                 + code +
-                 ('\nexcept Exception as e:\n'
-                  '    raise e\n'
-                  'finally:\n'
-                  '    print = _cs_oprint'))
-        code = code.replace('tutor.init_random()',
-                            'tutor.init_random(globals())')
-        code = code.replace('tutor.question(', 'tutor.question(globals(),')
+        code = (
+            (
+                "_cs_oprint = print\n"
+                "def myprint(*args, **kwargs):\n"
+                '    if "file" not in kwargs:\n'
+                '        kwargs["file"] = cs___WEBOUT\n'
+                "    _cs_oprint(*args, **kwargs)\n"
+                "print = cs_print = myprint\n"
+                "try:\n\n"
+            )
+            + code
+            + (
+                "\nexcept Exception as e:\n"
+                "    raise e\n"
+                "finally:\n"
+                "    print = _cs_oprint"
+            )
+        )
+        code = code.replace("tutor.init_random()", "tutor.init_random(globals())")
+        code = code.replace("tutor.question(", "tutor.question(globals(),")
         exec(code, variables)
-        return variables['cs___WEBOUT'].getvalue()
+        return variables["cs___WEBOUT"].getvalue()
     except:
         e = sys.exc_info()
         tb_entries = traceback.extract_tb(e[2])
         fname, lineno, func, text = tb_entries[-1]
         exc_only = traceback.format_exception_only(e[0], e[1])
         if e[0] == SyntaxError:
-            tb_text = 'Syntax error in Python tag:\n'
+            tb_text = "Syntax error in Python tag:\n"
+
             def lineno_replacer(x):
-                return 'line %d' % (ast.literal_eval(x.group(1)) - 9)
-            exc_only = [re.sub(r'line (\d)+', lineno_replacer, i) for i in exc_only]
-        elif func == '<module>':
-            tb_text = 'Error on line %d of Python tag (line %d of source):\n    %s\n\n' % (lineno - 9, lineno + line_offset - 8, code.splitlines()[lineno-1].strip())
+                return "line %d" % (ast.literal_eval(x.group(1)) - 9)
+
+            exc_only = [re.sub(r"line (\d)+", lineno_replacer, i) for i in exc_only]
+        elif func == "<module>":
+            tb_text = (
+                "Error on line %d of Python tag (line %d of source):\n    %s\n\n"
+                % (
+                    lineno - 9,
+                    lineno + line_offset - 8,
+                    code.splitlines()[lineno - 1].strip(),
+                )
+            )
         else:
-            tb_text = context['csm_errors'].error_message_content(context, html=False)
-            exc_only = ['']
-        tb_text = ''.join([tb_text] + exc_only)
+            tb_text = context["csm_errors"].error_message_content(context, html=False)
+            exc_only = [""]
+        tb_text = "".join([tb_text] + exc_only)
 
         err = html_format(clear_info(context, tb_text))
-        ret = ("<div><font color='red'>"
-               "<b>A Python Error Occurred:</b>"
-               "<p><pre>%s</pre><p>"
-               "</font></div>") % (err, )
+        ret = (
+            "<div><font color='red'>"
+            "<b>A Python Error Occurred:</b>"
+            "<p><pre>%s</pre><p>"
+            "</font></div>"
+        ) % (err,)
         return ret
 
 
 def _make_python_handler(context, fulltext):
-    if 'cs__python_envs' not in context:
-        context['cs__python_envs'] = {}
+    if "cs__python_envs" not in context:
+        context["cs__python_envs"] = {}
 
     def python_tag_handler(match):
         execcontext = context
-        guess_line = fulltext[:match.start()].count('\n')
- #       guess_line = 0
+        guess_line = fulltext[: match.start()].count("\n")
+        #       guess_line = 0
         d = match.groupdict()
-        opts = (d['opts'] or "").strip().split(" ")
-        body = d['body']
-        if d['tag'] == 'printf':
+        opts = (d["opts"] or "").strip().split(" ")
+        body = d["body"]
+        if d["tag"] == "printf":
             if len(opts) == 1 and opts[0] == "":
                 f = "%s"
             else:
@@ -449,15 +503,14 @@ def _make_python_handler(context, fulltext):
         # decide in which environment the code should be run
         for i in opts:
             if i.startswith("env="):
-                envname = "=".join(i.split('=')[1:])
-                if envname not in context['cs__python_envs']:
-                    context['cs__python_envs'][envname] = {}
-                execcontext = context['cs__python_envs'][envname]
+                envname = "=".join(i.split("=")[1:])
+                if envname not in context["cs__python_envs"]:
+                    context["cs__python_envs"][envname] = {}
+                execcontext = context["cs__python_envs"][envname]
         # run the code
         code_result = get_python_output(context, body, execcontext, guess_line)
         # decide whether to show the result
-        return ((out + code_result).strip()
-                if "noresult" not in opts else (out).strip())
+        return (out + code_result).strip() if "noresult" not in opts else (out).strip()
 
     return python_tag_handler
 
@@ -477,9 +530,9 @@ def handle_includes(context, text):
     """
     # we'll handle paths relative to here unless given an absolute path
     def _include_handler(match):
-        base_dir = dispatch.content_file_location(context, context['cs_path_info'])
+        base_dir = dispatch.content_file_location(context, context["cs_path_info"])
         base_dir = os.path.realpath(os.path.dirname(base_dir))
-        b = match.groupdict()['body']
+        b = match.groupdict()["body"]
         replacements = []
         for fname in b.splitlines():
             fname = fname.strip()
@@ -494,12 +547,13 @@ def handle_includes(context, text):
                 continue
             with open(fname) as f:
                 replacements.append(f.read())
-        return '\n\n'.join(replacements)
-    return re.sub(_environment_matcher('include'), _include_handler, text)
+        return "\n\n".join(replacements)
+
+    return re.sub(_environment_matcher("include"), _include_handler, text)
 
 
 def handle_python_tags(context, text):
-    '''
+    """
     Process all Python-related custom tags.
 
     Firstly, each `@{}` is translated into an appropriate `<printf>` tag.
@@ -514,21 +568,23 @@ def handle_python_tags(context, text):
 
     **Returns:** a string representing the updated HTML after python tags have
     been handled
-    '''
+    """
 
     def printf_handler(x):
         g = x.groupdict()
-        return '%s<printf %s>%s</printf>' % (g.get('lead', ''),
-                                             g.get('fmt', None) or '%s',
-                                             g['body'])
+        return "%s<printf %s>%s</printf>" % (
+            g.get("lead", ""),
+            g.get("fmt", None) or "%s",
+            g["body"],
+        )
 
     text = re.sub(PYVAR_REGEX, printf_handler, text)
     text = re.sub(PYTHON_REGEX, _make_python_handler(context, text), text)
-    return text.replace(r'\@{', '@{')
+    return text.replace(r"\@{", "@{")
 
 
 def handle_custom_tags(context, text):
-    '''
+    """
     Process custom HTML tags
 
     This function begins by calling `cs_course_handle_custom_tags` on the input
@@ -557,32 +613,31 @@ def handle_custom_tags(context, text):
 
     **Returns:** a string representing the updated HTML after custom tags have
     been handled
-    '''
+    """
 
-    if 'cs_course_handle_custom_tags' in context:
-        text = context['cs_course_handle_custom_tags'](text)
-
+    if "cs_course_handle_custom_tags" in context:
+        text = context["cs_course_handle_custom_tags"](text)
 
     section = r"((?:chapter)|(?:(?:sub){0,2}section))"
     section_star = r"<(?P<tag>%s)\*>(?P<body>.*?)</(?P=tag)\*?>" % section
-    section_star = re.compile(section_star,
-                              re.MULTILINE | re.DOTALL | re.IGNORECASE)
+    section_star = re.compile(section_star, re.MULTILINE | re.DOTALL | re.IGNORECASE)
 
     tag_map = {
-        'section': ('h2', 1),
-        'subsection': ('h3', 2),
-        'subsubsection': ('h4', 3),
+        "section": ("h2", 1),
+        "subsection": ("h3", 2),
+        "subsubsection": ("h4", 3),
     }
 
     def _section_star_matcher(x):
         d = x.groupdict()
-        t = d['tag'].rstrip('*')
-        b = d['body']
+        t = d["tag"].rstrip("*")
+        b = d["body"]
         t = tag_map[t][0]
-        return '<%s>%s</%s>' % (t, b, t)
+        return "<%s>%s</%s>" % (t, b, t)
+
     text = re.sub(section_star, _section_star_matcher, text)
 
-    tree = BeautifulSoup(text, 'html5lib')
+    tree = BeautifulSoup(text, "html5lib")
 
     # handle sections, etc.
 
@@ -590,111 +645,114 @@ def handle_custom_tags(context, text):
     textsections = [0, 0, 0]
     chapter = None
 
-
     for i in tree.find_all(re.compile(section)):
-        if i.name == 'chapter':
-            chapter = i.attrs.get('num', '0')
-            tag = 'h1'
+        if i.name == "chapter":
+            chapter = i.attrs.get("num", "0")
+            tag = "h1"
             num = str(chapter)
         else:
-            if i.name == 'section':
+            if i.name == "section":
                 textsections[0] += 1
                 textsections[1] = 0
-            elif i.name == 'subsection':
+            elif i.name == "subsection":
                 textsections[1] += 1
                 textsections[2] = 0
-            elif i.name == 'subsubsection':
+            elif i.name == "subsubsection":
                 textsections[2] += 1
             tag, lim = tag_map[i.name]
             to_num = textsections[:lim]
             if chapter is not None:
                 to_num.insert(0, chapter)
-            num = '.'.join(map(str, to_num))
+            num = ".".join(map(str, to_num))
 
-        linknum = num.replace('.', '_')
+        linknum = num.replace(".", "_")
         linkname = "catsoop_section_%s" % linknum
 
-        lbl = i.attrs.get('label', None)
+        lbl = i.attrs.get("label", None)
         if lbl is not None:
             labels[lbl] = {
-                'type': i.name,
-                'number': num,
-                'title': i.string,
-                'link': '#%s' % linkname
+                "type": i.name,
+                "number": num,
+                "title": i.string,
+                "link": "#%s" % linkname,
             }
         sec = copy.copy(i)
         sec.name = tag
-        sec.insert(0, '%s) ' % num)
+        sec.insert(0, "%s) " % num)
         if lbl is not None:
-            sec.attrs['id'] = 'catsoop_label_%s' % lbl
+            sec.attrs["id"] = "catsoop_label_%s" % lbl
         i.replace_with(sec)
-        link = tree.new_tag('a')
-        link['class'] = 'anchor'
-        link.attrs['name'] = linkname
+        link = tree.new_tag("a")
+        link["class"] = "anchor"
+        link.attrs["name"] = linkname
         sec.insert_before(link)
 
     # handle refs
 
-    for i in tree.find_all('ref'):
-        if 'label' not in i.attrs:
+    for i in tree.find_all("ref"):
+        if "label" not in i.attrs:
             lbl = list(i.attrs.keys())[0]
         else:
-            lbl = i.attrs['label']
+            lbl = i.attrs["label"]
 
         body = i.innerHTML or '<a href="{link}">{type} {number}</a>'
         body = body.format(**labels[lbl])
-        new = BeautifulSoup(body, 'html5lib')
+        new = BeautifulSoup(body, "html5lib")
         i.replace_with(new)
 
     # footnotes
 
     footnotes = []
 
-    for ix, i in enumerate(tree.find_all('footnote')):
+    for ix, i in enumerate(tree.find_all("footnote")):
         jx = ix + 1
         footnotes.append(i.decode_contents())
-        sup = tree.new_tag('sup')
+        sup = tree.new_tag("sup")
         sup.string = str(jx)
         i.replace_with(sup)
-        link = tree.new_tag('a', href="#catsoop_footnote_%d" % jx)
+        link = tree.new_tag("a", href="#catsoop_footnote_%d" % jx)
         sup.wrap(link)
-        ref = tree.new_tag('a')
-        ref.attrs['name'] = "catsoop_footnote_ref_%d" % jx
-        ref['class'] = 'anchor'
+        ref = tree.new_tag("a")
+        ref.attrs["name"] = "catsoop_footnote_ref_%d" % jx
+        ref["class"] = "anchor"
         link.insert_before(ref)
 
     if len(footnotes) == 0:
-        fnote = ''
+        fnote = ""
     else:
         fnote = '<br/>&nbsp;<hr/><b name="cs_footnotes">Footnotes</b>'
         for (ix, f) in enumerate(footnotes):
             ix = ix + 1
-            fnote += ('<p><a class="anchor" name="catsoop_footnote_%d"></a><sup style="padding-right:0.25em;color:var(--cs-base-bg-color);">%d</sup>'
-                      '%s <a href="#catsoop_footnote_ref_%d">'
-                      '<span class="noprint">(click to return to text)</span>'
-                      '</a></p>') % (ix, ix, f, ix)
-    context['cs_footnotes'] = fnote
+            fnote += (
+                '<p><a class="anchor" name="catsoop_footnote_%d"></a><sup style="padding-right:0.25em;color:var(--cs-base-bg-color);">%d</sup>'
+                '%s <a href="#catsoop_footnote_ref_%d">'
+                '<span class="noprint">(click to return to text)</span>'
+                "</a></p>"
+            ) % (ix, ix, f, ix)
+    context["cs_footnotes"] = fnote
 
     # hints (<showhide>)
 
     def _md5(x):
         return hashlib.md5(x.encode()).hexdigest()
 
-    for ix, i in enumerate(tree.find_all('showhide')):
-        i.name = 'div'
-        i.attrs['style'] = "display:none;"
-        wrap = tree.new_tag('div')
-        wrap['class'] = ['response']
+    for ix, i in enumerate(tree.find_all("showhide")):
+        i.name = "div"
+        i.attrs["style"] = "display:none;"
+        wrap = tree.new_tag("div")
+        wrap["class"] = ["response"]
         i.wrap(wrap)
-#        button = tree.new_tag('button', onclick="function(){var x=document.getElementById(%r);if(x.style.indexOf('none')>-1){x.style='display: block';}else{x.style='display:none;'}}" % i.attrs['id'])
-        button = tree.new_tag('button', onclick="if(this.nextSibling.style.display === 'none'){this.nextSibling.style.display = 'block';}else{this.nextSibling.style.display = 'none';}")
-        button.string = 'Show/Hide'
+        #        button = tree.new_tag('button', onclick="function(){var x=document.getElementById(%r);if(x.style.indexOf('none')>-1){x.style='display: block';}else{x.style='display:none;'}}" % i.attrs['id'])
+        button = tree.new_tag(
+            "button",
+            onclick="if(this.nextSibling.style.display === 'none'){this.nextSibling.style.display = 'block';}else{this.nextSibling.style.display = 'none';}",
+        )
+        button.string = "Show/Hide"
         i.insert_before(button)
 
     # custom URL handling in img, a, script, link
 
-    URL_FIX_LIST = [('img', 'src'), ('a', 'href'), ('script', 'src'), ('link',
-                                                                       'href')]
+    URL_FIX_LIST = [("img", "src"), ("a", "href"), ("script", "src"), ("link", "href")]
 
     for (tag, field) in URL_FIX_LIST:
         for i in tree.find_all(tag):
@@ -705,16 +763,17 @@ def handle_custom_tags(context, text):
     handle_math_tags(tree)
 
     # code blocks: specific default behavior
-    default_code_class = context.get('cs_default_code_language', 'nohighlight')
+    default_code_class = context.get("cs_default_code_language", "nohighlight")
     if default_code_class is not None:
-        for i in tree.find_all('code'):
-            if i.parent.name != 'pre':
+        for i in tree.find_all("code"):
+            if i.parent.name != "pre":
                 continue
-            if ('class' in i.attrs and (isinstance(i.attrs['class'], str) or
-                                        len(i.attrs['class']) > 0)):
+            if "class" in i.attrs and (
+                isinstance(i.attrs["class"], str) or len(i.attrs["class"]) > 0
+            ):
                 # this already has a class; skip!
                 continue
-            i.attrs['class'] = [default_code_class]
+            i.attrs["class"] = [default_code_class]
 
     return str(tree)
 
@@ -733,13 +792,13 @@ def handle_math_tags(tree):
     **Returns:** a string representing the updated HTML after math tags have
     been handled
     """
-    for ix, i in enumerate(tree.find_all(re.compile('(?:display)?math'))):
-        i['class'] = i.get('class', [])
-        if i.name == 'math':
-            i.name = 'span'
+    for ix, i in enumerate(tree.find_all(re.compile("(?:display)?math"))):
+        i["class"] = i.get("class", [])
+        if i.name == "math":
+            i.name = "span"
         else:
-            i.name = 'div'
-            i.attrs['style'] = "text-align:center;padding-bottom:10px;"
-            i['class'].append('cs_displaymath')
-        i['class'].append('cs_math_to_render')
+            i.name = "div"
+            i.attrs["style"] = "text-align:center;padding-bottom:10px;"
+            i["class"].append("cs_displaymath")
+        i["class"].append("cs_math_to_render")
     return tree

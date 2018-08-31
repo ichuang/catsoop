@@ -23,7 +23,7 @@ from . import loader
 
 
 def _hide(n):
-    return n[0] in ('_', '.') or not n.endswith('.py')
+    return n[0] in ("_", ".") or not n.endswith(".py")
 
 
 def users_dir(context, course):
@@ -38,8 +38,8 @@ def users_dir(context, course):
     **Returns:** a string containing the location of the given course's
     `__USERS__` directory.
     """
-    root = context['cs_data_root']
-    return os.path.join(root, 'courses', course, '__USERS__')
+    root = context["cs_data_root"]
+    return os.path.join(root, "courses", course, "__USERS__")
 
 
 def list_all_users(context, course):
@@ -54,7 +54,7 @@ def list_all_users(context, course):
     **Returns:** a list of the usernames of all users in the course
     """
     usrdir = users_dir(context, course)
-    return [i.rsplit('.', 1)[0] for i in os.listdir(usrdir) if not _hide(i)]
+    return [i.rsplit(".", 1)[0] for i in os.listdir(usrdir) if not _hide(i)]
 
 
 def read_user_file(context, course, user, default=None):
@@ -80,7 +80,7 @@ def read_user_file(context, course, user, default=None):
         uinfo = {}
         with open(user_file) as f:
             exec(f.read(), uinfo)
-        uinfo['username'] = user
+        uinfo["username"] = user
         loader.clean_builtins(uinfo)
         return uinfo
     else:
@@ -106,6 +106,8 @@ def all_users_info(context, course, filter_func=lambda uinfo: True):
     **Returns:** a dictionary mapping usernames to user information
     dictionaries
     """
-    all_users = {u: read_user_file(context, course, u, {})
-                 for u in list_all_users(context, course)}
+    all_users = {
+        u: read_user_file(context, course, u, {})
+        for u in list_all_users(context, course)
+    }
     return {k: v for k, v in all_users.items() if filter_func(v)}

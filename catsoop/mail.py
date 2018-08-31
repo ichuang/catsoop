@@ -47,12 +47,12 @@ def get_from_address(context):
     **Returns:** a string containing a default "From" address, or `None` in the
     case of an error.
     """
-    from_addr = context.get('cs_email_from_address', None)
+    from_addr = context.get("cs_email_from_address", None)
     if from_addr is not None:
         return from_addr
     # no address specified.
     # try to figure out a reasonable guess from cs_url_root.
-    m = RE_URL.match(context.get('cs_url_root', ''))
+    m = RE_URL.match(context.get("cs_url_root", ""))
     if m is None:
         # cs_url_root not set, or didn't match RE_URL; return None
         # (will error out later)
@@ -76,10 +76,10 @@ def get_smtp_config_vars(context):
 
     **Returns:** a 4-tuple `(hostname, port, username, password)`
     """
-    host = context.get('cs_smtp_host', 'localhost')
-    port = context.get('cs_smtp_port', 25)
-    user = context.get('cs_smtp_user', None)
-    passwd = context.get('cs_smtp_password', None)
+    host = context.get("cs_smtp_host", "localhost")
+    port = context.get("cs_smtp_port", 25)
+    user = context.get("cs_smtp_user", None)
+    passwd = context.get("cs_smtp_password", None)
     return host, port, user, passwd
 
 
@@ -125,7 +125,7 @@ def setup_smtp_object(smtp, user, passwd):
     smtp.set_debuglevel(False)
     smtp.ehlo()
     if user is not None and passwd is not None:
-        if smtp.has_extn('STARTTLS'):
+        if smtp.has_extn("STARTTLS"):
             smtp.starttls()
             smtp.ehlo()
         smtp.login(user, passwd)
@@ -154,8 +154,7 @@ def can_send_email(context, smtp=-1):
     return smtp is not None and get_from_address(context) is not None
 
 
-def send_email(context, to_addr, subject, body, html_body=None,
-               from_addr=None):
+def send_email(context, to_addr, subject, body, html_body=None, from_addr=None):
     """
     Helper function.  Send an e-mail.
 
@@ -180,16 +179,15 @@ def send_email(context, to_addr, subject, body, html_body=None,
         to_addr = [to_addr]
     if not can_send_email(context):
         return dict((a, None) for a in to_addr)
-    msg = MIMEText(body, 'plain')
+    msg = MIMEText(body, "plain")
     if html_body is not None:
         _m = msg
-        msg = MIMEMultipart('alternative')
+        msg = MIMEMultipart("alternative")
         msg.attach(_m)
-        msg.attach(MIMEText(html_body, 'html'))
-    msg['To'] = ', '.join(to_addr)
-    msg['From'] = _from = get_from_address(
-        context) if from_addr is None else from_addr
-    msg['Subject'] = subject
+        msg.attach(MIMEText(html_body, "html"))
+    msg["To"] = ", ".join(to_addr)
+    msg["From"] = _from = get_from_address(context) if from_addr is None else from_addr
+    msg["Subject"] = subject
     smtp = get_smtp_object(context)
     try:
         smtp.sendmail(_from, to_addr, msg.as_string())
@@ -200,8 +198,7 @@ def send_email(context, to_addr, subject, body, html_body=None,
     return out
 
 
-def internal_message(context, course, recipient, subject, body,
-                     from_addr=None):
+def internal_message(context, course, recipient, subject, body, from_addr=None):
     """
     Send an e-mail to a member of a course.
 
@@ -227,15 +224,14 @@ def internal_message(context, course, recipient, subject, body,
     **Returns:** a dictionary containing error information (empty on success),
     or a string containing an error message.
     """
-    if recipient not in context['csm_util'].list_all_users(context, course):
-        return '%s is not a user in %s.' % (recipient, course)
-    into = {'username': recipient}
-    ctx = context['csm_loader'].spoof_early_load([course])
-    uinfo = context['csm_auth']._get_user_information(ctx, into, course,
-                                                      recipient)
-    if 'email' not in uinfo:
-        return 'No e-mail address found for %s' % recipient
-    email = uinfo['email']
-    lang = context['csm_language']
+    if recipient not in context["csm_util"].list_all_users(context, course):
+        return "%s is not a user in %s." % (recipient, course)
+    into = {"username": recipient}
+    ctx = context["csm_loader"].spoof_early_load([course])
+    uinfo = context["csm_auth"]._get_user_information(ctx, into, course, recipient)
+    if "email" not in uinfo:
+        return "No e-mail address found for %s" % recipient
+    email = uinfo["email"]
+    lang = context["csm_language"]
     html_body = lang._md_format_string(context, body, False)
     return send_email(context, email, subject, body, html_body, from_addr)

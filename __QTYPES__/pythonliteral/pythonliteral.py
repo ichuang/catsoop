@@ -16,21 +16,22 @@
 
 import ast
 
-tutor.qtype_inherit('pythonic')
-base, _ = tutor.question('pythonic')
+tutor.qtype_inherit("pythonic")
+base, _ = tutor.question("pythonic")
+
 
 def handle_submission(submissions, **info):
-    sub = submissions[info['csq_name']]
+    sub = submissions[info["csq_name"]]
 
-    inp = info['csq_input_check'](sub)
+    inp = info["csq_input_check"](sub)
     if inp is not None:
-        return {'score': 0.0, 'msg': '<font color="red">%s</font>' % inp}
+        return {"score": 0.0, "msg": '<font color="red">%s</font>' % inp}
 
     try:
         x = ast.parse(sub).body[0].value
         assert not isinstance(x, ast.BinOp)
         ast.literal_eval(x)
     except:
-        return {'score': 0.0, 'msg': 'Value must be a valid Python literal.'}
+        return {"score": 0.0, "msg": "Value must be a valid Python literal."}
 
-    return base['handle_submission'](submissions, **info)
+    return base["handle_submission"](submissions, **info)

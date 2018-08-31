@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
+
 cs_handler = "raw_response"
-content_type = 'text/plain'
+content_type = "text/plain"
 response = str(int(time.time()))

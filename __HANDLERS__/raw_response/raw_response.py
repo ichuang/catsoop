@@ -16,7 +16,7 @@
 
 
 def handle(context):
-    content = context['response']
-    typ = context.get('content_type', 'text/plain')
-    headers = {'Content-type': typ, 'Content-length': str(len(content))}
-    return ('200', 'OK'), headers, content
+    content = context["response"]
+    typ = context.get("content_type", "text/plain")
+    headers = {"Content-type": typ, "Content-length": str(len(content))}
+    return ("200", "OK"), headers, content

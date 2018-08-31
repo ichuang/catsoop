@@ -24,13 +24,14 @@ from . import api
 from . import loader
 from . import cslog
 from . import base_context
+
 importlib.reload(base_context)
 
 
 def _execfile(*args):
     fn = args[0]
     with open(fn) as f:
-        c = compile(f.read(), fn, 'exec')
+        c = compile(f.read(), fn, "exec")
     exec(c, *args[1:])
 
 
@@ -46,7 +47,7 @@ def get_auth_type(context):
     **Returns:** a dictionary containing the variables defined in the
     authentication type specified by `context['cs_auth_type']`.
     """
-    auth_type = context['cs_auth_type']
+    auth_type = context["cs_auth_type"]
     return get_auth_type_by_name(context, auth_type)
 
 
@@ -63,17 +64,17 @@ def get_auth_type_by_name(context, auth_type):
     **Returns:** a dictionary containing the variables defined in the
     authentication type specified by `auth_type`.
     """
-    fs_root = context.get('cs_fs_root', base_context.cs_fs_root)
-    data_root = context.get('cs_data_root', base_context.cs_data_root)
-    course = context['cs_course']
+    fs_root = context.get("cs_fs_root", base_context.cs_fs_root)
+    data_root = context.get("cs_data_root", base_context.cs_data_root)
+    course = context["cs_course"]
 
-    tail = os.path.join('__AUTH__', auth_type, "%s.py" % auth_type)
-    course_loc = os.path.join(data_root, 'courses', course, tail)
+    tail = os.path.join("__AUTH__", auth_type, "%s.py" % auth_type)
+    course_loc = os.path.join(data_root, "courses", course, tail)
     global_loc = os.path.join(fs_root, tail)
 
     e = dict(context)
     # look in course, then global; error if not found
-    if (course is not None and os.path.isfile(course_loc)):
+    if course is not None and os.path.isfile(course_loc):
         _execfile(course_loc, e)
     elif os.path.isfile(global_loc):
         _execfile(global_loc, e)
@@ -111,15 +112,14 @@ def get_logged_in_user(context):
     if api_user is not None:
         return api_user
 
-    regular_user = get_auth_type(context)['get_logged_in_user'](context)
-    if 'username' in regular_user:
+    regular_user = get_auth_type(context)["get_logged_in_user"](context)
+    if "username" in regular_user:
         # successful login.  check for existing token
-        tok = cslog.most_recent('_api_users', [], regular_user['username'],
-                                None)
+        tok = cslog.most_recent("_api_users", [], regular_user["username"], None)
         if tok is None:
             # if no token found, create a new one.
             tok = api.initialize_api_token(context, regular_user)
-        regular_user['api_token'] = tok
+        regular_user["api_token"] = tok
 
     return regular_user
 
@@ -143,9 +143,12 @@ def get_user_information(context):
     **Returns:** a dictionary like that returned by `get_logged_in_user`, but
     (possibly) with additional mappings as specified in the loaded file.
     """
-    return _get_user_information(context, context['cs_user_info'],
-                                 context.get('cs_course', None),
-                                 context['cs_username'])
+    return _get_user_information(
+        context,
+        context["cs_user_info"],
+        context.get("cs_course", None),
+        context["cs_username"],
+    )
 
 
 def _get_user_information(context, into, course, username, do_preload=False):
@@ -153,67 +156,67 @@ def _get_user_information(context, into, course, username, do_preload=False):
         if do_preload:
             loader.load_global_data(context)
             loader.do_early_load(context, course, [], context)
-        fname = os.path.join(context['cs_data_root'], 'courses',
-                             context['cs_course'], '__USERS__',
-                             "%s.py" % username)
+        fname = os.path.join(
+            context["cs_data_root"],
+            "courses",
+            context["cs_course"],
+            "__USERS__",
+            "%s.py" % username,
+        )
     else:
-        fname = os.path.join(context['cs_data_root'], '__LOGS__', username)
+        fname = os.path.join(context["cs_data_root"], "__LOGS__", username)
     if os.path.exists(fname):
         with open(fname) as f:
             text = f.read()
         exec(text, into)
 
     # permissions handling
-    if 'permissions' not in into:
-        if 'role' not in into:
-            into['role'] = context.get('cs_default_role', None)
-        plist = context.get('cs_permissions', {})
-        defaults = context.get('cs_default_permissions', ['view'])
-        into['permissions'] = plist.get(into['role'], defaults)
-        spoofed_role = context.get('cs_form', {}).get('as_role', None)
-        if spoofed_role is not None and 'impersonate' in into['permissions']:
-            into['role'] = spoofed_role
-            orig_p = into['permissions']
+    if "permissions" not in into:
+        if "role" not in into:
+            into["role"] = context.get("cs_default_role", None)
+        plist = context.get("cs_permissions", {})
+        defaults = context.get("cs_default_permissions", ["view"])
+        into["permissions"] = plist.get(into["role"], defaults)
+        spoofed_role = context.get("cs_form", {}).get("as_role", None)
+        if spoofed_role is not None and "impersonate" in into["permissions"]:
+            into["role"] = spoofed_role
+            orig_p = into["permissions"]
             spoofed_p = plist.get(spoofed_role, defaults)
             new_p = set(spoofed_p).intersection(set(orig_p))
-            for i in ('submit_all', 'view_all'):
-                lesser = i.split('_')[0]
+            for i in ("submit_all", "view_all"):
+                lesser = i.split("_")[0]
                 if i in orig_p and i not in new_p and lesser in spoofed_p:
                     new_p.add(lesser)
-            into['permissions'] = new_p
-
-
+            into["permissions"] = new_p
 
     loader.clean_builtins(into)
 
     # impersonation
-    if ('as' in context.get('cs_form', {})) and ('real_user' not in into):
-        if 'impersonate' not in into['permissions']:
+    if ("as" in context.get("cs_form", {})) and ("real_user" not in into):
+        if "impersonate" not in into["permissions"]:
             return into
         old = dict(into)
-        old['p'] = into['permissions']
-        context['cs_username'] = context['cs_form']['as']
-        into['real_user'] = old
-        into['username'] = into['name'] = context['cs_username']
-        into['role'] = None
-        into['permissions'] = []
-        into['api_token'] = old['api_token']
+        old["p"] = into["permissions"]
+        context["cs_username"] = context["cs_form"]["as"]
+        into["real_user"] = old
+        into["username"] = into["name"] = context["cs_username"]
+        into["role"] = None
+        into["permissions"] = []
+        into["api_token"] = old["api_token"]
         into = get_user_information(context)
-    cslog = context['csm_cslog']
-    if 'username' in into:
-        logininfo = cslog.most_recent('_logininfo', [], into['username'], {})
+    cslog = context["csm_cslog"]
+    if "username" in into:
+        logininfo = cslog.most_recent("_logininfo", [], into["username"], {})
         logininfo = {
-            k: v
-            for k, v in logininfo.items() if k in ('username', 'name', 'email')
+            k: v for k, v in logininfo.items() if k in ("username", "name", "email")
         }
         into.update(logininfo)
-        extra_info = cslog.most_recent('_extra_info', [], into['username'],
-                                       {})
+        extra_info = cslog.most_recent("_extra_info", [], into["username"], {})
         into.update(extra_info)
 
-    if str(username) == 'None':
-        if 'view' in into['permissions']:
-            into['permissions'] = ['view']
+    if str(username) == "None":
+        if "view" in into["permissions"]:
+            into["permissions"] = ["view"]
         else:
-            into['permissions'] = []
+            into["permissions"] = []
     return into

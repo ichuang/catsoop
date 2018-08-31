@@ -13,17 +13,22 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-'''CAT-SOOP Math Mode Extension for PyMarkdown'''
+"""CAT-SOOP Math Mode Extension for PyMarkdown"""
 
 from markdown.extensions import Extension
 from markdown.inlinepatterns import HtmlPattern, SimpleTextPattern
 
-_nodoc = {'Extension', 'HtmlPattern', 'SimpleTextPattern', 'absolute_import',
-'unicode_literals'}
+_nodoc = {
+    "Extension",
+    "HtmlPattern",
+    "SimpleTextPattern",
+    "absolute_import",
+    "unicode_literals",
+}
 
-_MATH_RE = r'(^|[^\\])(\$)((?:\\\$|[^$])*)\3'
-_DMATH_RE = r'(^|[^\\])(\$\$)(.*?)\3'
-_ESCAPED_DOLLAR_RE = r'\\(\$)'
+_MATH_RE = r"(^|[^\\])(\$)((?:\\\$|[^$])*)\3"
+_DMATH_RE = r"(^|[^\\])(\$\$)(.*?)\3"
+_ESCAPED_DOLLAR_RE = r"\\(\$)"
 
 
 class RawHtmlPattern(HtmlPattern):
@@ -37,10 +42,10 @@ class RawHtmlPattern(HtmlPattern):
     def handleMatch(self, m):
         pre = m.group(2)
         body = self.unescape(m.group(4))
-        rawhtml = '%(pre)s<%(tag)s>%(body)s</%(tag)s>' % {
-            'tag': self._hz_tag,
-            'body': body,
-            'pre': pre
+        rawhtml = "%(pre)s<%(tag)s>%(body)s</%(tag)s>" % {
+            "tag": self._hz_tag,
+            "body": body,
+            "pre": pre,
         }
         place_holder = self.markdown.htmlStash.store(rawhtml)
         return place_holder
@@ -51,10 +56,8 @@ class MathExtension(Extension):
 
     def extendMarkdown(self, md, md_globals):
         """ Modify inline patterns. """
-        md.inlinePatterns.add('dmath',
-                              RawHtmlPattern('displaymath', _DMATH_RE, md),
-                              '<entity')
-        md.inlinePatterns.add('math',
-                              RawHtmlPattern('math', _MATH_RE, md), '>dmath')
-        md.inlinePatterns.add('emath',
-                              SimpleTextPattern(_ESCAPED_DOLLAR_RE), '>math')
+        md.inlinePatterns.add(
+            "dmath", RawHtmlPattern("displaymath", _DMATH_RE, md), "<entity"
+        )
+        md.inlinePatterns.add("math", RawHtmlPattern("math", _MATH_RE, md), ">dmath")
+        md.inlinePatterns.add("emath", SimpleTextPattern(_ESCAPED_DOLLAR_RE), ">math")

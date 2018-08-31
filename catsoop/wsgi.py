@@ -23,10 +23,11 @@ import sys
 try:
     from . import dispatch
 except:
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     if base_dir not in sys.path:
         sys.path.append(base_dir)
     import catsoop.dispatch as dispatch
+
 
 def _ensure_bytes(x):
     try:
@@ -41,7 +42,7 @@ def application(environ, start_response):
     [PEP 3333](http://www.python.org/dev/peps/pep-3333/).
     """
     status, headers, content = dispatch.main(environ)
-    start_response('%s %s' % (status[0], status[1]), list(headers.items()))
+    start_response("%s %s" % (status[0], status[1]), list(headers.items()))
     if isinstance(content, (str, bytes)):
         return [_ensure_bytes(content)]
     else:

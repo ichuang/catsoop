@@ -18,20 +18,22 @@ implicit_multiplication = False
 
 
 def parser(lex=None, yacc=None):
-    tokens = ("PLUS",
-              "MINUS",
-              "TIMES",
-              "MATMUL",
-              "DIVIDE",
-              "EXP",
-              "COMMA",
-              "LPAREN",
-              "RPAREN",
-              "NAME",
-              "NUMBER",
-              "CARET",
-              "LBRACKET",
-              "RBRACKET", )
+    tokens = (
+        "PLUS",
+        "MINUS",
+        "TIMES",
+        "MATMUL",
+        "DIVIDE",
+        "EXP",
+        "COMMA",
+        "LPAREN",
+        "RPAREN",
+        "NAME",
+        "NUMBER",
+        "CARET",
+        "LBRACKET",
+        "RBRACKET",
+    )
 
     t_ignore = " \t"
 
@@ -53,10 +55,12 @@ def parser(lex=None, yacc=None):
 
     lex.lex()
 
-    precedence = (('left', 'PLUS', 'MINUS'),
-                  ('left', 'TIMES', 'DIVIDE', 'MATMUL'),
-                  ('right', 'UMINUS'),
-                  ('right', 'EXP'),)
+    precedence = (
+        ("left", "PLUS", "MINUS"),
+        ("left", "TIMES", "DIVIDE", "MATMUL"),
+        ("right", "UMINUS"),
+        ("right", "EXP"),
+    )
 
     def p_expression_binop(t):
         """
@@ -67,21 +71,21 @@ def parser(lex=None, yacc=None):
                    | expression DIVIDE expression
                    | expression EXP expression
         """
-        if t[2] == '**':
-            t[2] = '^'
+        if t[2] == "**":
+            t[2] = "^"
         t[0] = [t[2], t[1], t[3]]
 
     def p_expression_xor(t):
         """
         expression : expression CARET expression
         """
-        t[0] = ['CALL', ['NAME', 'XOR'], [t[1], t[3]]]
+        t[0] = ["CALL", ["NAME", "XOR"], [t[1], t[3]]]
 
     def p_expression_list(t):
         """
         expression : LBRACKET list_of_expressions RBRACKET
         """
-        t[0] = ['LIST', t[2]]
+        t[0] = ["LIST", t[2]]
 
     def p_expression_grouped(t):
         """
@@ -93,7 +97,7 @@ def parser(lex=None, yacc=None):
         """
         expression : name LPAREN list_of_expressions RPAREN
         """
-        t[0] = ['CALL', t[1], t[3]]
+        t[0] = ["CALL", t[1], t[3]]
 
     def p_list_of_expressions(t):
         """
@@ -119,13 +123,13 @@ def parser(lex=None, yacc=None):
         """
         expression : MINUS expression %prec UMINUS
         """
-        t[0] = ['u-', t[2]]
+        t[0] = ["u-", t[2]]
 
     def p_expression_uplus(t):
         """
         expression : PLUS expression %prec UMINUS
         """
-        t[0] = ['u+', t[2]]
+        t[0] = ["u+", t[2]]
 
     def p_expression_atom(t):
         """
@@ -138,13 +142,13 @@ def parser(lex=None, yacc=None):
         """
         number : NUMBER
         """
-        t[0] = ['NUMBER', t[1]]
+        t[0] = ["NUMBER", t[1]]
 
     def p_name(t):
         """
         name : NAME
         """
-        t[0] = ['NAME', t[1]]
+        t[0] = ["NAME", t[1]]
 
     def p_empty(p):
         """

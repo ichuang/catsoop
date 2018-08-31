@@ -16,18 +16,18 @@
 
 import json
 
-path = cs_form.get('path', None)
+path = cs_form.get("path", None)
 
-cs_handler = 'raw_response'
-content_type = 'application/json'
+cs_handler = "raw_response"
+content_type = "application/json"
 
 try:
-    path = [i for i in path.split('/') if i != '']
+    path = [i for i in path.split("/") if i != ""]
     cpath = list(path)
-    cpath[0] = 'COURSE'
+    cpath[0] = "COURSE"
     ctx = csm_loader.spoof_early_load(path)
-    out = {'ok': True, 'url': csm_dispatch.get_real_url(ctx, '/'.join(cpath))}
+    out = {"ok": True, "url": csm_dispatch.get_real_url(ctx, "/".join(cpath))}
 except:
-    out = {'ok': False}
+    out = {"ok": False}
 
 response = json.dumps(out)

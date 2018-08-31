@@ -38,8 +38,13 @@ def html_format(string):
 
     **Returns:** an HTML-escaped version of the input string
     """
-    for x, y in (('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;'), ('\t', '    '),
-                 (' ', '&nbsp;')):
+    for x, y in (
+        ("&", "&amp;"),
+        ("<", "&lt;"),
+        (">", "&gt;"),
+        ("\t", "    "),
+        (" ", "&nbsp;"),
+    ):
         string = string.replace(x, y)
     return string
 
@@ -62,15 +67,17 @@ def clear_info(context, text):
     **Returns:** the input string, but with sensitive data replaced.
     """
     text = text.replace(
-        context.get('cs_fs_root', base_context.cs_fs_root), '<CATSOOP ROOT>')
+        context.get("cs_fs_root", base_context.cs_fs_root), "<CATSOOP ROOT>"
+    )
     text = text.replace(
-        context.get('cs_data_root', base_context.cs_data_root), '<DATA ROOT>')
-    if 'cs_sid' in context:
-        text = text.replace(context['cs_sid'], '<SESSION ID>')
-    apitok = context.get('user_info', {}).get('api_token', None)
+        context.get("cs_data_root", base_context.cs_data_root), "<DATA ROOT>"
+    )
+    if "cs_sid" in context:
+        text = text.replace(context["cs_sid"], "<SESSION ID>")
+    apitok = context.get("user_info", {}).get("api_token", None)
     if apitok is not None:
-        text = text.replace(apitok, '<API TOKEN>')
-    for i, j in context.get('cs_extra_clear', []):
+        text = text.replace(apitok, "<API TOKEN>")
+    for i, j in context.get("cs_extra_clear", []):
         text = text.replace(i, j)
     return text
 
@@ -93,23 +100,26 @@ def error_message_content(context, html=True):
 
     **Returns:** an error message appropriate for the last exception
     """
-    data_cache = os.path.join(context.get('cs_data_root', base_context.cs_data_root), '_cached')
+    data_cache = os.path.join(
+        context.get("cs_data_root", base_context.cs_data_root), "_cached"
+    )
     e = sys.exc_info()
     tb_entries = traceback.extract_tb(e[2])
     new_entries = []
     for tb in tb_entries:
         fname, lineno, func, text = tb
-        lo_fname = fname + '.line_offset'
+        lo_fname = fname + ".line_offset"
         line_offset = 0
         if os.path.isfile(lo_fname):
             with open(lo_fname) as offsetfile:
                 line_offset = ast.literal_eval(offsetfile.read())
         lineno -= line_offset
         if fname.startswith(data_cache):
-            fname = fname[len(data_cache):]
+            fname = fname[len(data_cache) :]
         new_entries.append((fname, lineno, func, text))
-    tb_text = ''.join(traceback.format_list(new_entries) +
-                      traceback.format_exception_only(e[0], e[1]))
+    tb_text = "".join(
+        traceback.format_list(new_entries) + traceback.format_exception_only(e[0], e[1])
+    )
     i = clear_info(context, tb_text)
     if html:
         return html_format(i)
@@ -134,35 +144,35 @@ def do_error_message(context, msg=None):
 
     **Returns:** a 3-tuple, as expected by `catsoop.wsgi.application`
     """
-    plain = 'data' in context.get('cs_form', {})
+    plain = "data" in context.get("cs_form", {})
     new = dict(context)
     loader.load_global_data(new)
-    new['cs_home_link'] = 'BASE'
-    if 'cs_user_info' not in new:
-        new['cs_user_info'] = {}
-        new['cs_username'] = None
-    if 'cs_handler' in new:
-        del new['cs_handler']
-    m = msg if msg is not None else error_message_content(
-        context, html=(not plain))
+    new["cs_home_link"] = "BASE"
+    if "cs_user_info" not in new:
+        new["cs_user_info"] = {}
+        new["cs_username"] = None
+    if "cs_handler" in new:
+        del new["cs_handler"]
+    m = msg if msg is not None else error_message_content(context, html=(not plain))
     if plain:
-        return ((500, 'Internal Server Error'), {
-            'Content-type': 'text/plain',
-            'Content-length': len(m.encode())
-        }, m)
-    new['cs_original_path'] = ''
-    new['cs_content'] = ('<pre>ERROR:\n' '%s</pre>') % (m)
+        return (
+            (500, "Internal Server Error"),
+            {"Content-type": "text/plain", "Content-length": len(m.encode())},
+            m,
+        )
+    new["cs_original_path"] = ""
+    new["cs_content"] = ("<pre>ERROR:\n" "%s</pre>") % (m)
     e = ': <font color="red">ERROR</font>'
-    new['cs_header'] = new.get('cs_header', '') + e
-    new['cs_content_header'] = 'An Error Occurred:'
-    new['cs_source_qstring'] = ''
-    new['cs_source_qstring'] = ''
-    new['cs_top_menu_html'] = ''
-    new['cs_breadcrumbs_html'] = ''
-    new['cs_base_font_color'] = '#fff'
+    new["cs_header"] = new.get("cs_header", "") + e
+    new["cs_content_header"] = "An Error Occurred:"
+    new["cs_source_qstring"] = ""
+    new["cs_source_qstring"] = ""
+    new["cs_top_menu_html"] = ""
+    new["cs_breadcrumbs_html"] = ""
+    new["cs_base_font_color"] = "#fff"
     s, h, o = dispatch.display_page(new)
-    o = o.replace(new['cs_base_logo_text'], error_500_logo)
-    return ('500', 'Internal Server Error'), h, o
+    o = o.replace(new["cs_base_logo_text"], error_500_logo)
+    return ("500", "Internal Server Error"), h, o
 
 
 def do_404_message(context):
@@ -178,41 +188,45 @@ def do_404_message(context):
     """
     new = dict(context)
     loader.load_global_data(new)
-    new['cs_home_link'] = 'BASE'
-    if 'cs_user_info' not in new:
-        new['cs_user_info'] = {}
-        new['cs_username'] = None
-    if 'cs_handler' in new:
-        del new['cs_handler']
-    new['cs_content'] = (
-        '<pre>CAT-SOOP could not find the specified file or resource:\n'
-        '%r</pre>') % (new['cs_original_path'])
-    new['cs_original_path'] = ''
+    new["cs_home_link"] = "BASE"
+    if "cs_user_info" not in new:
+        new["cs_user_info"] = {}
+        new["cs_username"] = None
+    if "cs_handler" in new:
+        del new["cs_handler"]
+    new["cs_content"] = (
+        "<pre>CAT-SOOP could not find the specified file or resource:\n" "%r</pre>"
+    ) % (new["cs_original_path"])
+    new["cs_original_path"] = ""
     e = ': <font color="red">404</font>'
-    new['cs_header'] = new.get('cs_header', '') + e
-    new['cs_content_header'] = 'File/Resource Not Found'
-    new['cs_source_qstring'] = ''
-    new['cs_top_menu_html'] = ''
-    new['cs_breadcrumbs_html'] = ''
-    new['cs_base_font_color'] = '#fff'
+    new["cs_header"] = new.get("cs_header", "") + e
+    new["cs_content_header"] = "File/Resource Not Found"
+    new["cs_source_qstring"] = ""
+    new["cs_top_menu_html"] = ""
+    new["cs_breadcrumbs_html"] = ""
+    new["cs_base_font_color"] = "#fff"
     s, h, o = dispatch.display_page(new)
-    o = o.replace(new['cs_base_logo_text'], error_404_logo)
-    return ('404', 'File Not Found'), h, o
+    o = o.replace(new["cs_base_logo_text"], error_404_logo)
+    return ("404", "File Not Found"), h, o
 
 
-error_404_logo = ("\   ???????? "
-                "\n/    /\__/\  "
-                "\n\__=(  @_@ )="
-                "\n(__________) "
-                "\n |_ |_ |_ |_ ")
+error_404_logo = (
+    "\   ???????? "
+    "\n/    /\__/\  "
+    "\n\__=(  @_@ )="
+    "\n(__________) "
+    "\n |_ |_ |_ |_ "
+)
 """This alternate logo replaces the CAT-SOOP logo on when a 404 (File Not
 Found) error is encountered."""
 
-error_500_logo = ("  _  _  _  _  "
-                "\n  _|__|__|__| "
-                "\n (  _     ___)"
-                "\n=( x X  )=   \\"
-                "\n  \/  \/     /"
-                "\n             \\")
+error_500_logo = (
+    "  _  _  _  _  "
+    "\n  _|__|__|__| "
+    "\n (  _     ___)"
+    "\n=( x X  )=   \\"
+    "\n  \/  \/     /"
+    "\n             \\"
+)
 """This alternate logo replaces the CAT-SOOP logo on when a 500 (Internal
 Server Error) error is encountered."""

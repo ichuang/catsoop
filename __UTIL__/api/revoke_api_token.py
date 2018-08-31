@@ -16,7 +16,7 @@
 
 import json
 
-api_token = cs_form.get('api_token', None)
+api_token = cs_form.get("api_token", None)
 
 error = None
 
@@ -25,22 +25,20 @@ if api_token is None:
 
 if error is None:
     output = csm_api.get_user_information(globals(), api_token=api_token)
-    if output['ok']:
-        uinfo = output['user_info']
+    if output["ok"]:
+        uinfo = output["user_info"]
     else:
-        error = 'Could not get user information'
+        error = "Could not get user information"
 
 if error is not None:
-    output = {'ok': False, 'error': error}
+    output = {"ok": False, "error": error}
 else:
-    tok = cslog.most_recent('_api_users', [],
-                            uinfo['username'], None)
+    tok = cslog.most_recent("_api_users", [], uinfo["username"], None)
     if tok is not None:
-        cslog.overwrite_log('_api_tokens', [],
-                            tok, None)
+        cslog.overwrite_log("_api_tokens", [], tok, None)
     newtok = csm_api.initialize_api_token(globals(), uinfo)
-    output = {'ok': True, 'new_token': newtok}
+    output = {"ok": True, "new_token": newtok}
 
-cs_handler = 'raw_response'
-content_type = 'application/json'
+cs_handler = "raw_response"
+content_type = "application/json"
 response = json.dumps(output)

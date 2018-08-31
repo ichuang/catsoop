@@ -25,61 +25,72 @@ import resource
 import subprocess
 
 default_ro_bind = [
-    ('/usr', '/usr'),
-    ('/lib', '/lib'),
-    ('/lib64', '/lib64'),
-    ('/bin', '/bin'),
-    ('/sbin', '/sbin'),
+    ("/usr", "/usr"),
+    ("/lib", "/lib"),
+    ("/lib64", "/lib64"),
+    ("/bin", "/bin"),
+    ("/sbin", "/sbin"),
 ]
+
 
 def run_code(context, code, options):
     def limiter():
         os.setsid()
-        context['csm_process'].set_pdeathsig()()
+        context["csm_process"].set_pdeathsig()()
 
-    tmpdir = context.get('csq_sandbox_dir', '/tmp/sandbox')
+    tmpdir = context.get("csq_sandbox_dir", "/tmp/sandbox")
     this_one = uuid.uuid4().hex
     tmpdir = os.path.join(tmpdir, this_one)
     os.makedirs(tmpdir, 0o777)
-    for f in options['FILES']:
+    for f in options["FILES"]:
         typ = f[0].strip().lower()
-        if typ == 'copy':
+        if typ == "copy":
             shutil.copyfile(f[1], os.path.join(tmpdir, f[2]))
-        elif typ == 'string':
-            with open(os.path.join(tmpdir, f[1]), 'w') as fileobj:
+        elif typ == "string":
+            with open(os.path.join(tmpdir, f[1]), "w") as fileobj:
                 fileobj.write(f[2])
-    ofname = fname = '%s.py' % this_one
-    with open(os.path.join(tmpdir, fname), 'w') as fileobj:
-        fileobj.write(code.replace('\r\n', '\n'))
+    ofname = fname = "%s.py" % this_one
+    with open(os.path.join(tmpdir, fname), "w") as fileobj:
+        fileobj.write(code.replace("\r\n", "\n"))
 
-    interp = context.get('csq_python_interpreter', sys.executable)
+    interp = context.get("csq_python_interpreter", sys.executable)
 
-    args = ['bwrap']
-    supplied_args = context.get('csq_bwrap_arguments', None)
+    args = ["bwrap"]
+    supplied_args = context.get("csq_bwrap_arguments", None)
     if supplied_args is None:
-        args.extend(['--unshare-all',
-                     '--bind', tmpdir, '/run',
-                     '--chdir', '/run',
-                     '--hostname', 'sandbox-runner',
-                     '--die-with-parent'])
-        for i in default_ro_bind + context.get('csq_bwrap_extra_ro_binds', []):
-            args.append('--ro-bind')
+        args.extend(
+            [
+                "--unshare-all",
+                "--bind",
+                tmpdir,
+                "/run",
+                "--chdir",
+                "/run",
+                "--hostname",
+                "sandbox-runner",
+                "--die-with-parent",
+            ]
+        )
+        for i in default_ro_bind + context.get("csq_bwrap_extra_ro_binds", []):
+            args.append("--ro-bind")
             args.extend(i)
-        args.extend(context.get('csq_bwrap_extra_arguments', []))
+        args.extend(context.get("csq_bwrap_extra_arguments", []))
     else:
         args.extend(supplied_args)
 
-    p = subprocess.Popen(args + [interp, '-E', '-B', fname],
-                         preexec_fn=limiter,
-                         bufsize=0,
-                         stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+    p = subprocess.Popen(
+        args + [interp, "-E", "-B", fname],
+        preexec_fn=limiter,
+        bufsize=0,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
 
-    out = ''
-    err = ''
+    out = ""
+    err = ""
     try:
-        out, err = p.communicate(options['STDIN'] or '', timeout=options['CLOCKTIME'])
+        out, err = p.communicate(options["STDIN"] or "", timeout=options["CLOCKTIME"])
     except subprocess.TimeoutExpired:
         p.kill()
         p.wait()
@@ -92,7 +103,7 @@ def run_code(context, code, options):
         lr = len(root)
         for f in fs:
             fname = os.path.join(root, f)
-            with open(fname, 'rb') as f:
+            with open(fname, "rb") as f:
                 files.append((fname[lr:], f.read()))
 
     shutil.rmtree(tmpdir, True)

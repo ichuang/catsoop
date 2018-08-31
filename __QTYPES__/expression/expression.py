@@ -22,10 +22,11 @@ import cmath
 import random
 from collections import Sequence, defaultdict
 
-from ply import lex,yacc
+from ply import lex, yacc
 import mpmath
 
 numpy = None
+
 
 def check_numpy():
     global numpy
@@ -33,62 +34,69 @@ def check_numpy():
         return True
     try:
         import numpy
-        default_funcs.update({
-            'transpose': (numpy.transpose, _render_transpose),
-            'norm': (numpy.linalg.norm, _render_norm),
-            'dot': (numpy.dot, _render_dot),
-        })
+
+        default_funcs.update(
+            {
+                "transpose": (numpy.transpose, _render_transpose),
+                "norm": (numpy.linalg.norm, _render_norm),
+                "dot": (numpy.dot, _render_dot),
+            }
+        )
         return True
     except:
         return False
 
+
 def _render_transpose(x):
-    out = r'\left({%s}\right)^T' % x[0]
+    out = r"\left({%s}\right)^T" % x[0]
     if len(x) != 1:
         return out, "transpose takes exactly one argument"
     return out
 
+
 def _render_norm(x):
-    out = r'\left\|{%s}\right\|' % x[0]
+    out = r"\left\|{%s}\right\|" % x[0]
     if len(x) != 1:
         return out, "norm takes exactly one argument"
     return out
 
+
 def _render_dot(x):
     if len(x) == 0:
-        return '\cdot', "dot takes exactly two arguments"
+        return "\cdot", "dot takes exactly two arguments"
     if len(x) != 2:
-        return '\cdot '.join(x), "dot takes exactly two arguments"
-    return r'\left(%s\right)\cdot \left(%s\right)' % (x[0], x[1])
+        return "\cdot ".join(x), "dot takes exactly two arguments"
+    return r"\left(%s\right)\cdot \left(%s\right)" % (x[0], x[1])
 
-smallbox, _ = csm_tutor.question('smallbox')
+
+smallbox, _ = csm_tutor.question("smallbox")
 
 defaults = {
-    'csq_error_on_unknown_variable': False,
-    'csq_input_check': lambda raw, tree: None,
-    'csq_render_result': True,
-    'csq_syntax': 'base',
-    'csq_num_trials': 20,
-    'csq_ratio_threshold': 1e-9,
-    'csq_absolute_threshold': None,
-    'csq_precision': 1000,
-    'csq_soln': ['6', 'sqrt(2)'],
-    'csq_npoints': 1,
-    'csq_msg_function': lambda sub: (''),
-    'csq_show_check': False,
-    'csq_variable_dimensions': {},
+    "csq_error_on_unknown_variable": False,
+    "csq_input_check": lambda raw, tree: None,
+    "csq_render_result": True,
+    "csq_syntax": "base",
+    "csq_num_trials": 20,
+    "csq_ratio_threshold": 1e-9,
+    "csq_absolute_threshold": None,
+    "csq_precision": 1000,
+    "csq_soln": ["6", "sqrt(2)"],
+    "csq_npoints": 1,
+    "csq_msg_function": lambda sub: (""),
+    "csq_show_check": False,
+    "csq_variable_dimensions": {},
 }
 
 default_names = {
-    'pi': [mpmath.mpc(math.pi)],
-    'e': [mpmath.mpc(math.e)],
-    'j': [mpmath.mpc(1j)],
-    'i': [mpmath.mpc(1j)]
+    "pi": [mpmath.mpc(math.pi)],
+    "e": [mpmath.mpc(math.e)],
+    "j": [mpmath.mpc(1j)],
+    "i": [mpmath.mpc(1j)],
 }
 
 
 def _draw_sqrt(x):
-    out = r"\sqrt{%s}" % (', '.join(x))
+    out = r"\sqrt{%s}" % (", ".join(x))
     if len(x) != 1:
         return out, "sqrt takes exactly one argument"
     return out
@@ -102,7 +110,7 @@ def _draw_abs(x):
 
 
 def _draw_default(context, c):
-    out = r"%s(%s)" % (c[1], ', '.join(c[2]))
+    out = r"%s(%s)" % (c[1], ", ".join(c[2]))
     if len(c[2]) == 1 and _implicit_multiplication(context):
         return out, "Assuming implicit multiplication."
     else:
@@ -121,20 +129,20 @@ def _default_func(context, names, funcs, c):
 
 def _draw_func(name):
     def _drawer(args):
-        return r"%s\left(%s\right)" % (name, ', '.join(args))
+        return r"%s\left(%s\right)" % (name, ", ".join(args))
 
     return _drawer
 
 
 def _draw_log(x):
     if len(x) == 0:
-        base = ''
+        base = ""
     elif len(x) == 1:
-        base = 'e'
+        base = "e"
     else:
         base = x[1]
-    if any((i in x[0]) for i in ' -+'):
-        arg = r'\left(%s\right)' % x[0]
+    if any((i in x[0]) for i in " -+"):
+        arg = r"\left(%s\right)" % x[0]
     else:
         arg = x[0]
     out = r"\log_{%s}{%s}" % (base, arg)
@@ -144,24 +152,25 @@ def _draw_log(x):
 
 
 default_funcs = {
-    'atan': (cmath.atan, _draw_func(r'\text{tan}^{-1}')),
-    'asin': (cmath.asin, _draw_func(r'\text{sin}^{-1}')),
-    'acos': (cmath.acos, _draw_func(r'\text{cos}^{-1}')),
-    'tan': (cmath.tan, _draw_func(r'\text{tan}')),
-    'sin': (cmath.sin, _draw_func(r'\text{sin}')),
-    'cos': (cmath.cos, _draw_func(r'\text{cos}')),
-    'log': (cmath.log, _draw_log),
-    'sqrt': (cmath.sqrt, _draw_sqrt),
-    'abs': (abs, _draw_abs),
-    '_default': (_default_func, _draw_default)
+    "atan": (cmath.atan, _draw_func(r"\text{tan}^{-1}")),
+    "asin": (cmath.asin, _draw_func(r"\text{sin}^{-1}")),
+    "acos": (cmath.acos, _draw_func(r"\text{cos}^{-1}")),
+    "tan": (cmath.tan, _draw_func(r"\text{tan}")),
+    "sin": (cmath.sin, _draw_func(r"\text{sin}")),
+    "cos": (cmath.cos, _draw_func(r"\text{cos}")),
+    "log": (cmath.log, _draw_log),
+    "sqrt": (cmath.sqrt, _draw_sqrt),
+    "abs": (abs, _draw_abs),
+    "_default": (_default_func, _draw_default),
 }
+
 
 def _contains(l, test):
     if not isinstance(l, list):
         return False
     elif l[0] == test:
         return True
-    elif l[0] == 'CALL':
+    elif l[0] == "CALL":
         return _contains(l[1], test) or any(_contains(i, test) for i in l[2])
     else:
         return any(_contains(i, test) for i in l[1:])
@@ -180,11 +189,11 @@ def eval_number(context, names, funcs, n):
 
 
 def check_shapes(x, y):
-    xs = getattr(x, 'shape', None)
-    ys = getattr(y, 'shape', None)
-    if xs is not None and all(i==1 for i in xs):
+    xs = getattr(x, "shape", None)
+    ys = getattr(y, "shape", None)
+    if xs is not None and all(i == 1 for i in xs):
         xs = None
-    if ys is not None and all(i==1 for i in ys):
+    if ys is not None and all(i == 1 for i in ys):
         ys = None
     if xs is not None and ys is not None and xs != ys:
         raise ValueError("array shapes do not match: %s and %s" % (xs, ys))
@@ -210,11 +219,10 @@ def eval_uplus(context, names, funcs, o):
 
 
 def eval_call(context, names, funcs, c):
-    if c[1][0] == 'NAME' and c[1][1] in funcs:
-        return funcs[c[1][1]][0](*(eval_expr(context, names, funcs, i)
-                                   for i in c[2]))
+    if c[1][0] == "NAME" and c[1][1] in funcs:
+        return funcs[c[1][1]][0](*(eval_expr(context, names, funcs, i) for i in c[2]))
     else:
-        return funcs['_default'][0](context, names, funcs, c)
+        return funcs["_default"][0](context, names, funcs, c)
 
 
 def _div(x, y):
@@ -222,17 +230,17 @@ def _div(x, y):
 
 
 _eval_map = {
-    'NAME': eval_name,
-    'NUMBER': eval_number,
-    '+': eval_binop(lambda x, y: x + y),
-    '-': eval_binop(lambda x, y: x - y),
-    '*': eval_binop(lambda x, y: x * y),
-    '/': eval_binop(_div),
-    '@': eval_binop(lambda x, y: x @ y, match_shapes=False),
-    '^': eval_binop(lambda x, y: x**y, match_shapes=False),
-    'u-': eval_uminus,
-    'u+': eval_uplus,
-    'CALL': eval_call,
+    "NAME": eval_name,
+    "NUMBER": eval_number,
+    "+": eval_binop(lambda x, y: x + y),
+    "-": eval_binop(lambda x, y: x - y),
+    "*": eval_binop(lambda x, y: x * y),
+    "/": eval_binop(_div),
+    "@": eval_binop(lambda x, y: x @ y, match_shapes=False),
+    "^": eval_binop(lambda x, y: x ** y, match_shapes=False),
+    "u-": eval_uminus,
+    "u+": eval_uplus,
+    "CALL": eval_call,
 }
 
 
@@ -248,24 +256,26 @@ def _run_one_test(context, sub, soln, funcs, ratio_threshold, absolute_threshold
         sol = eval_expr(context, m, funcs, soln)
 
         mag = abs
-        if len(context['csq_variable_dimensions']) > 0 and check_numpy():
+        if len(context["csq_variable_dimensions"]) > 0 and check_numpy():
+
             def mag(x):
                 try:
                     return numpy.linalg.norm(x)
                 except:
-                    return (x.real**2 + x.imag**2)**0.5
+                    return (x.real ** 2 + x.imag ** 2) ** 0.5
+
         try:
             r = ratio_threshold is not None
             a = absolute_threshold is not None
             if r and a:
-                threshold = max(ratio_threshold*sol, absolute_threshold)
+                threshold = max(ratio_threshold * sol, absolute_threshold)
             elif r:
-                threshold = ratio_threshold*sol
+                threshold = ratio_threshold * sol
             elif a:
                 threshold = absolute_threshold
             else:
                 return False
-            if mag(subm-sol) > mag(threshold):
+            if mag(subm - sol) > mag(threshold):
                 return False
         except:
             return False
@@ -276,11 +286,10 @@ def _run_one_test(context, sub, soln, funcs, ratio_threshold, absolute_threshold
 def _get_all_names(tree):
     if not isinstance(tree, list):
         return []
-    elif tree[0] == 'NAME':
+    elif tree[0] == "NAME":
         return [tree[1]]
-    elif tree[0] == 'CALL':
-        return _get_all_names(tree[1]) + sum((_get_all_names(i)
-                                              for i in tree[2]), [])
+    elif tree[0] == "CALL":
+        return _get_all_names(tree[1]) + sum((_get_all_names(i) for i in tree[2]), [])
     else:
         return sum((_get_all_names(i) for i in tree[1:]), [])
 
@@ -291,8 +300,8 @@ def _get_random_value():
 
 def _get_all_mappings(context, soln_names, sub_names):
     names = dict(default_names)
-    names.update(context.get('csq_names', {}))
-    dimensions = context['csq_variable_dimensions']
+    names.update(context.get("csq_names", {}))
+    dimensions = context["csq_variable_dimensions"]
     dim_vars = defaultdict(lambda: random.randint(2, 30))
 
     for n in soln_names:
@@ -348,19 +357,24 @@ def _all_mappings_helper(m):
 
 
 def total_points(**info):
-    return info['csq_npoints']
+    return info["csq_npoints"]
 
 
 def _get_syntax_module(context):
-    syntax = context['csq_syntax']
-    fname = os.path.join(context['cs_fs_root'], '__QTYPES__', 'expression',
-                         '__SYNTAX__', '%s.py' % syntax)
+    syntax = context["csq_syntax"]
+    fname = os.path.join(
+        context["cs_fs_root"],
+        "__QTYPES__",
+        "expression",
+        "__SYNTAX__",
+        "%s.py" % syntax,
+    )
     return imp.load_source(syntax, fname)
 
 
 def _implicit_multiplication(context):
     m = _get_syntax_module(context)
-    if hasattr(m, 'implicit_multiplication'):
+    if hasattr(m, "implicit_multiplication"):
         return m.implicit_multiplication
     else:
         return True
@@ -371,29 +385,31 @@ def _get_parser(context):
 
 
 def handle_submission(submissions, **info):
-    with mpmath.workdps(info['csq_precision']):
+    with mpmath.workdps(info["csq_precision"]):
 
-        if len(info['csq_variable_dimensions']) > 0:
+        if len(info["csq_variable_dimensions"]) > 0:
             assert check_numpy()
 
-        _sub = sub = submissions[info['csq_name']]
-        solns = info['csq_soln']
+        _sub = sub = submissions[info["csq_name"]]
+        solns = info["csq_soln"]
 
         parser = _get_parser(info)
 
         funcs = dict(default_funcs)
-        funcs.update(info.get('csq_funcs', {}))
+        funcs.update(info.get("csq_funcs", {}))
 
         try:
             sub = parser.parse(sub)
         except:
-            return {'score': False, 'msg': '<font color="red">Error: '
-                                         'could not parse input.</font>'}
+            return {
+                "score": False,
+                "msg": '<font color="red">Error: ' "could not parse input.</font>",
+            }
         _m = None
         if sub is None:
             result = False
         else:
-            in_check = info['csq_input_check'](_sub, sub)
+            in_check = info["csq_input_check"](_sub, sub)
             if in_check is not None:
                 result = False
                 _m = in_check
@@ -404,64 +420,73 @@ def handle_submission(submissions, **info):
 
                 result = False
                 for soln in solns:
-                    for attempt in range(info['csq_num_trials']):
+                    for attempt in range(info["csq_num_trials"]):
                         _sub_names = _get_all_names(sub)
                         _sol_names = _get_all_names(soln)
-                        if info['csq_error_on_unknown_variable']:
+                        if info["csq_error_on_unknown_variable"]:
                             _unique_names = set(_sub_names).difference(_sol_names)
                             if len(_unique_names) > 0:
                                 _s = "s" if len(_unique_names) > 1 else ""
-                                _v = ", ".join(tree2tex(info, funcs, ["NAME", i])[0]
-                                               for i in _unique_names)
+                                _v = ", ".join(
+                                    tree2tex(info, funcs, ["NAME", i])[0]
+                                    for i in _unique_names
+                                )
                                 _m = "Unknown variable%s: $%s$" % (_s, _v)
-                        result = _run_one_test(info, sub, soln, funcs,
-                                               info['csq_ratio_threshold'],
-                                               info['csq_absolute_threshold'])
+                        result = _run_one_test(
+                            info,
+                            sub,
+                            soln,
+                            funcs,
+                            info["csq_ratio_threshold"],
+                            info["csq_absolute_threshold"],
+                        )
                         if not result:
                             break
                     if result:
                         break
 
-        if info['csq_show_check']:
+        if info["csq_show_check"]:
             if result:
-                msg = '<img src="%s" />' % info['cs_check_image']
+                msg = '<img src="%s" />' % info["cs_check_image"]
             else:
-                msg = '<img src="%s" />' % info['cs_cross_image']
+                msg = '<img src="%s" />' % info["cs_cross_image"]
         else:
-            msg = ''
-        n = info['csq_name']
-        msg += info['csq_msg_function'](submissions[info['csq_name']])
-        msg = info['csm_language'].source_transform_string(info, msg)
-        msg = ("""\n<script type="text/javascript">"""
-               """document.getElementById('image%s').innerHTML = %r;</script>\n""") % (n, msg)
-        if info['csq_render_result']:
-            msg += get_display(info, n, sub, False, _m or '')
+            msg = ""
+        n = info["csq_name"]
+        msg += info["csq_msg_function"](submissions[info["csq_name"]])
+        msg = info["csm_language"].source_transform_string(info, msg)
+        msg = (
+            """\n<script type="text/javascript">"""
+            """document.getElementById('image%s').innerHTML = %r;</script>\n"""
+        ) % (n, msg)
+        if info["csq_render_result"]:
+            msg += get_display(info, n, sub, False, _m or "")
         else:
-            msg += _m or ''
-        return {'score': result, 'msg': msg}
+            msg += _m or ""
+        return {"score": result, "msg": msg}
 
 
 checktext = "Check Syntax"
 
 
 def handle_check(submission, **info):
-    if len(info['csq_variable_dimensions']) > 0:
+    if len(info["csq_variable_dimensions"]) > 0:
         assert check_numpy()
-    last = submission.get(info['csq_name'])
-    return get_display(info, info['csq_name'], last)
+    last = submission.get(info["csq_name"])
+    return get_display(info, info["csq_name"], last)
 
 
 def render_html(last_log, **info):
-    if len(info['csq_variable_dimensions']) > 0:
+    if len(info["csq_variable_dimensions"]) > 0:
         if not check_numpy():
             return '<font color="red">Error: the <tt>numpy</tt> module is required for nonscalar values'
-    name = info['csq_name']
-    out = smallbox['render_html'](last_log, **info)
-    out += "\n<span id='image%s'></span>" % (name, )
+    name = info["csq_name"]
+    out = smallbox["render_html"](last_log, **info)
+    out += "\n<span id='image%s'></span>" % (name,)
     return out
 
 
-def get_display(info, name, last, reparse=True, extra_msg=''):
+def get_display(info, name, last, reparse=True, extra_msg=""):
     try:
         if reparse:
             parser = _get_parser(info)
@@ -469,50 +494,81 @@ def get_display(info, name, last, reparse=True, extra_msg=''):
         else:
             tree = last
         funcs = dict(default_funcs)
-        funcs.update(info.get('csq_funcs', {}))
-        last = '<displaymath>%s</displaymath>' % tree2tex(info, funcs, tree)[0]
+        funcs.update(info.get("csq_funcs", {}))
+        last = "<displaymath>%s</displaymath>" % tree2tex(info, funcs, tree)[0]
     except:
         last = '<font color="red">ERROR: Could not interpret your input</font>'
     last += csm_language.source_transform_string(info, extra_msg)
-    out = '<div id="expr%s">Your entry was parsed as:<br/>%s</div>' % (name,
-                                                                       last)
-    out += '<script type="text/javascript">catsoop.render_all_math(document.getElementById("expr%s"), true);</script>' % name
+    out = '<div id="expr%s">Your entry was parsed as:<br/>%s</div>' % (name, last)
+    out += (
+        '<script type="text/javascript">catsoop.render_all_math(document.getElementById("expr%s"), true);</script>'
+        % name
+    )
     return out
 
 
 def answer_display(**info):
-    if len(info['csq_variable_dimensions']) > 0:
+    if len(info["csq_variable_dimensions"]) > 0:
         if not check_numpy():
             return '<font color="red">Error: the <tt>numpy</tt> module is required for nonscalar values'
     parser = _get_parser(info)
     funcs = dict(default_funcs)
-    funcs.update(info.get('csq_funcs', {}))
-    if isinstance(info['csq_soln'], str):
-        a = tree2tex(info, funcs, parser.parse(info['csq_soln']))[0]
-        out = ("<p>Solution: <tt>%s</tt><br>"
-               "<div id=\"%s_soln\"><displaymath>%s</displaymath></div>"
-               "<p>") % (info['csq_soln'], info['csq_name'], a)
+    funcs.update(info.get("csq_funcs", {}))
+    if isinstance(info["csq_soln"], str):
+        a = tree2tex(info, funcs, parser.parse(info["csq_soln"]))[0]
+        out = (
+            "<p>Solution: <tt>%s</tt><br>"
+            '<div id="%s_soln"><displaymath>%s</displaymath></div>'
+            "<p>"
+        ) % (info["csq_soln"], info["csq_name"], a)
     else:
-        out = ("<p><div id=\"%s_soln\">"
-               "<b>Multiple Possible Solutions:</b>") % info['csq_name']
+        out = ('<p><div id="%s_soln">' "<b>Multiple Possible Solutions:</b>") % info[
+            "csq_name"
+        ]
         count = 1
-        for i in info['csq_soln']:
+        for i in info["csq_soln"]:
             out += '<hr width="80%" />'
             a = tree2tex(info, funcs, parser.parse(i))[0]
-            out += ('<p>Solution %s: <tt>%s</tt><br>'
-                    '<displaymath>%s</displaymath></p>') % (count, i, a)
+            out += (
+                "<p>Solution %s: <tt>%s</tt><br>" "<displaymath>%s</displaymath></p>"
+            ) % (count, i, a)
             count += 1
-        out += '</div>'
-    out += '<script type="text/javascript">catsoop.render_all_math(document.getElementById("%s_soln"), true);</script>' % info[
-        'csq_name']
+        out += "</div>"
+    out += (
+        '<script type="text/javascript">catsoop.render_all_math(document.getElementById("%s_soln"), true);</script>'
+        % info["csq_name"]
+    )
     return out
+
 
 # LaTeX Conversion
 
-GREEK_LETTERS = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta',
-                 'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi',
-                 'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi',
-                 'chi', 'psi', 'omega']
+GREEK_LETTERS = [
+    "alpha",
+    "beta",
+    "gamma",
+    "delta",
+    "epsilon",
+    "zeta",
+    "eta",
+    "theta",
+    "iota",
+    "kappa",
+    "lambda",
+    "mu",
+    "nu",
+    "xi",
+    "omicron",
+    "pi",
+    "rho",
+    "sigma",
+    "tau",
+    "upsilon",
+    "phi",
+    "chi",
+    "psi",
+    "omega",
+]
 GREEK_DICT = {}
 for i in GREEK_LETTERS:
     GREEK_DICT[i] = "\\%s" % i
@@ -523,16 +579,16 @@ def name2tex(context, funcs, n):
     prec = 5
     on = n = n[1]
     s = None
-    if '_' in n:
-        n, s = n.split('_')
+    if "_" in n:
+        n, s = n.split("_")
     if n in GREEK_DICT:
         n = GREEK_DICT[n]
-    if on in context['csq_variable_dimensions']:
-        n = r'\mathbf{%s}' % n
+    if on in context["csq_variable_dimensions"]:
+        n = r"\mathbf{%s}" % n
     if s is not None:
         if s in GREEK_DICT:
             s = GREEK_DICT[s]
-        return ('%s_{%s}' % (n, s)), prec
+        return ("%s_{%s}" % (n, s)), prec
     return n, prec
 
 
@@ -608,13 +664,13 @@ def uplus2tex(context, funcs, n):
 
 def call2tex(context, funcs, c):
     prec = 6
-    if c[1][0] == 'NAME' and c[1][1] in funcs:
+    if c[1][0] == "NAME" and c[1][1] in funcs:
         o = funcs[c[1][1]][1]([tree2tex(context, funcs, i)[0] for i in c[2]])
     else:
         new_c = list(c)
         new_c[1] = tree2tex(context, funcs, c[1])[0]
         new_c[2] = [tree2tex(context, funcs, i)[0] for i in c[2]]
-        o = funcs['_default'][1](context, new_c)
+        o = funcs["_default"][1](context, new_c)
     if isinstance(o, str):
         pass
     elif isinstance(o, Sequence) and len(o) > 1:
@@ -623,40 +679,40 @@ def call2tex(context, funcs, c):
 
 
 def _opt_clear_dec_part(x):
-    n = x.split('.', 1)
-    if len(n) == 1 or all(i == '0' for i in n[1]):
+    n = x.split(".", 1)
+    if len(n) == 1 or all(i == "0" for i in n[1]):
         return n[0]
-    return '.'.join(n)
+    return ".".join(n)
 
 
 def number2tex(context, funcs, x):
     n = x[1].lower()
-    if n.endswith('j'):
+    if n.endswith("j"):
         imag = True
         n = n[:-1]
     else:
         imag = False
-    if 'e' in n:
-        o = [r'%s\times 10^{%s}' % tuple(n.split('e')), 22]
+    if "e" in n:
+        o = [r"%s\times 10^{%s}" % tuple(n.split("e")), 22]
     else:
         o = [n, 5]
     if imag:
-        o[0] += 'j'
+        o[0] += "j"
     return tuple(o)
 
 
 _tree_map = {
-    'NAME': name2tex,
-    'NUMBER': number2tex,
-    '+': plus2tex,
-    '-': minus2tex,
-    '*': times2tex,
-    '/': div2tex,
-    '^': exp2tex,
-    '@': matmul2tex,
-    'u-': uminus2tex,
-    'u+': uplus2tex,
-    'CALL': call2tex,
+    "NAME": name2tex,
+    "NUMBER": number2tex,
+    "+": plus2tex,
+    "-": minus2tex,
+    "*": times2tex,
+    "/": div2tex,
+    "^": exp2tex,
+    "@": matmul2tex,
+    "u-": uminus2tex,
+    "u+": uplus2tex,
+    "CALL": call2tex,
 }
 
 

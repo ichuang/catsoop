@@ -17,23 +17,27 @@
 
 def get_logged_in_user(context):
     # certificates-based login
-    env = context['cs_env']
-    if 'SSL_CLIENT_S_DN_Email' in env:
-       email = env['SSL_CLIENT_S_DN_Email']
-       return {'username': email.split('@')[0],
-               'email': email,
-               'name': env['SSL_CLIENT_S_DN_CN']}
-    elif 'SSL_CLIENT_S_DN' in env:
+    env = context["cs_env"]
+    if "SSL_CLIENT_S_DN_Email" in env:
+        email = env["SSL_CLIENT_S_DN_Email"]
+        return {
+            "username": email.split("@")[0],
+            "email": email,
+            "name": env["SSL_CLIENT_S_DN_CN"],
+        }
+    elif "SSL_CLIENT_S_DN" in env:
         cert_data = {}
-        for i in env['SSL_CLIENT_S_DN'].split('/'):
+        for i in env["SSL_CLIENT_S_DN"].split("/"):
             try:
-                k, v = i.split('=')
+                k, v = i.split("=")
                 cert_data[k] = v
             except:
                 pass
-        email = cert_data.get('emailAddress', 'None')
-        return {'username': email.split('@')[0],
-                'email': email,
-                'name': cert_data.get('CN', email)}
+        email = cert_data.get("emailAddress", "None")
+        return {
+            "username": email.split("@")[0],
+            "email": email,
+            "name": cert_data.get("CN", email),
+        }
     else:
-        return {'username': 'None'}
+        return {"username": "None"}
