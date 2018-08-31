@@ -6,6 +6,9 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* Added the <tableofcontents/> tag, which produces a table of contents for a
+  page.
+
 * Added support for question types to have a 'js_files' function that returns a
   list of Javsacript files that should be loaded before rendering the question.
 
@@ -38,7 +41,7 @@ ADDED:
 
 CHANGED:
 
-* Updated KaTeX to version 0.10.0-beta.
+* Updated KaTeX to version 0.10.0-rc.1.
 
 * Updated MathJax to version 2.7.5.
 

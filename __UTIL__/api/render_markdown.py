@@ -33,5 +33,5 @@ soup = bs4.BeautifulSoup
 
 response = [csm_language._md_format_string(globals(), i, False) for i in sources]
 response = json.dumps(
-    [str(lang.handle_math_tags(soup(i, "html5lib"))) for ix, i in enumerate(response)]
+    [str(lang.handle_math_tags(soup(i, "html.parser"))) for ix, i in enumerate(response)]
 )
