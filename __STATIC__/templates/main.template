@@ -81,7 +81,7 @@
   <body style="margin: 0px;">
     <header id="cs_header">
         <div class="nav-container">
-            <a class="cs_header_text" href="{cs_home_link}">{cs_header}</a>
+            <div class="cs_header_text"><a href="{cs_home_link}">{cs_header}</a></div>
             {cs_top_menu_html}
         </div>
     </header>
