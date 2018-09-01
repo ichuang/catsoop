@@ -325,7 +325,7 @@ def qtype_inherit(context, other_type):
     **Returns:** `None`
     """
     base, _ = question(context, other_type)
-    context.update({k: v for k,v in base.items() if k != "qtype"})
+    context.update({k: v for k, v in base.items() if k != "qtype"})
 
 
 def _wrapped_defaults_maker(context, name):

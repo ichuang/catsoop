@@ -706,29 +706,29 @@ def handle_custom_tags(context, text):
     # handle table of contents
 
     for ix, i in enumerate(tree.find_all("tableofcontents")):
-        o_toc_dom = toc_dom = tree.new_tag('ul')
+        o_toc_dom = toc_dom = tree.new_tag("ul")
         last_handled_len = 0
         first_section = None
         for (num, link, name) in toc_sections:
-            n = len(num.strip().split('.'))  # number of layers deep
+            n = len(num.strip().split("."))  # number of layers deep
             if n > last_handled_len and last_handled_len != 0:
-                #want a new level of indentation
+                # want a new level of indentation
                 ltoc_dom = toc_dom
-                toc_dom = tree.new_tag('ul')
+                toc_dom = tree.new_tag("ul")
                 ltoc_dom.append(toc_dom)
             while n < last_handled_len:
                 toc_dom = toc_dom.parent
                 last_handled_len -= 1
             last_handled_len = n
-            toc_entry = tree.new_tag('li')
-            link = tree.new_tag('a')
-            link['hred'] = '#%s' % link
-            link.string = '%s) %s' % (num, name)
+            toc_entry = tree.new_tag("li")
+            link = tree.new_tag("a")
+            link["hred"] = "#%s" % link
+            link.string = "%s) %s" % (num, name)
             toc_entry.append(link)
             toc_dom.append(toc_entry)
 
-        toc_sec = tree.new_tag('h2')
-        toc_sec.string = 'Table of Contents'
+        toc_sec = tree.new_tag("h2")
+        toc_sec.string = "Table of Contents"
         i.replace_with(toc_sec)
         toc_sec.insert_after(o_toc_dom)
 
