@@ -693,14 +693,6 @@ def main(environment):
         session_data = session.get_session_data(context, context["cs_sid"])
         context["cs_session_data"] = session_data
 
-        # IF NOT DOING A LOG IN ACTION, STORE QUERY STRING
-        if "loginaction" not in context["cs_env"].get("QUERY_STRING", "") and context[
-            "cs_path_info"
-        ] != ["_auth", "openid_connect", "callback"]:
-            context["cs_session_data"]["cs_query_string"] = context["cs_env"].get(
-                "QUERY_STRING", ""
-            )
-
         # DO EARLY LOAD FOR THIS REQUEST
         if context["cs_course"] is not None:
             cfile = content_file_location(context, [context["cs_course"]] + path_info)
@@ -777,6 +769,7 @@ def main(environment):
             loader.do_late_load(
                 context, context["cs_course"], path_info, context, cfile
             )
+
         else:
             default_course = context.get("cs_default_course", None)
             if default_course is not None:
@@ -804,6 +797,15 @@ def main(environment):
                 context["cs_handler"] = "passthrough"
 
         res = tutor.handle_page(context)
+
+        # IF NOT DOING A LOG IN ACTION, STORE QUERY STRING
+        if (
+            "loginaction" not in context["cs_env"].get("QUERY_STRING", "")
+            and context.get("cs_handler", "default") == "default"
+        ):
+            context["cs_session_data"]["cs_query_string"] = context["cs_env"].get(
+                "QUERY_STRING", ""
+            )
 
         if res is not None:
             # if we're here, the handler wants to give a specific HTTP response
