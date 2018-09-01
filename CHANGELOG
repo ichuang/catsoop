@@ -91,6 +91,9 @@ REMOVED:
 
 FIXED:
 
+* Fixed a bug that assigned the wrong 'qtype' variable to question types that
+  inherit from other question types.
+
 * Fixed an issue with error reporting when trying to log a tuple that contains
   an element that can't be logged.
 
