@@ -482,13 +482,13 @@
          -ms-flex-preferred-size: 100%;
          flex-basis: 100%;
     }
-     .nav-container a:not(:first-child){
+     .nav-container a{
          display:none;
     }
-     .nav-container a:first-child{
-         margin-left: 10px;
+     .nav-container div:first-child > a{
+         display:block;
     }
-     .nav-container div{
+     .nav-container div:not(:first-child){
          display:none;
     }
      .nav-container a.icon{
@@ -515,7 +515,7 @@
      header.responsive {
          height: auto;
     }
-     header.responsive .nav-container a.cs_header_text{
+     header.responsive .nav-container div.cs_header_text{
          -ms-flex-item-align: center;
          -ms-grid-row-align: center;
          align-self: center;
