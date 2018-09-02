@@ -678,7 +678,7 @@ def handle_custom_tags(context, text):
                 "title": i.string,
                 "link": "#%s" % linkname,
             }
-        toc_sections.append((num, linkname, i.string))
+        toc_sections.append((num, linkname, i))
         sec = copy.copy(i)
         sec.name = tag
         sec.insert(0, "%s) " % num)
@@ -709,7 +709,7 @@ def handle_custom_tags(context, text):
         o_toc_dom = toc_dom = tree.new_tag("ul")
         last_handled_len = 0
         first_section = None
-        for (num, ref, name) in toc_sections:
+        for (num, ref, elt) in toc_sections:
             n = len(num.strip().split("."))  # number of layers deep
             if n > last_handled_len and last_handled_len != 0:
                 # want a new level of indentation
@@ -721,9 +721,10 @@ def handle_custom_tags(context, text):
                 last_handled_len -= 1
             last_handled_len = n
             toc_entry = tree.new_tag("li")
-            link = tree.new_tag("a")
+            link = copy.copy(elt)
+            link.name = 'a'
             link["href"] = "#%s" % ref
-            link.string = "%s) %s" % (num, name)
+            link.insert(0, '%s) ' % num)
             toc_entry.append(link)
             toc_dom.append(toc_entry)
 
