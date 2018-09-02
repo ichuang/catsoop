@@ -796,8 +796,6 @@ def main(environment):
                 context["csm_language"].md_pre_handle(context)
                 context["cs_handler"] = "passthrough"
 
-        res = tutor.handle_page(context)
-
         # IF NOT DOING A LOG IN ACTION, STORE QUERY STRING
         if (
             "loginaction" not in context["cs_env"].get("QUERY_STRING", "")
@@ -806,6 +804,7 @@ def main(environment):
             context["cs_session_data"]["cs_query_string"] = context["cs_env"].get(
                 "QUERY_STRING", ""
             )
+        res = tutor.handle_page(context)
 
         if res is not None:
             # if we're here, the handler wants to give a specific HTTP response
