@@ -722,9 +722,9 @@ def handle_custom_tags(context, text):
             last_handled_len = n
             toc_entry = tree.new_tag("li")
             link = copy.copy(elt)
-            link.name = 'a'
+            link.name = "a"
             link["href"] = "#%s" % ref
-            link.insert(0, '%s) ' % num)
+            link.insert(0, "%s) " % num)
             toc_entry.append(link)
             toc_dom.append(toc_entry)
 
