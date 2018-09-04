@@ -32,7 +32,7 @@ _nodoc = {
     "datetime",
 }
 
-cs_version = "(development version, v12.1.1+)"
+cs_version = "v13.0.0"
 """
 CAT-SOOP's version number
 """

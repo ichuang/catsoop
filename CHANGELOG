@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release.  Currently under development.
+##################
+# Version 13.0.0 #
+##################
 
 ADDED:
 
@@ -116,8 +114,6 @@ SECURITY:
 
 * Prevent submissions from being able to access materials defined in
   csq_code_pre from pythoncode questions.
-
-DOCUMENTATION:
 
 
 ##################
