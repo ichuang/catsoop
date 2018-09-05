@@ -391,7 +391,7 @@ def handle_view(context):
             "<br/><hr><br/></center></tutoronly>"
         ) % duetime
 
-    js_loads = set()
+    js_loads = []
     for elt in context["cs_problem_spec"]:
         if isinstance(elt, str):
             page += elt
@@ -403,7 +403,7 @@ def handle_view(context):
             if "js_files" in elt[0]:
                 a = elt[0].get("defaults", {})
                 a.update(elt[1])
-                js_loads |= set(elt[0]["js_files"](a))
+                js_loads.extend(elt[0]["js_files"](a))
 
     if js_loads:
         context["cs_scripts"] += (
