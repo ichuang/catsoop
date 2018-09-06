@@ -404,12 +404,6 @@ def display_page(context):
     **Returns:** a 3-tuple `(response_code, headers, content)` as expected by
     `catsoop.wsgi.application`
     """
-    if context["cs_process_theme"]:
-        context["cs_theme"] = ("%s/_util/process_theme" "?theme=%s" "&preload=%s") % (
-            context["cs_url_root"],
-            context["cs_theme"],
-            context["cs_original_path"],
-        )
     headers = {"Content-type": "text/html"}
     if context.get("cs_user_info", {}).get("real_user", None) is not None:
         impmsg = (
