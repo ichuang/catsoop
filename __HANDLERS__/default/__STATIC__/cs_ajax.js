@@ -23,12 +23,12 @@
 
 
 catsoop.switch_buttons = function (qname, enabled){
-    for(var b of document.getElementById(qname + '_buttons').getElementsByTagName('button')) b.disabled = !enabled;
+    for(var b of Array.prototype.slice.call(document.getElementById(qname + '_buttons').getElementsByTagName('button'))) b.disabled = !enabled;
 }
 
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    for(var b of document.getElementsByTagName('button')) b.disabled = false;
+    for(var b of Array.prototype.slice.call(document.getElementsByTagName('button'))) b.disabled = false;
 });
 
 
