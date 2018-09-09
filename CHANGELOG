@@ -8,13 +8,17 @@ ADDED:
 
 CHANGED:
 
+* Replace default favicon with one that does not have the letters "CS" in it.
+
 DEPRECATED:
 
 REMOVED:
 
 FIXED:
 
-* 'js_files' should preserve the order of its arguments.
+* 'js_files' now preserves the order of its arguments.
+
+* Fixed an issue with Microsoft Edge not accepting button presses.
 
 SECURITY:
 
