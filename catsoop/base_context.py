@@ -189,7 +189,7 @@ cs_theme = "BASE/themes/base.css"
 Special: A URL pointing to the page's CSS stylesheet
 """
 
-cs_icon_url = "data:image/gif;base64,R0lGODlhEAAQAKEAAAAAAAAzZv///wAAACH5BAEKAAMALAAAAAAQABAAAAI+nBdpGTdwWnQPQOSYsUBAmT1e9ymIQnYedaiWMHKyq8L2bb/4rfc17Bp5gDziK5gz0nY+nMyp2/EgsypnUAAAOw=="
+cs_icon_url = "data:image/gif;base64,R0lGODlhEAAQAKEAAAAAAAAzZv///wAAACH5BAEKAAMALAAAAAAQABAAAAIynI85oL3A3IFARFehlcvW3XyaR5XiJ6Tqmo6sOsZoS2viets0XJ+vzCoFXS8Yw4SkDAoAOw=="
 """
 Special: A URL pointing to the page's favicon
 """
