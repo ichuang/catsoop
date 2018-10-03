@@ -20,6 +20,9 @@ FIXED:
 
 * Fixed an issue with Microsoft Edge not accepting button presses.
 
+* Fixed an issue with the default handler's timer not properly synchronizing
+  with the server's time.
+
 SECURITY:
 
 DOCUMENTATION:
