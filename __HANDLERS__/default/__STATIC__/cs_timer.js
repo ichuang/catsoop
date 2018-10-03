@@ -38,10 +38,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }else{
             if (catsoop.timer_remaining%20 == 0){
                 setTimeout(function(){
-                               $.ajax(catsoop.time_url).done(function(mmsg){
-                                                            catsoop.timer_remaining = catsoop.timer_due - parseInt(mmsg);
-                                                        });
-                           }, Math.floor((Math.random() * 2000) + 1000));
+                    var request = new XMLHttpRequest();
+                    request.onload = function(){
+                        catsoop.timer_remaining = catsoop.timer_due - parseInt(request.response);
+                    }
+                    request.open('GET', catsoop.time_url, true);
+                    request.send();
+                }, Math.floor((Math.random() * 2000) + 1000));
             }
             catsoop.timer_hours = Math.floor(catsoop.timer_remaining / 3600);
             catsoop.timer_minutes = Math.floor((catsoop.timer_remaining - (catsoop.timer_hours*3600)) / 60);
