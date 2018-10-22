@@ -25,6 +25,9 @@ FIXED:
 
 * Fixed an type issue related to mpmath objects in numpy arrays.
 
+* Fixed confusing results from 'pythonic' question type by making sure that
+  the submission constitutes a single Python expression.
+
 SECURITY:
 
 DOCUMENTATION:

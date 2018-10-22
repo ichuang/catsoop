@@ -76,6 +76,7 @@ def handle_submission(submissions, **info):
         opts = info.get("csq_options", {})
         soln = eval(info["sandbox_run_code"](info, code, opts)[1], info)
     try:
+        ast.parse(sub, mode='eval')
         code = info["csq_code_pre"]
         if sub == "":
             return {"score": 0.0, "msg": INVALID_SUBMISSION_MSG}
