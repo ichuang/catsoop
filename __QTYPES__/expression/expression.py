@@ -198,11 +198,17 @@ def check_shapes(x, y):
     if xs is not None and ys is not None and xs != ys:
         raise ValueError("array shapes do not match: %s and %s" % (xs, ys))
 
+def _to_numpy(x):
+    if check_numpy() and isinstance(x, numpy.ndarray):
+        return x.astype(numpy.complex_)
+    return x
 
 def eval_binop(func, match_shapes=True):
     def _evaler(context, names, funcs, o):
         left = eval_expr(context, names, funcs, o[1])
         right = eval_expr(context, names, funcs, o[2])
+        left = _to_numpy(left)
+        right = _to_numpy(right)
         if match_shapes:
             check_shapes(left, right)
         return func(left, right)
@@ -250,10 +256,10 @@ def _run_one_test(context, sub, soln, funcs, ratio_threshold, absolute_threshold
     maps_to_try = _get_all_mappings(context, _sub_names, _sol_names)
     for m in maps_to_try:
         try:
-            subm = eval_expr(context, m, funcs, sub)
+            subm = _to_numpy(eval_expr(context, m, funcs, sub))
         except:
             return False
-        sol = eval_expr(context, m, funcs, soln)
+        sol = _to_numpy(eval_expr(context, m, funcs, soln))
 
         mag = abs
         if len(context["csq_variable_dimensions"]) > 0 and check_numpy():
