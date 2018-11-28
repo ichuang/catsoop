@@ -245,8 +245,6 @@ def serve_static_file(context, fname, environment=None, stream=False, streamchun
     * `streamchunk` (default `4096`): the size, in bytes, of the chunks in the
         resulting stream
     """
-    with open("/tmp/catsoop", "a") as f:
-        print(fname, file=f)
     environment = environment or {}
     try:
         status = ("200", "OK")
