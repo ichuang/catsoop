@@ -10,6 +10,9 @@ CHANGED:
 
 * Replace default favicon with one that does not have the letters "CS" in it.
 
+* Modified the default theme to ensure the body of a page is always at least
+  900px wide.
+
 DEPRECATED:
 
 REMOVED:
@@ -27,6 +30,9 @@ FIXED:
 
 * Fixed confusing results from 'pythonic' question type by making sure that
   the submission constitutes a single Python expression.
+
+* Fixed a bug whereby non-JSON-serializable objects in someone's __USERS__ file
+  would break the get_user_information API endpoint.
 
 SECURITY:
 

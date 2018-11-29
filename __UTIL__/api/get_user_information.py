@@ -32,4 +32,4 @@ output = csm_api.get_user_information(
     _as=cs_form.get("as", None),
 )
 
-response = json.dumps(output)
+response = json.dumps(output, default=lambda x: None)
