@@ -265,6 +265,7 @@
  .cs_content {
      -ms-flex-preferred-size: 60%;
      flex-basis: 60%;
+     min-width: 900px;
      max-width: var(--cs-max-page-width);
 }
  .anchor {
