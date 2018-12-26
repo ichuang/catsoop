@@ -16,6 +16,9 @@
 
 import collections.abc
 import traceback
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 tutor.qtype_inherit("smallbox")
 base1, _ = tutor.question("pythoncode")
@@ -79,6 +82,7 @@ def handle_submission(submissions, **info):
         ast.parse(sub, mode='eval')
         code = info["csq_code_pre"]
         if sub == "":
+            LOGGER.debug("[qtypes.pythonic] invalid submission, empty submission")
             return {"score": 0.0, "msg": INVALID_SUBMISSION_MSG}
         varname = gensym(code + sub)
         code += "\n%s = %s" % (varname, sub)
@@ -89,7 +93,9 @@ def handle_submission(submissions, **info):
         opts = info.get("csq_options", {})
         fname, out, err = info["sandbox_run_code"](info, code, opts)
         sub = eval(out, info)
-    except:
+    except Exception as err:
+        LOGGER.error("[qtypes.pythonic] invalid submission exception=%s" % str(err))
+        LOGGER.error("[qtypes.pythonic] traceback: %s" % traceback.format_exc())
         msg = ""
         mfunc = info["csq_msg_function"]
         try:
