@@ -112,7 +112,7 @@ def main():
     running = []
 
     for (ix, (wd, cmd, slp, name)) in enumerate(procs):
-        print("Starting", name)
+        print("Starting %s (cmd=%s)" % (name, cmd))
         running.append(
             subprocess.Popen(cmd, cwd=wd, preexec_fn=set_pdeathsig(signal.SIGTERM))
         )
