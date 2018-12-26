@@ -21,6 +21,8 @@ the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
 
+import sys
+
 _nodoc = {
     "contents",
     "cs_all_pieces",
@@ -296,6 +298,11 @@ In `'file'` mode, CAT-SOOP will store the uploaded files on disk, under
 
 In `'db'` mode, CAT-SOOP will store the contents of the files directly in the
 CAT-SOOP logs.
+"""
+
+cs_python_intepreter = sys.executable
+"""
+Path to python interpreter used for sandboxed python execution of checking code
 """
 
 # Debugging Function
