@@ -75,6 +75,7 @@ def do_check(row):
     context["cs_path_info"] = row["path"]
     context["cs_username"] = row["username"]
     context["cs_user_info"] = {"username": row["username"]}
+    context['is_running_checker'] = True			# used by preload.py (for LTI users)
     context["cs_user_info"] = auth.get_user_information(context)
     context["cs_now"] = datetime.fromtimestamp(row["time"])
     cfile = dispatch.content_file_location(context, row["path"])
