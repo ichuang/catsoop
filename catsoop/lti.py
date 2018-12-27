@@ -122,7 +122,8 @@ def get_or_create_user(context, uname, email, name):
         LOGGER.error(msg)
         raise Exception(msg)
 
-    info = {"username": uname, "name": name, "email": email}
+    info = {"username": uname, "name": name, "email": email,
+            "is_lti_user": True}		# see preload.py in course data; forces authorization
     session_data.update(info)
 
     LOGGER.error("[lti.get_or_create_user] login_info = %s" % login_info)
@@ -171,7 +172,6 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
             sub_path = '/'.join(sub_path_info)
             LOGGER.error("[lti] sub_path=%s" % sub_path)
             environment['PATH_INFO'] = sub_path
-            environment['is_lti_user'] = True	# see preload.py in course data; forces authorization
             return dispatch_main(environment)
 
         msg = "Hello LTI"
