@@ -41,7 +41,7 @@ from . import base_context
 
 _nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form"}
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger("cs")
 LOGGER.setLevel(logging.DEBUG)
 
 class CSFormatter(string.Formatter):
