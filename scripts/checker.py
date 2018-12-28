@@ -87,13 +87,15 @@ def do_check(row):
     context["cs_user_info"] = auth.get_user_information(context)
     context["cs_now"] = datetime.fromtimestamp(row["time"])
 
-    lti_handler = lti.lti4cs_response(context)
-    log("lti_handler.have_data=%s" % lti_handler.have_data)
-    if lti_handler.have_data:
-        log("lti_data=%s" % lti_handler.lti_data)
-        if not 'cs_session_data' in context:
-            context['cs_session_data'] = {}
-        context['cs_session_data']['is_lti_user'] = True	# so that course preload.py knows
+    have_lti = 'cs_lti_config' in context
+    if have_lti:
+        lti_handler = lti.lti4cs_response(context)
+        log("lti_handler.have_data=%s" % lti_handler.have_data)
+        if lti_handler.have_data:
+            log("lti_data=%s" % lti_handler.lti_data)
+            if not 'cs_session_data' in context:
+                context['cs_session_data'] = {}
+            context['cs_session_data']['is_lti_user'] = True	# so that course preload.py knows
 
     cfile = dispatch.content_file_location(context, row["path"])
     log("Loading grader python code course=%s, cfile=%s" % (context['cs_course'], cfile))
@@ -206,7 +208,7 @@ def do_check(row):
             )
 
             # update LTI tool consumer with new aggregate score
-            if lti_handler.have_data:
+            if have_lti and lti_handler.have_data:
                 aggregate_score = 0
                 cnt = 0
                 for k, v in x['scores'].items():	# e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
