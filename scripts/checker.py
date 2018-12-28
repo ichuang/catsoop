@@ -32,6 +32,7 @@ if CATSOOP_LOC not in sys.path:
     sys.path.append(CATSOOP_LOC)
 
 import catsoop.base_context as base_context
+import catsoop.lti as lti
 import catsoop.auth as auth
 import catsoop.cslog as cslog
 import catsoop.loader as loader
@@ -47,12 +48,14 @@ RESULTS = os.path.join(CHECKER_DB_LOC, "results")
 
 REAL_TIMEOUT = base_context.cs_checker_global_timeout
 
-DEBUG = False
+DEBUG = True
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 
 def log(msg):
+    if not DEBUG:
+        return
     dt = datetime.now()
     omsg = "[checker:%s]: %s" % (dt, msg)
     # sys.stdout.write(omsg)
@@ -75,12 +78,20 @@ def do_check(row):
     context["cs_path_info"] = row["path"]
     context["cs_username"] = row["username"]
     context["cs_user_info"] = {"username": row["username"]}
-    context['is_running_checker'] = True			# used by preload.py (for LTI users)
+    context['is_running_checker'] = True			# may be used by preload.py
     context["cs_user_info"] = auth.get_user_information(context)
     context["cs_now"] = datetime.fromtimestamp(row["time"])
+
+    lti_handler = lti.lti4cs_response(context)
+    log("lti_handler.have_data=%s" % lti_handler.have_data)
+    if lti_handler.have_data:
+        log("lti_data=%s" % lti_handler.lti_data)
+        if not 'cs_session_data' in context:
+            context['cs_session_data'] = {}
+        context['cs_session_data']['is_lti_user'] = True	# so that course preload.py knows
+
     cfile = dispatch.content_file_location(context, row["path"])
-    if DEBUG:
-        log("Loading grader python code course=%s, cfile=%s" % (context['cs_course'], cfile))
+    log("Loading grader python code course=%s, cfile=%s" % (context['cs_course'], cfile))
     loader.do_late_load(
         context, context["cs_course"], context["cs_path_info"], context, cfile
     )
@@ -129,6 +140,14 @@ def do_check(row):
 
             if DEBUG:
                 log("submit resp=%s, msg=%s" % (resp, msg))
+
+            if lti_handler.have_data:
+                log("sending score=%s to LTI tool consumer" % score)
+                try:
+                    lti_handler.send_outcome(score)
+                except Exception as err:
+                    LOGGER.error("[checker] failed to send outcome to LTI consumer, err=%s" % str(err))
+                    LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
 
             score_box = context["csm_tutor"].make_score_display(
                 context, args, name, score, True
