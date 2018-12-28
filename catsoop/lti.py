@@ -24,27 +24,17 @@ LOGGER.setLevel(logging.DEBUG)
 LOGGER = logging.getLogger("cs")
 LOGGER.setLevel(logging.DEBUG)
 
-LTI_CONSUMER_KEY = "__consumer_key__"
-LTI_SECRET = "__lti_secret__"
-LTI_CONSUMERS = {
-            LTI_CONSUMER_KEY: {
-                "secret": LTI_SECRET,
-            }
-        }
-
-LTI_SESSION_KEY = "oij1op24jsdnf"
-
 class lti4cs(pylti.common.LTIBase):
     '''
     LTI object representation for CAT-SOOP: validation and data receipt
     '''
-    def __init__(self, session, lti_args, lti_kwargs):
+    def __init__(self, context, session, lti_args, lti_kwargs):
         self.session = session
         self.lti_data = {}
         pylti.common.LTIBase.__init__(self, lti_args, lti_kwargs)
 
-        self.consumers = LTI_CONSUMERS
-        self.LTI_SESSION_KEY = LTI_SESSION_KEY
+        self.consumers = context.get('cs_lti_config')['consumers']
+        self.lti_session_key = context.get('cs_lti_config')['session_key']
 
     def verify_request(self, params, environment):
         try:
@@ -66,7 +56,7 @@ class lti4cs(pylti.common.LTIBase):
                     self.lti_data[prop] = params[prop]
 
             # Set logged in session key
-            self.session[self.LTI_SESSION_KEY] = True
+            self.session[self.lti_session_key] = True
             return True
 
         except Exception as err:
@@ -74,7 +64,7 @@ class lti4cs(pylti.common.LTIBase):
             for prop in pylti.common.LTI_PROPERTY_LIST:
                 if self.session.get(prop, None):
                     del self.session[prop]
-            self.session[self.LTI_SESSION_KEY] = False
+            self.session[self.lti_session_key] = False
 
         return False
 
@@ -102,8 +92,7 @@ class lti4cs_response(object):
         db_name = "_lti_data"
         self.lti_data = logging.most_recent(db_name, [], uname)
         self.PYLTI_URL_FIX = {}
-        self.consumers = LTI_CONSUMERS
-        self.LTI_SESSION_KEY = LTI_SESSION_KEY
+        self.consumers = context.get('cs_lti_config')['consumers']
 
     @property
     def have_data(self):
@@ -116,9 +105,10 @@ class lti4cs_response(object):
         '''
         url = self.response_url
         result_sourcedid = self.lti_data.get('lis_result_sourcedid', None)
+        consumer_key = self.lti_data.get("oauth_consumer_key")
         xml_body = self.generate_result_xml(result_sourcedid, data)
         LOGGER.error("[lti.lti4cs_response.send_outcome] sending grade=%s to %s" % (data, url))
-        success = pylti.common.post_message(self.consumers, LTI_CONSUMER_KEY, url, xml_body)
+        success = pylti.common.post_message(self.consumers, consumer_key, url, xml_body)
         if success:
             LOGGER.warn("[lti.lti4cs_response.send_outcome] outcome sent successfully")
         else:
@@ -239,12 +229,17 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     environment: (dict-like) web server data, such as form input
     dispatch_main: (proc) call this with environment to dispatch to render URL
     '''
+    if not 'cs_lti_config' in context:
+        msg = "[lti] LTI not configured - missing cs_lti_config in config.py"
+        LOGGER.error(msg)
+        raise Exception(msg)
+
     LOGGER.error("[lti] parameters=%s" % params)
     lti_action = path_info[0]
     LOGGER.error("[lti] lti_action=%s, path_info=%s" % (lti_action, path_info))
 
     session = context['cs_session_data']
-    l4c = lti4cs(session, {}, {})
+    l4c = lti4cs(context, session, {}, {})
     lti_ok = l4c.verify_request(params, environment)
     if not lti_ok:
         msg = "LTI verification failed"
