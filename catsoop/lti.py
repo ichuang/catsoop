@@ -93,8 +93,8 @@ class lti4cs_response(object):
         uname = context["cs_user_info"]["username"]
         db_name = "_lti_data"
         self.lti_data = logging.most_recent(db_name, [], uname)
-        self.PYLTI_URL_FIX = {}
         self.consumers = context.get('cs_lti_config')['consumers']
+        self.pylti_url_fix = context.get('cs_lti_config').get('pylti_url_fix', {})
 
     @property
     def have_data(self):
@@ -153,13 +153,13 @@ class lti4cs_response(object):
     def response_url(self):
         """
         Returns remapped lis_outcome_service_url
-        uses PYLTI_URL_FIX map to support edX dev-stack
+        uses pylti_url_fix map to support edX dev-stack
 
         :return: remapped lis_outcome_service_url
         """
         url = ""
         url = self.lti_data['lis_outcome_service_url']
-        urls = self.PYLTI_URL_FIX
+        urls = self.pylti_url_fix
         # url remapping is useful for using edX devstack
         # edX devstack reports httpS://localhost:8000/ and listens on HTTP
         for prefix, mapping in urls.items():
@@ -194,8 +194,6 @@ def get_or_create_user(context, uname, email, name):
             "confirmed": confirmed,
         }
         logging.overwrite_log("_logininfo", [], uname, uinfo)
-        
-        # session_data["course"] = context.get("cs_course", None)
         login_info = logging.most_recent("_logininfo", [], uname, {})
 
     LOGGER.error("[lti.get_or_create_user] login_info=%s" % login_info)
@@ -210,7 +208,6 @@ def get_or_create_user(context, uname, email, name):
     session_data.update(info)
 
     LOGGER.error("[lti.get_or_create_user] login_info = %s" % login_info)
-    # LOGGER.error("[lti.get_or_create_user] auth_type=%s" % auth.get_auth_type(context))
 
     user_info = auth.get_logged_in_user(context)
     LOGGER.error("[lti.get_or_create_user] user_info=%s" % user_info)
