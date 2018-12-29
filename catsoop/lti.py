@@ -214,9 +214,7 @@ def get_or_create_user(context, uname, email, name):
     context["cs_user_info"] = user_info
     context["cs_username"] = str(user_info.get("username", None))
 
-    session.set_session_data(
-        context, context["cs_sid"], context["cs_session_data"]
-    )
+    session.set_session_data(context, context["cs_sid"], session_data)	# save session data
 
     return login_info
 
