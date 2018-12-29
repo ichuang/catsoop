@@ -32,6 +32,7 @@ if CATSOOP_LOC not in sys.path:
     sys.path.append(CATSOOP_LOC)
 
 import catsoop.base_context as base_context
+import catsoop.lti as lti
 import catsoop.auth as auth
 import catsoop.cslog as cslog
 import catsoop.loader as loader
@@ -47,18 +48,19 @@ RESULTS = os.path.join(CHECKER_DB_LOC, "results")
 
 REAL_TIMEOUT = base_context.cs_checker_global_timeout
 
-DEBUG = False
+DEBUG = True
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER = logging.getLogger("cs")
 
 def log(msg):
+    if not DEBUG:
+        return
     dt = datetime.now()
     omsg = "[checker:%s]: %s" % (dt, msg)
     # sys.stdout.write(omsg)
     # sys.stdout.flush()
     # print(omsg)
-    LOGGER.error(omsg)
+    LOGGER.info(omsg)
 
 def exc_message(context):
     exc = traceback.format_exc()
@@ -67,6 +69,11 @@ def exc_message(context):
 
 
 def do_check(row):
+    '''
+    Check submission, dispatching to appropriate question handler
+
+    row: (dict) action to take, with input data
+    '''
     os.setpgrp()  # make this part of its own process group
     set_pdeathsig()()  # but make it die if the parent dies.  will this work?
 
@@ -75,27 +82,44 @@ def do_check(row):
     context["cs_path_info"] = row["path"]
     context["cs_username"] = row["username"]
     context["cs_user_info"] = {"username": row["username"]}
+    context['is_running_checker'] = True			# may be used by preload.py
     context["cs_user_info"] = auth.get_user_information(context)
     context["cs_now"] = datetime.fromtimestamp(row["time"])
+
+    have_lti = ('cs_lti_config' in context) and ('lti_data' in row)
+    if have_lti:
+        lti_data = row['lti_data']
+        lti_handler = lti.lti4cs_response(context, lti_data)	# LTI response handler, from row['lti_data']
+        log("lti_handler.have_data=%s" % lti_handler.have_data)
+        if lti_handler.have_data:
+            log("lti_data=%s" % lti_handler.lti_data)
+            if not 'cs_session_data' in context:
+                context['cs_session_data'] = {}
+            context['cs_session_data']['is_lti_user'] = True	# so that course preload.py knows
+
     cfile = dispatch.content_file_location(context, row["path"])
-    if DEBUG:
-        log("Loading grader python code course=%s, cfile=%s" % (context['cs_course'], cfile))
+    log("Loading grader python code course=%s, cfile=%s" % (context['cs_course'], cfile))
     loader.do_late_load(
         context, context["cs_course"], context["cs_path_info"], context, cfile
     )
 
     namemap = collections.OrderedDict()
     cnt = 0
+    total_possible_npoints = 0
     for elt in context["cs_problem_spec"]:
-        if isinstance(elt, tuple):
+        if isinstance(elt, tuple):		# each elt is (problem_context, problem_kwargs)
             m = elt[1]
             namemap[m["csq_name"]] = elt
+            csq_npoints = m.get('csq_npoints', 0)
+            total_possible_npoints += csq_npoints	# used to compute total aggregate score pct
             if DEBUG:
                 question = elt[0]['handle_submission']
-                log("Map: %s (%s) -> %s" % (m["csq_name"], m['csq_display_name'], question))
+                dn = m['csq_display_name']
+                log("Map: %s (%s) -> %s" % (m["csq_name"], dn, question))
+                log("%s csq_npoints=%s, total_points=%s" % (dn, csq_npoints, elt[0]['total_points']()))
             cnt += 1
     if DEBUG:
-        log("Loaded %d procedures into question namemap" % cnt)
+        log("Loaded %d procedures into question namemap (total_possible_npoints=%s)" % (cnt, total_possible_npoints))
 
     # now, depending on the action we want, take the appropriate steps
 
@@ -183,6 +207,26 @@ def do_check(row):
                 row["username"], row["path"], "problemstate", x, lock=False
             )
 
+            # update LTI tool consumer with new aggregate score
+            if have_lti and lti_handler.have_data:
+                aggregate_score = 0
+                cnt = 0
+                for k, v in x['scores'].items():	# e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
+                    aggregate_score += float(v)
+                    cnt += 1
+                if total_possible_npoints==0:
+                    total_possible_npoints = 1.0
+                    LOGGER.error("[checker] total_possible_npoints=0 ????")
+                aggregate_score_fract = aggregate_score * 1.0 / total_possible_npoints	# LTI wants score in [0, 1.0]
+                log("Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)" % (cnt,
+                                                                                                      aggregate_score,
+                                                                                                      aggregate_score_fract))
+                log("magic=%s sending aggregate_score_fract=%s to LTI tool consumer" % (row['magic'], aggregate_score_fract))
+                try:
+                    lti_handler.send_outcome(aggregate_score_fract)
+                except Exception as err:
+                    LOGGER.error("[checker] failed to send outcome to LTI consumer, err=%s" % str(err))
+                    LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
 
 running = []
 
@@ -195,14 +239,18 @@ for f in os.listdir(RUNNING):
 # and now actually start running
 if DEBUG:
     log("starting main loop")
+nrunning = None
+
 while True:
     # check for dead processes
     dead = set()
-    if DEBUG and len(running):
-        log("have %d running" % len(running))
+    if DEBUG and not (len(running)==nrunning):	# output debug message when nrunning changes
+        nrunning = len(running)
+        log("have %d running (%s)" % (nrunning, running))
     for i in range(len(running)):
         id_, row, p = running[i]
         if not p.is_alive():
+            log("    Process %s is alive" % p)
             if p.exitcode < 0:  # this probably only happens if we killed it
                 # update the database
                 row["score"] = 0.0
@@ -223,6 +271,8 @@ while True:
                 os.killpg(os.getpgid(p.pid), signal.SIGKILL)
             except:
                 pass
+    if dead:
+        log("Removing %s" % dead)
     for i in sorted(dead, reverse=True):
         running.pop(i)
 
@@ -237,14 +287,15 @@ while True:
             _, magic = first.split("_")
             row["magic"] = magic
             shutil.move(os.path.join(QUEUED, first), os.path.join(RUNNING, magic))
+            log("Moving from queued to  running: %s " % first)
 
             # start a worker for it
-            if DEBUG:
-                log("Starting checker with row=%s" % row)
+            log("Starting checker with row=%s" % row)
             p = multiprocessing.Process(target=do_check, args=(row,))
             running.append((magic, row, p))
             p.start()
             p._started = time.time()
             p._entry = row
+            log("Process pid = %s" % p.pid)
 
     time.sleep(0.1)

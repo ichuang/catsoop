@@ -44,14 +44,15 @@ CURRENT = {"queued": [], "running": set()}
 
 PORTNUM = base_context.cs_checker_server_port
 
-LOGGER = logging.getLogger('websockets.server')
-LOGGER.setLevel(logging.DEBUG)
-LOGGER.addHandler(logging.StreamHandler())
+LOGGER = logging.getLogger('cs')
+WSLOGGER = logging.getLogger('websockets.server')
+WSLOGGER.setLevel(LOGGER.level)
+WSLOGGER.addHandler(logging.StreamHandler())
 
 def log(msg):
     dt = datetime.datetime.now()
     omsg = "[reporter:%s]: %s" % (dt, msg)
-    LOGGER.error(omsg)
+    LOGGER.info(omsg)
 
 def get_status(magic):
     try:
