@@ -305,7 +305,7 @@ cs_python_intepreter = sys.executable
 Path to python interpreter used for sandboxed python execution of checking code
 """
 
-cs_debug_level = "DEBUG"
+cs_debug_level = "WARNING"
 cs_lti_debug_level = "WARNING"
 
 # Debugging Function

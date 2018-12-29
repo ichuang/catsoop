@@ -38,16 +38,16 @@ class lti4cs(pylti.common.LTIBase):
             base_url_default = "%s://%s" % (environment['wsgi.url_scheme'], environment['HTTP_HOST'])
             url = "%s/%s" % (self.base_url or base_url_default, environment['REQUEST_URI'][1:])
             method = environment['REQUEST_METHOD']
-            LOGGER.error("[lti.lti4cs.verify_request] method=%s, url=%s" % (method, url))
+            LOGGER.info("[lti.lti4cs.verify_request] method=%s, url=%s" % (method, url))
             pylti.common.verify_request_common(self.consumers,
                                                url,
                                                method,
                                                environment,
                                                params)
-            LOGGER.error('[lti.lti4cs.verify_request] verify_request success')
+            LOGGER.info('[lti.lti4cs.verify_request] verify_request success')
             for prop in pylti.common.LTI_PROPERTY_LIST:
                 if params.get(prop, None):
-                    LOGGER.error("[lti.lti4cs.verify_request] params %s=%s", prop, params.get(prop, None))
+                    LOGGER.info("[lti.lti4cs.verify_request] params %s=%s", prop, params.get(prop, None))
                     self.lti_data[prop] = params[prop]
 
             self.session['lti_data'] = self.lti_data
@@ -69,7 +69,7 @@ class lti4cs(pylti.common.LTIBase):
         db_name = "_lti_data"
         logging.overwrite_log(db_name, [], uname, self.lti_data)
         lfn = logging.get_log_filename(db_name, [], uname)
-        LOGGER.error("[lti] saved lti_data for user %s in file %s" % (uname, lfn))
+        LOGGER.info("[lti] saved lti_data for user %s in file %s" % (uname, lfn))
 
 class lti4cs_response(object):
     '''
@@ -79,7 +79,6 @@ class lti4cs_response(object):
         '''
         Load LTI data from logs (cs database) if available
         '''
-        debug_log.setup_logging(context)
         if lti_data:
             self.lti_data = lti_data	# use provided LTI data (e.g. for asynchronous grading response)
         else:
@@ -109,10 +108,10 @@ class lti4cs_response(object):
         result_sourcedid = self.lti_data.get('lis_result_sourcedid', None)
         consumer_key = self.lti_data.get("oauth_consumer_key")
         xml_body = self.generate_result_xml(result_sourcedid, data)
-        LOGGER.error("[lti.lti4cs_response.send_outcome] sending grade=%s to %s" % (data, url))
+        LOGGER.info("[lti.lti4cs_response.send_outcome] sending grade=%s to %s" % (data, url))
         success = pylti.common.post_message(self.consumers, consumer_key, url, xml_body)
         if success:
-            LOGGER.warn("[lti.lti4cs_response.send_outcome] outcome sent successfully")
+            LOGGER.info("[lti.lti4cs_response.send_outcome] outcome sent successfully")
         else:
             LOGGER.error("[lti.lti4cs_response.send_outcome] outcome sending FAILED")
 
@@ -174,12 +173,12 @@ def get_or_create_user(context, uname, email, name):
     '''
     session_data = context["cs_session_data"]
     logging = context["csm_cslog"]
-    LOGGER.error("[lti.get_or_create_user] uname=%s, email=%s, name=%s" % (uname, email, name))
+    LOGGER.info("[lti.get_or_create_user] uname=%s, email=%s, name=%s" % (uname, email, name))
 
     login_info = logging.most_recent("_logininfo", [], uname, {})
     if not login_info:	# account doesn't exist, create
 
-        LOGGER.error("[lti.get_or_create_user] uname=%s unknown username -> creating new account")
+        LOGGER.info("[lti.get_or_create_user] uname=%s unknown username -> creating new account")
         passwd = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
         hash_iterations = context.get("cs_password_hash_iterations", 500000)
         salt = get_new_password_salt()
@@ -196,7 +195,7 @@ def get_or_create_user(context, uname, email, name):
         logging.overwrite_log("_logininfo", [], uname, uinfo)
         login_info = logging.most_recent("_logininfo", [], uname, {})
 
-    LOGGER.error("[lti.get_or_create_user] login_info=%s" % login_info)
+    LOGGER.info("[lti.get_or_create_user] login_info=%s" % login_info)
 
     if login_info is None:	# account creation failed
         msg = "[lti.get_or_create_user] failed to create user %s" % uinfo
@@ -207,10 +206,10 @@ def get_or_create_user(context, uname, email, name):
             "is_lti_user": True}		# see preload.py in course data; forces authorization
     session_data.update(info)
 
-    LOGGER.error("[lti.get_or_create_user] login_info = %s" % login_info)
+    LOGGER.info("[lti.get_or_create_user] login_info = %s" % login_info)
 
     user_info = auth.get_logged_in_user(context)
-    LOGGER.error("[lti.get_or_create_user] user_info=%s" % user_info)
+    LOGGER.info("[lti.get_or_create_user] user_info=%s" % user_info)
     context["cs_user_info"] = user_info
     context["cs_username"] = str(user_info.get("username", None))
 
@@ -226,15 +225,14 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     environment: (dict-like) web server data, such as form input
     dispatch_main: (proc) call this with environment to dispatch to render URL
     '''
-    debug_log.setup_logging(context)
     if not 'cs_lti_config' in context:
         msg = "[lti] LTI not configured - missing cs_lti_config in config.py"
         LOGGER.error(msg)
         raise Exception(msg)
 
-    LOGGER.error("[lti] parameters=%s" % params)
+    LOGGER.info("[lti] parameters=%s" % params)
     lti_action = path_info[0]
-    LOGGER.error("[lti] lti_action=%s, path_info=%s" % (lti_action, path_info))
+    LOGGER.info("[lti] lti_action=%s, path_info=%s" % (lti_action, path_info))
 
     session = context['cs_session_data']
     l4c = lti4cs(context, session, {}, {})
@@ -251,11 +249,11 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         l4c.save_lti_data(context)	# save lti data, e.g. for later use by the checker
         if lti_action=="course":
 
-            LOGGER.error("[lti] rendering course page for %s" % uname)
+            LOGGER.info("[lti] rendering course page for %s" % uname)
 
             sub_path_info = path_info[1:]	# path without _lti/course prefix
             sub_path = '/'.join(sub_path_info)
-            LOGGER.error("[lti] sub_path=%s" % sub_path)
+            LOGGER.info("[lti] sub_path=%s" % sub_path)
             environment['PATH_INFO'] = sub_path
             environment['session_id'] = context['cs_sid']	# so that a new session ID isn't generated
             return dispatch_main(environment)

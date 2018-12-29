@@ -22,19 +22,18 @@ import re
 import time
 import json
 import uuid
-import logging
 import traceback
 import importlib
 
 from http.cookies import SimpleCookie
 
-from . import base_context
 from . import cslog
+from . import debug_log
+from . import base_context
 
 importlib.reload(base_context)
 
-LOGGER = logging.getLogger("cs")
-LOGGER.setLevel(logging.DEBUG)
+LOGGER = debug_log.LOGGER
 
 _nodoc = {"SimpleCookie", "make_session_dir"}
 
