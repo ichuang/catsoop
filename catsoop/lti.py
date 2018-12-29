@@ -35,12 +35,12 @@ class lti4cs(pylti.common.LTIBase):
 
         self.consumers = context.get('cs_lti_config')['consumers']
         self.lti_session_key = context.get('cs_lti_config')['session_key']
+        self.base_url = context.get('cs_lti_config', {}).get('base_url')
 
     def verify_request(self, params, environment):
         try:
-            url = "%s://%s%s" % (environment['wsgi.url_scheme'],
-                                  environment['HTTP_HOST'],
-                                  environment['REQUEST_URI'])
+            base_url_default = "%s://%s" % (environment['wsgi.url_scheme'], environment['HTTP_HOST'])
+            url = "%s/%s" % (self.base_url or base_url_default, environment['REQUEST_URI'][1:])
             method = environment['REQUEST_METHOD']
             LOGGER.error("[lti.lti4cs.verify_request] method=%s, url=%s" % (method, url))
             pylti.common.verify_request_common(self.consumers,
