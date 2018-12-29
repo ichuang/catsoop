@@ -53,6 +53,13 @@ def new_entry(context, qname, action):
         "time": time.time(),
         "action": action,
     }
+
+    # add LTI data, if present in current session (needed for sending grade back to tool consumer)
+    session = context['cs_session_data']
+    if session.get('is_lti_user'):
+        obj['lti_data'] = session.get('lti_data')
+
+    # safely save queue entry in database file (stage then mv)
     loc = os.path.join(tempfile.gettempdir(), "staging", id_)
     os.makedirs(os.path.dirname(loc), exist_ok=True)
     with open(loc, "wb") as f:

@@ -87,9 +87,10 @@ def do_check(row):
     context["cs_user_info"] = auth.get_user_information(context)
     context["cs_now"] = datetime.fromtimestamp(row["time"])
 
-    have_lti = 'cs_lti_config' in context
+    have_lti = ('cs_lti_config' in context) and ('lti_data' in row)
     if have_lti:
-        lti_handler = lti.lti4cs_response(context)
+        lti_data = row['lti_data']
+        lti_handler = lti.lti4cs_response(context, lti_data)	# LTI response handler, from row['lti_data']
         log("lti_handler.have_data=%s" % lti_handler.have_data)
         if lti_handler.have_data:
             log("lti_data=%s" % lti_handler.lti_data)
@@ -218,7 +219,7 @@ def do_check(row):
                 log("Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)" % (cnt,
                                                                                                       aggregate_score,
                                                                                                       aggregate_score_fract))
-                log("sending aggregate_score_fract=%s to LTI tool consumer" % aggregate_score_fract)
+                log("magic=%s sending aggregate_score_fract=%s to LTI tool consumer" % (row['magic'], aggregate_score_fract))
                 try:
                     lti_handler.send_outcome(aggregate_score_fract)
                 except Exception as err:

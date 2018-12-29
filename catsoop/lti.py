@@ -9,7 +9,6 @@ import uuid
 import string
 import random
 import hashlib
-import logging
 import pylti.common
 
 from lxml import etree
@@ -17,12 +16,9 @@ from lxml.builder import ElementMaker
 
 from . import auth
 from . import session
+from . import debug_log
 
-LOGGER = logging.getLogger('pylti.common')
-LOGGER.setLevel(logging.DEBUG)
-
-LOGGER = logging.getLogger("cs")
-LOGGER.setLevel(logging.DEBUG)
+LOGGER = debug_log.LOGGER
 
 class lti4cs(pylti.common.LTIBase):
     '''
@@ -83,6 +79,7 @@ class lti4cs_response(object):
         '''
         Load LTI data from logs (cs database) if available
         '''
+        debug_log.setup_logging(context)
         if lti_data:
             self.lti_data = lti_data	# use provided LTI data (e.g. for asynchronous grading response)
         else:
@@ -229,6 +226,7 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     environment: (dict-like) web server data, such as form input
     dispatch_main: (proc) call this with environment to dispatch to render URL
     '''
+    debug_log.setup_logging(context)
     if not 'cs_lti_config' in context:
         msg = "[lti] LTI not configured - missing cs_lti_config in config.py"
         LOGGER.error(msg)
