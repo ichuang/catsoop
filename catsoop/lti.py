@@ -52,10 +52,9 @@ class lti4cs(pylti.common.LTIBase):
             for prop in pylti.common.LTI_PROPERTY_LIST:
                 if params.get(prop, None):
                     LOGGER.error("[lti.lti4cs.verify_request] params %s=%s", prop, params.get(prop, None))
-                    self.session[prop] = params[prop]
                     self.lti_data[prop] = params[prop]
-                elif self.session.get(prop, None):	# delete old properties from session which weren't provided 
-                    del self.session[prop]
+
+            self.session['lti_data'] = self.lti_data
 
             # Set logged in session key
             self.session[self.lti_session_key] = True
@@ -63,9 +62,7 @@ class lti4cs(pylti.common.LTIBase):
 
         except Exception as err:
             LOGGER.error('[lti.lti4cs.verify_request] verify_request failed, err=%s' % str(err))
-            for prop in pylti.common.LTI_PROPERTY_LIST:
-                if self.session.get(prop, None):
-                    del self.session[prop]
+            self.session['lti_data'] = {}
             self.session[self.lti_session_key] = False
 
         return False
@@ -85,16 +82,25 @@ class lti4cs_response(object):
     '''
     LTI handler for responses from CAT-SOOP to tool consumer
     '''
-    def __init__(self, context):
+    def __init__(self, context, lti_data=None):
         '''
         Load LTI data from logs (cs database) if available
         '''
-        logging = context["csm_cslog"]
-        uname = context["cs_user_info"]["username"]
-        db_name = "_lti_data"
-        self.lti_data = logging.most_recent(db_name, [], uname)
+        if lti_data:
+            self.lti_data = lti_data	# use provided LTI data (e.g. for asynchronous grading response)
+        else:
+            logging = context["csm_cslog"]
+            uname = context["cs_user_info"]["username"]
+            db_name = "_lti_data"
+            self.lti_data = logging.most_recent(db_name, [], uname)	# retrieve LTI data 
         self.consumers = context.get('cs_lti_config')['consumers']
         self.pylti_url_fix = context.get('cs_lti_config').get('pylti_url_fix', {})
+
+    def to_dict(self):
+        '''
+        Return dict representation of this LTI response handler
+        '''
+        return self.lti_data
 
     @property
     def have_data(self):
@@ -241,9 +247,10 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     if not lti_ok:
         msg = "LTI verification failed"
     else:
-        uname = "lti_%s" % session.get("lis_person_sourcedid", session['user_id'])
-        email = session.get('lis_person_contact_email_primary', "%s@unknown" % uname)
-        name = session.get('lis_person_name_full', uname)
+        lti_data = session["lti_data"]
+        uname = "lti_%s" % lti_data.get("lis_person_sourcedid", session['user_id'])
+        email = lti_data.get('lis_person_contact_email_primary', "%s@unknown" % uname)
+        name = lti_data.get('lis_person_name_full', uname)
         
         get_or_create_user(context, uname, email, name)
         l4c.save_lti_data(context)	# save lti data, e.g. for later use by the checker
