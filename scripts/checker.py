@@ -110,7 +110,7 @@ def do_check(row):
         if isinstance(elt, tuple):		# each elt is (problem_context, problem_kwargs)
             m = elt[1]
             namemap[m["csq_name"]] = elt
-            csq_npoints = m['csq_npoints']
+            csq_npoints = m.get('csq_npoints', 0)
             total_possible_npoints += csq_npoints	# used to compute total aggregate score pct
             if DEBUG:
                 question = elt[0]['handle_submission']
@@ -214,6 +214,9 @@ def do_check(row):
                 for k, v in x['scores'].items():	# e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
                     aggregate_score += float(v)
                     cnt += 1
+                if total_possible_npoints==0:
+                    total_possible_npoints = 1.0
+                    LOGGER.error("[checker] total_possible_npoints=0 ????")
                 aggregate_score_fract = aggregate_score * 1.0 / total_possible_npoints	# LTI wants score in [0, 1.0]
                 log("Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)" % (cnt,
                                                                                                       aggregate_score,
