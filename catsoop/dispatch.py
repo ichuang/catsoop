@@ -680,7 +680,10 @@ def main(environment):
             raise Exception
 
         # LOAD SESSION DATA (if any)
-        context["cs_sid"], new = session.get_session_id(environment)
+        new = False
+        context['cs_sid'] = environment.get('session_id')		# for LTI calling dispatch.main
+        if not context['cs_sid']:
+            context["cs_sid"], new = session.get_session_id(environment)
         if new:
             hdr = context["cs_additional_headers"]
             url_root = urllib.parse.urlparse(context["cs_url_root"])

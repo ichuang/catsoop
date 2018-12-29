@@ -240,7 +240,6 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     lti_ok = l4c.verify_request(params, environment)
     if not lti_ok:
         msg = "LTI verification failed"
-
     else:
         uname = "lti_%s" % session.get("lis_person_sourcedid", session['user_id'])
         email = session.get('lis_person_contact_email_primary', "%s@unknown" % uname)
@@ -256,6 +255,7 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
             sub_path = '/'.join(sub_path_info)
             LOGGER.error("[lti] sub_path=%s" % sub_path)
             environment['PATH_INFO'] = sub_path
+            environment['session_id'] = context['cs_sid']	# so that a new session ID isn't generated
             return dispatch_main(environment)
 
         msg = "Hello LTI"
