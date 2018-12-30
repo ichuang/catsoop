@@ -241,7 +241,11 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         msg = "LTI verification failed"
     else:
         lti_data = session["lti_data"]
-        uname = "lti_%s" % lti_data.get("lis_person_sourcedid", lti_data['user_id'])
+        lup = context['cs_lti_config'].get("lti_username_prefix", "lti_")
+        lti_uname = lti_data['user_id']
+        if not context['cs_lti_config'].get("force_username_from_id"):
+            lti_uname = lti_data.get("lis_person_sourcedid", lti_uname)	# prefer username to user_id
+        uname = "%s%s" % (lup, lti_uname)
         email = lti_data.get('lis_person_contact_email_primary', "%s@unknown" % uname)
         name = lti_data.get('lis_person_name_full', uname)
         
