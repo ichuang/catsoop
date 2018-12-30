@@ -166,58 +166,6 @@ class lti4cs_response(object):
                     url = url.replace(_from, _to)
         return url
 
-def get_or_create_user(context, uname, email, name):
-    '''
-    Ensure that the named user (by username) exists; create if necessary
-    '''
-    session_data = context["cs_session_data"]
-    logging = context["csm_cslog"]
-    LOGGER.info("[lti.get_or_create_user] uname=%s, email=%s, name=%s" % (uname, email, name))
-
-    login_info = logging.most_recent("_logininfo", [], uname, {})
-    if not login_info:	# account doesn't exist, create
-
-        LOGGER.info("[lti.get_or_create_user] uname=%s unknown username -> creating new account")
-        passwd = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
-        hash_iterations = context.get("cs_password_hash_iterations", 500000)
-        _login = auth.get_auth_type_by_name(context, 'login')
-        salt = _login['get_new_password_salt']()
-        phash = _login['compute_password_hash'](context, passwd, salt, hash_iterations)
-        confirmed = True
-        
-        uinfo = {
-            "password_salt": salt,
-            "password_hash": phash,
-            "email": email,
-            "name": name,
-            "confirmed": confirmed,
-        }
-        logging.overwrite_log("_logininfo", [], uname, uinfo)
-        login_info = logging.most_recent("_logininfo", [], uname, {})
-
-    LOGGER.info("[lti.get_or_create_user] login_info=%s" % login_info)
-
-    if login_info is None:	# account creation failed
-        msg = "[lti.get_or_create_user] failed to create user %s" % uinfo
-        LOGGER.error(msg)
-        raise Exception(msg)
-
-    info = {"username": uname, "name": name, "email": email,
-            "is_lti_user": True}		# see preload.py in course data; forces authorization
-    session_data.update(info)
-
-    LOGGER.info("[lti.get_or_create_user] login_info = %s" % login_info)
-
-    user_info = auth.get_logged_in_user(context)
-    LOGGER.info("[lti.get_or_create_user] user_info=%s" % user_info)
-    context["cs_user_info"] = user_info
-    context["cs_username"] = str(user_info.get("username", None))
-
-    session.set_session_data(context, context["cs_sid"], session_data)	# save session data
-
-    return login_info
-
-
 def serve_lti(context, path_info, environment, params, dispatch_main):
     '''
     context: (dict) catsoop global context
@@ -234,13 +182,13 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     lti_action = path_info[0]
     LOGGER.info("[lti] lti_action=%s, path_info=%s" % (lti_action, path_info))
 
-    session = context['cs_session_data']
-    l4c = lti4cs(context, session, {}, {})
+    session_data = context['cs_session_data']
+    l4c = lti4cs(context, session_data, {}, {})
     lti_ok = l4c.verify_request(params, environment)
     if not lti_ok:
         msg = "LTI verification failed"
     else:
-        lti_data = session["lti_data"]
+        lti_data = session_data["lti_data"]
         lup = context['cs_lti_config'].get("lti_username_prefix", "lti_")
         lti_uname = lti_data['user_id']
         if not context['cs_lti_config'].get("force_username_from_id"):
@@ -248,8 +196,13 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         uname = "%s%s" % (lup, lti_uname)
         email = lti_data.get('lis_person_contact_email_primary', "%s@unknown" % uname)
         name = lti_data.get('lis_person_name_full', uname)
+        lti_data['cs_user_info'] = {"username": uname, "name": name, "email": email,
+                                    "is_lti_user": True}		# save LTI user data in session for auth.py
+        session_data.update(lti_data['cs_user_info'])
+        session.set_session_data(context, context["cs_sid"], session_data)	# save session data
+        user_info = auth.get_logged_in_user(context)			# saves user_info in context["cs_user_info"]
+        LOGGER.info("[lti] auth user_info=%s" % user_info)
         
-        get_or_create_user(context, uname, email, name)
         l4c.save_lti_data(context)	# save lti data, e.g. for later use by the checker
         if lti_action=="course":
 
