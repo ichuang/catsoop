@@ -180,8 +180,9 @@ def get_or_create_user(context, uname, email, name):
         LOGGER.info("[lti.get_or_create_user] uname=%s unknown username -> creating new account")
         passwd = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
         hash_iterations = context.get("cs_password_hash_iterations", 500000)
-        salt = get_new_password_salt()
-        phash = compute_password_hash(context, passwd, salt, hash_iterations)
+        _login = auth.get_auth_type_by_name(context, 'login')
+        salt = _login['get_new_password_salt']()
+        phash = _login['compute_password_hash'](context, passwd, salt, hash_iterations)
         confirmed = True
         
         uinfo = {
@@ -264,33 +265,3 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         {"Content-type": "text/plain", "Content-length": str(len(msg))},
         msg
     )
-        
-#-----------------------------------------------------------------------------
-
-def get_new_password_salt(length=128):
-    """
-    Generate a new salt of length length.  Tries to use os.urandom, and
-    falls back on random if that doesn't work for some reason.
-    """
-    try:
-        out = os.urandom(length)
-    except:
-        out = "".join(chr(random.randint(1, 127)) for i in range(length)).encode()
-    return out
-
-def compute_password_hash(context, password, salt=None, iterations=500000, encrypt=True):
-    """
-    Given a password, and (optionally) an associated salt, return a hash value.
-    """
-    hash_ = hashlib.pbkdf2_hmac(
-        "sha512", _ensure_bytes(password), _ensure_bytes(salt), iterations
-    )
-    if encrypt and (context["csm_cslog"].ENCRYPT_KEY is not None):
-        hash_ = context["csm_cslog"].FERNET.encrypt(hash_)
-    return hash_
-
-def _ensure_bytes(x):
-    try:
-        return x.encode()
-    except:
-        return x
