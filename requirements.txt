@@ -11,3 +11,4 @@ websockets
 lxml
 uuid
 pylti
+oauthlib
