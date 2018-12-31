@@ -69,9 +69,9 @@ Special: The page title, to be displayed in the browser's title bar
 """
 
 cs_base_logo_text = (
-    "\            "
-    "\n/    /\__/\  "
-    "\n\__=(  o_O )="
+    "\\            "
+    "\n/    /\\__/\\  "
+    "\n\\__=(  o_O )="
     "\n(__________) "
     "\n |_ |_ |_ |_ "
 )
