@@ -50,8 +50,7 @@ REAL_TIMEOUT = base_context.cs_checker_global_timeout
 
 DEBUG = True
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER = logging.getLogger("cs")
 
 def log(msg):
     if not DEBUG:
@@ -61,7 +60,7 @@ def log(msg):
     # sys.stdout.write(omsg)
     # sys.stdout.flush()
     # print(omsg)
-    LOGGER.error(omsg)
+    LOGGER.info(omsg)
 
 def exc_message(context):
     exc = traceback.format_exc()

@@ -21,7 +21,6 @@ import os
 import cgi
 import string
 import hashlib
-import logging
 import colorsys
 import mimetypes
 import traceback
@@ -37,12 +36,12 @@ from . import loader
 from . import errors
 from . import session
 from . import language
+from . import debug_log
 from . import base_context
 
 _nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form"}
 
-LOGGER = logging.getLogger("cs")
-LOGGER.setLevel(logging.DEBUG)
+LOGGER = debug_log.LOGGER
 
 class CSFormatter(string.Formatter):
     def get_value(self, key, args, kwargs):
@@ -609,7 +608,7 @@ def main(environment):
         context["cs_original_path"] = path_info[1:]
         path_info = [i for i in path_info.split("/") if i != ""]
         if path_info and not path_info[0]=="_static":
-            LOGGER.error("[dispatch.main] path_info=%s" % path_info)
+            LOGGER.info("[dispatch.main] path_info=%s" % path_info)
 
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
         if len(path_info) > 0 and path_info[0] == "_static":
@@ -683,7 +682,7 @@ def main(environment):
         new = True
         context['cs_sid'] = environment.get('session_id')		# for LTI calling dispatch.main
         if context['cs_sid']:
-            LOGGER.error("[dispatch.main] re-using existing session ID=%s" % context['cs_sid'])
+            LOGGER.info("[dispatch.main] re-using existing session ID=%s" % context['cs_sid'])
         else:
             context["cs_sid"], new = session.get_session_id(environment)
         if new:
@@ -698,23 +697,23 @@ def main(environment):
             )
         session_data = session.get_session_data(context, context["cs_sid"])
         context["cs_session_data"] = session_data
-        LOGGER.error("[dispatch.main] session_id=%s" % context['cs_sid'])
-        LOGGER.error("[dispatch.main] path_info=%s" % path_info)
+        LOGGER.info("[dispatch.main] session_id=%s" % context['cs_sid'])
+        LOGGER.info("[dispatch.main] path_info=%s" % path_info)
 
         # Handle LTI (must be done prior to authentication & other processing)
         if path_info and context["cs_course"]=="_lti":
-            LOGGER.error("[dispatch.main] serving LTI")
+            LOGGER.info("[dispatch.main] serving LTI")
             return lti.serve_lti(context, path_info, environment, form_data, main)
 
         # DO EARLY LOAD FOR THIS REQUEST
         if context["cs_course"] is not None:
             cfile = content_file_location(context, [context["cs_course"]] + path_info)
-            LOGGER.error("[dispatch.main] loading content file for course %s" % cfile)
+            LOGGER.info("[dispatch.main] loading content file for course %s" % cfile)
             x = loader.do_early_load(
                 context, context["cs_course"], path_info, context, cfile
             )
             if x == "missing":
-                LOGGER.error("[dispatch.main] early load returned missing")
+                LOGGER.info("[dispatch.main] early load returned missing")
                 return errors.do_404_message(context)
 
             _set_colors(context)
@@ -724,7 +723,7 @@ def main(environment):
             # on what is in the EARLY_LOAD files, unfortunately
             if context.get("cs_auth_required", True):
                 user_info = auth.get_logged_in_user(context)
-                LOGGER.error("[dispatch.main] user_info=%s" % user_info)
+                LOGGER.info("[dispatch.main] user_info=%s" % user_info)
                 context["cs_user_info"] = user_info
                 context["cs_username"] = str(user_info.get("username", None))
                 if user_info.get("cs_render_now", False):
@@ -782,14 +781,14 @@ def main(environment):
                     return errors.do_404_message(context)
 
             # FINALLY, DO LATE LOAD
-            LOGGER.error("[dispatch.main] doing late load with path_info=%s" % path_info)
+            LOGGER.info("[dispatch.main] doing late load with path_info=%s" % path_info)
             loader.do_late_load(
                 context, context["cs_course"], path_info, context, cfile
             )
 
         else:
             default_course = context.get("cs_default_course", None)
-            LOGGER.error("[dispatch.main] no course specified, using default course %s" % default_course)
+            LOGGER.info("[dispatch.main] no course specified, using default course %s" % default_course)
             if default_course is not None:
                 return redirect(
                     "/".join(
@@ -823,7 +822,7 @@ def main(environment):
                 "QUERY_STRING", ""
             )
 
-        LOGGER.error("[dispatch.main] handing request using tutor.handle_page, cs_handler=%s" % context.get("cs_handler"))
+        LOGGER.info("[dispatch.main] handing request using tutor.handle_page, cs_handler=%s" % context.get("cs_handler"))
         res = tutor.handle_page(context)
 
         if res is not None:
