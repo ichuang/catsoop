@@ -1,4 +1,18 @@
 # This file is part of CAT-SOOP
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 LTI Tool Provider interface
@@ -88,7 +102,7 @@ class lti4cs_response(object):
             logging = context["csm_cslog"]
             uname = context["cs_user_info"]["username"]
             db_name = "_lti_data"
-            self.lti_data = logging.most_recent(db_name, [], uname)	# retrieve LTI data 
+            self.lti_data = logging.most_recent(db_name, [], uname)	# retrieve LTI data
         self.consumers = context.get('cs_lti_config')['consumers']
         self.pylti_url_fix = context.get('cs_lti_config').get('pylti_url_fix', {})
 
@@ -217,30 +231,30 @@ class LTI_Consumer(object):
             oauth_version=body['oauth_version'],
         ))
         return retdat
-    
+
     def _sign_lti_message(self, body, key, secret, url):
         client = Client(
             client_key=key,
             client_secret=secret
         )
-    
+
         __, headers, __ = client.sign(
             url,
             http_method=u'POST',
             body=body,
             headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
-    
+
         auth_header = headers['Authorization'][len('OAuth '):]
         auth = dict([param.strip().replace('"', '').split('=') for param in
                      auth_header.split(',')])
-    
+
         body['oauth_nonce'] = auth['oauth_nonce']
         body['oauth_signature'] = auth['oauth_signature']
         body['oauth_timestamp'] = auth['oauth_timestamp']
         body['oauth_signature_method'] = auth['oauth_signature_method']
         body['oauth_version'] = auth['oauth_version']
-    
+
 #-----------------------------------------------------------------------------
 
 def serve_lti(context, path_info, environment, params, dispatch_main):
@@ -280,7 +294,7 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         session.set_session_data(context, context["cs_sid"], session_data)	# save session data
         user_info = auth.get_logged_in_user(context)			# saves user_info in context["cs_user_info"]
         LOGGER.info("[lti] auth user_info=%s" % user_info)
-        
+
         l4c.save_lti_data(context)	# save lti data, e.g. for later use by the checker
         if lti_action=="course":
 
