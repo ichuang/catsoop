@@ -6,7 +6,7 @@ import tempfile
 
 def setup_data_dir():
     mydir = os.path.dirname(__file__)
-    test_course_dir = os.path.join(os.path.dirname(mydir), "test_course")
+    test_course_dir = os.path.join(os.path.dirname(mydir), "__TEST_COURSE__")
     # tdir = tempfile.mkdtemp('catsoop_test')
     tdir = '/tmp/catsoop_test'
     if not os.path.exists(tdir):
