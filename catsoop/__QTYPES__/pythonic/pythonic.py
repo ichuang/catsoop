@@ -58,7 +58,7 @@ INVALID_SUBMISSION_MSG = (
 
 def handle_submission(submissions, **info):
     py3k = info.get("csq_python3", True)
-    sub = submissions[info["csq_name"]]
+    sub = submissions[info["csq_name"]].strip()
 
     inp = info["csq_input_check"](sub)
     if inp is not None:

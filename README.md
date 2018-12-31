@@ -15,6 +15,7 @@
 
 * Clone Repository:
     hg clone https://catsoop.mit.edu/repo/cat-soop
+    git clone https://catsoop.mit.edu/gitrepo cat-soop
 
 * Repository Web Access:
     https://catsoop.mit.edu/repo/cat-soop

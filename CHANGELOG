@@ -6,9 +6,15 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* Added the 'dummy' question type, which can be used as a placeholder for a
+  question that should be removed (but without affecting
+  automatically-generated csq_names for questions that follow.
+
 CHANGED:
 
-* Replace default favicon with one that does not have the letters "CS" in it.
+* Updated KaTeX to version 0.10.0.
+
+* Replaced default favicon with one that does not have the letters "CS" in it.
 
 * Modified the default theme to ensure the body of a page is always at least
   900px wide.
@@ -31,8 +37,16 @@ FIXED:
 * Fixed confusing results from 'pythonic' question type by making sure that
   the submission constitutes a single Python expression.
 
+* Fixed a bug in the 'pythonic' and 'pythonliteral' question types so that
+  answers with leading whitespace are allowed.
+
 * Fixed a bug whereby non-JSON-serializable objects in someone's __USERS__ file
   would break the get_user_information API endpoint.
+
+* Fixed an issue with 'expression' question types, whereby if all values were
+  specified in csq_names, the question would use regular Python floats (instead
+  of mpmath.mpf) to represent them, occasionally causing corect answers to be
+  marked as incorrect.
 
 SECURITY:
 
