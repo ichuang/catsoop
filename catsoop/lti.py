@@ -102,7 +102,6 @@ class lti4cs_response(object):
     def send_outcome(self, data):
         '''
         Send outcome (ie grade) to LTI tool consumer (XML as defined in LTI v1.1)
-        FIXME: must provide aggregate grade for multipart problems
         '''
         url = self.response_url
         result_sourcedid = self.lti_data.get('lis_result_sourcedid', None)
