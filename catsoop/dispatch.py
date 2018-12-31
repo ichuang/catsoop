@@ -21,12 +21,15 @@ import os
 import cgi
 import string
 import hashlib
+import logging
 import colorsys
 import mimetypes
+import traceback
 import urllib.parse
 
 from email.utils import formatdate
 
+from . import lti
 from . import auth
 from . import time
 from . import tutor
@@ -38,6 +41,8 @@ from . import base_context
 
 _nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form"}
 
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
 
 class CSFormatter(string.Formatter):
     def get_value(self, key, args, kwargs):
@@ -603,6 +608,8 @@ def main(environment):
         path_info = environment.get("PATH_INFO", "/")
         context["cs_original_path"] = path_info[1:]
         path_info = [i for i in path_info.split("/") if i != ""]
+        if path_info and not path_info[0]=="_static":
+            LOGGER.error("[dispatch.main] path_info=%s" % path_info)
 
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
         if len(path_info) > 0 and path_info[0] == "_static":
@@ -655,6 +662,7 @@ def main(environment):
 
         # CHECK FOR VALID CONFIGURATION
         if e is not None:
+            LOGGER.error("[dispatch.main] internal server error %s" % e)
             return (
                 ("500", "Internal Server Error"),
                 {"Content-type": "text/plain", "Content-length": str(len(e))},
@@ -668,6 +676,7 @@ def main(environment):
             m += "\n".join(context["_cs_config_errors"])
             out = errors.do_error_message(context, m)
             force_error = True
+            LOGGER.error("[dispatch.main] global configuration loading error %s" % context["_cs_config_errors"])
             raise Exception
 
         # LOAD SESSION DATA (if any)
@@ -684,14 +693,23 @@ def main(environment):
             )
         session_data = session.get_session_data(context, context["cs_sid"])
         context["cs_session_data"] = session_data
+        LOGGER.error("[dispatch.main] session_id=%s" % context['cs_sid'])
+        LOGGER.error("[dispatch.main] path_info=%s" % path_info)
+
+        # Handle LTI (must be done prior to authentication & other processing)
+        if path_info and context["cs_course"]=="_lti":
+            LOGGER.error("[dispatch.main] serving LTI")
+            return lti.serve_lti(context, path_info, environment, form_data, main)
 
         # DO EARLY LOAD FOR THIS REQUEST
         if context["cs_course"] is not None:
             cfile = content_file_location(context, [context["cs_course"]] + path_info)
+            LOGGER.error("[dispatch.main] loading content file for course %s" % cfile)
             x = loader.do_early_load(
                 context, context["cs_course"], path_info, context, cfile
             )
             if x == "missing":
+                LOGGER.error("[dispatch.main] early load returned missing")
                 return errors.do_404_message(context)
 
             _set_colors(context)
@@ -701,6 +719,7 @@ def main(environment):
             # on what is in the EARLY_LOAD files, unfortunately
             if context.get("cs_auth_required", True):
                 user_info = auth.get_logged_in_user(context)
+                LOGGER.error("[dispatch.main] user_info=%s" % user_info)
                 context["cs_user_info"] = user_info
                 context["cs_username"] = str(user_info.get("username", None))
                 if user_info.get("cs_render_now", False):
@@ -758,12 +777,14 @@ def main(environment):
                     return errors.do_404_message(context)
 
             # FINALLY, DO LATE LOAD
+            LOGGER.error("[dispatch.main] doing late load with path_info=%s" % path_info)
             loader.do_late_load(
                 context, context["cs_course"], path_info, context, cfile
             )
 
         else:
             default_course = context.get("cs_default_course", None)
+            LOGGER.error("[dispatch.main] no course specified, using default course %s" % default_course)
             if default_course is not None:
                 return redirect(
                     "/".join(
@@ -796,6 +817,8 @@ def main(environment):
             context["cs_session_data"]["cs_query_string"] = context["cs_env"].get(
                 "QUERY_STRING", ""
             )
+
+        LOGGER.error("[dispatch.main] handing request using tutor.handle_page, cs_handler=%s" % context.get("cs_handler"))
         res = tutor.handle_page(context)
 
         if res is not None:
@@ -817,7 +840,9 @@ def main(environment):
 
         session_data = context["cs_session_data"]
         session.set_session_data(context, context["cs_sid"], session_data)
-    except:
+    except Exception as err:
+        LOGGER.error("[dispatch.main] error occurred: %s" % str(err))
+        LOGGER.error("[dispatch.main] traceback: %s" % traceback.format_exc())
         if not force_error:
             out = errors.do_error_message(context)
     out = out[:-1] + (out[-1].encode("utf-8"),)
