@@ -55,15 +55,12 @@ class lti4cs(pylti.common.LTIBase):
                     self.lti_data[prop] = params[prop]
 
             self.session['lti_data'] = self.lti_data
-
-            # Set logged in session key
-            self.session[self.lti_session_key] = True
             return True
 
         except Exception as err:
             LOGGER.error('[lti.lti4cs.verify_request] verify_request failed, err=%s' % str(err))
             self.session['lti_data'] = {}
-            self.session[self.lti_session_key] = False
+            self.session['is_lti_user'] = False
 
         return False
 
