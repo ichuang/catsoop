@@ -33,7 +33,7 @@
 * No animals were harmed in the making of this CAT-SOOP.
 
 
-### WHAT IS IT?
+## WHAT IS IT?
 
 CAT-SOOP is a tool for automatic collection and assessment of online exercises,
 originally developed primarily for use in MIT's 6.01 (Introduction to
@@ -46,18 +46,68 @@ course material hosted on a CAT-SOOP instance, unless explicitly stated
 otherwise.
 
 
-### HOW DO I INSTALL IT?
+## HOW DO I INSTALL IT?
 
 See the "installation quick-start guide" at:
     https://catsoop.mit.edu/website/docs/installing
 
+### Installation (via setuptools or pip)
 
-### IS IT ANY GOOD?
+To install, for example, run:
+
+    python setup.py develop
+
+or
+
+    python setup.py install
+
+## Running and configuring
+
+To start catsoop, ensure you have a valid config.py in the current directory, and run:
+
+    catsoop runserver
+
+To generate a config.py file, run:
+
+    catsoop configure
+
+## Testing
+
+To run all the unit tests:
+
+    python setup.py test
+
+## Usage
+
+```
+usage: catsoop [-h] [-v] [-c CONFIG_FILE] command
+
+Example commands:
+
+    runserver      : starts the CAT-SOOP webserver
+    configure      : generate CAT-SOOP configuration file using an interactive wizard
+
+positional arguments:
+  command               A variety of commands are available, each with different arguments:
+
+                        runserver      : starts the CAT-SOOP webserver
+                        configure      : generate CAT-SOOP configuration file using an interactive wizard
+
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         increase debug output verbosity
+  -c CONFIG_FILE, --config-file CONFIG_FILE
+                        name of configuration file to use
+```
+
+
+## IS IT ANY GOOD?
 
 Yes.
 
 
-### INCLUDED SOFTWARE
+## INCLUDED SOFTWARE
 
 CAT-SOOP is built with the Python programming language, version 3.5+:
     https://www.python.org/
