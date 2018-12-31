@@ -1,10 +1,14 @@
+[![Build Status](https://travis-ci.org/ichuang/catsoop.svg?branch=master)](https://travis-ci.org/ichuang/catsoop)
+
+```
 \
 /    /\__/\
 \__=(  o_O )=
 (__________)
  |_ |_ |_ |_
+```
 
-  CAT-SOOP
+#  CAT-SOOP
 
 * Web Site:
     https://catsoop.mit.edu
