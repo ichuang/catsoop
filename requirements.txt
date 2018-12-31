@@ -8,3 +8,7 @@ mpmath
 ply
 uwsgi
 websockets
+lxml
+uuid
+pylti
+oauthlib

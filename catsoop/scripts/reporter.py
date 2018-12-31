@@ -18,7 +18,9 @@ import os
 import sys
 import json
 import time
+import logging
 import asyncio
+import datetime
 import threading
 
 from collections import defaultdict
@@ -31,6 +33,8 @@ from catsoop.cslog import unprep
 import catsoop.base_context as base_context
 import websockets
 
+DEBUG = False
+
 CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "__LOGS__", "_checker")
 RUNNING = os.path.join(CHECKER_DB_LOC, "running")
 QUEUED = os.path.join(CHECKER_DB_LOC, "queued")
@@ -40,6 +44,15 @@ CURRENT = {"queued": [], "running": set()}
 
 PORTNUM = base_context.cs_checker_server_port
 
+LOGGER = logging.getLogger('cs')
+WSLOGGER = logging.getLogger('websockets.server')
+WSLOGGER.setLevel(LOGGER.level)
+WSLOGGER.addHandler(logging.StreamHandler())
+
+def log(msg):
+    dt = datetime.datetime.now()
+    omsg = "[reporter:%s]: %s" % (dt, msg)
+    LOGGER.info(omsg)
 
 def get_status(magic):
     try:
@@ -55,12 +68,19 @@ def get_status(magic):
 
 
 async def reporter(websocket, path):
+    DEBUG = True
+    if DEBUG:
+        LOGGER.error("Waiting for websocket recv")
     magic_json = await websocket.recv()
     magic = json.loads(magic_json)["magic"]
+    if DEBUG:
+        log("Got message magic=%s, json=%s" % (magic, magic_json))
 
     last_ping = time.time()
     last_status = None
     while True:
+        if DEBUG:
+            log("In main loop")
         t = time.time()
 
         # if it's been more than 10 seconds since we've pinged, ping again.
@@ -122,11 +142,17 @@ async def reporter(websocket, path):
 def updater():
     CURRENT["queued"] = [i.split("_")[1] for i in sorted(os.listdir(QUEUED))]
     CURRENT["running"] = {i.name for i in os.scandir(RUNNING)}
+    crun = CURRENT["running"]
+    if DEBUG and crun:
+        log("updater queued=%s" % crun)
     loop.call_later(0.3, updater)
 
+log("Starting reporter on port=%s" % PORTNUM)
 
 start_server = websockets.serve(reporter, "0.0.0.0", PORTNUM)
 loop = asyncio.get_event_loop()
+log("Running start_server")
 loop.run_until_complete(start_server)
 loop.call_soon(updater)
 loop.run_forever()
+log("Reporter exiting")

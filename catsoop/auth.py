@@ -18,6 +18,7 @@ User authentication for normal interactions
 """
 
 import os
+import logging
 import importlib
 
 from . import api
@@ -26,6 +27,9 @@ from . import cslog
 from . import base_context
 
 importlib.reload(base_context)
+
+LOGGER = logging.getLogger("cs")
+LOGGER.setLevel(logging.DEBUG)
 
 
 def _execfile(*args):
@@ -105,6 +109,13 @@ def get_logged_in_user(context):
     the key `api_token`, as well as some subset of the keys `'username'`,
     `'name'`, and `'email'`.
     """
+    # handle auto-login for LTI users
+    lti_data = context['cs_session_data'].get('lti_data')
+    if lti_data:
+        context['cs_user_info'] = lti_data.get('cs_user_info')
+        LOGGER.info("[auth] Allowing in LTI user with cs_user_info=%s" % context['cs_user_info'])
+        return context['cs_user_info']
+
     # if an API token was specified, use the associated information and move on
     # this has the side-effect of renewing that token (moving back the
     # expiration time)
@@ -156,7 +167,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
         if do_preload:
             loader.load_global_data(context)
             loader.do_early_load(context, course, [], context)
-        fname = os.path.join(
+        fname = os.path.join(		# path to user definition py file in course data
             context["cs_data_root"],
             "courses",
             context["cs_course"],
@@ -169,6 +180,9 @@ def _get_user_information(context, into, course, username, do_preload=False):
         with open(fname) as f:
             text = f.read()
         exec(text, into)
+        LOGGER.warning("[auth] loaded from %s user=%s" % (fname, into))
+    else:
+        LOGGER.error("[auth] missing user definition file %s" % fname)
 
     # permissions handling
     if "permissions" not in into:

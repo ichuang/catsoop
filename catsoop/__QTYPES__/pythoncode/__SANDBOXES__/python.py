@@ -20,6 +20,7 @@ import time
 import fcntl
 import shutil
 import hashlib
+import logging
 import tempfile
 import resource
 import subprocess
@@ -68,18 +69,24 @@ def run_code(context, code, options):
     with open(os.path.join(tmpdir, fname), "w") as fileobj:
         fileobj.write(code.replace("\r\n", "\n"))
 
-    interp = context.get("csq_python_interpreter", sys.executable)
+    logging.debug("context cs_version=%s, cs_python_interpreter=%s" % (context.get("cs_version"),
+                                                                       context.get("cs_python_interpreter")))
 
-    p = subprocess.Popen(
-        [interp, "-E", "-B", fname],
-        cwd=tmpdir,
-        preexec_fn=limiter,
-        bufsize=0,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        env={},
-    )
+    interp = context.get("csq_python_interpreter", context.get("cs_python_interpreter", sys.executable))
+
+    try:
+        p = subprocess.Popen(
+            [interp, "-E", "-B", fname],
+            cwd=tmpdir,
+            preexec_fn=limiter,
+            bufsize=0,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env={},
+        )
+    except Exception as err:
+        raise Exception("[cs.qtypes.pythoncode.python] Failed to execute subprocess interp=%s (need to set csq_python_interpreter?), err=%s" % (interp, err))
 
     out = ""
     err = ""

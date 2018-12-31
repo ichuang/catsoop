@@ -34,6 +34,16 @@ _prefix = "cs_defaulthandler_"
 
 
 def new_entry(context, qname, action):
+    '''
+    Enqueue an asynchronous request to be processed (by the checker), e.g.
+    a problem submission for grading.
+
+    context = dict 
+    qname = question name / ID
+    action = "check" or "submit"
+
+    Returns uuid for the new queue entry.
+    '''
     id_ = str(uuid.uuid4())
     obj = {
         "path": context["cs_path_info"],
@@ -43,6 +53,13 @@ def new_entry(context, qname, action):
         "time": time.time(),
         "action": action,
     }
+
+    # add LTI data, if present in current session (needed for sending grade back to tool consumer)
+    session = context['cs_session_data']
+    if session.get('is_lti_user'):
+        obj['lti_data'] = session.get('lti_data')
+
+    # safely save queue entry in database file (stage then mv)
     loc = os.path.join(tempfile.gettempdir(), "staging", id_)
     os.makedirs(os.path.dirname(loc), exist_ok=True)
     with open(loc, "wb") as f:
@@ -814,6 +831,10 @@ def handle_save(context):
         outdict[name] = out
 
         # cache responses
+        if "score_displays" not in newstate:
+            newstate["score_displays"] = {}
+        if "cached_responses" not in newstate:
+            newstate["cached_responses"] = {}
         newstate["score_displays"][name] = out["score_display"]
         newstate["cached_responses"][name] = out["message"]
 
