@@ -19,6 +19,7 @@ import sys
 import time
 import shutil
 import signal
+import logging
 import tempfile
 import traceback
 import collections
@@ -46,6 +47,18 @@ RESULTS = os.path.join(CHECKER_DB_LOC, "results")
 
 REAL_TIMEOUT = base_context.cs_checker_global_timeout
 
+DEBUG = False
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
+
+def log(msg):
+    dt = datetime.now()
+    omsg = "[checker:%s]: %s" % (dt, msg)
+    # sys.stdout.write(omsg)
+    # sys.stdout.flush()
+    # print(omsg)
+    LOGGER.error(omsg)
 
 def exc_message(context):
     exc = traceback.format_exc()
@@ -65,15 +78,24 @@ def do_check(row):
     context["cs_user_info"] = auth.get_user_information(context)
     context["cs_now"] = datetime.fromtimestamp(row["time"])
     cfile = dispatch.content_file_location(context, row["path"])
+    if DEBUG:
+        log("Loading grader python code course=%s, cfile=%s" % (context['cs_course'], cfile))
     loader.do_late_load(
         context, context["cs_course"], context["cs_path_info"], context, cfile
     )
 
     namemap = collections.OrderedDict()
+    cnt = 0
     for elt in context["cs_problem_spec"]:
         if isinstance(elt, tuple):
             m = elt[1]
             namemap[m["csq_name"]] = elt
+            if DEBUG:
+                question = elt[0]['handle_submission']
+                log("Map: %s (%s) -> %s" % (m["csq_name"], m['csq_display_name'], question))
+            cnt += 1
+    if DEBUG:
+        log("Loaded %d procedures into question namemap" % cnt)
 
     # now, depending on the action we want, take the appropriate steps
 
@@ -86,16 +108,26 @@ def do_check(row):
         names_done.add(name)
         question, args = namemap[name]
         if row["action"] == "submit":
+            if DEBUG:
+                log("submit name=%s, row=%s" % (name, row))
             try:
-                resp = question["handle_submission"](row["form"], **args)
+                handler = question["handle_submission"]
+                if DEBUG:
+                    log("handler=%s" % handler)
+                resp = handler(row["form"], **args)
                 score = resp["score"]
                 msg = resp["msg"]
                 extra = resp.get("extra_data", None)
-            except:
+            except Exception as err:
                 resp = {}
                 score = 0.0
+                log("Failed to handle submission, err=%s" % str(err))
+                log("Traceback=%s" % traceback.format_exc())
                 msg = exc_message(context)
                 extra = None
+
+            if DEBUG:
+                log("submit resp=%s, msg=%s" % (resp, msg))
 
             score_box = context["csm_tutor"].make_score_display(
                 context, args, name, score, True
@@ -110,6 +142,9 @@ def do_check(row):
             score = None
             score_box = ""
             extra = None
+
+            if DEBUG:
+                log("check name=%s, msg=%s" % (name, msg))
 
         row["score"] = score
         row["score_box"] = score_box
@@ -158,9 +193,13 @@ for f in os.listdir(RUNNING):
     shutil.move(os.path.join(RUNNING, f), os.path.join(QUEUED, "0_%s" % f))
 
 # and now actually start running
+if DEBUG:
+    log("starting main loop")
 while True:
     # check for dead processes
     dead = set()
+    if DEBUG and len(running):
+        log("have %d running" % len(running))
     for i in range(len(running)):
         id_, row, p = running[i]
         if not p.is_alive():
@@ -200,6 +239,8 @@ while True:
             shutil.move(os.path.join(QUEUED, first), os.path.join(RUNNING, magic))
 
             # start a worker for it
+            if DEBUG:
+                log("Starting checker with row=%s" % row)
             p = multiprocessing.Process(target=do_check, args=(row,))
             running.append((magic, row, p))
             p.start()
