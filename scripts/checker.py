@@ -212,13 +212,13 @@ def do_check(row):
                 for k, v in x['scores'].items():	# e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
                     aggregate_score += float(v)
                     cnt += 1
-                aggregate_score_pct = aggregate_score * 1.0 / total_possible_npoints * 100.0
-                log("Computed aggregate score from %d questions, aggregate_score=%s (pct=%s)" % (cnt,
-                                                                                                 aggregate_score,
-                                                                                                 aggregate_score_pct))
-                log("sending aggregate_score_pct=%s to LTI tool consumer" % aggregate_score_pct)
+                aggregate_score_fract = aggregate_score * 1.0 / total_possible_npoints	# LTI wants score in [0, 1.0]
+                log("Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)" % (cnt,
+                                                                                                      aggregate_score,
+                                                                                                      aggregate_score_fract))
+                log("sending aggregate_score_fract=%s to LTI tool consumer" % aggregate_score_fract)
                 try:
-                    lti_handler.send_outcome(aggregate_score_pct)
+                    lti_handler.send_outcome(aggregate_score_fract)
                 except Exception as err:
                     LOGGER.error("[checker] failed to send outcome to LTI consumer, err=%s" % str(err))
                     LOGGER.error("[checker] traceback=%s" % traceback.format_exc())

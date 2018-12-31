@@ -118,8 +118,11 @@ class lti4cs_response(object):
         result_sourcedid = self.lti_data.get('lis_result_sourcedid', None)
         xml_body = self.generate_result_xml(result_sourcedid, data)
         LOGGER.error("[lti.lti4cs_response.send_outcome] sending grade=%s to %s" % (data, url))
-        pylti.common.post_message(self.consumers, LTI_CONSUMER_KEY, url, xml_body)
-        LOGGER.error("[lti.lti4cs_response.send_outcome] outcome sent successfully")
+        success = pylti.common.post_message(self.consumers, LTI_CONSUMER_KEY, url, xml_body)
+        if success:
+            LOGGER.warn("[lti.lti4cs_response.send_outcome] outcome sent successfully")
+        else:
+            LOGGER.error("[lti.lti4cs_response.send_outcome] outcome sending FAILED")
 
     def generate_result_xml(self, result_sourcedid, score):
         '''
