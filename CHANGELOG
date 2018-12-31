@@ -10,6 +10,14 @@ ADDED:
   question that should be removed (but without affecting
   automatically-generated csq_names for questions that follow.
 
+* Added support for using CAT-SOOP as an LTI Tool Provider (courtesy of Ike
+  Chuang).
+
+* Added a few unit tests (courtesy of Ike Chuang).
+
+* Added cs_debug_logger, an instance of logging.Logger, for debugging (courtesy
+  of Ike Chuang).
+
 CHANGED:
 
 * Updated KaTeX to version 0.10.0.
@@ -18,6 +26,8 @@ CHANGED:
 
 * Modified the default theme to ensure the body of a page is always at least
   900px wide.
+
+* CAT-SOOP now exists as a proper Python package.
 
 DEPRECATED:
 
