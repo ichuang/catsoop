@@ -34,6 +34,16 @@ _prefix = "cs_defaulthandler_"
 
 
 def new_entry(context, qname, action):
+    '''
+    Enqueue an asynchronous request to be processed (by the checker), e.g.
+    a problem submission for grading.
+
+    context = dict 
+    qname = question name / ID
+    action = "check" or "submit"
+
+    Returns uuid for the new queue entry.
+    '''
     id_ = str(uuid.uuid4())
     obj = {
         "path": context["cs_path_info"],
