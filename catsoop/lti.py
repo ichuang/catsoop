@@ -197,6 +197,7 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         email = lti_data.get('lis_person_contact_email_primary', "%s@unknown" % uname)
         name = lti_data.get('lis_person_name_full', uname)
         lti_data['cs_user_info'] = {"username": uname, "name": name, "email": email,
+                                    "lti_role": lti_data.get('roles'),
                                     "is_lti_user": True}		# save LTI user data in session for auth.py
         session_data.update(lti_data['cs_user_info'])
         session.set_session_data(context, context["cs_sid"], session_data)	# save session data
