@@ -236,14 +236,18 @@ for f in os.listdir(RUNNING):
 # and now actually start running
 if DEBUG:
     log("starting main loop")
+nrunning = None
+
 while True:
     # check for dead processes
     dead = set()
-    if DEBUG and len(running):
-        log("have %d running" % len(running))
+    if DEBUG and not (len(running)==nrunning):	# output debug message when nrunning changes
+        nrunning = len(running)
+        log("have %d running (%s)" % (nrunning, running))
     for i in range(len(running)):
         id_, row, p = running[i]
         if not p.is_alive():
+            log("    Process %s is alive" % p)
             if p.exitcode < 0:  # this probably only happens if we killed it
                 # update the database
                 row["score"] = 0.0
@@ -264,6 +268,8 @@ while True:
                 os.killpg(os.getpgid(p.pid), signal.SIGKILL)
             except:
                 pass
+    if dead:
+        log("Removing %s" % dead)
     for i in sorted(dead, reverse=True):
         running.pop(i)
 
@@ -278,14 +284,15 @@ while True:
             _, magic = first.split("_")
             row["magic"] = magic
             shutil.move(os.path.join(QUEUED, first), os.path.join(RUNNING, magic))
+            log("Moving from queued to  running: %s " % first)
 
             # start a worker for it
-            if DEBUG:
-                log("Starting checker with row=%s" % row)
+            log("Starting checker with row=%s" % row)
             p = multiprocessing.Process(target=do_check, args=(row,))
             running.append((magic, row, p))
             p.start()
             p._started = time.time()
             p._entry = row
+            log("Process pid = %s" % p.pid)
 
     time.sleep(0.1)
