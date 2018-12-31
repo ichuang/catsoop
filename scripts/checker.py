@@ -70,6 +70,11 @@ def exc_message(context):
 
 
 def do_check(row):
+    '''
+    Check submission, dispatching to appropriate question handler
+
+    row: (dict) action to take, with input data
+    '''
     os.setpgrp()  # make this part of its own process group
     set_pdeathsig()()  # but make it die if the parent dies.  will this work?
 
@@ -98,16 +103,21 @@ def do_check(row):
 
     namemap = collections.OrderedDict()
     cnt = 0
+    total_possible_npoints = 0
     for elt in context["cs_problem_spec"]:
-        if isinstance(elt, tuple):
+        if isinstance(elt, tuple):		# each elt is (problem_context, problem_kwargs)
             m = elt[1]
             namemap[m["csq_name"]] = elt
+            csq_npoints = m['csq_npoints']
+            total_possible_npoints += csq_npoints	# used to compute total aggregate score pct
             if DEBUG:
                 question = elt[0]['handle_submission']
-                log("Map: %s (%s) -> %s" % (m["csq_name"], m['csq_display_name'], question))
+                dn = m['csq_display_name']
+                log("Map: %s (%s) -> %s" % (m["csq_name"], dn, question))
+                log("%s csq_npoints=%s, total_points=%s" % (dn, csq_npoints, elt[0]['total_points']()))
             cnt += 1
     if DEBUG:
-        log("Loaded %d procedures into question namemap" % cnt)
+        log("Loaded %d procedures into question namemap (total_possible_npoints=%s)" % (cnt, total_possible_npoints))
 
     # now, depending on the action we want, take the appropriate steps
 
@@ -140,14 +150,6 @@ def do_check(row):
 
             if DEBUG:
                 log("submit resp=%s, msg=%s" % (resp, msg))
-
-            if lti_handler.have_data:
-                log("sending score=%s to LTI tool consumer" % score)
-                try:
-                    lti_handler.send_outcome(score)
-                except Exception as err:
-                    LOGGER.error("[checker] failed to send outcome to LTI consumer, err=%s" % str(err))
-                    LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
 
             score_box = context["csm_tutor"].make_score_display(
                 context, args, name, score, True
@@ -203,6 +205,23 @@ def do_check(row):
                 row["username"], row["path"], "problemstate", x, lock=False
             )
 
+            # update LTI tool consumer with new aggregate score
+            if lti_handler.have_data:
+                aggregate_score = 0
+                cnt = 0
+                for k, v in x['scores'].items():	# e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
+                    aggregate_score += float(v)
+                    cnt += 1
+                aggregate_score_pct = aggregate_score * 1.0 / total_possible_npoints * 100.0
+                log("Computed aggregate score from %d questions, aggregate_score=%s (pct=%s)" % (cnt,
+                                                                                                 aggregate_score,
+                                                                                                 aggregate_score_pct))
+                log("sending aggregate_score_pct=%s to LTI tool consumer" % aggregate_score_pct)
+                try:
+                    lti_handler.send_outcome(aggregate_score_pct)
+                except Exception as err:
+                    LOGGER.error("[checker] failed to send outcome to LTI consumer, err=%s" % str(err))
+                    LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
 
 running = []
 
