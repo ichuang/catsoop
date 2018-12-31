@@ -173,9 +173,9 @@ def _get_user_information(context, into, course, username, do_preload=False):
         with open(fname) as f:
             text = f.read()
         exec(text, into)
-        LOGGER.info("[auth] loaded from %s user=%s" % (fname, into))
+        LOGGER.warning("[auth] loaded from %s user=%s" % (fname, into))
     else:
-        LOGGER.info("[auth] missing user definition file %s" % fname)
+        LOGGER.error("[auth] missing user definition file %s" % fname)
 
     # permissions handling
     if "permissions" not in into:
