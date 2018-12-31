@@ -346,7 +346,7 @@ _cs_config_errors = []
 
 try:
     default_loc = os.path.join(os.path.dirname(__file__), "config.py")
-    config_loc = os.environ.get('CAT_SOOP_CONFIG', default_loc)
+    config_loc = os.environ.get('CATSOOP_CONFIG', default_loc)
     LOGGER.info("[base_context] using config file %s" % config_loc)
     with open(config_loc) as f:
         exec(f.read())

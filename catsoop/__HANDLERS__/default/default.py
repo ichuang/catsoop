@@ -38,7 +38,7 @@ def new_entry(context, qname, action):
     Enqueue an asynchronous request to be processed (by the checker), e.g.
     a problem submission for grading.
 
-    context = dict 
+    context = dict
     qname = question name / ID
     action = "check" or "submit"
 

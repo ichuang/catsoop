@@ -30,7 +30,9 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
     parser = argparse.ArgumentParser(description=help_text, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("command", help=cmd_help)
     parser.add_argument("-v", "--verbose", help="increase debug output verbosity", action="store_true")
-    parser.add_argument("-c", "--config-file", help="name of configuration file to use", default="./config.py")
+    default_config_location = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser(os.path.join('~', '.config')))
+    default_config_location = os.path.abspath(os.path.join(default_config_location, 'cat-soop', 'config.py'))
+    parser.add_argument("-c", "--config-file", help="name of configuration file to use", default=default_config_location)
 
     if not args:
         args = parser.parse_args(arglist)
@@ -41,9 +43,9 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
         os.environ['CATSOOP_DEBUG_LEVEL'] = "1"
 
     if args.command=="configure":
-        from .scripts import setup_local_catsoop
-        setup_local_catsoop.main()
-        
+        from .scripts import configure
+        configure.main()
+
     elif args.command=="runserver":
         from .scripts import start_catsoop
         print("cfn=%s" % cfn)
