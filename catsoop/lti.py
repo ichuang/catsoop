@@ -54,6 +54,8 @@ class lti4cs(pylti.common.LTIBase):
                     LOGGER.error("[lti.lti4cs.verify_request] params %s=%s", prop, params.get(prop, None))
                     self.session[prop] = params[prop]
                     self.lti_data[prop] = params[prop]
+                elif self.session.get(prop, None):	# delete old properties from session which weren't provided 
+                    del self.session[prop]
 
             # Set logged in session key
             self.session[self.lti_session_key] = True
@@ -245,9 +247,9 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         msg = "LTI verification failed"
 
     else:
-        uname = "lti_%s" % session['user_id']
-        email = session['lis_person_contact_email_primary']
-        name = session['lis_person_name_full']
+        uname = "lti_%s" % session.get("lis_person_sourcedid", session['user_id'])
+        email = session.get('lis_person_contact_email_primary', "%s@unknown" % uname)
+        name = session.get('lis_person_name_full', uname)
         
         get_or_create_user(context, uname, email, name)
         l4c.save_lti_data(context)	# save lti data, e.g. for later use by the checker
