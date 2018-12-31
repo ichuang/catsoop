@@ -13,8 +13,7 @@ def CommandLine(args=None, arglist=None):
 
     version = pkg_resources.require("catsoop")[0].version
 
-    help_text = """usage: %prog [command] [options]
-
+    help_text = """
 Example commands:
 
     runserver      : starts the CAT-SOOP webserver
