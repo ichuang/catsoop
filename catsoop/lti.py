@@ -5,11 +5,15 @@ LTI Tool Provider interface
 """
 
 import os
+import uuid
 import string
 import random
 import hashlib
 import logging
 import pylti.common
+
+from lxml import etree
+from lxml.builder import ElementMaker
 
 from . import auth
 from . import session
@@ -20,19 +24,27 @@ LOGGER.setLevel(logging.DEBUG)
 LOGGER = logging.getLogger("cs")
 LOGGER.setLevel(logging.DEBUG)
 
+LTI_CONSUMER_KEY = "__consumer_key__"
+LTI_SECRET = "__lti_secret__"
+LTI_CONSUMERS = {
+            LTI_CONSUMER_KEY: {
+                "secret": LTI_SECRET,
+            }
+        }
+
+LTI_SESSION_KEY = "oij1op24jsdnf"
+
 class lti4cs(pylti.common.LTIBase):
     '''
-    LTI object representation for CAT-SOOP
+    LTI object representation for CAT-SOOP: validation and data receipt
     '''
     def __init__(self, session, lti_args, lti_kwargs):
         self.session = session
+        self.lti_data = {}
         pylti.common.LTIBase.__init__(self, lti_args, lti_kwargs)
-        self.consumers = {
-            "__consumer_key__": {
-                "secret": "__lti_secret__",
-            }
-        }
-        self.LTI_SESSION_KEY = "oij1op24jsdnf"
+
+        self.consumers = LTI_CONSUMERS
+        self.LTI_SESSION_KEY = LTI_SESSION_KEY
 
     def verify_request(self, params, environment):
         try:
@@ -51,6 +63,7 @@ class lti4cs(pylti.common.LTIBase):
                 if params.get(prop, None):
                     LOGGER.error("[lti.lti4cs.verify_request] params %s=%s", prop, params.get(prop, None))
                     self.session[prop] = params[prop]
+                    self.lti_data[prop] = params[prop]
 
             # Set logged in session key
             self.session[self.LTI_SESSION_KEY] = True
@@ -65,6 +78,82 @@ class lti4cs(pylti.common.LTIBase):
 
         return False
 
+    def save_lti_data(self, context):
+        '''
+        Save LTI data locally (e.g. so that the checker can send grades back to the LTI tool consumer)
+        '''
+        logging = context["csm_cslog"]
+        uname = context["cs_user_info"]["username"]
+        db_name = "_lti_data"
+        logging.overwrite_log(db_name, [], uname, self.lti_data)
+        lfn = logging.get_log_filename(db_name, [], uname)
+        LOGGER.error("[lti] saved lti_data for user %s in file %s" % (uname, lfn))
+
+class lti4cs_response(object):
+    '''
+    LTI handler for responses from CAT-SOOP to tool consumer
+    '''
+    def __init__(self, context):
+        '''
+        Load LTI data from logs (cs database) if available
+        '''
+        logging = context["csm_cslog"]
+        uname = context["cs_user_info"]["username"]
+        db_name = "_lti_data"
+        self.lti_data = logging.most_recent(db_name, [], uname)
+        self.PYLTI_URL_FIX = {}
+        self.consumers = LTI_CONSUMERS
+        self.LTI_SESSION_KEY = LTI_SESSION_KEY
+
+    @property
+    def have_data(self):
+        return bool(self.lti_data)
+
+    def send_outcome(self, data):
+        '''
+        Send outcome (ie grade) to LTI tool consumer (XML as defined in LTI v1.1)
+        FIXME: must provide aggregate grade for multipart problems
+        '''
+        url = self.response_url
+        result_sourcedid = self.lti_data.get('lis_result_sourcedid', None)
+        xml_body = self.generate_result_xml(result_sourcedid, data)
+        LOGGER.error("[lti.lti4cs_response.send_outcome] sending grade=%s to %s" % (data, url))
+        pylti.common.post_message(self.consumers, LTI_CONSUMER_KEY, url, xml_body)
+        LOGGER.error("[lti.lti4cs_response.send_outcome] outcome sent successfully")
+
+    def generate_result_xml(self, result_sourcedid, score):
+        '''
+        Create the XML document that contains the new score to be sent to the LTI
+        consumer. The format of this message is defined in the LTI 1.1 spec.
+        '''
+        elem = ElementMaker(nsmap={None: 'http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0'})
+        xml = elem.imsx_POXEnvelopeRequest(
+            elem.imsx_POXHeader(
+                elem.imsx_POXRequestHeaderInfo(
+                    elem.imsx_version('V1.0'),
+                    elem.imsx_messageIdentifier(str(uuid.uuid4()))
+                )
+            ),
+            elem.imsx_POXBody(
+                elem.replaceResultRequest(
+                    elem.resultRecord(
+                        elem.sourcedGUID(
+                            elem.sourcedId(result_sourcedid)
+                        ),
+                        elem.result(
+                            elem.resultScore(
+                                elem.language('en'),
+                                elem.textString(str(score))
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        xml = etree.tostring(xml, xml_declaration=True, encoding='UTF-8')	# bytes
+        xml = xml.decode("utf-8")
+        return xml
+
     @property
     def response_url(self):
         """
@@ -74,11 +163,10 @@ class lti4cs(pylti.common.LTIBase):
         :return: remapped lis_outcome_service_url
         """
         url = ""
-        url = self.session['lis_outcome_service_url']
-        app_config = self.lti_kwargs['app'].config
-        urls = app_config.get('PYLTI_URL_FIX', dict())
-        # url remapping is useful for using devstack
-        # devstack reports httpS://localhost:8000/ and listens on HTTP
+        url = self.lti_data['lis_outcome_service_url']
+        urls = self.PYLTI_URL_FIX
+        # url remapping is useful for using edX devstack
+        # edX devstack reports httpS://localhost:8000/ and listens on HTTP
         for prefix, mapping in urls.items():
             if url.startswith(prefix):
                 for _from, _to in mapping.items():
@@ -159,13 +247,14 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         msg = "LTI verification failed"
 
     else:
+        uname = "lti_%s" % session['user_id']
+        email = session['lis_person_contact_email_primary']
+        name = session['lis_person_name_full']
+        
+        get_or_create_user(context, uname, email, name)
+        l4c.save_lti_data(context)	# save lti data, e.g. for later use by the checker
         if lti_action=="course":
 
-            uname = "lti_%s" % session['user_id']
-            email = session['lis_person_contact_email_primary']
-            name = session['lis_person_name_full']
-
-            get_or_create_user(context, uname, email, name)
             LOGGER.error("[lti] rendering course page for %s" % uname)
 
             sub_path_info = path_info[1:]	# path without _lti/course prefix
