@@ -7,12 +7,15 @@ LTI Tool Provider interface
 import os
 import uuid
 import string
+import urllib
 import random
 import hashlib
 import pylti.common
 
 from lxml import etree
 from lxml.builder import ElementMaker
+
+from oauthlib.oauth1 import Client
 
 from . import auth
 from . import session
@@ -102,7 +105,6 @@ class lti4cs_response(object):
     def send_outcome(self, data):
         '''
         Send outcome (ie grade) to LTI tool consumer (XML as defined in LTI v1.1)
-        FIXME: must provide aggregate grade for multipart problems
         '''
         url = self.response_url
         result_sourcedid = self.lti_data.get('lis_result_sourcedid', None)
@@ -167,56 +169,79 @@ class lti4cs_response(object):
                     url = url.replace(_from, _to)
         return url
 
-def get_or_create_user(context, uname, email, name):
-    '''
-    Ensure that the named user (by username) exists; create if necessary
-    '''
-    session_data = context["cs_session_data"]
-    logging = context["csm_cslog"]
-    LOGGER.info("[lti.get_or_create_user] uname=%s, email=%s, name=%s" % (uname, email, name))
+#-----------------------------------------------------------------------------
 
-    login_info = logging.most_recent("_logininfo", [], uname, {})
-    if not login_info:	# account doesn't exist, create
+class LTI_Consumer(object):
+    '''
+    Simple LTI tool consumer (useful for unit-tests of CAT-SOOP acting as an LTI tool provider)
+    '''
+    def __init__(self, lti_url="", username="lti_user", service_url="http://localhost",
+                 consumer_key="consumer_key", secret="secret_key"):
+        self.lti_url = lti_url
+        self.username = username
+        self.service_url = service_url
+        self.consumer_key = consumer_key
+        self.lti_context = self._get_lti_context(self.lti_url, secret=secret)
 
-        LOGGER.info("[lti.get_or_create_user] uname=%s unknown username -> creating new account")
-        passwd = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
-        hash_iterations = context.get("cs_password_hash_iterations", 500000)
-        salt = get_new_password_salt()
-        phash = compute_password_hash(context, passwd, salt, hash_iterations)
-        confirmed = True
-        
-        uinfo = {
-            "password_salt": salt,
-            "password_hash": phash,
-            "email": email,
-            "name": name,
-            "confirmed": confirmed,
+    def _get_lti_context(self, lti_url, secret=None):
+        """
+        Generate the LTI context for a specific LTI url request
+
+        lti_url: (str) URL to the LTI tool provider
+        secret: (str) shared secret with the LTI tool provder
+        """
+        body = {
+            'tool_consumer_instance_guid': u'lti_test_%s' % self.lti_url,
+            'user_id': self.username + "__LTI__1234",
+            'roles': u'[student]',
+            'context_id': u"catsoop_test",
+            'lti_url': self.lti_url,
+            'lti_version': u'LTI-1p0',
+            'lis_result_sourcedid': self.username,
+            'lis_outcome_service_url': self.service_url,
+            'lti_message_type': 'basic-lti-launch-request',	# required, see https://www.imsglobal.org/specs/ltiv2p0/implementation-guide#toc-21
+            'resource_link_id': '123',
         }
-        logging.overwrite_log("_logininfo", [], uname, uinfo)
-        login_info = logging.most_recent("_logininfo", [], uname, {})
-
-    LOGGER.info("[lti.get_or_create_user] login_info=%s" % login_info)
-
-    if login_info is None:	# account creation failed
-        msg = "[lti.get_or_create_user] failed to create user %s" % uinfo
-        LOGGER.error(msg)
-        raise Exception(msg)
-
-    info = {"username": uname, "name": name, "email": email,
-            "is_lti_user": True}		# see preload.py in course data; forces authorization
-    session_data.update(info)
-
-    LOGGER.info("[lti.get_or_create_user] login_info = %s" % login_info)
-
-    user_info = auth.get_logged_in_user(context)
-    LOGGER.info("[lti.get_or_create_user] user_info=%s" % user_info)
-    context["cs_user_info"] = user_info
-    context["cs_username"] = str(user_info.get("username", None))
-
-    session.set_session_data(context, context["cs_sid"], session_data)	# save session data
-
-    return login_info
-
+        retdat = body.copy()
+        key = self.consumer_key
+        self._sign_lti_message(body, key, secret, lti_url)
+        LOGGER.info("[unit_tests] signing OAUTH with key=%s, secret=%s, url=%s" % (key, secret, lti_url))
+        retdat.update(dict(
+            lti_url=lti_url,
+            oauth_consumer_key=key,
+            oauth_timestamp=body['oauth_timestamp'],
+            oauth_nonce=body['oauth_nonce'],
+            # oauth_signature=urllib.parse.unquote(body['oauth_signature']).encode('utf8'),
+            oauth_signature=urllib.parse.unquote(body['oauth_signature']),
+            oauth_signature_method=body['oauth_signature_method'],
+            oauth_version=body['oauth_version'],
+        ))
+        return retdat
+    
+    def _sign_lti_message(self, body, key, secret, url):
+        client = Client(
+            client_key=key,
+            client_secret=secret
+        )
+    
+        __, headers, __ = client.sign(
+            url,
+            http_method=u'POST',
+            body=body,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        )
+    
+        auth_header = headers['Authorization'][len('OAuth '):]
+        auth = dict([param.strip().replace('"', '').split('=') for param in
+                     auth_header.split(',')])
+    
+        body['oauth_nonce'] = auth['oauth_nonce']
+        body['oauth_signature'] = auth['oauth_signature']
+        body['oauth_timestamp'] = auth['oauth_timestamp']
+        body['oauth_signature_method'] = auth['oauth_signature_method']
+        body['oauth_version'] = auth['oauth_version']
+    
+#-----------------------------------------------------------------------------
 
 def serve_lti(context, path_info, environment, params, dispatch_main):
     '''
@@ -234,18 +259,28 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     lti_action = path_info[0]
     LOGGER.info("[lti] lti_action=%s, path_info=%s" % (lti_action, path_info))
 
-    session = context['cs_session_data']
-    l4c = lti4cs(context, session, {}, {})
+    session_data = context['cs_session_data']
+    l4c = lti4cs(context, session_data, {}, {})
     lti_ok = l4c.verify_request(params, environment)
     if not lti_ok:
         msg = "LTI verification failed"
     else:
-        lti_data = session["lti_data"]
-        uname = "lti_%s" % lti_data.get("lis_person_sourcedid", lti_data['user_id'])
+        lti_data = session_data["lti_data"]
+        lup = context['cs_lti_config'].get("lti_username_prefix", "lti_")
+        lti_uname = lti_data['user_id']
+        if not context['cs_lti_config'].get("force_username_from_id"):
+            lti_uname = lti_data.get("lis_person_sourcedid", lti_uname)	# prefer username to user_id
+        uname = "%s%s" % (lup, lti_uname)
         email = lti_data.get('lis_person_contact_email_primary', "%s@unknown" % uname)
         name = lti_data.get('lis_person_name_full', uname)
+        lti_data['cs_user_info'] = {"username": uname, "name": name, "email": email,
+                                    "lti_role": lti_data.get('roles'),
+                                    "is_lti_user": True}		# save LTI user data in session for auth.py
+        session_data.update(lti_data['cs_user_info'])
+        session.set_session_data(context, context["cs_sid"], session_data)	# save session data
+        user_info = auth.get_logged_in_user(context)			# saves user_info in context["cs_user_info"]
+        LOGGER.info("[lti] auth user_info=%s" % user_info)
         
-        get_or_create_user(context, uname, email, name)
         l4c.save_lti_data(context)	# save lti data, e.g. for later use by the checker
         if lti_action=="course":
 
@@ -265,33 +300,3 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
         {"Content-type": "text/plain", "Content-length": str(len(msg))},
         msg
     )
-        
-#-----------------------------------------------------------------------------
-
-def get_new_password_salt(length=128):
-    """
-    Generate a new salt of length length.  Tries to use os.urandom, and
-    falls back on random if that doesn't work for some reason.
-    """
-    try:
-        out = os.urandom(length)
-    except:
-        out = "".join(chr(random.randint(1, 127)) for i in range(length)).encode()
-    return out
-
-def compute_password_hash(context, password, salt=None, iterations=500000, encrypt=True):
-    """
-    Given a password, and (optionally) an associated salt, return a hash value.
-    """
-    hash_ = hashlib.pbkdf2_hmac(
-        "sha512", _ensure_bytes(password), _ensure_bytes(salt), iterations
-    )
-    if encrypt and (context["csm_cslog"].ENCRYPT_KEY is not None):
-        hash_ = context["csm_cslog"].FERNET.encrypt(hash_)
-    return hash_
-
-def _ensure_bytes(x):
-    try:
-        return x.encode()
-    except:
-        return x

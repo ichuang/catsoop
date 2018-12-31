@@ -82,7 +82,6 @@ def do_check(row):
     context["cs_path_info"] = row["path"]
     context["cs_username"] = row["username"]
     context["cs_user_info"] = {"username": row["username"]}
-    context['is_running_checker'] = True			# may be used by preload.py
     context["cs_user_info"] = auth.get_user_information(context)
     context["cs_now"] = datetime.fromtimestamp(row["time"])
 
@@ -114,7 +113,7 @@ def do_check(row):
             total_possible_npoints += csq_npoints	# used to compute total aggregate score pct
             if DEBUG:
                 question = elt[0]['handle_submission']
-                dn = m['csq_display_name']
+                dn = m.get('csq_display_name')
                 log("Map: %s (%s) -> %s" % (m["csq_name"], dn, question))
                 log("%s csq_npoints=%s, total_points=%s" % (dn, csq_npoints, elt[0]['total_points']()))
             cnt += 1

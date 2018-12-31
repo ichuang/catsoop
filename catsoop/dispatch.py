@@ -576,7 +576,7 @@ def _compute_light_color(base):
     return _rgb_to_hex(_hsv_to_rgb(light_hsv))
 
 
-def main(environment):
+def main(environment, return_context=False):
     """
     Generate the page content associated with this request, properly handling
     dynamic pages and static files.
@@ -594,6 +594,8 @@ def main(environment):
 
     * `environment`: a dictionary containing the environment variables
         associated with this request.
+    * `return_context`: (bool) set to True if the context dict should be returned 
+        (instead of the usual tuple) on success -- used for unit tests
 
     **Returns:** a 3-tuple `(response_code, headers, content)` as expected by
     `catsoop.wsgi.application`
@@ -851,4 +853,7 @@ def main(environment):
             out = errors.do_error_message(context)
     out = out[:-1] + (out[-1].encode("utf-8"),)
     out[1].update({"Content-length": str(len(out[-1]))})
+    if return_context:
+        LOGGER.info("[dispatch.main] Returning context instead of HTML response")
+        return context
     return out

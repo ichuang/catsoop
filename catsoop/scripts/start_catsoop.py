@@ -22,11 +22,14 @@ import time
 import atexit
 import signal
 import getpass
+import logging
 import hashlib
 import sqlite3
 import subprocess
 
 from datetime import datetime
+
+LOGGER = logging.getLogger("cs")
 
 os.setpgrp()
 
@@ -128,15 +131,18 @@ def main():
         time.sleep(1)
 
 
-if __name__ == "__main__":
+def startup_catsoop(config_loc=None):
     print(cs_logo)
-    config_loc = os.path.join(base_dir, "catsoop", "config.py")
+    print("Using base_dir=%s" % base_dir)
+    config_loc = config_loc or os.path.join(base_dir, "catsoop", "config.py")
     if not os.path.isfile(config_loc):
         print(
             "%s does not exist.  Please configure CAT-SOOP first, either by editing that file manually, or by running setup_catsoop.py"
             % config_loc
         )
         sys.exit(1)
+    print("Using catsoop configuration specified by %s" % config_loc)
+    os.environ['CAT_SOOP_CONFIG'] = config_loc
 
     if base_dir not in sys.path:
         sys.path.append(base_dir)
@@ -160,3 +166,7 @@ if __name__ == "__main__":
             else:
                 print("Passphrase does not match stored hash.  Try again.")
     main()
+
+if __name__ == "__main__":
+    startup_catsoop()
+    

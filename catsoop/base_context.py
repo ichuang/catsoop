@@ -21,7 +21,12 @@ the page is rendered (these special variables can be overwritten by early loads
 or late loads at lower levels).
 """
 
+import os
 import sys
+import logging
+import traceback
+
+LOGGER = logging.getLogger("cs")
 
 _nodoc = {
     "contents",
@@ -39,7 +44,7 @@ cs_version = "(development version, v13.0.0+)"
 CAT-SOOP's version number
 """
 
-cs_fs_root = "/home/cat-soop/cat-soop"
+cs_fs_root = os.path.dirname(__file__)
 """
 The directory where CAT-SOOP's source is located (no trailing slash).
 """
@@ -69,9 +74,9 @@ Special: The page title, to be displayed in the browser's title bar
 """
 
 cs_base_logo_text = (
-    "\            "
-    "\n/    /\__/\  "
-    "\n\__=(  o_O )="
+    "\\            "
+    "\n/    /\\__/\\  "
+    "\n\\__=(  o_O )="
     "\n(__________) "
     "\n |_ |_ |_ |_ "
 )
@@ -305,7 +310,11 @@ cs_python_intepreter = sys.executable
 Path to python interpreter used for sandboxed python execution of checking code
 """
 
-cs_debug_level = "WARNING"
+cs_debug_level = os.environ.get("CATSOOP_DEBUG_LEVEL", "WARNING")
+try:
+    cs_debug_level = int(cs_debug_level)
+except:
+    pass
 cs_lti_debug_level = "WARNING"
 
 # Debugging Function
@@ -336,10 +345,16 @@ _cs_config_errors = []
 # try to import configuration from config.py
 
 try:
-    with open(os.path.join(os.path.dirname(__file__), "config.py")) as f:
+    default_loc = os.path.join(os.path.dirname(__file__), "config.py")
+    config_loc = os.environ.get('CAT_SOOP_CONFIG', default_loc)
+    LOGGER.info("[base_context] using config file %s" % config_loc)
+    with open(config_loc) as f:
         exec(f.read())
 except Exception as e:
-    _cs_config_errors.append("error in config.py: %s" % (e,))
+    msg = "error in config.py: %s" % (e,)
+    LOGGER.error("[base_context] %s" % msg)
+    LOGGER.error("[base_context] traceback=%s" % traceback.format_exc())
+    _cs_config_errors.append(msg)
 
 # Import all CAT-SOOP modules/subpackages
 
@@ -382,15 +397,19 @@ for i in cs_all_thirdparty:
 # check for valid fs_root
 _fs_root_error = "cs_fs_root must be a directory containing the " "cat-soop source code"
 if not os.path.isdir(cs_fs_root):
+    LOGGER.error("[base_context] %s" % _fs_root_error)
+    LOGGER.error("[base_context] cs_fs_root=%s" % cs_fs_root)
     _cs_config_errors.append(_fs_root_error)
 else:
-    root = os.path.join(cs_fs_root, "catsoop")
+    root = cs_fs_root
     if not os.path.isdir(root):
+        LOGGER.error("[base_context] %s" % _fs_root_error)
         _cs_config_errors.append(_fs_root_error)
     else:
         contents = os.listdir(root)
         if not all(("%s.py" % i in contents or i in contents) for i in cs_all_pieces):
             _cs_config_errors.append(_fs_root_error)
+
 # check for valid data_root
 if not os.path.isdir(cs_data_root):
     _cs_config_errors.append("cs_data_root must be an existing directory")
