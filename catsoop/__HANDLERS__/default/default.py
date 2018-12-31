@@ -34,7 +34,7 @@ _prefix = "cs_defaulthandler_"
 
 
 def new_entry(context, qname, action):
-    '''
+    """
     Enqueue an asynchronous request to be processed (by the checker), e.g.
     a problem submission for grading.
 
@@ -43,7 +43,7 @@ def new_entry(context, qname, action):
     action = "check" or "submit"
 
     Returns uuid for the new queue entry.
-    '''
+    """
     id_ = str(uuid.uuid4())
     obj = {
         "path": context["cs_path_info"],
@@ -55,9 +55,9 @@ def new_entry(context, qname, action):
     }
 
     # add LTI data, if present in current session (needed for sending grade back to tool consumer)
-    session = context['cs_session_data']
-    if session.get('is_lti_user'):
-        obj['lti_data'] = session.get('lti_data')
+    session = context["cs_session_data"]
+    if session.get("is_lti_user"):
+        obj["lti_data"] = session.get("lti_data")
 
     # safely save queue entry in database file (stage then mv)
     loc = os.path.join(tempfile.gettempdir(), "staging", id_)

@@ -227,10 +227,12 @@ def load_global_data(into, check_values=True):
         into["csm_base_context"] = into["base_context"] = base_context
         clean_builtins(into)
         into["csm_loader"] = sys.modules[__name__]
-        debug_log.setup_logging(into)		# setup global log levels
-        into['cs_debug_logger'] = debug_log.LOGGER
+        debug_log.setup_logging(into)  # setup global log levels
+        into["cs_debug_logger"] = debug_log.LOGGER
     except Exception as e:
-        debug_log.LOGGER.error("Exception encountered when trying to load global context: %s" % str(e))
+        debug_log.LOGGER.error(
+            "Exception encountered when trying to load global context: %s" % str(e)
+        )
         debug_log.LOGGER.error("traceback: %s" % traceback.format_exc())
         return traceback.format_exc(e)
 

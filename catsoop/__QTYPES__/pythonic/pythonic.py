@@ -79,7 +79,7 @@ def handle_submission(submissions, **info):
         opts = info.get("csq_options", {})
         soln = eval(info["sandbox_run_code"](info, code, opts)[1], info)
     try:
-        ast.parse(sub, mode='eval')
+        ast.parse(sub, mode="eval")
         code = info["csq_code_pre"]
         if sub == "":
             LOGGER.debug("[qtypes.pythonic] invalid submission, empty submission")

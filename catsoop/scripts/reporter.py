@@ -44,15 +44,17 @@ CURRENT = {"queued": [], "running": set()}
 
 PORTNUM = base_context.cs_checker_server_port
 
-LOGGER = logging.getLogger('cs')
-WSLOGGER = logging.getLogger('websockets.server')
+LOGGER = logging.getLogger("cs")
+WSLOGGER = logging.getLogger("websockets.server")
 WSLOGGER.setLevel(LOGGER.level)
 WSLOGGER.addHandler(logging.StreamHandler())
+
 
 def log(msg):
     dt = datetime.datetime.now()
     omsg = "[reporter:%s]: %s" % (dt, msg)
     LOGGER.info(omsg)
+
 
 def get_status(magic):
     try:
@@ -146,6 +148,7 @@ def updater():
     if DEBUG and crun:
         log("updater queued=%s" % crun)
     loop.call_later(0.3, updater)
+
 
 log("Starting reporter on port=%s" % PORTNUM)
 

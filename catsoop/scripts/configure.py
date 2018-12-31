@@ -94,8 +94,13 @@ cs_logo = r"""
  |_ |_ |_ |_"""
 
 
-default_config_location = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser(os.path.join('~', '.config')))
-default_storage_location = os.environ.get('XDG_DATA_HOME', os.path.expanduser(os.path.join('~', '.local', 'share')))
+default_config_location = os.environ.get(
+    "XDG_CONFIG_HOME", os.path.expanduser(os.path.join("~", ".config"))
+)
+default_storage_location = os.environ.get(
+    "XDG_DATA_HOME", os.path.expanduser(os.path.join("~", ".local", "share"))
+)
+
 
 def main():
     # print welcome message
@@ -107,17 +112,17 @@ def main():
     print()
 
     def _server_transform(x):
-        x = x.strip().lower().replace(' ', '')
-        if x in {'1', 'localcopy', 'local'}:
+        x = x.strip().lower().replace(" ", "")
+        if x in {"1", "localcopy", "local"}:
             return False
-        elif x in {'2', 'productioninstance', 'production'}:
+        elif x in {"2", "productioninstance", "production"}:
             return True
 
     is_production = ask(
         "Are you setting up a production CAT-SOOP instance, or a local copy?\n\n1. Local Copy\n2. Production Instance",
         default="1",
         transform=_server_transform,
-        check_ok=lambda x: None if x is not None else 'Invalid entry: %s' % x,
+        check_ok=lambda x: None if x is not None else "Invalid entry: %s" % x,
     )
 
     if is_production:
@@ -126,7 +131,8 @@ def main():
         configure_local()
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def configure_local():
     scripts_dir = os.path.abspath(os.path.dirname(__file__))
@@ -139,7 +145,9 @@ def configure_local():
     print("Setting up for CAT-SOOP using installation at %s" % base_dir)
     cs_fs_root = base_dir
 
-    config_loc = os.path.abspath(os.path.join(default_config_location, 'cat-soop', 'config.py'))
+    config_loc = os.path.abspath(
+        os.path.join(default_config_location, "cat-soop", "config.py")
+    )
     if os.path.isfile(config_loc):
         res = yesno(
             "CAT-SOOP configuration at %s already exists.\n"
@@ -153,24 +161,24 @@ def configure_local():
 
     # determine cs_data_root and logging info (encryption, etc)
 
-    default_log_dir = os.path.abspath(os.path.join(default_storage_location, 'cat-soop'))
+    default_log_dir = os.path.abspath(
+        os.path.join(default_storage_location, "cat-soop")
+    )
     cs_data_root = ask(
         "Where should CAT-SOOP store its logs?\n(this directory will be created if it does not exist)",
         transform=lambda x: os.path.abspath(os.path.expanduser(x)),
         default=default_log_dir,
-       )
-
+    )
 
     # Authentication
     print(
         'Some courses set up local copies to use "dummy" authentication that always logs you in with a particular username.'
-       )
+    )
     cs_dummy_username = ask(
         'For courses that use "dummy" authentication, what username should be used?',
         default="",
         check_ok=lambda x: None if x else "Please enter a username.",
-       )
-
+    )
 
     # write config file
     config_file_content = """cs_data_root = %r
@@ -179,12 +187,9 @@ cs_dummy_username = %r
     """ % (
         cs_data_root,
         cs_dummy_username,
-       )
-
-    config_loc = ask(
-        "Where should this configuration be saved?",
-        default=config_loc,
     )
+
+    config_loc = ask("Where should this configuration be saved?", default=config_loc)
 
     if yesno("This configuration will be written to %s.  OK?" % config_loc):
         os.makedirs(os.path.dirname(config_loc), exist_ok=True)
@@ -204,7 +209,7 @@ cs_dummy_username = %r
         print("Configuration not written.  Exiting.")
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
 def configure_production():
@@ -218,7 +223,9 @@ def configure_production():
     print("Setting up for CAT-SOOP at %s" % base_dir)
     cs_fs_root = base_dir
 
-    config_loc = os.path.abspath(os.path.join(default_config_location, 'cat-soop', 'config.py'))
+    config_loc = os.path.abspath(
+        os.path.join(default_config_location, "cat-soop", "config.py")
+    )
     if os.path.isfile(config_loc):
         res = yesno(
             "CAT-SOOP configuration at %s already exists.\n"
@@ -232,13 +239,14 @@ def configure_production():
 
     # determine cs_data_root and logging info (encryption, etc)
 
-    default_log_dir = os.path.abspath(os.path.join(default_storage_location, 'cat-soop'))
+    default_log_dir = os.path.abspath(
+        os.path.join(default_storage_location, "cat-soop")
+    )
     cs_data_root = ask(
         "Where should CAT-SOOP store its logs?\n(this directory will be created if it does not exist)",
         transform=lambda x: os.path.abspath(os.path.expanduser(x)),
         default=default_log_dir,
     )
-
 
     print()
     print("By default, CAT-SOOP logs are not encrypted.")
@@ -268,7 +276,9 @@ def configure_production():
         )
 
         if is_restore:
-            restore_salt_str = input("Please enter the salt used for the encrypted logs: ")
+            restore_salt_str = input(
+                "Please enter the salt used for the encrypted logs: "
+            )
             cs_log_encryption_salt = bytes.fromhex(restore_salt_str)
             restore_passphrase_hash_str = input(
                 "Please enter the password hash used for the encrypted logs: "
@@ -300,7 +310,9 @@ def configure_production():
                 else:
                     break
             else:
-                cs_log_encryption_passphrase_2 = password("Confirm encryption passphrase: ")
+                cs_log_encryption_passphrase_2 = password(
+                    "Confirm encryption passphrase: "
+                )
                 if cs_log_encryption_passphrase != cs_log_encryption_passphrase_2:
                     print("Passphrases do not match; try again.")
                     print()
@@ -319,7 +331,6 @@ def configure_production():
         cs_log_encryption_passphrase_hash_printable = (
             cs_log_encryption_passphrase_hash.hex()
         )
-
 
     print()
     print("By default, CAT-SOOP logs are not compressed.")
@@ -351,7 +362,6 @@ def configure_production():
         transform=lambda x: x.rstrip("/"),
     )
 
-
     # write config file
     config_file_content = """cs_data_root = %r
 
@@ -368,10 +378,7 @@ cs_checker_websocket = %r
         cs_checker_websocket,
     )
 
-    config_loc = ask(
-        "Where should this configuration be saved?",
-        default=config_loc,
-    )
+    config_loc = ask("Where should this configuration be saved?", default=config_loc)
 
     if yesno("This configuration will be written to %s.  OK?" % config_loc):
         os.makedirs(os.path.dirname(config_loc), exist_ok=True)
@@ -379,7 +386,9 @@ cs_checker_websocket = %r
             f.write(config_file_content)
         os.makedirs(os.path.join(cs_data_root, "courses"), exist_ok=True)
         _enc_salt_file = os.path.join(os.path.dirname(config_loc), "encryption_salt")
-        _enc_hash_file = os.path.join(os.path.dirname(config_loc), "encryption_passphrase_hash")
+        _enc_hash_file = os.path.join(
+            os.path.dirname(config_loc), "encryption_passphrase_hash"
+        )
         if should_encrypt:
             with open(_enc_salt_file, "wb") as f:
                 f.write(cs_log_encryption_salt)
@@ -411,15 +420,15 @@ cs_checker_websocket = %r
             print()
             print("Encryption salt:", cs_log_encryption_salt_printable)
             print(
-                "Encryption passphrase hash:", cs_log_encryption_passphrase_hash_printable
+                "Encryption passphrase hash:",
+                cs_log_encryption_passphrase_hash_printable,
             )
     else:
         print("Configuration not written.  Exiting.")
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
-

@@ -43,6 +43,7 @@ _nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form"}
 
 LOGGER = debug_log.LOGGER
 
+
 class CSFormatter(string.Formatter):
     def get_value(self, key, args, kwargs):
         try:
@@ -609,7 +610,7 @@ def main(environment, return_context=False):
         path_info = environment.get("PATH_INFO", "/")
         context["cs_original_path"] = path_info[1:]
         path_info = [i for i in path_info.split("/") if i != ""]
-        if path_info and not path_info[0]=="_static":
+        if path_info and not path_info[0] == "_static":
             LOGGER.info("[dispatch.main] path_info=%s" % path_info)
 
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
@@ -677,14 +678,21 @@ def main(environment, return_context=False):
             m += "\n".join(context["_cs_config_errors"])
             out = errors.do_error_message(context, m)
             force_error = True
-            LOGGER.error("[dispatch.main] global configuration loading error %s" % context["_cs_config_errors"])
+            LOGGER.error(
+                "[dispatch.main] global configuration loading error %s"
+                % context["_cs_config_errors"]
+            )
             raise Exception
 
         # LOAD SESSION DATA (if any)
         new = True
-        context['cs_sid'] = environment.get('session_id')		# for LTI calling dispatch.main
-        if context['cs_sid']:
-            LOGGER.info("[dispatch.main] re-using existing session ID=%s" % context['cs_sid'])
+        context["cs_sid"] = environment.get(
+            "session_id"
+        )  # for LTI calling dispatch.main
+        if context["cs_sid"]:
+            LOGGER.info(
+                "[dispatch.main] re-using existing session ID=%s" % context["cs_sid"]
+            )
         else:
             context["cs_sid"], new = session.get_session_id(environment)
         if new:
@@ -699,11 +707,11 @@ def main(environment, return_context=False):
             )
         session_data = session.get_session_data(context, context["cs_sid"])
         context["cs_session_data"] = session_data
-        LOGGER.info("[dispatch.main] session_id=%s" % context['cs_sid'])
+        LOGGER.info("[dispatch.main] session_id=%s" % context["cs_sid"])
         LOGGER.info("[dispatch.main] path_info=%s" % path_info)
 
         # Handle LTI (must be done prior to authentication & other processing)
-        if path_info and context["cs_course"]=="_lti":
+        if path_info and context["cs_course"] == "_lti":
             LOGGER.info("[dispatch.main] serving LTI")
             return lti.serve_lti(context, path_info, environment, form_data, main)
 
@@ -790,7 +798,10 @@ def main(environment, return_context=False):
 
         else:
             default_course = context.get("cs_default_course", None)
-            LOGGER.info("[dispatch.main] no course specified, using default course %s" % default_course)
+            LOGGER.info(
+                "[dispatch.main] no course specified, using default course %s"
+                % default_course
+            )
             if default_course is not None:
                 return redirect(
                     "/".join(
@@ -824,7 +835,10 @@ def main(environment, return_context=False):
                 "QUERY_STRING", ""
             )
 
-        LOGGER.info("[dispatch.main] handing request using tutor.handle_page, cs_handler=%s" % context.get("cs_handler"))
+        LOGGER.info(
+            "[dispatch.main] handing request using tutor.handle_page, cs_handler=%s"
+            % context.get("cs_handler")
+        )
         res = tutor.handle_page(context)
 
         if res is not None:

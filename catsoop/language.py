@@ -119,7 +119,7 @@ def xml_pre_handle(context):
                 e["csq_name"] = "q%06d" % qcount
                 qcount += 1
             if _valid_qname.match(e["csq_name"]):
-                if type_ != 'dummy':
+                if type_ != "dummy":
                     o.append(tutor.question(context, type_, **e))
             else:
                 o.append(

@@ -142,13 +142,15 @@ def startup_catsoop(config_loc=None):
         )
         sys.exit(1)
     print("Using catsoop configuration specified by %s" % config_loc)
-    os.environ['CATSOOP_CONFIG'] = config_loc
+    os.environ["CATSOOP_CONFIG"] = config_loc
 
     if base_dir not in sys.path:
         sys.path.append(base_dir)
 
     _enc_salt_file = os.path.join(os.path.dirname(config_loc), "encryption_salt")
-    _enc_hash_file = os.path.join(os.path.dirname(config_loc), "encryption_passphrase_hash")
+    _enc_hash_file = os.path.join(
+        os.path.dirname(config_loc), "encryption_passphrase_hash"
+    )
     if os.path.isfile(_enc_salt_file):
         with open(_enc_salt_file, "rb") as f:
             salt = f.read()
@@ -167,6 +169,6 @@ def startup_catsoop(config_loc=None):
                 print("Passphrase does not match stored hash.  Try again.")
     main()
 
+
 if __name__ == "__main__":
     startup_catsoop()
-

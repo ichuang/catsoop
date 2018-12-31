@@ -69,10 +69,14 @@ def run_code(context, code, options):
     with open(os.path.join(tmpdir, fname), "w") as fileobj:
         fileobj.write(code.replace("\r\n", "\n"))
 
-    logging.debug("context cs_version=%s, cs_python_interpreter=%s" % (context.get("cs_version"),
-                                                                       context.get("cs_python_interpreter")))
+    logging.debug(
+        "context cs_version=%s, cs_python_interpreter=%s"
+        % (context.get("cs_version"), context.get("cs_python_interpreter"))
+    )
 
-    interp = context.get("csq_python_interpreter", context.get("cs_python_interpreter", sys.executable))
+    interp = context.get(
+        "csq_python_interpreter", context.get("cs_python_interpreter", sys.executable)
+    )
 
     try:
         p = subprocess.Popen(
@@ -86,7 +90,10 @@ def run_code(context, code, options):
             env={},
         )
     except Exception as err:
-        raise Exception("[cs.qtypes.pythoncode.python] Failed to execute subprocess interp=%s (need to set csq_python_interpreter?), err=%s" % (interp, err))
+        raise Exception(
+            "[cs.qtypes.pythoncode.python] Failed to execute subprocess interp=%s (need to set csq_python_interpreter?), err=%s"
+            % (interp, err)
+        )
 
     out = ""
     err = ""
