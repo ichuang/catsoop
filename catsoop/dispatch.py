@@ -682,7 +682,9 @@ def main(environment):
         # LOAD SESSION DATA (if any)
         new = True
         context['cs_sid'] = environment.get('session_id')		# for LTI calling dispatch.main
-        if not context['cs_sid']:
+        if context['cs_sid']:
+            LOGGER.error("[dispatch.main] re-using existing session ID=%s" % context['cs_sid'])
+        else:
             context["cs_sid"], new = session.get_session_id(environment)
         if new:
             hdr = context["cs_additional_headers"]
