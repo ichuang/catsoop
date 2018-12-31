@@ -13,7 +13,7 @@ setup(
     url='http://pypi.python.org/pypi/catsoop/',
     license='LICENSE.txt',
     description='CAT-SOOP is an Automatic Tutor for Six-Oh-One Problems',
-    long_description=open('README').read(),
+    long_description=open('README.md').read(),
     include_package_data=True,
     entry_points={
         'console_scripts': [
