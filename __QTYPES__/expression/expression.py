@@ -85,6 +85,7 @@ defaults = {
     "csq_msg_function": lambda sub: (""),
     "csq_show_check": False,
     "csq_variable_dimensions": {},
+    "csq_names": {},
 }
 
 default_names = {
@@ -303,10 +304,12 @@ def _get_all_names(tree):
 def _get_random_value():
     return mpmath.mpf(random.uniform(1, 30))
 
+def _fix_precision(names):
+    return {k: mpmath.mpc(v) if isinstance(v, (float, int)) else v for k,v in names.items()}
 
 def _get_all_mappings(context, soln_names, sub_names):
     names = dict(default_names)
-    names.update(context.get("csq_names", {}))
+    names.update(_fix_precision(context.get("csq_names", {})))
     dimensions = context["csq_variable_dimensions"]
     dim_vars = defaultdict(lambda: random.randint(2, 30))
 

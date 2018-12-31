@@ -43,6 +43,11 @@ FIXED:
 * Fixed a bug whereby non-JSON-serializable objects in someone's __USERS__ file
   would break the get_user_information API endpoint.
 
+* Fixed an issue with 'expression' question types, whereby if all values were
+  specified in csq_names, the question would use regular Python floats (instead
+  of mpmath.mpf) to represent them, occasionally causing corect answers to be
+  marked as incorrect.
+
 SECURITY:
 
 DOCUMENTATION:
