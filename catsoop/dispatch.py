@@ -680,7 +680,7 @@ def main(environment):
             raise Exception
 
         # LOAD SESSION DATA (if any)
-        new = False
+        new = True
         context['cs_sid'] = environment.get('session_id')		# for LTI calling dispatch.main
         if not context['cs_sid']:
             context["cs_sid"], new = session.get_session_id(environment)
