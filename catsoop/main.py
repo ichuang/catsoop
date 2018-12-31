@@ -5,7 +5,7 @@ import pkg_resources
 
 #-----------------------------------------------------------------------------
 
-def CommandLine(args=None, arglist=None):
+def command_line_interface(args=None, arglist=None):
     '''
     Main catsoop command line entry point
     args, arglist are used for unit testing

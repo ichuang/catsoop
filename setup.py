@@ -5,7 +5,7 @@ requirements = open("requirements.txt").read().split('\n')
 
 setup(
     name='catsoop',
-    version='13.0.0+',
+    version='14.0.dev1',
     author='CAT-SOOP Contributors',
     author_email='catsoop-dev@mit.edu',
     packages=['catsoop', 'catsoop.test', 'catsoop.thirdparty'],
@@ -17,7 +17,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'catsoop = catsoop.main:CommandLine',
+            'catsoop = catsoop.main:command_line_interface',
             ],
         },
     install_requires=requirements,
