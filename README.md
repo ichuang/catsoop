@@ -12,7 +12,6 @@
 
 * Web Site:
     https://catsoop.mit.edu
-    http://5jqwpybqkwagsgmwskjoxawlfjl5j52nhvkmni7bwgwu37pmwrnbexyd.onion
 
 * Clone Repository:
     hg clone https://catsoop.mit.edu/repo/cat-soop
