@@ -1,11 +1,13 @@
 import glob
 from setuptools import setup
 
+from catsoop import __version__
+
 requirements = open("requirements.txt").read().split('\n')
 
 setup(
     name='catsoop',
-    version='14.0.dev1',
+    version=__version__,
     author='CAT-SOOP Contributors',
     author_email='catsoop-dev@mit.edu',
     packages=['catsoop', 'catsoop.test', 'catsoop.thirdparty'],

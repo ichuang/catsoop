@@ -26,6 +26,8 @@ import sys
 import logging
 import traceback
 
+from catsoop import __version__
+
 LOGGER = logging.getLogger("cs")
 
 _nodoc = {
@@ -39,7 +41,7 @@ _nodoc = {
     "datetime",
 }
 
-cs_version = "(development version, v13.0.0+)"
+cs_version = __version__
 """
 CAT-SOOP's version number
 """
