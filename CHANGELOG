@@ -6,6 +6,10 @@ Work toward next release.  Currently under development.
 
 ADDED:
 
+* Added the 'dummy' question type, which can be used as a placeholder for a
+  question that should be removed (but without affecting
+  automatically-generated csq_names for questions that follow.
+
 CHANGED:
 
 * Replace default favicon with one that does not have the letters "CS" in it.
