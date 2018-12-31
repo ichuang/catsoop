@@ -18,6 +18,7 @@ User authentication for normal interactions
 """
 
 import os
+import logging
 import importlib
 
 from . import api
@@ -26,6 +27,9 @@ from . import cslog
 from . import base_context
 
 importlib.reload(base_context)
+
+LOGGER = logging.getLogger("cs")
+LOGGER.setLevel(logging.DEBUG)
 
 
 def _execfile(*args):
@@ -156,7 +160,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
         if do_preload:
             loader.load_global_data(context)
             loader.do_early_load(context, course, [], context)
-        fname = os.path.join(
+        fname = os.path.join(		# path to user definition py file in course data
             context["cs_data_root"],
             "courses",
             context["cs_course"],
@@ -169,6 +173,9 @@ def _get_user_information(context, into, course, username, do_preload=False):
         with open(fname) as f:
             text = f.read()
         exec(text, into)
+        LOGGER.info("[auth] loaded from %s user=%s" % (fname, into))
+    else:
+        LOGGER.info("[auth] missing user definition file %s" % fname)
 
     # permissions handling
     if "permissions" not in into:
