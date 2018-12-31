@@ -8,7 +8,7 @@ setup(
     version='13.0.0+',
     author='CAT-SOOP Contributors',
     author_email='catsoop-dev@mit.edu',
-    packages=['catsoop', 'catsoop.test'],
+    packages=['catsoop', 'catsoop.test', 'catsoop.thirdparty'],
     scripts=[],
     url='https://catsoop.mit.edu',
     license='GNU AGPLv3+',
