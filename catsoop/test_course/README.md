@@ -1,1 +1,0 @@
-# catsoop-test-course
