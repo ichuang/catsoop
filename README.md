@@ -1,4 +1,4 @@
-[![Build Status](https://ci.smatz.net/api/badges/hz/cat-soop/status.svg)](https://ci.smatz.net/hz/cat-soop)
+[![Build Status](https://ci.smatz.net/api/badges/cat-soop/cat-soop/status.svg)](https://ci.smatz.net/cat-soop/cat-soop)
 
 ```nohighlight
 \
