@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -44,15 +44,17 @@ CURRENT = {"queued": [], "running": set()}
 
 PORTNUM = base_context.cs_checker_server_port
 
-LOGGER = logging.getLogger('cs')
-WSLOGGER = logging.getLogger('websockets.server')
+LOGGER = logging.getLogger("cs")
+WSLOGGER = logging.getLogger("websockets.server")
 WSLOGGER.setLevel(LOGGER.level)
 WSLOGGER.addHandler(logging.StreamHandler())
+
 
 def log(msg):
     dt = datetime.datetime.now()
     omsg = "[reporter:%s]: %s" % (dt, msg)
     LOGGER.info(omsg)
+
 
 def get_status(magic):
     try:
@@ -146,6 +148,8 @@ def updater():
     if DEBUG and crun:
         log("updater queued=%s" % crun)
     loop.call_later(0.3, updater)
+
+log("Starting reporter on port=%s" % PORTNUM)
 
 log("Starting reporter on port=%s" % PORTNUM)
 

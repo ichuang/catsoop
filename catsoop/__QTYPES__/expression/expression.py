@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -199,10 +199,12 @@ def check_shapes(x, y):
     if xs is not None and ys is not None and xs != ys:
         raise ValueError("array shapes do not match: %s and %s" % (xs, ys))
 
+
 def _to_numpy(x):
     if check_numpy() and isinstance(x, numpy.ndarray):
         return x.astype(numpy.complex_)
     return x
+
 
 def eval_binop(func, match_shapes=True):
     def _evaler(context, names, funcs, o):
@@ -304,8 +306,12 @@ def _get_all_names(tree):
 def _get_random_value():
     return mpmath.mpf(random.uniform(1, 30))
 
+
 def _fix_precision(names):
-    return {k: mpmath.mpc(v) if isinstance(v, (float, int)) else v for k,v in names.items()}
+    return {
+        k: mpmath.mpc(v) if isinstance(v, (float, int)) else v for k, v in names.items()
+    }
+
 
 def _get_all_mappings(context, soln_names, sub_names):
     names = dict(default_names)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -142,13 +142,15 @@ def startup_catsoop(config_loc=None):
         )
         sys.exit(1)
     print("Using catsoop configuration specified by %s" % config_loc)
-    os.environ['CAT_SOOP_CONFIG'] = config_loc
+    os.environ["CATSOOP_CONFIG"] = config_loc
 
     if base_dir not in sys.path:
         sys.path.append(base_dir)
 
-    _enc_salt_file = os.path.join(base_dir, ".encryption_salt")
-    _enc_hash_file = os.path.join(base_dir, ".encryption_passphrase_hash")
+    _enc_salt_file = os.path.join(os.path.dirname(config_loc), "encryption_salt")
+    _enc_hash_file = os.path.join(
+        os.path.dirname(config_loc), "encryption_passphrase_hash"
+    )
     if os.path.isfile(_enc_salt_file):
         with open(_enc_salt_file, "rb") as f:
             salt = f.read()
@@ -167,6 +169,6 @@ def startup_catsoop(config_loc=None):
                 print("Passphrase does not match stored hash.  Try again.")
     main()
 
+
 if __name__ == "__main__":
     startup_catsoop()
-    
