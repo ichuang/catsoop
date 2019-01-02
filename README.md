@@ -1,3 +1,5 @@
+[![Build Status](https://ci.smatz.net/api/badges/hz/cat-soop/status.svg)](https://ci.smatz.net/hz/cat-soop)
+
 ```nohighlight
 \
 /    /\__/\
@@ -5,7 +7,6 @@
 (__________)
  |_ |_ |_ |_
 ```
-
 
 # CAT-SOOP
 
