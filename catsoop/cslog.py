@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -80,7 +80,10 @@ COMPRESS = base_context.cs_log_compression
 ENCRYPT_KEY = None
 ENCRYPT_PASS = os.environ.get("CATSOOP_PASSPHRASE", None)
 if ENCRYPT_PASS is not None:
-    with open(os.path.join(base_context.cs_fs_root, ".encryption_salt"), "rb") as f:
+    with open(
+        os.path.join(os.path.dirname(os.environ["CATSOOP_CONFIG"]), "encryption_salt"),
+        "rb",
+    ) as f:
         SALT = f.read()
     ENCRYPT_KEY = hashlib.pbkdf2_hmac(
         "sha256", ENCRYPT_PASS.encode("utf8"), SALT, 100000, dklen=32

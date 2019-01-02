@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -26,6 +26,8 @@ import sys
 import logging
 import traceback
 
+from catsoop import __version__
+
 LOGGER = logging.getLogger("cs")
 
 _nodoc = {
@@ -39,7 +41,7 @@ _nodoc = {
     "datetime",
 }
 
-cs_version = "(development version, v13.0.0+)"
+cs_version = __version__
 """
 CAT-SOOP's version number
 """
@@ -346,7 +348,7 @@ _cs_config_errors = []
 
 try:
     default_loc = os.path.join(os.path.dirname(__file__), "config.py")
-    config_loc = os.environ.get('CAT_SOOP_CONFIG', default_loc)
+    config_loc = os.environ.get("CATSOOP_CONFIG", default_loc)
     LOGGER.info("[base_context] using config file %s" % config_loc)
     with open(config_loc) as f:
         exec(f.read())

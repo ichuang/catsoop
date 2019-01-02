@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -34,16 +34,16 @@ _prefix = "cs_defaulthandler_"
 
 
 def new_entry(context, qname, action):
-    '''
+    """
     Enqueue an asynchronous request to be processed (by the checker), e.g.
     a problem submission for grading.
 
-    context = dict 
+    context = dict
     qname = question name / ID
     action = "check" or "submit"
 
     Returns uuid for the new queue entry.
-    '''
+    """
     id_ = str(uuid.uuid4())
     obj = {
         "path": context["cs_path_info"],
@@ -55,9 +55,9 @@ def new_entry(context, qname, action):
     }
 
     # add LTI data, if present in current session (needed for sending grade back to tool consumer)
-    session = context['cs_session_data']
-    if session.get('is_lti_user'):
-        obj['lti_data'] = session.get('lti_data')
+    session = context["cs_session_data"]
+    if session.get("is_lti_user"):
+        obj["lti_data"] = session.get("lti_data")
 
     # safely save queue entry in database file (stage then mv)
     loc = os.path.join(tempfile.gettempdir(), "staging", id_)

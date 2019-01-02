@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -79,7 +79,7 @@ def handle_submission(submissions, **info):
         opts = info.get("csq_options", {})
         soln = eval(info["sandbox_run_code"](info, code, opts)[1], info)
     try:
-        ast.parse(sub, mode='eval')
+        ast.parse(sub, mode="eval")
         code = info["csq_code_pre"]
         if sub == "":
             LOGGER.debug("[qtypes.pythonic] invalid submission, empty submission")

@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2018 Adam Hartz <hz@mit.edu>
+# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -52,6 +52,7 @@ DEBUG = True
 
 LOGGER = logging.getLogger("cs")
 
+
 def log(msg):
     if not DEBUG:
         return
@@ -62,6 +63,7 @@ def log(msg):
     # print(omsg)
     LOGGER.info(omsg)
 
+
 def exc_message(context):
     exc = traceback.format_exc()
     exc = context["csm_errors"].clear_info(context, exc)
@@ -69,11 +71,11 @@ def exc_message(context):
 
 
 def do_check(row):
-    '''
+    """
     Check submission, dispatching to appropriate question handler
 
     row: (dict) action to take, with input data
-    '''
+    """
     os.setpgrp()  # make this part of its own process group
     set_pdeathsig()()  # but make it die if the parent dies.  will this work?
 
@@ -85,19 +87,25 @@ def do_check(row):
     context["cs_user_info"] = auth.get_user_information(context)
     context["cs_now"] = datetime.fromtimestamp(row["time"])
 
-    have_lti = ('cs_lti_config' in context) and ('lti_data' in row)
+    have_lti = ("cs_lti_config" in context) and ("lti_data" in row)
     if have_lti:
-        lti_data = row['lti_data']
-        lti_handler = lti.lti4cs_response(context, lti_data)	# LTI response handler, from row['lti_data']
+        lti_data = row["lti_data"]
+        lti_handler = lti.lti4cs_response(
+            context, lti_data
+        )  # LTI response handler, from row['lti_data']
         log("lti_handler.have_data=%s" % lti_handler.have_data)
         if lti_handler.have_data:
             log("lti_data=%s" % lti_handler.lti_data)
-            if not 'cs_session_data' in context:
-                context['cs_session_data'] = {}
-            context['cs_session_data']['is_lti_user'] = True	# so that course preload.py knows
+            if not "cs_session_data" in context:
+                context["cs_session_data"] = {}
+            context["cs_session_data"][
+                "is_lti_user"
+            ] = True  # so that course preload.py knows
 
     cfile = dispatch.content_file_location(context, row["path"])
-    log("Loading grader python code course=%s, cfile=%s" % (context['cs_course'], cfile))
+    log(
+        "Loading grader python code course=%s, cfile=%s" % (context["cs_course"], cfile)
+    )
     loader.do_late_load(
         context, context["cs_course"], context["cs_path_info"], context, cfile
     )
@@ -106,19 +114,27 @@ def do_check(row):
     cnt = 0
     total_possible_npoints = 0
     for elt in context["cs_problem_spec"]:
-        if isinstance(elt, tuple):		# each elt is (problem_context, problem_kwargs)
+        if isinstance(elt, tuple):  # each elt is (problem_context, problem_kwargs)
             m = elt[1]
             namemap[m["csq_name"]] = elt
-            csq_npoints = m.get('csq_npoints', 0)
-            total_possible_npoints += csq_npoints	# used to compute total aggregate score pct
+            csq_npoints = m.get("csq_npoints", 0)
+            total_possible_npoints += (
+                csq_npoints
+            )  # used to compute total aggregate score pct
             if DEBUG:
-                question = elt[0]['handle_submission']
-                dn = m.get('csq_display_name')
+                question = elt[0]["handle_submission"]
+                dn = m.get("csq_display_name")
                 log("Map: %s (%s) -> %s" % (m["csq_name"], dn, question))
-                log("%s csq_npoints=%s, total_points=%s" % (dn, csq_npoints, elt[0]['total_points']()))
+                log(
+                    "%s csq_npoints=%s, total_points=%s"
+                    % (dn, csq_npoints, elt[0]["total_points"]())
+                )
             cnt += 1
     if DEBUG:
-        log("Loaded %d procedures into question namemap (total_possible_npoints=%s)" % (cnt, total_possible_npoints))
+        log(
+            "Loaded %d procedures into question namemap (total_possible_npoints=%s)"
+            % (cnt, total_possible_npoints)
+        )
 
     # now, depending on the action we want, take the appropriate steps
 
@@ -210,22 +226,34 @@ def do_check(row):
             if have_lti and lti_handler.have_data:
                 aggregate_score = 0
                 cnt = 0
-                for k, v in x['scores'].items():	# e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
+                for k, v in x[
+                    "scores"
+                ].items():  # e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
                     aggregate_score += float(v)
                     cnt += 1
-                if total_possible_npoints==0:
+                if total_possible_npoints == 0:
                     total_possible_npoints = 1.0
                     LOGGER.error("[checker] total_possible_npoints=0 ????")
-                aggregate_score_fract = aggregate_score * 1.0 / total_possible_npoints	# LTI wants score in [0, 1.0]
-                log("Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)" % (cnt,
-                                                                                                      aggregate_score,
-                                                                                                      aggregate_score_fract))
-                log("magic=%s sending aggregate_score_fract=%s to LTI tool consumer" % (row['magic'], aggregate_score_fract))
+                aggregate_score_fract = (
+                    aggregate_score * 1.0 / total_possible_npoints
+                )  # LTI wants score in [0, 1.0]
+                log(
+                    "Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)"
+                    % (cnt, aggregate_score, aggregate_score_fract)
+                )
+                log(
+                    "magic=%s sending aggregate_score_fract=%s to LTI tool consumer"
+                    % (row["magic"], aggregate_score_fract)
+                )
                 try:
                     lti_handler.send_outcome(aggregate_score_fract)
                 except Exception as err:
-                    LOGGER.error("[checker] failed to send outcome to LTI consumer, err=%s" % str(err))
+                    LOGGER.error(
+                        "[checker] failed to send outcome to LTI consumer, err=%s"
+                        % str(err)
+                    )
                     LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
+
 
 running = []
 
@@ -243,7 +271,9 @@ nrunning = None
 while True:
     # check for dead processes
     dead = set()
-    if DEBUG and not (len(running)==nrunning):	# output debug message when nrunning changes
+    if DEBUG and not (
+        len(running) == nrunning
+    ):  # output debug message when nrunning changes
         nrunning = len(running)
         log("have %d running (%s)" % (nrunning, running))
     for i in range(len(running)):
