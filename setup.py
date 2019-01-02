@@ -10,12 +10,13 @@ setup(
     version=__version__,
     author='CAT-SOOP Contributors',
     author_email='catsoop-dev@mit.edu',
-    packages=['catsoop', 'catsoop.test', 'catsoop.thirdparty'],
+    packages=['catsoop', 'catsoop.test', 'catsoop.thirdparty', 'catsoop.scripts'],
     scripts=[],
     url='https://catsoop.mit.edu',
-    license='GNU AGPLv3+',
+    license='AGPLv3+',
     description='CAT-SOOP is a tool for automatic collection and assessment of online exercises.',
     long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     include_package_data=True,
     entry_points={
         'console_scripts': [
