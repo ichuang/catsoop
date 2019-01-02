@@ -149,7 +149,6 @@ def updater():
         log("updater queued=%s" % crun)
     loop.call_later(0.3, updater)
 
-log("Starting reporter on port=%s" % PORTNUM)
 
 log("Starting reporter on port=%s" % PORTNUM)
 
