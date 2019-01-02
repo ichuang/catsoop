@@ -1,0 +1,6 @@
+pipeline:
+  build:
+    image: python:3.7
+    commands:
+      - pip3 install -r requirements.txt
+      - python3 setup.py test
