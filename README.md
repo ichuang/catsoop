@@ -31,7 +31,37 @@ CAT-SOOP is free/libre software, available under the terms of the GNU Affero Gen
 
 ## HOW DO I INSTALL IT?
 
-See the "installation quick-start guide" at https://catsoop.mit.edu/website/docs/installing
+To install, run:
+
+```nohighlight
+python setup.py install
+```
+
+#### Configuring
+
+To generate a config.py file, run:
+
+```nohighlight
+catsoop configure
+```
+    
+If you are setting up a public-facing copy of CAT-SOOP (as opposed to a local copy for debugging purposes), see the instructions at https://catsoop.mit.edu/website/docs/server_setup
+    
+#### Running
+    
+To start the server, run:
+
+```nohighlight
+catsoop runserver
+```
+    
+#### Testing
+
+To run all the unit tests:
+
+```nohighlight
+python setup.py test
+```
 
 
 ## IS IT ANY GOOD?
