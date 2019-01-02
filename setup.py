@@ -15,7 +15,7 @@ setup(
     url='https://catsoop.mit.edu',
     license='GNU AGPLv3+',
     description='CAT-SOOP is a tool for automatic collection and assessment of online exercises.',
-    long_description=open('README').read(),
+    long_description=open('README.md').read(),
     include_package_data=True,
     entry_points={
         'console_scripts': [
