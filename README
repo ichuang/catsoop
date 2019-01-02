@@ -11,14 +11,13 @@
     https://catsoop.mit.edu
 
 * Clone Repository:
-    hg clone https://catsoop.mit.edu/repo/cat-soop
-    git clone https://catsoop.mit.edu/gitrepo cat-soop
+    git clone https://catsoop.mit.edu/git/cat-soop/cat-soop.git
 
 * Repository Web Access:
-    https://catsoop.mit.edu/repo/cat-soop
+    https://catsoop.mit.edu/git/cat-soop/cat-soop
 
 * Bug Tracker:
-    https://catsoop.mit.edu/bugs
+    https://catsoop.mit.edu/git/cat-soop/cat-soop/issues
 
 * IRC:
     #cat-soop on OFTC (irc.oftc.net)
