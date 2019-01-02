@@ -34,6 +34,12 @@ CAT-SOOP is free/libre software, available under the terms of the GNU Affero Gen
 To install, run:
 
 ```nohighlight
+pip3 setup.py install
+```
+
+Or, from a clone of the repository, run:
+
+```nohighlight
 python setup.py install
 ```
 
@@ -44,17 +50,17 @@ To generate a config.py file, run:
 ```nohighlight
 catsoop configure
 ```
-    
+
 If you are setting up a public-facing copy of CAT-SOOP (as opposed to a local copy for debugging purposes), see the instructions at https://catsoop.mit.edu/website/docs/server_setup
-    
+
 #### Running
-    
+
 To start the server, run:
 
 ```nohighlight
 catsoop runserver
 ```
-    
+
 #### Testing
 
 To run all the unit tests:
