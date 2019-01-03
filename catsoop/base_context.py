@@ -347,8 +347,13 @@ _cs_config_errors = []
 # try to import configuration from config.py
 
 try:
-    default_loc = os.path.join(os.path.dirname(__file__), "config.py")
-    config_loc = os.environ.get("CATSOOP_CONFIG", default_loc)
+    default_config_location = os.environ.get(
+        "XDG_CONFIG_HOME", os.path.expanduser(os.path.join("~", ".config"))
+    )
+    config_loc = os.path.abspath(
+        os.path.join(default_config_location, "cat-soop", "config.py")
+    )
+    config_loc = os.environ.get("CATSOOP_CONFIG", config_loc)
     LOGGER.info("[base_context] using config file %s" % config_loc)
     with open(config_loc) as f:
         exec(f.read())
