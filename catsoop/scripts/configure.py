@@ -195,6 +195,18 @@ cs_dummy_username = %r
         os.makedirs(os.path.dirname(config_loc), exist_ok=True)
         with open(config_loc, "w") as f:
             f.write(config_file_content)
+        _enc_salt_file = os.path.join(os.path.dirname(config_loc), "encryption_salt")
+        _enc_hash_file = os.path.join(
+            os.path.dirname(config_loc), "encryption_passphrase_hash"
+        )
+        try:
+            os.unlink(_enc_salt_file)
+        except:
+            pass
+        try:
+            os.unlink(_enc_hash_file)
+        except:
+            pass
         os.makedirs(os.path.join(cs_data_root, "courses"), exist_ok=True)
         print()
         print("Configuration written to %s" % config_loc)
