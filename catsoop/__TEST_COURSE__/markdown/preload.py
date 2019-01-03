@@ -1,1 +1,1 @@
-cs_long_name = 'Markdown'
+cs_long_name = "Markdown"

@@ -1,1 +1,1 @@
-cs_long_name = 'Course Structure'
+cs_long_name = "Course Structure"

@@ -1,2 +1,2 @@
-cs_long_name = 'Linear Regression'
-mode='analysis'
+cs_long_name = "Linear Regression"
+mode = "analysis"
