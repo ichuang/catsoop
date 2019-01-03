@@ -52,7 +52,7 @@ To generate a config.py file, run:
 catsoop configure
 ```
 
-If you are setting up a public-facing copy of CAT-SOOP (as opposed to a local copy for debugging purposes), see the instructions at https://catsoop.mit.edu/website/docs/server_setup
+If you are setting up a public-facing copy of CAT-SOOP (as opposed to a local copy for debugging purposes), see the instructions at https://catsoop.mit.edu/website/docs/installing/server_configuration
 
 #### Running
 
