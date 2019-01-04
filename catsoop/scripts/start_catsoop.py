@@ -103,9 +103,9 @@ def main():
             ":%s" % base_context.cs_wsgi_server_port,
             "--thunder-lock",
             "--wsgi-file",
-            os.path.join("catsoop", "wsgi.py"),
+            "wsgi.py",
             "--touch-reload",
-            os.path.join("catsoop", "wsgi.py"),
+            "wsgi.py",
         ] + uwsgi_opts
 
         procs.append((base_dir, ["uwsgi"] + uwsgi_opts, 0.1, "WSGI Server"))
