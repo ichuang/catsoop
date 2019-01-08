@@ -3,7 +3,7 @@ cheroot
 cryptography
 filelock
 python-jose
-markdown>2,<3
+markdown>=3
 mpmath
 ply
 uwsgi

@@ -16,39 +16,39 @@
 """CAT-SOOP Math Mode Extension for PyMarkdown"""
 
 from markdown.extensions import Extension
-from markdown.inlinepatterns import HtmlPattern, SimpleTextPattern
+from markdown.inlinepatterns import HtmlInlineProcessor, SimpleTextInlineProcessor
 
 _nodoc = {
     "Extension",
-    "HtmlPattern",
-    "SimpleTextPattern",
+    "HtmlInlineProcessor",
+    "SimpleTextInlineProcessor",
     "absolute_import",
     "unicode_literals",
 }
 
-_MATH_RE = r"(^|[^\\])(\$)((?:\\\$|[^$])*)\3"
-_DMATH_RE = r"(^|[^\\])(\$\$)(.*?)\3"
+_MATH_RE = r"(^|[^\\])(\$)((?:\\\$|[^$])*)\2"
+_DMATH_RE = r"(^|[^\\])(\$\$)(.*?)\2"
 _ESCAPED_DOLLAR_RE = r"\\(\$)"
 
 
-class RawHtmlPattern(HtmlPattern):
-    """A subclass of `catsoop.thirdparty.markdown.inlinepattern.HtmlPattern`
+class RawHtmlInlineProcessor(HtmlInlineProcessor):
+    """A subclass of `catsoop.thirdparty.markdown.inlinepattern.HtmlInlineProcessor`
     used to store raw inline html and return a placeholder."""
 
     def __init__(self, endtag, *args, **kwargs):
         self._hz_tag = endtag
-        HtmlPattern.__init__(self, *args, **kwargs)
+        HtmlInlineProcessor.__init__(self, *args, **kwargs)
 
-    def handleMatch(self, m):
-        pre = m.group(2)
-        body = self.unescape(m.group(4))
+    def handleMatch(self, m, data):
+        pre = m.group(1)
+        body = self.unescape(m.group(3))
         rawhtml = "%(pre)s<%(tag)s>%(body)s</%(tag)s>" % {
             "tag": self._hz_tag,
             "body": body,
             "pre": pre,
         }
         place_holder = self.markdown.htmlStash.store(rawhtml)
-        return place_holder
+        return place_holder, m.start(0), m.end(0)
 
 
 class MathExtension(Extension):
@@ -57,7 +57,7 @@ class MathExtension(Extension):
     def extendMarkdown(self, md, md_globals):
         """ Modify inline patterns. """
         md.inlinePatterns.add(
-            "dmath", RawHtmlPattern("displaymath", _DMATH_RE, md), "<entity"
+            "dmath", RawHtmlInlineProcessor("displaymath", _DMATH_RE, md), "<entity"
         )
-        md.inlinePatterns.add("math", RawHtmlPattern("math", _MATH_RE, md), ">dmath")
-        md.inlinePatterns.add("emath", SimpleTextPattern(_ESCAPED_DOLLAR_RE), ">math")
+        md.inlinePatterns.add("math", RawHtmlInlineProcessor("math", _MATH_RE, md), ">dmath")
+        md.inlinePatterns.add("emath", SimpleTextInlineProcessor(_ESCAPED_DOLLAR_RE), ">math")
