@@ -54,14 +54,15 @@ class RawHtmlInlineProcessor(HtmlInlineProcessor):
 class MathExtension(Extension):
     """The CAT-SOOP math extension to Markdown."""
 
-    def extendMarkdown(self, md, md_globals):
-        """ Modify inline patterns. """
-        md.inlinePatterns.add(
-            "dmath", RawHtmlInlineProcessor("displaymath", _DMATH_RE, md), "<entity"
+    def extendMarkdown(self, md):
+        """ Modify inline patterns."""
+        e = md.inlinePatterns.get_index_for_name("entity")
+        md.inlinePatterns.register(
+            RawHtmlInlineProcessor("displaymath", _DMATH_RE, md), "catsoop_dmath", e + 3
         )
-        md.inlinePatterns.add(
-            "math", RawHtmlInlineProcessor("math", _MATH_RE, md), ">dmath"
+        md.inlinePatterns.register(
+            RawHtmlInlineProcessor("math", _MATH_RE, md), "catsoop_math", e + 2
         )
-        md.inlinePatterns.add(
-            "emath", SimpleTextInlineProcessor(_ESCAPED_DOLLAR_RE), ">math"
+        md.inlinePatterns.register(
+            SimpleTextInlineProcessor(_ESCAPED_DOLLAR_RE), "catsoop_emath", e + 1
         )
