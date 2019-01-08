@@ -14,9 +14,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import collections.abc
-import traceback
+import ast
 import logging
+import traceback
+import collections.abc
 
 LOGGER = logging.getLogger(__name__)
 
@@ -59,6 +60,7 @@ INVALID_SUBMISSION_MSG = (
 def handle_submission(submissions, **info):
     py3k = info.get("csq_python3", True)
     sub = submissions[info["csq_name"]].strip()
+    LOGGER.error('[qtypes.pythonic] submission: %r' % sub)
 
     inp = info["csq_input_check"](sub)
     if inp is not None:
@@ -79,11 +81,11 @@ def handle_submission(submissions, **info):
         opts = info.get("csq_options", {})
         soln = eval(info["sandbox_run_code"](info, code, opts)[1], info)
     try:
-        ast.parse(sub, mode="eval")
-        code = info["csq_code_pre"]
         if sub == "":
             LOGGER.debug("[qtypes.pythonic] invalid submission, empty submission")
             return {"score": 0.0, "msg": INVALID_SUBMISSION_MSG}
+        ast.parse(sub, mode="eval")
+        code = info["csq_code_pre"]
         varname = gensym(code + sub)
         code += "\n%s = %s" % (varname, sub)
         if py3k:
@@ -91,9 +93,12 @@ def handle_submission(submissions, **info):
         else:
             code += "\nprint repr(%s)" % varname
         opts = info.get("csq_options", {})
+        LOGGER.debug("[qtypes.pythonic] code to run:\n%s" % code)
         fname, out, err = info["sandbox_run_code"](info, code, opts)
+        LOGGER.debug("[qtypes.pythonic] results:\nfname: %r\nout: %r\nerr: %r" % (fname, out, err))
         sub = eval(out, info)
     except Exception as err:
+        LOGGER.error("[qtypes.pythonic] invalid submission: %r" % sub)
         LOGGER.error("[qtypes.pythonic] invalid submission exception=%s" % str(err))
         LOGGER.error("[qtypes.pythonic] traceback: %s" % traceback.format_exc())
         msg = ""
