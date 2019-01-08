@@ -47,7 +47,7 @@ class RawHtmlInlineProcessor(HtmlInlineProcessor):
             "body": body,
             "pre": pre,
         }
-        place_holder = self.markdown.htmlStash.store(rawhtml)
+        place_holder = self.md.htmlStash.store(rawhtml)
         return place_holder, m.start(0), m.end(0)
 
 
