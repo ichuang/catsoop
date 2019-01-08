@@ -59,5 +59,9 @@ class MathExtension(Extension):
         md.inlinePatterns.add(
             "dmath", RawHtmlInlineProcessor("displaymath", _DMATH_RE, md), "<entity"
         )
-        md.inlinePatterns.add("math", RawHtmlInlineProcessor("math", _MATH_RE, md), ">dmath")
-        md.inlinePatterns.add("emath", SimpleTextInlineProcessor(_ESCAPED_DOLLAR_RE), ">math")
+        md.inlinePatterns.add(
+            "math", RawHtmlInlineProcessor("math", _MATH_RE, md), ">dmath"
+        )
+        md.inlinePatterns.add(
+            "emath", SimpleTextInlineProcessor(_ESCAPED_DOLLAR_RE), ">math"
+        )
