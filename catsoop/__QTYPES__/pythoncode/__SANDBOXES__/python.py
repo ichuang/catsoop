@@ -40,11 +40,14 @@ def safe_close(fd):
 
 
 def run_code(context, code, options):
-    rlimits = [(resource.RLIMIT_NPROC, (0, 0))]
-    for key, val in _resource_mapper.items():
-        if key == "MEMORY" and options[key] <= 0:
-            continue
-        rlimits.append((val[0], val[1](options[key])))
+    if options.get('do_rlimits', True):
+        rlimits = [(resource.RLIMIT_NPROC, (0, 0))]
+        for key, val in _resource_mapper.items():
+            if key == "MEMORY" and options[key] <= 0:
+                continue
+            rlimits.append((val[0], val[1](options[key])))
+    else:
+        rlimits = []
 
     def limiter():
         os.setsid()
