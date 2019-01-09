@@ -16,6 +16,8 @@ _Work toward next release.  Currently under development._
 
 * Updated KaTeX to version 0.10.0.
 
+* Updated CAT-SOOP to use Python-Markdown version 3+.
+
 * Replaced default favicon with one that does not have the letters "CS" in it.
 
 * Modified the default theme to ensure the body of a page is always at least 900px wide.
