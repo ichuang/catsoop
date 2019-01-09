@@ -71,12 +71,12 @@ if course is not None:
 out_bytes = io.BytesIO()
 
 outfile = ZipFile(out_bytes, "w", ZIP_DEFLATED)
-add_files_to_zip(outfile, cs_fs_root, "cat-soop-src/cat-soop")
+add_files_to_zip(outfile, cs_fs_root, "catsoop-src/catsoop")
 now = csm_time.from_detailed_timestamp(cs_timestamp)
 now = csm_time.long_timestamp(now).replace("; ", " at ")
 if course is None:
     outfile.writestr(
-        "cat-soop-src/README.catsoop-source",
+        "catsoop-src/README.catsoop-source",
         SOURCE_README_NOCOURSE % (cs_url_root, now),
     )
 else:
@@ -89,13 +89,13 @@ else:
         .replace("<br />", " ")
     )
     outfile.writestr(
-        "cat-soop-src/README.catsoop-source",
+        "catsoop-src/README.catsoop-source",
         SOURCE_README % (cs_url_root, now, course_name, course),
     )
-    add_files_to_zip(outfile, plugins_base, "cat-soop-src/%s/__PLUGINS__" % course)
-    add_files_to_zip(outfile, qtypes_base, "cat-soop-src/%s/__QTYPES__" % course)
-    add_files_to_zip(outfile, handlers_base, "cat-soop-src/%s/__HANDLERS__" % course)
-    add_files_to_zip(outfile, authtypes_base, "cat-soop-src/%s/_auth" % course)
+    add_files_to_zip(outfile, plugins_base, "catsoop-src/%s/__PLUGINS__" % course)
+    add_files_to_zip(outfile, qtypes_base, "catsoop-src/%s/__QTYPES__" % course)
+    add_files_to_zip(outfile, handlers_base, "catsoop-src/%s/__HANDLERS__" % course)
+    add_files_to_zip(outfile, authtypes_base, "catsoop-src/%s/_auth" % course)
 outfile.close()
 
 cs_handler = "raw_response"

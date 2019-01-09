@@ -1,4 +1,4 @@
-[![Build Status](https://ci.smatz.net/api/badges/cat-soop/cat-soop/status.svg)](https://ci.smatz.net/cat-soop/cat-soop)
+[![Build Status](https://ci.smatz.net/api/badges/catsoop/catsoop/status.svg)](https://ci.smatz.net/catsoop/catsoop)
 
 ```nohighlight
 \
@@ -12,13 +12,13 @@
 
 * Web Site: https://catsoop.mit.edu
 
-* Clone Repository: `git clone https://catsoop.mit.edu/git/cat-soop/cat-soop.git`
+* Clone Repository: `git clone https://catsoop.mit.edu/git/catsoop/catsoop.git`
 
-* Repository Web Access: https://catsoop.mit.edu/git/cat-soop/cat-soop
+* Repository Web Access: https://catsoop.mit.edu/git/catsoop/catsoop
 
-* Bug Tracker: https://catsoop.mit.edu/git/cat-soop/cat-soop/issues
+* Bug Tracker: https://catsoop.mit.edu/git/catsoop/catsoop/issues
 
-* IRC: `#cat-soop` on OFTC (`irc.oftc.net`)
+* IRC: `#catsoop` on OFTC (`irc.oftc.net`)
 
 * Mailing List: `catsoop-users@mit.edu` (subscribe at http://mailman.mit.edu/mailman/listinfo/catsoop-users)
 

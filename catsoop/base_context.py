@@ -51,7 +51,7 @@ cs_fs_root = os.path.dirname(__file__)
 The directory where CAT-SOOP's source is located (no trailing slash).
 """
 
-cs_data_root = r"/home/cat-soop/data"
+cs_data_root = r"/home/catsoop/data"
 """
 The directory where CAT-SOOP's data files are located (no trailing slash).
 """
@@ -351,7 +351,7 @@ try:
         "XDG_CONFIG_HOME", os.path.expanduser(os.path.join("~", ".config"))
     )
     config_loc = os.path.abspath(
-        os.path.join(default_config_location, "cat-soop", "config.py")
+        os.path.join(default_config_location, "catsoop", "config.py")
     )
     config_loc = os.environ.get("CATSOOP_CONFIG", config_loc)
     LOGGER.info("[base_context] using config file %s" % config_loc)
@@ -402,7 +402,7 @@ for i in cs_all_thirdparty:
 # Checks for valid Configuration
 
 # check for valid fs_root
-_fs_root_error = "cs_fs_root must be a directory containing the " "cat-soop source code"
+_fs_root_error = "cs_fs_root must be a directory containing the catsoop source code"
 if not os.path.isdir(cs_fs_root):
     LOGGER.error("[base_context] %s" % _fs_root_error)
     LOGGER.error("[base_context] cs_fs_root=%s" % cs_fs_root)
@@ -423,5 +423,5 @@ if not os.path.isdir(cs_data_root):
 else:
     if not os.access(cs_data_root, os.W_OK):
         _cs_config_errors.append(
-            "the web server must be able to write to " "cs_data_root"
+            "the web server must be able to write to cs_data_root"
         )

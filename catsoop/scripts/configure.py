@@ -146,7 +146,7 @@ def configure_local():
     cs_fs_root = base_dir
 
     config_loc = os.path.abspath(
-        os.path.join(default_config_location, "cat-soop", "config.py")
+        os.path.join(default_config_location, "catsoop", "config.py")
     )
     if os.path.isfile(config_loc):
         res = yesno(
@@ -162,7 +162,7 @@ def configure_local():
     # determine cs_data_root and logging info (encryption, etc)
 
     default_log_dir = os.path.abspath(
-        os.path.join(default_storage_location, "cat-soop")
+        os.path.join(default_storage_location, "catsoop")
     )
     cs_data_root = ask(
         "Where should CAT-SOOP store its logs?\n(this directory will be created if it does not exist)",
@@ -236,7 +236,7 @@ def configure_production():
     cs_fs_root = base_dir
 
     config_loc = os.path.abspath(
-        os.path.join(default_config_location, "cat-soop", "config.py")
+        os.path.join(default_config_location, "catsoop", "config.py")
     )
     if os.path.isfile(config_loc):
         res = yesno(
@@ -252,7 +252,7 @@ def configure_production():
     # determine cs_data_root and logging info (encryption, etc)
 
     default_log_dir = os.path.abspath(
-        os.path.join(default_storage_location, "cat-soop")
+        os.path.join(default_storage_location, "catsoop")
     )
     cs_data_root = ask(
         "Where should CAT-SOOP store its logs?\n(this directory will be created if it does not exist)",
