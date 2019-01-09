@@ -54,7 +54,7 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
         "XDG_CONFIG_HOME", os.path.expanduser(os.path.join("~", ".config"))
     )
     default_config_location = os.path.abspath(
-        os.path.join(default_config_location, "cat-soop", "config.py")
+        os.path.join(default_config_location, "catsoop", "config.py")
     )
     parser.add_argument(
         "-c",
