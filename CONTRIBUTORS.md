@@ -14,6 +14,8 @@ Tomas Lozano-Perez (tlp@mit.edu)
 
 Sanjoy Mahajan (sanjoy@olin.edu)
 
+Kade Phillips (kade@mit.edu)
+
 Joe Steinmeyer (jodalyst@mit.edu)
 
 Rodrigo Toste Gomes (rgomes@codeblurb.com)
