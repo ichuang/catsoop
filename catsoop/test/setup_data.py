@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import tempfile
 
 # -----------------------------------------------------------------------------
 
@@ -23,7 +22,6 @@ import tempfile
 def setup_data_dir():
     mydir = os.path.dirname(__file__)
     test_course_dir = os.path.join(os.path.dirname(mydir), "__TEST_COURSE__")
-    # tdir = tempfile.mkdtemp('catsoop_test')
     tdir = "/tmp/catsoop_test"
     cdir = os.path.join(tdir, "courses")
     os.makedirs(cdir, exist_ok=True)

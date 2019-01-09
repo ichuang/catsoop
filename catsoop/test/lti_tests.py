@@ -19,31 +19,28 @@ Unit tests for CAT-SOOP
 Requires config to be setup, including cs_unit_test_course
 """
 
-import os
 import cgi
-import tempfile
 import logging
 import unittest
 
-from . import setup_data
 from catsoop import loader
 from catsoop import dispatch
 from catsoop import lti
 
-logging.getLogger("cs").setLevel(1)
-LOGGER = logging.getLogger("cs")
+from ..test import CATSOOPTest
 
 # -----------------------------------------------------------------------------
 
 
-class Test_LTI(unittest.TestCase):
+class Test_LTI(CATSOOPTest):
     """
     Test basic LTI functionality
     """
 
     def setUp(self):
+        CATSOOPTest.setUp(self)
         context = {}
-        e = loader.load_global_data(context)
+        loader.load_global_data(context)
         assert "cs_unit_test_course" in context
         self.cname = context["cs_unit_test_course"]
         self.ckey = "__test_consumer__"
@@ -73,14 +70,11 @@ class Test_LTI(unittest.TestCase):
         import requests
 
         ret = requests.post(url, data=data)
-        LOGGER.info("return = %s" % ret)
         assert False
 
     def test_lti_auth1(self):
         env = {"PATH_INFO": "/_lti/%s/structure" % self.cname}
         status, retinfo, msg = dispatch.main(env)
-        LOGGER.info("[unit_tests] status=%s, msg=%s" % (status, msg))
-        LOGGER.info("[unit_tests] type(msg)=%s" % type(msg))
         assert status[0] == "200"
         assert "LTI verification failed" in msg
 
@@ -105,8 +99,6 @@ class Test_LTI(unittest.TestCase):
             "REQUEST_METHOD": "POST",
         }
         status, retinfo, msg = dispatch.main(env)
-        LOGGER.info("[unit_tests] status=%s, msg=%s" % (status, msg))
-        LOGGER.info("[unit_tests] type(msg)=%s" % type(msg))
         assert status[0] == "200"
         assert "Hello LTI" in msg
 
@@ -131,8 +123,6 @@ class Test_LTI(unittest.TestCase):
             "REQUEST_METHOD": "POST",
         }
         status, retinfo, msg = dispatch.main(env)
-        LOGGER.info("[unit_tests] status=%s, msg=%s" % (status, msg))
-        LOGGER.info("[unit_tests] type(msg)=%s" % type(msg))
         assert status[0] == "200"
         assert "Page Specification and Loading" in msg.decode("utf8")
 

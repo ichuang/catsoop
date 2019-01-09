@@ -18,25 +18,18 @@ Tests for CAT-SOOP's crypto
 """
 
 import os
-import cgi
 import time
 import base64
 import random
 import string
-import logging
-import calendar
 import unittest
 
-from datetime import datetime
 from contextlib import contextmanager
 
 from catsoop.fernet import RawFernet, InvalidToken
 from cryptography.fernet import Fernet
 
-logging.getLogger("cs").setLevel(1)
-LOGGER = logging.getLogger("cs")
-
-_random = random.Random()
+from ..test import CATSOOPTest
 
 # -----------------------------------------------------------------------------
 
@@ -69,7 +62,7 @@ def spoof_urandom(pattern=None):
     os.urandom = old_urandom
 
 
-class Test_Fernet(unittest.TestCase):
+class Test_Fernet(CATSOOPTest):
     """
     Test for the RawFernet class
     """
@@ -137,14 +130,10 @@ class Test_Fernet(unittest.TestCase):
             message = bytes(
                 random.choice(chars) for i in range(random.randint(100, 10000))
             )
-            with spoof_time() as t:
-                with spoof_urandom() as u:
+            with spoof_time():
+                with spoof_urandom():
                     key = Fernet.generate_key()
                     raw_key = base64.urlsafe_b64decode(key)
-                    LOGGER.info("[unit_tests] fernet key=%s" % raw_key)
-                    LOGGER.info("[unit_tests] fernet message=%s" % message)
-                    LOGGER.info("[unit_tests] fernet time=%s" % t)
-                    LOGGER.info("[unit_tests] fernet urandom pattern=%s" % u)
                     secret_base = Fernet(key).encrypt(message)
                     secret_catsoop = RawFernet(raw_key).encrypt(message)
                     self.assertEqual(
