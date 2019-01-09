@@ -25,23 +25,29 @@ import hashlib
 def style(txt, sty):
     return sty + txt + "\x1B[0m"
 
+
 def OKAY(txt):
-    return style(txt, "\x1B[1;32m") # bold green
+    return style(txt, "\x1B[1;32m")  # bold green
+
 
 def WARNING(txt):
-    return style(txt, "\x1B[1;31m") # bold red
+    return style(txt, "\x1B[1;31m")  # bold red
+
 
 def ERROR(txt):
-    return style(txt, "\x1B[1;31m") # bold red
+    return style(txt, "\x1B[1;31m")  # bold red
+
 
 def DIR(txt):
-    return style(txt, "\x1B[1;33m") # bold yellow
+    return style(txt, "\x1B[1;33m")  # bold yellow
+
 
 def FILE(txt):
-    return style(txt, "\x1B[1;35m") # bold magenta
+    return style(txt, "\x1B[1;35m")  # bold magenta
+
 
 def QUESTION(txt):
-    return style(txt, "\x1B[1;36m") # bold cyan
+    return style(txt, "\x1B[1;36m")  # bold cyan
 
 
 def ask(prompt, default="", transform=lambda x: x, check_ok=lambda x: None):
@@ -76,7 +82,9 @@ def yesno(question, default="Y"):
         question,
         default,
         lambda x: x.lower(),
-        lambda x: None if x in {"y", "n", "yes", "no"} else WARNING("Please answer Yes or No"),
+        lambda x: None
+        if x in {"y", "n", "yes", "no"}
+        else WARNING("Please answer Yes or No"),
     )
     if res.startswith("y"):
         return True
@@ -141,7 +149,8 @@ def main():
             return True
 
     is_production = ask(
-        QUESTION("Are you setting up a production CAT-SOOP instance, or a local copy?") + "\n\n1. Local Copy\n2. Production Instance",
+        QUESTION("Are you setting up a production CAT-SOOP instance, or a local copy?")
+        + "\n\n1. Local Copy\n2. Production Instance",
         default="1",
         transform=_server_transform,
         check_ok=lambda x: None if x is not None else ERROR("Invalid entry: %s" % x),
@@ -172,9 +181,11 @@ def configure_local():
     )
     if os.path.isfile(config_loc):
         res = yesno(
-            ("CAT-SOOP configuration at %s already exists.\n"
-            "Continuing will overwrite it.\n" % FILE(config_loc)) +\
-            QUESTION("Do you wish to continue?"),
+            (
+                "CAT-SOOP configuration at %s already exists.\n"
+                "Continuing will overwrite it.\n" % FILE(config_loc)
+            )
+            + QUESTION("Do you wish to continue?"),
             default="N",
         )
         if not res:
@@ -183,11 +194,10 @@ def configure_local():
 
     # determine cs_data_root and logging info (encryption, etc)
 
-    default_log_dir = os.path.abspath(
-        os.path.join(default_storage_location, "catsoop")
-    )
+    default_log_dir = os.path.abspath(os.path.join(default_storage_location, "catsoop"))
     cs_data_root = ask(
-        QUESTION("Where should CAT-SOOP store its logs?")+"\n(this directory will be created if it does not exist)",
+        QUESTION("Where should CAT-SOOP store its logs?")
+        + "\n(this directory will be created if it does not exist)",
         transform=lambda x: os.path.abspath(os.path.expanduser(x)),
         default=default_log_dir,
     )
@@ -197,7 +207,9 @@ def configure_local():
         'Some courses set up local copies to use "dummy" authentication that always logs you in with a particular username.'
     )
     cs_dummy_username = ask(
-        QUESTION('For courses that use "dummy" authentication, what username should be used?'),
+        QUESTION(
+            'For courses that use "dummy" authentication, what username should be used?'
+        ),
         default="",
         check_ok=lambda x: None if x else WARNING("Please enter a username."),
     )
@@ -212,10 +224,14 @@ cs_dummy_username = %r
     )
 
     while True:
-        config_loc = ask(QUESTION("Where should this configuration be saved?"), default=config_loc)
+        config_loc = ask(
+            QUESTION("Where should this configuration be saved?"), default=config_loc
+        )
 
         requested_path = os.path.realpath(config_loc)
-        split_data_path = os.path.realpath(os.path.join(cs_data_root, "courses")).split(os.sep)
+        split_data_path = os.path.realpath(os.path.join(cs_data_root, "courses")).split(
+            os.sep
+        )
         conflict = False
 
         ancestor = ""
@@ -226,13 +242,24 @@ cs_dummy_username = %r
 
         if os.path.isdir(config_loc) or conflict:
             proposed_file = os.path.join(config_loc, "config.py")
-            if yesno(DIR(config_loc) + " is a directory. " + QUESTION("OK to save the configuration as ") + FILE(proposed_file) + QUESTION("?")):
+            if yesno(
+                DIR(config_loc)
+                + " is a directory. "
+                + QUESTION("OK to save the configuration as ")
+                + FILE(proposed_file)
+                + QUESTION("?")
+            ):
                 config_loc = proposed_file
                 break
         else:
             break
 
-    if yesno("This configuration will be written to " + FILE(config_loc) + ". " + QUESTION("OK?")):
+    if yesno(
+        "This configuration will be written to "
+        + FILE(config_loc)
+        + ". "
+        + QUESTION("OK?")
+    ):
         os.makedirs(os.path.join(cs_data_root, "courses"), exist_ok=True)
 
         os.makedirs(os.path.dirname(config_loc), exist_ok=True)
@@ -257,7 +284,8 @@ cs_dummy_username = %r
         )
         print(cs_logo)
         print(
-            OKAY("Setup is complete.") + "  You can now start CAT-SOOP by running:\n    catsoop runserver"
+            OKAY("Setup is complete.")
+            + "  You can now start CAT-SOOP by running:\n    catsoop runserver"
         )
     else:
         print(WARNING("Configuration not written.  Exiting."))
@@ -282,9 +310,11 @@ def configure_production():
     )
     if os.path.isfile(config_loc):
         res = yesno(
-            ("CAT-SOOP configuration at %s already exists.\n"
-            "Continuing will overwrite it.\n" % FILE(config_loc)) +\
-            QUESTION("Do you wish to continue?"),
+            (
+                "CAT-SOOP configuration at %s already exists.\n"
+                "Continuing will overwrite it.\n" % FILE(config_loc)
+            )
+            + QUESTION("Do you wish to continue?"),
             default="N",
         )
         if not res:
@@ -293,11 +323,10 @@ def configure_production():
 
     # determine cs_data_root and logging info (encryption, etc)
 
-    default_log_dir = os.path.abspath(
-        os.path.join(default_storage_location, "catsoop")
-    )
+    default_log_dir = os.path.abspath(os.path.join(default_storage_location, "catsoop"))
     cs_data_root = ask(
-        QUESTION("Where should CAT-SOOP store its logs?")+"\n(this directory will be created if it does not exist)",
+        QUESTION("Where should CAT-SOOP store its logs?")
+        + "\n(this directory will be created if it does not exist)",
         transform=lambda x: os.path.abspath(os.path.expanduser(x)),
         default=default_log_dir,
     )
@@ -318,14 +347,15 @@ def configure_production():
         "student information, you are strongly encouraged to "
         "encrypt the logs if you are running CAT-SOOP on a "
         "machine where logs are not already encrypted through "
-        "some other means.\n" +\
-        QUESTION("Should CAT-SOOP encrypt its logs?"),
+        "some other means.\n" + QUESTION("Should CAT-SOOP encrypt its logs?"),
         default="Y",
     )
 
     if should_encrypt:
         is_restore = yesno(
-            QUESTION("Will this instance use an encryption password/salt from a previous installation?"),
+            QUESTION(
+                "Will this instance use an encryption password/salt from a previous installation?"
+            ),
             default="N",
         )
 
@@ -359,7 +389,9 @@ def configure_production():
                     100000,
                 )
                 if restore_passphrase_hash != passphrase_hash:
-                    print(WARNING("Passphrase is not valid for this backup; try again."))
+                    print(
+                        WARNING("Passphrase is not valid for this backup; try again.")
+                    )
                     print()
                 else:
                     break
@@ -401,7 +433,8 @@ def configure_production():
         )
 
     should_compress = yesno(
-        QUESTION("Should CAT-SOOP compress its logs?"), default="Y" if should_encrypt else "N"
+        QUESTION("Should CAT-SOOP compress its logs?"),
+        default="Y" if should_encrypt else "N",
     )
 
     # Web Stuff
@@ -411,7 +444,9 @@ def configure_production():
         transform=lambda x: x.rstrip("/"),
     )
     cs_checker_websocket = ask(
-        QUESTION("What is the public-facing URL associated with the checker's websocket connection?"),
+        QUESTION(
+            "What is the public-facing URL associated with the checker's websocket connection?"
+        ),
         default="ws://localhost:6011",
         transform=lambda x: x.rstrip("/"),
     )
@@ -433,10 +468,14 @@ cs_checker_websocket = %r
     )
 
     while True:
-        config_loc = ask(QUESTION("Where should this configuration be saved?"), default=config_loc)
+        config_loc = ask(
+            QUESTION("Where should this configuration be saved?"), default=config_loc
+        )
 
         requested_path = os.path.realpath(config_loc)
-        split_data_path = os.path.realpath(os.path.join(cs_data_root, "courses")).split(os.sep)
+        split_data_path = os.path.realpath(os.path.join(cs_data_root, "courses")).split(
+            os.sep
+        )
         conflict = False
 
         ancestor = ""
@@ -447,13 +486,24 @@ cs_checker_websocket = %r
 
         if os.path.isdir(config_loc) or conflict:
             proposed_file = os.path.join(config_loc, "config.py")
-            if yesno(DIR(config_loc) + " is a directory. " + QUESTION("OK to save the configuration as ") + FILE(proposed_file) + QUESTION("?")):
+            if yesno(
+                DIR(config_loc)
+                + " is a directory. "
+                + QUESTION("OK to save the configuration as ")
+                + FILE(proposed_file)
+                + QUESTION("?")
+            ):
                 config_loc = proposed_file
                 break
         else:
             break
 
-    if yesno("This configuration will be written to " + FILE(config_loc) + ". " + QUESTION("OK?")):
+    if yesno(
+        "This configuration will be written to "
+        + FILE(config_loc)
+        + ". "
+        + QUESTION("OK?")
+    ):
         os.makedirs(os.path.join(cs_data_root, "courses"), exist_ok=True)
 
         os.makedirs(os.path.dirname(config_loc), exist_ok=True)
@@ -484,12 +534,15 @@ cs_checker_websocket = %r
         )
         print(cs_logo)
         print(
-            OKAY("Setup is complete.") + "  You can now start CAT-SOOP by running:\n    catsoop runserver"
+            OKAY("Setup is complete.")
+            + "  You can now start CAT-SOOP by running:\n    catsoop runserver"
         )
         print()
         if should_encrypt and not is_restore:
             print(
-                WARNING("Please save the following two pieces of information, which are necessary in case you need another CAT-SOOP instance to read logs encrypted by this instance.")
+                WARNING(
+                    "Please save the following two pieces of information, which are necessary in case you need another CAT-SOOP instance to read logs encrypted by this instance."
+                )
             )
             print()
             print("Encryption salt:", cs_log_encryption_salt_printable)

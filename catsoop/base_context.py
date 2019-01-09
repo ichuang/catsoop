@@ -422,6 +422,4 @@ if not os.path.isdir(cs_data_root):
     _cs_config_errors.append("cs_data_root must be an existing directory")
 else:
     if not os.access(cs_data_root, os.W_OK):
-        _cs_config_errors.append(
-            "the web server must be able to write to cs_data_root"
-        )
+        _cs_config_errors.append("the web server must be able to write to cs_data_root")

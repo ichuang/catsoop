@@ -76,8 +76,7 @@ now = csm_time.from_detailed_timestamp(cs_timestamp)
 now = csm_time.long_timestamp(now).replace("; ", " at ")
 if course is None:
     outfile.writestr(
-        "catsoop-src/README.catsoop-source",
-        SOURCE_README_NOCOURSE % (cs_url_root, now),
+        "catsoop-src/README.catsoop-source", SOURCE_README_NOCOURSE % (cs_url_root, now)
     )
 else:
     ctx = csm_loader.spoof_early_load([course])
