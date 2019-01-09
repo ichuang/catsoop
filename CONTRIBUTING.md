@@ -1,4 +1,6 @@
-More contributors are always welcome!  Please see below for some guidelines, and please don't hesitate to reach out if you have questions.
+# Contributing to CAT-SOOP
+
+Contributions in any form are always welcome!  Please see below for some guidelines, and please don't hesitate to reach out if you have questions.
 
 #### Do you have a question about using CAT-SOOP?
 
