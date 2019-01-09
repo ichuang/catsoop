@@ -28,14 +28,11 @@ from ..test import CATSOOPTest
 
 
 def math(x):
-    return '<span class="cs_math_to_render">%s</span>' % (x,)
+    return "<math>%s</math>" % (x,)
 
 
 def dmath(x):
-    return (
-        '<div class="cs_displaymath cs_math_to_render" style="text-align:center;padding-bottom:10px;">%s</div>'
-        % (x,)
-    )
+    return "<displaymath>%s</displaymath>" % (x,)
 
 
 class TestMarkdownMath(CATSOOPTest):
@@ -64,26 +61,22 @@ class TestMarkdownMath(CATSOOPTest):
         ]
 
         for i, o in pairs:
-            self.assertEqual(language._md_format_string(self.ctx, i), o)
+            self.assertEqual(language._md_format_string(self.ctx, i, False), o)
 
     def test_display_math(self):
+        self.maxDiff = 10000
+        _ft = r"x_5[n]= \cases{\left({1\over2}\right)^{n/2}&$n=0, 2, 4, 6, 8, \dots, \infty$\cr0&otherwise}"
         pairs = [
             (r"If $$x$$ is 2", r"If %s is 2" % (dmath("x"))),
             (
-                r"If $x$ is $\frac{2}{3}$",
-                r"If %s is %s" % (math("x"), math(r"\frac{2}{3}")),
-            ),
-            (r"If $x$ is $\frac{2}{3}", r"If %s is $\frac{2}{3}" % (math("x"),)),
-            (r"If \$2.38 is $x$", r"If $2.38 is %s" % (math("x"),)),
-            (
-                r"If $x$ is \$2.38, but $y$ is $\$3.47$",
-                r"If %s is $2.38, but %s is %s"
-                % (math("x"), math("y"), math(r"\$3.47")),
+                r"If $$A$$ is $\frac{2}{3}$ and $x_5[n]$ is given by: $$%s$$" % _ft,
+                r"If %s is %s and %s is given by: %s"
+                % (dmath("A"), math(r"\frac{2}{3}"), math("x_5[n]"), dmath(_ft)),
             ),
         ]
 
         for i, o in pairs:
-            self.assertEqual(language._md_format_string(self.ctx, i), o)
+            self.assertEqual(language._md_format_string(self.ctx, i, False), o)
 
 
 if __name__ == "__main__":
