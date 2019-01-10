@@ -53,7 +53,9 @@ def run_code(context, code, options):
     with open(os.path.join(tmpdir, fname), "w") as fileobj:
         fileobj.write(code.replace("\r\n", "\n"))
 
-    interp = context.get("csq_python_interpreter", context.get("cs_python_interpreter", 'python3'))
+    interp = context.get(
+        "csq_python_interpreter", context.get("cs_python_interpreter", "python3")
+    )
 
     args = ["bwrap"]
     supplied_args = context.get("csq_bwrap_arguments", None)

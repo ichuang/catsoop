@@ -60,7 +60,7 @@ INVALID_SUBMISSION_MSG = (
 def handle_submission(submissions, **info):
     py3k = info.get("csq_python3", True)
     sub = submissions[info["csq_name"]].strip()
-    LOGGER.error('[qtypes.pythonic] submission: %r' % sub)
+    LOGGER.error("[qtypes.pythonic] submission: %r" % sub)
 
     inp = info["csq_input_check"](sub)
     if inp is not None:
@@ -95,7 +95,10 @@ def handle_submission(submissions, **info):
         opts = info.get("csq_options", {})
         LOGGER.debug("[qtypes.pythonic] code to run:\n%s" % code)
         fname, out, err = info["sandbox_run_code"](info, code, opts)
-        LOGGER.debug("[qtypes.pythonic] results:\nfname: %r\nout: %r\nerr: %r" % (fname, out, err))
+        LOGGER.debug(
+            "[qtypes.pythonic] results:\nfname: %r\nout: %r\nerr: %r"
+            % (fname, out, err)
+        )
         sub = eval(out, info)
     except Exception as err:
         LOGGER.error("[qtypes.pythonic] invalid submission: %r" % sub)
