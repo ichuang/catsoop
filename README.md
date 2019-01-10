@@ -12,11 +12,11 @@
 
 * Web Site: https://catsoop.mit.edu
 
-* Clone Repository: `git clone https://catsoop.mit.edu/git/catsoop/catsoop.git`
+* Clone Repository: `git clone https://hz.mit.edu/git/catsoop/catsoop.git`
 
-* Repository Web Access: https://catsoop.mit.edu/git/catsoop/catsoop
+* Repository Web Access: https://hz.mit.edu/git/catsoop/catsoop
 
-* Bug Tracker: https://catsoop.mit.edu/git/catsoop/catsoop/issues
+* Bug Tracker: https://hz.mit.edu/git/catsoop/catsoop/issues
 
 * IRC: `#catsoop` on OFTC (`irc.oftc.net`)
 
