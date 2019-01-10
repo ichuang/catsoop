@@ -88,6 +88,19 @@ def get_auth_type_by_name(context, auth_type):
 
     return e
 
+def generate_api_token_for_user(user_info):
+    '''
+    Generate an API token for a given user (specified by the user_info dict), if needed.
+    Add the api token to the dict, if a new one is generated.
+    '''
+    if "username" in user_info:
+        # successful login.  check for existing token
+        tok = cslog.most_recent("_api_users", [], user_info["username"], None)
+        if tok is None:
+            # if no token found, create a new one.
+            tok = api.initialize_api_token(context, user_info)
+        user_info["api_token"] = tok
+    
 
 def get_logged_in_user(context):
     """
@@ -116,6 +129,7 @@ def get_logged_in_user(context):
         LOGGER.info(
             "[auth] Allowing in LTI user with cs_user_info=%s" % context["cs_user_info"]
         )
+        generate_api_token_for_user(context["cs_user_info"])
         return context["cs_user_info"]
 
     # if an API token was specified, use the associated information and move on
@@ -126,14 +140,7 @@ def get_logged_in_user(context):
         return api_user
 
     regular_user = get_auth_type(context)["get_logged_in_user"](context)
-    if "username" in regular_user:
-        # successful login.  check for existing token
-        tok = cslog.most_recent("_api_users", [], regular_user["username"], None)
-        if tok is None:
-            # if no token found, create a new one.
-            tok = api.initialize_api_token(context, regular_user)
-        regular_user["api_token"] = tok
-
+    generate_api_token_for_user(regular_user)
     return regular_user
 
 
