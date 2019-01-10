@@ -75,7 +75,7 @@ def run_code(context, code, options):
     )
 
     interp = context.get(
-        "csq_python_interpreter", context.get("cs_python_interpreter", sys.executable)
+        "csq_python_interpreter", context.get("cs_python_interpreter", "python3")
     )
 
     try:

@@ -307,7 +307,7 @@ In `'db'` mode, CAT-SOOP will store the contents of the files directly in the
 CAT-SOOP logs.
 """
 
-cs_python_intepreter = sys.executable
+cs_python_intepreter = "python3"
 """
 Path to python interpreter used for sandboxed python execution of checking code
 """
