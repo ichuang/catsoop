@@ -134,7 +134,7 @@ def main():
 def startup_catsoop(config_loc=None):
     print(cs_logo)
     print("Using base_dir=%s" % base_dir)
-    config_loc = config_loc or os.path.join(base_dir, "catsoop", "config.py")
+    config_loc = config_loc or os.environ.get('CATSOOP_CONFIG', os.path.join(base_dir, "catsoop", "config.py"))
     if not os.path.isfile(config_loc):
         print(
             "%s does not exist.  Please configure CAT-SOOP first, either by editing that file manually, or by running setup_catsoop.py"
