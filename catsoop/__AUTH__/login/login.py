@@ -298,7 +298,7 @@ def get_logged_in_user(context):
             # find the associated username, if any
             # TODO: implement caching of some kind so this isn't so slow/involved
             data_root = context.get("cs_data_root", base_context.cs_data_root)
-            global_log_dir = os.path.join(data_root, "__LOGS__")
+            global_log_dir = os.path.join(data_root, "_logs")
             for d in os.listdir(global_log_dir):
                 if not d.endswith(".db"):
                     continue

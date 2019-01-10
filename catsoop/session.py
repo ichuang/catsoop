@@ -48,7 +48,7 @@ Number of seconds since last action to keep a session as valid.
 Defaults to 48 hours.
 """
 
-SESSION_DIR = os.path.join(base_context.cs_data_root, "__SESSIONS__")
+SESSION_DIR = os.path.join(base_context.cs_data_root, "_sessions")
 """
 The directory where sessions will be stored.
 """
@@ -136,7 +136,7 @@ def get_session_data(context, sid):
     """
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
-    with cslog.log_lock(fname) as lock:
+    with cslog.log_lock(["_sessions", sid]) as lock:
         try:
             with open(fname, "rb") as f:
                 out = cslog.unprep(f.read())
@@ -159,6 +159,6 @@ def set_session_data(context, sid, data):
     """
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
-    with cslog.log_lock(fname) as lock:
+    with cslog.log_lock(["_sessions", sid]) as lock:
         with open(fname, "wb") as f:
             f.write(cslog.prep(data))

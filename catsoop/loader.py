@@ -62,7 +62,7 @@ def get_file_data(context, form, name):
     if isinstance(data, list):
         if up == "file":
             path = os.path.join(
-                context["cs_data_root"], "__LOGS__", "_uploads", data[1], "content"
+                context["cs_data_root"], "_logs", "_uploads", data[1], "content"
             )
             with open(path, "rb") as f:
                 data = f.read()

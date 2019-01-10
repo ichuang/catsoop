@@ -11,7 +11,7 @@ sys.path.append(catsoop_root)
 import catsoop.cslog as cslog
 import catsoop.base_context as bc
 
-results = os.path.join(bc.cs_data_root, "__LOGS__", "_checker", "results")
+results = os.path.join(bc.cs_data_root, "_logs", "_checker", "results")
 for root, dirs, files in os.walk(results):
     dirs.sort()
     for fname in files:

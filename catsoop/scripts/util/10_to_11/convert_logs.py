@@ -12,7 +12,7 @@ sys.path.append(catsoop_root)
 import catsoop.cslog as cslog
 import catsoop.base_context as bc
 
-logroot = os.path.join(bc.cs_data_root, "__LOGS__")
+logroot = os.path.join(bc.cs_data_root, "_logs")
 for i in os.listdir(logroot):
     if i.endswith(".db") and i != "_queue.db" and i != "_checker.db":
         s = sqlite3.connect(os.path.join(logroot, i))
@@ -44,7 +44,7 @@ for i in os.listdir(courseroot):
                     cslog.update_log(n, json.loads(row[1]), row[2], json.loads(row[3]))
 
 
-CHECKER_DB_LOC = os.path.join(bc.cs_data_root, "__LOGS__", "_checker")
+CHECKER_DB_LOC = os.path.join(bc.cs_data_root, "_logs", "_checker")
 RUNNING = os.path.join(CHECKER_DB_LOC, "running")
 QUEUED = os.path.join(CHECKER_DB_LOC, "queued")
 RESULTS = os.path.join(CHECKER_DB_LOC, "results")

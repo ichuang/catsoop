@@ -24,6 +24,12 @@ _Work toward next release.  Currently under development._
 
 * CAT-SOOP now exists as a proper Python package.
 
+* Moved file locks to a subdirectory of `cs_data_root`.
+
+* Sessions are now stored in `cs_data_root/_sessions` instead of `cs_data_root/__SESSIONS__`.
+
+* Logs are now stored in `cs_data_root/_logs` instead of `cs_data_root/__LOGS__`.
+
 #### DEPRECATED:
 
 #### REMOVED:

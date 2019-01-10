@@ -34,6 +34,7 @@ add new Python objects to a log.
 import os
 import re
 import ast
+import sys
 import lzma
 import base64
 import pprint
@@ -107,13 +108,15 @@ _CHARACTER_MAP.update({".": "_.", "_": "__"})
 
 
 def _convert_path(path):
+    path = os.path.realpath(path)
+    data_root = os.path.realpath(base_context.cs_data_root)
+    assert path.startswith(data_root)
+    path = path[len(data_root) :].lstrip(os.sep)
     return ("".join(_CHARACTER_MAP.get(i, i) for i in w) for w in _split_path(path))
 
 
 def log_lock(path):
-    lock_loc = os.path.join(
-        base_context.cs_data_root, "_locks", *_convert_path(path + ".lock")
-    )
+    lock_loc = os.path.join(base_context.cs_data_root, "_locks", *path)
     os.makedirs(os.path.dirname(lock_loc), exist_ok=True)
     return FileLock(lock_loc)
 
@@ -188,7 +191,7 @@ def get_log_filename(db_name, path, logname):
         course = path[0]
         return os.path.join(
             base_context.cs_data_root,
-            "__LOGS__",
+            "_logs",
             "_courses",
             course,
             db_name,
@@ -197,7 +200,7 @@ def get_log_filename(db_name, path, logname):
         )
     else:
         return os.path.join(
-            base_context.cs_data_root, "__LOGS__", db_name, *path, "%s.log" % logname
+            base_context.cs_data_root, "_logs", db_name, *path, "%s.log" % logname
         )
 
 
@@ -231,7 +234,7 @@ def update_log(db_name, path, logname, new, lock=True):
     fname = get_log_filename(db_name, path, logname)
     # get an exclusive lock on this file before making changes
     # look up the separator and the data
-    cm = log_lock(fname) if lock else passthrough()
+    cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm as lock:
         _update_log(fname, new)
 
@@ -262,7 +265,7 @@ def overwrite_log(db_name, path, logname, new, lock=True):
     """
     # get an exclusive lock on this file before making changes
     fname = get_log_filename(db_name, path, logname)
-    cm = log_lock(fname) if lock else passthrough()
+    cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm as l:
         _overwrite_log(fname, new)
 
@@ -270,7 +273,7 @@ def overwrite_log(db_name, path, logname, new, lock=True):
 def _read_log(db_name, path, logname, lock=True):
     fname = get_log_filename(db_name, path, logname)
     # get an exclusive lock on this file before reading it
-    cm = log_lock(fname) if lock else passthrough()
+    cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm as lock:
         try:
             f = open(fname, "rb")
@@ -333,7 +336,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
     if not os.path.isfile(fname):
         return default
     # get an exclusive lock on this file before reading it
-    cm = log_lock(fname) if lock else passthrough()
+    cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm as lock:
         with open(fname, "rb") as f:
             return unprep(f.read().rsplit(sep, 2)[-2])
@@ -349,7 +352,7 @@ def modify_most_recent(
     lock=True,
 ):
     fname = get_log_filename(db_name, path, logname)
-    cm = log_lock(fname) if lock else passthrough()
+    cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm as lock:
         old_val = most_recent(db_name, path, logname, default, lock=False)
         new_val = transform_func(old_val)

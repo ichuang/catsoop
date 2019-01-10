@@ -16,7 +16,7 @@ special_spots = {
     "_score_display": "score_displays",
 }
 
-logroot = os.path.join(bc.cs_data_root, "__LOGS__")
+logroot = os.path.join(bc.cs_data_root, "_logs")
 for root, dirs, files in os.walk(logroot):
     dirs.sort()
     for fn in sorted(files):

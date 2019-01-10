@@ -188,7 +188,7 @@ def read_checker_result(context, magic):
     with open(
         os.path.join(
             context["cs_data_root"],
-            "__LOGS__",
+            "_logs",
             "_checker",
             "results",
             magic[0],

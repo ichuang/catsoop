@@ -41,7 +41,7 @@ import catsoop.dispatch as dispatch
 
 from catsoop.process import set_pdeathsig
 
-CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "__LOGS__", "_checker")
+CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "_logs", "_checker")
 RUNNING = os.path.join(CHECKER_DB_LOC, "running")
 QUEUED = os.path.join(CHECKER_DB_LOC, "queued")
 RESULTS = os.path.join(CHECKER_DB_LOC, "results")
@@ -206,10 +206,10 @@ def do_check(row):
         # then remove from running
         os.unlink(os.path.join(RUNNING, row["magic"]))
         # finally, update the appropriate log
-        lockname = context["csm_cslog"].get_log_filename(
-            row["username"], row["path"], "problemstate"
+        cm = context["csm_cslog"].log_lock(
+            [row["username"], *row["path"], "problemstate"]
         )
-        with context["csm_cslog"].log_lock(lockname + ".lock") as lock:
+        with cm as lock:
             x = context["csm_cslog"].most_recent(
                 row["username"], row["path"], "problemstate", {}, lock=False
             )

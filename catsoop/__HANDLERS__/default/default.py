@@ -66,7 +66,7 @@ def new_entry(context, qname, action):
         f.write(context["csm_cslog"].prep(obj))
     newloc = os.path.join(
         context["cs_data_root"],
-        "__LOGS__",
+        "_logs",
         "_checker",
         "queued",
         "%s_%s" % (time.time(), id_),
@@ -139,7 +139,7 @@ def handle_get_state(context):
             with open(
                 os.path.join(
                     context["cs_data_root"],
-                    "__LOGS__",
+                    "_logs",
                     "_checker",
                     "results",
                     v[0],
@@ -1579,7 +1579,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
     if magic is not None:
         checker_loc = os.path.join(
             context["cs_data_root"],
-            "__LOGS__",
+            "_logs",
             "_checker",
             "results",
             magic[0],
@@ -1920,7 +1920,7 @@ def pre_handle(context):
                     else:
                         _path = context["cs_path_info"]
                     dir_ = os.path.join(
-                        context["cs_data_root"], "__LOGS__", "_uploads", *_path
+                        context["cs_data_root"], "_logs", "_uploads", *_path
                     )
                     os.makedirs(dir_, exist_ok=True)
                     value[0] = (

@@ -35,7 +35,7 @@ import websockets
 
 DEBUG = False
 
-CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "__LOGS__", "_checker")
+CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "_logs", "_checker")
 RUNNING = os.path.join(CHECKER_DB_LOC, "running")
 QUEUED = os.path.join(CHECKER_DB_LOC, "queued")
 RESULTS = os.path.join(CHECKER_DB_LOC, "results")

@@ -53,7 +53,7 @@ def main():
     from catsoop.process import set_pdeathsig
 
     # Make sure the checker database is set up
-    checker_db_loc = os.path.join(base_context.cs_data_root, "__LOGS__", "_checker")
+    checker_db_loc = os.path.join(base_context.cs_data_root, "_logs", "_checker")
 
     for subdir in ("queued", "running", "results"):
         os.makedirs(os.path.join(checker_db_loc, subdir), exist_ok=True)

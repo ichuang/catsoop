@@ -177,7 +177,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
             "%s.py" % username,
         )
     else:
-        fname = os.path.join(context["cs_data_root"], "__LOGS__", username)
+        fname = os.path.join(context["cs_data_root"], "_logs", username)
     if os.path.exists(fname):
         with open(fname) as f:
             text = f.read()

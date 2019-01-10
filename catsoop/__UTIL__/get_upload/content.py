@@ -35,7 +35,7 @@ if error is None:
 
 if error is None:
     # try:
-    upload_dir = os.path.realpath(os.path.join(cs_data_root, "__LOGS__", "_uploads"))
+    upload_dir = os.path.realpath(os.path.join(cs_data_root, "_logs", "_uploads"))
     loc = os.path.realpath(os.path.join(upload_dir, *path, fname))
     assert loc.startswith(upload_dir)
     with open(os.path.join(loc, "info"), "rb") as f:

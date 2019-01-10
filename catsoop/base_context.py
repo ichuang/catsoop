@@ -301,7 +301,7 @@ Special: defines how CAT-SOOP should handle file uploads.  Must be `'file'` or
 `'db'`.
 
 In `'file'` mode, CAT-SOOP will store the uploaded files on disk, under
-`<cs_data_root>/__LOGS__/_uploads`.
+`<cs_data_root>/_logs/_uploads`.
 
 In `'db'` mode, CAT-SOOP will store the contents of the files directly in the
 CAT-SOOP logs.
