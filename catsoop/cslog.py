@@ -111,7 +111,9 @@ def _convert_path(path):
 
 
 def log_lock(path):
-    lock_loc = os.path.join("/tmp/catsoop_locks", *_convert_path(path + ".lock"))
+    lock_loc = os.path.join(
+        base_context.cs_data_root, "_locks", *_convert_path(path + ".lock")
+    )
     os.makedirs(os.path.dirname(lock_loc), exist_ok=True)
     return FileLock(lock_loc)
 
