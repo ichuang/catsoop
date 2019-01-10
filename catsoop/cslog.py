@@ -103,18 +103,6 @@ def _split_path(path, sofar=[]):
         return _split_path(folder, sofar + [path])
 
 
-_CHARACTER_MAP = {chr(o): "_%s" % chr(o + 32) for o in range(65, 91)}
-_CHARACTER_MAP.update({".": "_.", "_": "__"})
-
-
-def _convert_path(path):
-    path = os.path.realpath(path)
-    data_root = os.path.realpath(base_context.cs_data_root)
-    assert path.startswith(data_root)
-    path = path[len(data_root) :].lstrip(os.sep)
-    return ("".join(_CHARACTER_MAP.get(i, i) for i in w) for w in _split_path(path))
-
-
 def log_lock(path):
     lock_loc = os.path.join(base_context.cs_data_root, "_locks", *path)
     os.makedirs(os.path.dirname(lock_loc), exist_ok=True)
