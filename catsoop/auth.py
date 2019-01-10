@@ -99,6 +99,7 @@ def generate_api_token_for_user(user_info):
         if tok is None:
             # if no token found, create a new one.
             tok = api.initialize_api_token(context, user_info)
+            LOGGER.info("[auth] Initializing new API token for %s" % user_info)
         user_info["api_token"] = tok
     
 
@@ -125,12 +126,11 @@ def get_logged_in_user(context):
     # handle auto-login for LTI users
     lti_data = context["cs_session_data"].get("lti_data")
     if lti_data:
-        context["cs_user_info"] = lti_data.get("cs_user_info")
-        LOGGER.info(
-            "[auth] Allowing in LTI user with cs_user_info=%s" % context["cs_user_info"]
-        )
-        generate_api_token_for_user(context["cs_user_info"])
-        return context["cs_user_info"]
+        cui = lti_data.get("cs_user_info")
+        context["cs_user_info"] = cui
+        generate_api_token_for_user(cui)
+        LOGGER.info("[auth] Allowing in LTI user with cs_user_info=%s" % cui)
+        return cui
 
     # if an API token was specified, use the associated information and move on
     # this has the side-effect of renewing that token (moving back the
