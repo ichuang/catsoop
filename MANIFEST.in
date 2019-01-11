@@ -4,3 +4,4 @@ recursive-include catsoop/__QTYPES__ *
 recursive-include catsoop/__STATIC__ *
 recursive-include catsoop/__UTIL__ *
 include requirements.txt
+include catsoop/dev.githash

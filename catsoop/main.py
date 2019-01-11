@@ -28,6 +28,15 @@ def command_line_interface(args=None, arglist=None):
     """
 
     version = pkg_resources.require("catsoop")[0].version
+    if "dev" in version:
+        gitfile = os.path.join(os.path.dirname(__file__), "dev.githash")
+        if os.path.isfile(gitfile):
+            with open(gitfile, "r") as f:
+                try:
+                    hash_, date = f.read().split("|")
+                    version = "%s\nGit revision: %s\n%s" % (version, hash_, date)
+                except:
+                    pass
 
     help_text = """
 Example commands:
@@ -53,6 +62,7 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
     default_config_location = os.environ.get(
         "XDG_CONFIG_HOME", os.path.expanduser(os.path.join("~", ".config"))
     )
+    parser.add_argument("--version", action="version", version="catsoop v%s" % version)
     default_config_location = os.path.abspath(
         os.path.join(default_config_location, "catsoop", "config.py")
     )
