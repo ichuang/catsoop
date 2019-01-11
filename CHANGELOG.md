@@ -56,6 +56,8 @@ _Work toward next release.  Currently under development._
 
 * Fixed an issue with the Python sandbox's `sandbox_run_code` by making it respect `csq_sandbox_options`.
 
+* Fixed bugs with multiple functions in the `catsoop.check` module.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
