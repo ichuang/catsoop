@@ -18,12 +18,8 @@
 LTI Tool Provider interface
 """
 
-import os
 import uuid
-import string
 import urllib
-import random
-import hashlib
 import pylti.common
 
 from lxml import etree

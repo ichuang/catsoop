@@ -17,13 +17,8 @@
 Tools for controlling processes
 """
 
-import os
-import time
 import ctypes
 import signal
-import threading
-import subprocess
-import multiprocessing
 
 _nodoc = {"i"}
 

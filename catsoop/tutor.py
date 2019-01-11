@@ -18,11 +18,8 @@ Utilities for managing courses (questions, handlers, statistics, etc)
 """
 
 import os
-import re
-import json
 import random
 import string
-import sqlite3
 import importlib
 import collections
 
@@ -511,7 +508,7 @@ def get_due_date(context, do_extensions=False):
         if do_extensions:
             extensions = context["cs_user_info"].get("extensions", [])
             for ex in extensions:
-                if all(i == j for i, j in zip(e[0], path)):
+                if all(i == j for i, j in zip(ex[0], context['cs_path_info'][1:])):
                     due += timedelta(days=ex[1])
     except:
         pass
