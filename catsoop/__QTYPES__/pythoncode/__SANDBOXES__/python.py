@@ -40,7 +40,7 @@ def safe_close(fd):
 
 
 def run_code(context, code, options):
-    if options.get('do_rlimits', True):
+    if options.get("do_rlimits", True):
         rlimits = [(resource.RLIMIT_NPROC, (0, 0))]
         for key, val in _resource_mapper.items():
             if key == "MEMORY" and options[key] <= 0:
