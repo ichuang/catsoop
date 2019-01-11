@@ -12,6 +12,8 @@ _Work toward next release.  Currently under development._
 
 * Added `cs_debug_logger`, an instance of `logging.Logger`, for debugging (courtesy of Ike Chuang).
 
+* Added `'do_rlimits'` key to the `'python'` sandbox, which can be used to disable setting resource limits (workaround for Cygwin issue).
+
 #### CHANGED:
 
 * Updated KaTeX to version 0.10.0.
@@ -51,6 +53,8 @@ _Work toward next release.  Currently under development._
 * Fixed a bug whereby non-JSON-serializable objects in someone's `__USERS__` file would break the `get_user_information` API endpoint.
 
 * Fixed an issue with `expression` question types, whereby if all values were specified in `csq_names`, the question would use the specified values, likely `int`s or `float`s (instead of `mpmath.mpf`) to represent them, occasionally causing corect answers to be marked as incorrect due to a loss of precision.
+
+* Fixed an issue with the Python sandbox's `sandbox_run_code` by making it respect `csq_sandbox_options`.
 
 #### SECURITY:
 
