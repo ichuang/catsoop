@@ -1,5 +1,11 @@
 pipeline:
-  build:
+  style:
+    image: python:3.7
+    commands:
+      - pip3 install black
+      - black --check .
+
+  test:
     image: python:3.7
     commands:
       - pip3 install -r requirements.txt
