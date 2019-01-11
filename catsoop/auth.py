@@ -190,6 +190,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
         with open(fname) as f:
             text = f.read()
         exec(text, into)
+        loader.clean_builtins(into)
         LOGGER.warning("[auth] loaded from %s user=%s" % (fname, into))
     else:
         LOGGER.error("[auth] missing user definition file %s" % fname)
@@ -212,8 +213,6 @@ def _get_user_information(context, into, course, username, do_preload=False):
                 if i in orig_p and i not in new_p and lesser in spoofed_p:
                     new_p.add(lesser)
             into["permissions"] = new_p
-
-    loader.clean_builtins(into)
 
     # impersonation
     if ("as" in context.get("cs_form", {})) and ("real_user" not in into):
