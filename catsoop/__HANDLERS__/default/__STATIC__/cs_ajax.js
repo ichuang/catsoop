@@ -278,6 +278,18 @@ catsoop.modal = function(header, text, input, cancel){
             e.stopPropagation();
         });
 
+	if ('parentIFrame' in window) {
+	    var irr = function(x){	// receive parent page position info, including scrollTop
+		console.log(x);
+		var top = x.scrollTop - x.clientHeight + 400;
+		content.style.marginTop = String(top) + "px";
+		content.style.marginLeft = "auto";
+		content.style.marginRight = "auto";
+		content.style.marginBottom = "auto";
+	    }
+	    window.parentIFrame.getPageInfo(irr);
+	}
+
         var mbody = document.createElement('div');
         mbody.classList = ['modal-body'];
 
