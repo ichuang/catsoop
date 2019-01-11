@@ -1,5 +1,3 @@
-[![Build Status](https://ci.smatz.net/api/badges/catsoop/catsoop/status.svg)](https://ci.smatz.net/catsoop/catsoop)
-
 ```nohighlight
 \
 /    /\__/\
@@ -8,6 +6,10 @@
  |_ |_ |_ |_
 ```
 
+[![Build Status](https://ci.smatz.net/api/badges/catsoop/catsoop/status.svg)](https://ci.smatz.net/catsoop/catsoop)
+[![PyPI: Latest Version](https://img.shields.io/pypi/v/catsoop.svg)](https://pypi.org/project/catsoop/)
+![Supported Python Versions](https://img.shields.io/pypi/pyversions/catsoop.svg)
+[![License: AGPLv3+](https://img.shields.io/pypi/l/catsoop.svg)](https://hz.mit.edu/git/catsoop/catsoop/raw/branch/master/LICENSE)
 # CAT-SOOP
 
 * Web Site: https://catsoop.mit.edu
