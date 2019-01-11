@@ -8,4 +8,5 @@ pipeline:
     image: python:3.7
     commands:
       - pip3 install black
+      - rm -rf .eggs
       - black --check .
