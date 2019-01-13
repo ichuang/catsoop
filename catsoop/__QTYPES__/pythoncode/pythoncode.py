@@ -76,6 +76,7 @@ defaults = {
     "csq_rows": 14,
     "csq_font_size": 16,
     "csq_always_show_tests": False,
+    "csq_test_defaults": {},
 }
 
 test_defaults = {
@@ -90,7 +91,7 @@ test_defaults = {
     "grade": True,
     "show_description": True,
     "show_code": True,
-    "check_function": lambda sub, soln: (sub == soln != "") * 1.0,
+    "check_function": lambda sub, soln: (sub["result"] == soln["result"] != ""),
     "transform_output": lambda x: "<tt>%s</tt>" % (html_format(x),),
     "sandbox_options": {},
 }
@@ -112,6 +113,7 @@ def total_test_points(**info):
     info["csq_tests"] = []
     for i in bak:
         info["csq_tests"].append(dict(test_defaults))
+        info["csq_tests"][-1].update(info["csq_test_defaults"])
         info["csq_tests"][-1].update(i)
     return sum(i["npoints"] for i in info["csq_tests"])
 
@@ -205,6 +207,7 @@ def handle_submission(submissions, **info):
         }
     tests = [dict(test_defaults) for i in info["csq_tests"]]
     for (i, j) in zip(tests, info["csq_tests"]):
+        i.update(info["csq_test_defaults"])
         i.update(j)
     show_tests = [i for i in tests if i["include"]]
     if len(show_tests) > 0:
@@ -262,8 +265,11 @@ def handle_submission(submissions, **info):
             html_code = "<br/>".join(i for i in html_code_pieces if i)
             msg += "\nThe test case was:<br/>\n<p><tt>%s</tt></p>" % html_code
 
+        result = {"result": log, "out": out, "err": err}
+        result_s = {"result": log_s, "out": out_s, "err": err_s}
+
         try:
-            percentage = test["check_function"](log, log_s)
+            percentage = test["check_function"](result, result_s)
         except:
             percentage = 0.0
         imfile = None
@@ -279,33 +285,33 @@ def handle_submission(submissions, **info):
         else:
             image = "<img src='%s' />" % imfile
 
-        if log_s != "" and test["show_code"]:  # Our solution ran successfully
+        if result_s["result"] != "" and test["show_code"]:  # Our solution ran successfully
             msg += (
                 "\n<p>Our solution produced the following " "value for <tt>%s</tt>:"
-            ) % test["variable"]
-            m = test["transform_output"](log_s)
+            ) % result_s["result"]
+            m = test["transform_output"](result_s["result"])
             msg += "\n<br/><font color='blue'>%s</font></p>" % m
-        elif log_s == "":
+        elif result_s["result"] == "":
             msg += "\n<p><b>OOPS!</b> Our code produced an error:"
             e = html_format(err_s)
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
 
-        if log != "" and test["show_code"]:
+        if result["result"] != "" and test["show_code"]:
             msg += (
                 "\n<p>Your submission produced the following " "value for <tt>%s</tt>:"
             ) % test["variable"]
-            m = test["transform_output"](log)
+            m = test["transform_output"](result["result"])
             msg += "\n<br/><font color='blue'>%s</font>%s</p>" % (m, image)
-        elif log != "":
+        elif result["result"] != "":
             msg += "\n<center>%s</center>" % (image)
 
-        if out != "" and test["show_code"]:
+        if result["out"] != "" and test["show_code"]:
             msg += "\n<p>Your code produced the following output:"
-            msg += "<br/><pre>%s</pre></p>" % html_format(out)
+            msg += "<br/><pre>%s</pre></p>" % html_format(result["out"])
 
-        if err != "":
+        if result["err"] != "":
             msg += "\n<p>Your submission produced an error:"
-            e = html_format(err)
+            e = html_format(result["err"])
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
             msg += "\n<br/><center>%s</center>" % (image)
 
