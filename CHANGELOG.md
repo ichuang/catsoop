@@ -58,6 +58,8 @@ _Work toward next release.  Currently under development._
 
 * Fixed bugs with multiple functions in the `catsoop.check` module.
 
+* Fixed bug in `cs_ajax.js` related to submitting manual grades.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
