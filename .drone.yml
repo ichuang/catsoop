@@ -9,4 +9,4 @@ pipeline:
     commands:
       - pip3 install black
       - rm -rf .eggs
-      - black --check .
+      - black --check --exclude "\.git|.*_template.py|build/|dist/" .
