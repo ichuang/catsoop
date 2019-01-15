@@ -285,7 +285,9 @@ def handle_submission(submissions, **info):
         else:
             image = "<img src='%s' />" % imfile
 
-        if result_s["result"] != "" and test["show_code"]:  # Our solution ran successfully
+        if (
+            result_s["result"] != "" and test["show_code"]
+        ):  # Our solution ran successfully
             msg += (
                 "\n<p>Our solution produced the following " "value for <tt>%s</tt>:"
             ) % result_s["result"]

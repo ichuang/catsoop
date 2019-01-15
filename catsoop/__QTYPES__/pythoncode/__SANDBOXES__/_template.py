@@ -19,14 +19,15 @@ import time
 
 OPCODE_TRACING_ENABLED = sys.version_info > (3, 7)
 if OPCODE_TRACING_ENABLED and True:  # TODO: Add a flag here for enabling opcode counts
-    def trace_closure(limit=float('inf')):
+
+    def trace_closure(limit=float("inf")):
         executed_opcodes = 0
         limit_reached = False
 
         def tracer(frame, event, arg):
             nonlocal executed_opcodes, limit_reached
             frame.f_trace_opcodes = True
-            if event == 'opcode':
+            if event == "opcode":
                 executed_opcodes += 1
                 if executed_opcodes >= limit:
                     limit_reached = True
@@ -39,33 +40,31 @@ if OPCODE_TRACING_ENABLED and True:  # TODO: Add a flag here for enabling opcode
         def killed():
             return limit_reached
 
-        names = {
-            'tracer': tracer,
-            'get': get,
-            'killed': killed,
-        }
+        names = {"tracer": tracer, "get": get, "killed": killed}
 
         return lambda n: names[n]
 
     tracer = trace_closure()
-    sys.settrace(tracer('tracer'))
+    sys.settrace(tracer("tracer"))
+
 
 class NoAnswerGiven:
     pass
 
+
 results = {}
 start_time = time.time()
 try:
-    import sft as test_module ## TODO: replace sft with module name
-    ans = getattr(test_module, '_catsoop_answer', NoAnswerGiven)
+    import sft as test_module  ## TODO: replace sft with module name
+
+    ans = getattr(test_module, "_catsoop_answer", NoAnswerGiven)
     if ans is not NoAnswerGiven:  # we got a result back
-        results['result'] = ans
+        results["result"] = ans
 finally:
-    results['duration'] = time.time() - start_time
+    results["duration"] = time.time() - start_time
     sys.settrace(None)
     if OPCODE_TRACING_ENABLED:
-        results['opcodes_executed'] = tracer('get')()
-        results['opcode_limit_reached'] = tracer('killed')()
-    print('---')
+        results["opcodes_executed"] = tracer("get")()
+        results["opcode_limit_reached"] = tracer("killed")()
+    print("---")
     print(results)
-
