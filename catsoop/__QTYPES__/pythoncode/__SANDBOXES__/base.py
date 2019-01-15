@@ -31,10 +31,10 @@ def prep_code(code, test, **kwargs):
     # what test we should be running
     code = code.strip()
 
-    if kwargs.get("csq_python3", True):
-        footer = ('print("!LOGOUTPUT(o_O)!")\n' "print(repr(%s))\n") % test["variable"]
+    if test["variable"] is not None:
+        footer = "_catsoop_answer = %s" % test["variable"]
     else:
-        footer = ('print "!LOGOUTPUT(o_O)!"\n' "print repr(%s)\n") % test["variable"]
+        footer = None
 
     code = "\n\n".join(
         (
@@ -51,7 +51,7 @@ def prep_code(code, test, **kwargs):
     return code
 
 
-def sandbox_run_code(context, code, options):
+def sandbox_run_code(context, code, options, count_opcodes=False, opcode_limit=None):
     s = context.get("csq_python_sandbox", "remote")
     sandbox_file = os.path.join(
         context["cs_fs_root"], "__QTYPES__", "pythoncode", "__SANDBOXES__", "%s.py" % s
@@ -62,7 +62,9 @@ def sandbox_run_code(context, code, options):
     opts.update(options)
     sandbox = dict(context)
     _execfile(sandbox_file, sandbox)
-    return sandbox["run_code"](context, code, opts)
+    return sandbox["run_code"](
+        context, code, opts, count_opcodes=count_opcodes, opcode_limit=opcode_limit
+    )
 
 
 def fix_error_msg(fname, err, offset, sub):
@@ -129,11 +131,15 @@ def sandbox_run_test(context, code, test):
     if isinstance(safe, tuple):
         return ("", ("On line %d: " % safe[0]) + safe[1], "")
     fname, out, err = sandbox_run_code(
-        context, prep_code(code, test, **context), options
+        context,
+        prep_code(code, test, **context),
+        options,
+        count_opcodes=test["count_opcodes"],
+        opcode_limit=test["opcode_limit"],
     )
     err = truncate(err, "ERROR OUTPUT")
     err = fix_error_msg(fname, err, context["csq_code_pre"].count("\n") + 2, code)
-    n = out.split("!LOGOUTPUT(o_O)!")
+    n = out.rsplit("---", 1)
     if len(n) == 2:  # should be this
         out, log = n
     elif len(n) == 1:  # code didn't run to completion

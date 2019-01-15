@@ -44,7 +44,7 @@ if OPCODE_TRACING_ENABLED and %(enable_opcode_count)s:
 
         return lambda n: names[n]
 
-    tracer = trace_closure()
+    tracer = trace_closure(limit=float(%(opcode_limit)r))
     sys.settrace(tracer("tracer"))
 
 

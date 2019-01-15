@@ -17,6 +17,7 @@
 import os
 import sys
 import time
+import uuid
 import fcntl
 import shutil
 import hashlib
@@ -39,7 +40,7 @@ def safe_close(fd):
         pass
 
 
-def run_code(context, code, options):
+def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
     if options.get("do_rlimits", True):
         rlimits = [(resource.RLIMIT_NPROC, (0, 0))]
         for key, val in _resource_mapper.items():
@@ -56,11 +57,26 @@ def run_code(context, code, options):
         context["csm_process"].set_pdeathsig()()
 
     tmpdir = context.get("csq_sandbox_dir", "/tmp/sandbox")
-    this_one = hashlib.sha512(
-        ("%s-%s" % (context.get("cs_username", "None"), time.time())).encode()
-    ).hexdigest()
+    this_one = "_%s" % uuid.uuid4().hex
     tmpdir = os.path.join(tmpdir, this_one)
+    with open(
+        os.path.join(
+            context["cs_fs_root"],
+            "__QTYPES__",
+            "pythoncode",
+            "__SANDBOXES__",
+            "_template.py",
+        )
+    ) as f:
+        template = f.read()
+    template %= {
+        "enable_opcode_count": count_opcodes,
+        "test_module": this_one,
+        "opcode_limit": opcode_limit or float("inf"),
+    }
     os.makedirs(tmpdir, 0o777)
+    with open(os.path.join(tmpdir, "run_catsoop_test.py"), "w") as f:
+        f.write(template)
     for f in options["FILES"]:
         typ = f[0].strip().lower()
         if typ == "copy":
@@ -83,7 +99,7 @@ def run_code(context, code, options):
 
     try:
         p = subprocess.Popen(
-            [interp, "-E", "-B", fname],
+            [interp, "-E", "-B", "run_catsoop_test.py"],
             cwd=tmpdir,
             preexec_fn=limiter,
             bufsize=0,

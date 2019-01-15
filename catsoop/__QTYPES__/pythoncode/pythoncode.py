@@ -79,6 +79,17 @@ defaults = {
     "csq_test_defaults": {},
 }
 
+
+class NoResult:
+    pass
+
+
+def _default_check_function(sub, soln):
+    sub = sub["result"].get("result", NoResult)
+    soln = soln["result"].get("result", NoResult)
+    return sub == soln and sub is not NoResult
+
+
 test_defaults = {
     "npoints": 1,
     "code": "",
@@ -92,9 +103,11 @@ test_defaults = {
     "show_description": True,
     "show_code": True,
     "show_stderr": True,
-    "check_function": lambda sub, soln: (sub["result"] == soln["result"] != ""),
+    "check_function": _default_check_function,
     "transform_output": lambda x: "<tt>%s</tt>" % (html_format(x),),
     "sandbox_options": {},
+    "count_opcodes": False,
+    "opcode_limit": None,
 }
 
 
@@ -246,12 +259,19 @@ def handle_submission(submissions, **info):
     count = 1
     for test in info["csq_tests"]:
         out, err, log = info["sandbox_run_test"](info, code, test)
+        try:
+            log = ast.literal_eval(log)
+        except:
+            log = {}
         if "cached_result" in test:
             log_s = repr(test["cached_result"])
             err_s = "Loaded cached result"
         else:
             out_s, err_s, log_s = info["sandbox_run_test"](info, info["csq_soln"], test)
-
+        try:
+            log_s = ast.literal_eval(log_s)
+        except:
+            log_s = {}
         if count != 1:
             msg += "\n\n<p></p><hr/><p></p>\n\n"
         msg += "\n<center><h3>Test %02d</h3>" % count
@@ -266,8 +286,15 @@ def handle_submission(submissions, **info):
             html_code = "<br/>".join(i for i in html_code_pieces if i)
             msg += "\nThe test case was:<br/>\n<p><tt>%s</tt></p>" % html_code
 
-        result = {"result": log, "out": out, "err": err}
-        result_s = {"result": log_s, "out": out_s, "err": err_s}
+        result = {"details": log, "out": out, "err": err}
+        result_s = {"details": log_s, "out": out_s, "err": err_s}
+        if test["variable"] is not None:
+            if "result" in log:
+                result["result"] = log["result"]
+                del log["result"]
+            if "result" in log_s:
+                result_s["result"] = log_s["result"]
+                del log_s["result"]
 
         try:
             percentage = test["check_function"](result, result_s)
@@ -287,26 +314,30 @@ def handle_submission(submissions, **info):
             image = "<img src='%s' />" % imfile
 
         if (
-            result_s["result"] != "" and test["show_code"]
+            "result" in result_s and test["show_code"] and test["variable"] is not None
         ):  # Our solution ran successfully
             msg += (
-                "\n<p>Our solution produced the following " "value for <tt>%s</tt>:"
-            ) % result_s["result"]
+                "\n<p>Our solution produced the following value for <tt>%s</tt>:"
+            ) % test["variable"]
             m = test["transform_output"](result_s["result"])
             msg += "\n<br/><font color='blue'>%s</font></p>" % m
-        elif result_s["result"] == "":
+        elif result_s["result"] == {} or result_s["err"] != "":
             msg += "\n<p><b>OOPS!</b> Our code produced an error:"
-            e = html_format(err_s)
+            e = html_format(result_s["err"])
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
 
-        if result["result"] != "" and test["show_code"]:
+        if "result" in result and test["show_code"] and test["variable"] is not None:
             msg += (
-                "\n<p>Your submission produced the following " "value for <tt>%s</tt>:"
+                "\n<p>Your submission produced the following value for <tt>%s</tt>:"
             ) % test["variable"]
             m = test["transform_output"](result["result"])
             msg += "\n<br/><font color='blue'>%s</font>%s</p>" % (m, image)
-        elif result["result"] != "":
+        elif result["result"] != {}:
             msg += "\n<center>%s</center>" % (image)
+
+        if result_s["out"] != "" and test["show_code"]:
+            msg += "\n<p>Our code produced the following output:"
+            msg += "<br/><pre>%s</pre></p>" % html_format(result_s["out"])
 
         if result["out"] != "" and test["show_code"]:
             msg += "\n<p>Your code produced the following output:"
