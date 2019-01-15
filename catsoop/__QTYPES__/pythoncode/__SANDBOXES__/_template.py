@@ -49,7 +49,6 @@ if OPCODE_TRACING_ENABLED:
     sys.settrace(tracer("tracer"))
 
 
-
 class NoAnswerGiven:
     pass
 
