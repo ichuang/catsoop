@@ -91,6 +91,7 @@ test_defaults = {
     "grade": True,
     "show_description": True,
     "show_code": True,
+    "show_stderr": True,
     "check_function": lambda sub, soln: (sub["result"] == soln["result"] != ""),
     "transform_output": lambda x: "<tt>%s</tt>" % (html_format(x),),
     "sandbox_options": {},
@@ -311,7 +312,7 @@ def handle_submission(submissions, **info):
             msg += "\n<p>Your code produced the following output:"
             msg += "<br/><pre>%s</pre></p>" % html_format(result["out"])
 
-        if result["err"] != "":
+        if result["err"] != "" and test["show_stderr"]:
             msg += "\n<p>Your submission produced an error:"
             e = html_format(result["err"])
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
