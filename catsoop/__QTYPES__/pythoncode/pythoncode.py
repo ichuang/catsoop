@@ -236,6 +236,7 @@ def handle_submission(submissions, **info):
     info["csq_tests"] = []
     for i in bak:
         new = dict(test_defaults)
+        i.update(info["csq_test_defaults"])
         new.update(i)
         if new["grade"]:
             info["csq_tests"].append(new)
@@ -321,7 +322,7 @@ def handle_submission(submissions, **info):
             ) % test["variable"]
             m = test["transform_output"](result_s["result"])
             msg += "\n<br/><font color='blue'>%s</font></p>" % m
-        elif result_s["result"] == {} or result_s["err"] != "":
+        elif result_s["err"] != "":
             msg += "\n<p><b>OOPS!</b> Our code produced an error:"
             e = html_format(result_s["err"])
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
@@ -332,7 +333,7 @@ def handle_submission(submissions, **info):
             ) % test["variable"]
             m = test["transform_output"](result["result"])
             msg += "\n<br/><font color='blue'>%s</font>%s</p>" % (m, image)
-        elif result["result"] != {}:
+        elif result["details"] != {}:
             msg += "\n<center>%s</center>" % (image)
 
         if result_s["out"] != "" and test["show_code"]:

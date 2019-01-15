@@ -17,8 +17,8 @@
 import sys
 import time
 
-OPCODE_TRACING_ENABLED = sys.version_info > (3, 7)
-if OPCODE_TRACING_ENABLED and %(enable_opcode_count)s:
+OPCODE_TRACING_ENABLED = sys.version_info > (3, 7) and %(enable_opcode_count)s
+if OPCODE_TRACING_ENABLED:
 
     def trace_closure(limit=float("inf")):
         executed_opcodes = 0
@@ -44,8 +44,10 @@ if OPCODE_TRACING_ENABLED and %(enable_opcode_count)s:
 
         return lambda n: names[n]
 
-    tracer = trace_closure(limit=float(%(opcode_limit)r))
+    inf = float("inf")
+    tracer = trace_closure(limit=%(opcode_limit)r)
     sys.settrace(tracer("tracer"))
+
 
 
 class NoAnswerGiven:
