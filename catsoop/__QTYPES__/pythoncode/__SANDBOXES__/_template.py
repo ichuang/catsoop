@@ -18,7 +18,7 @@ import sys
 import time
 
 OPCODE_TRACING_ENABLED = sys.version_info > (3, 7)
-if OPCODE_TRACING_ENABLED and True:  # TODO: Add a flag here for enabling opcode counts
+if OPCODE_TRACING_ENABLED and %(enable_opcode_count)s:
 
     def trace_closure(limit=float("inf")):
         executed_opcodes = 0
@@ -55,7 +55,7 @@ class NoAnswerGiven:
 results = {}
 start_time = time.time()
 try:
-    import sft as test_module  ## TODO: replace sft with module name
+    import %(test_module)s as test_module
 
     ans = getattr(test_module, "_catsoop_answer", NoAnswerGiven)
     if ans is not NoAnswerGiven:  # we got a result back
