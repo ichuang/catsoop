@@ -104,7 +104,8 @@ test_defaults = {
     "show_code": True,
     "show_stderr": True,
     "check_function": _default_check_function,
-    "transform_output": lambda x: "<tt style=\"white-space: pre-wrap\">%s</tt>" % (html_format(repr(x)),),
+    "transform_output": lambda x: '<tt style="white-space: pre-wrap">%s</tt>'
+    % (html_format(repr(x)),),
     "sandbox_options": {},
     "count_opcodes": False,
     "opcode_limit": None,
