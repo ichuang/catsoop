@@ -18,18 +18,41 @@ import ast
 
 
 def equal():
+    """
+    Check whether two values are equivalent using Python's ==
+    """
     return lambda sub, soln: sub == soln
 
 
+def check_result(f):
+    """
+    Given a function that compares two Python values, return a new check
+    function that compares the 'result' fields of a submission and solution
+    using the given function.
+    """
+    return lambda sub, soln: f(sub['result'], soln['result'])
+
+
 def number_close(threshold=1e-6):
+    """
+    Check whether two numbers are close (within the given threshold)
+    """
     return lambda sub, soln: abs(sub - soln) <= threshold
 
 
 def evaled(f):
+    """
+    Returns a new check function that evaluates its arguments (using
+    ast.literal_eval) before calling the given function on the evaluated
+    results
+    """
     return lambda sub, soln: f(ast.literal_eval(sub), ast.literal_eval(soln))
 
 
 def list_all(cmp_func=None):
+    """
+    Check that two lists are equal (same values in the same order)
+    """
     cmp_func = cmp_func or equal()
     return lambda sub, soln: (
         len(sub) == len(soln) and all(cmp_func(i, j) for i, j in zip(sub, soln))
@@ -37,6 +60,10 @@ def list_all(cmp_func=None):
 
 
 def list_all_unordered(cmp_func=None):
+    """
+    Check function for lists containing all the same elements (including
+    duplicates), regardless of order.
+    """
     cmp_func = cmp_func or equal()
 
     def _cmp(sub, soln):
@@ -56,7 +83,20 @@ def list_all_unordered(cmp_func=None):
 
 
 def dict_all(cmp_func=None):
+    """
+    Checker function for dictionaries.  Makes sure all keys and associated
+    values match.
+    """
     cmp_func = cmp_func or equal()
     return lambda sub, soln: (
         set(sub) == set(soln) and all(cmp_func(sub[i], soln[i]) for i in sub)
     )
+
+
+def bytecode_limited_result(cmp_func=None, bytecode_thresholds=None):
+    """
+    Compare the results of executing a piece of code using the given comparison
+    function, scaling the resulting score based on the given bytecode
+    thresholds.
+    """
+    pass

@@ -104,10 +104,12 @@ test_defaults = {
     "show_code": True,
     "show_stderr": True,
     "check_function": _default_check_function,
-    "transform_output": lambda x: "<tt>%s</tt>" % (html_format(x),),
+    "transform_output": lambda x: "<tt>%s</tt>" % (html_format(repr(x)),),
     "sandbox_options": {},
     "count_opcodes": False,
     "opcode_limit": None,
+    "show_timing": False,
+    "show_opcode_count": False,
 }
 
 
@@ -286,6 +288,7 @@ def handle_submission(submissions, **info):
             html_code_pieces.insert(1, "#Your Code Here")
             html_code = "<br/>".join(i for i in html_code_pieces if i)
             msg += "\nThe test case was:<br/>\n<p><tt>%s</tt></p>" % html_code
+            msg += "<p>&nbsp;</p>"
 
         result = {"details": log, "out": out, "err": err}
         result_s = {"details": log_s, "out": out_s, "err": err_s}
@@ -309,42 +312,98 @@ def handle_submission(submissions, **info):
 
         score += percentage * test["npoints"]
 
+        expected_variable = test["variable"] is not None
+        solution_ran = result_s != {}
+        submission_ran = result != {}
+        show_code = test["show_code"]
+        error_in_solution = result_s["err"] != ""
+        error_in_submission = result["err"] != ""
+        solution_produced_output = result_s["out"] != ""
+        submission_produced_output = result["out"] != ""
+        got_submission_result = "result" in result
         if imfile is None:
             image = ""
         else:
             image = "<img src='%s' />" % imfile
 
+        # report timing and/or opcode count
+        if test["show_timing"] == True:
+            test["show_timing"] = "%.06f"
+        do_timing = test["show_timing"] and "duration" in result_s["details"]
+        do_opcount = test["show_opcode_count"] and "opcode_count" in result_s["details"]
+        if do_timing or do_opcount:
+            msg += "\n<p>"
+        if do_timing:
+            _timing = result_s["details"]["duration"]
+            msg += (
+                "\nOur solution ran for %s seconds." % test["show_timing"]
+            ) % _timing
+        if do_timing and do_opcount:
+            msg += "\n<br/>"
+        if do_opcount:
+            _opcount = result_s["details"]["opcode_count"]
+            msg += "\nOur solution executed %s Python opcodes.<br/>" % _opcount
+        if do_timing or do_opcount:
+            msg += "\n</p>"
+
         if (
-            "result" in result_s and test["show_code"] and test["variable"] is not None
+            expected_variable and solution_ran and show_code
         ):  # Our solution ran successfully
             msg += (
                 "\n<p>Our solution produced the following value for <tt>%s</tt>:"
             ) % test["variable"]
             m = test["transform_output"](result_s["result"])
             msg += "\n<br/><font color='blue'>%s</font></p>" % m
-        elif result_s["err"] != "":
+
+        if solution_produced_output and show_code:
+            msg += "\n<p>Our code produced the following output:"
+            msg += "<br/><pre>%s</pre></p>" % html_format(result_s["out"])
+
+        if error_in_solution and test["show_stderr"]:
             msg += "\n<p><b>OOPS!</b> Our code produced an error:"
             e = html_format(result_s["err"])
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
 
-        if "result" in result and test["show_code"] and test["variable"] is not None:
+        if show_code:
+            msg += "<p>&nbsp;</p>"
+
+        # report timing and/or opcode count
+        do_timing = test["show_timing"] and "duration" in result["details"]
+        do_opcount = test["show_opcode_count"] and "opcode_count" in result["details"]
+        if do_timing or do_opcount:
+            msg += "\n<p>"
+        if do_timing:
+            _timing = result["details"]["duration"]
             msg += (
-                "\n<p>Your submission produced the following value for <tt>%s</tt>:"
-            ) % test["variable"]
-            m = test["transform_output"](result["result"])
-            msg += "\n<br/><font color='blue'>%s</font>%s</p>" % (m, image)
-        elif result["details"] != {}:
+                "\nYour solution ran for %s seconds." % test["show_timing"]
+            ) % _timing
+        if do_timing and do_opcount:
+            msg += "\n<br/>"
+        if do_opcount:
+            _opcount = result["details"]["opcode_count"]
+            msg += "\nYour code executed %d Python opcodes.<br/>" % _opcount
+        if do_timing or do_opcount:
+            msg += "\n</p>"
+
+        if expected_variable and show_code:
+            if got_submission_result:
+                msg += (
+                    "\n<p>Your submission produced the following value for <tt>%s</tt>:"
+                ) % test["variable"]
+                m = test["transform_output"](result["result"])
+                msg += "\n<br/><font color='blue'>%s</font>%s</p>" % (m, image)
+            else:
+                msg += (
+                    "\n<p>Your submission did not produce a value for <tt>%s</tt>.</p>"
+                )
+        else:
             msg += "\n<center>%s</center>" % (image)
 
-        if result_s["out"] != "" and test["show_code"]:
-            msg += "\n<p>Our code produced the following output:"
-            msg += "<br/><pre>%s</pre></p>" % html_format(result_s["out"])
-
-        if result["out"] != "" and test["show_code"]:
+        if submission_produced_output and show_code:
             msg += "\n<p>Your code produced the following output:"
             msg += "<br/><pre>%s</pre></p>" % html_format(result["out"])
 
-        if result["err"] != "" and test["show_stderr"]:
+        if error_in_submission and test["show_stderr"]:
             msg += "\n<p>Your submission produced an error:"
             e = html_format(result["err"])
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e

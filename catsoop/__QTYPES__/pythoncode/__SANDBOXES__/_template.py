@@ -65,7 +65,7 @@ finally:
     results["duration"] = time.time() - start_time
     sys.settrace(None)
     if OPCODE_TRACING_ENABLED:
-        results["opcodes_executed"] = tracer("get")()
+        results["opcode_count"] = tracer("get")()
         results["opcode_limit_reached"] = tracer("killed")()
     print("---")
     print(results)
