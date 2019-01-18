@@ -22,6 +22,8 @@ _Work toward next release.  Currently under development._
 
     * Added the option to count the number of executed opcodes, and to set timeouts based on number of executed opcodes.
 
+    * Added the `csq_test_defaults` option to provide default per-test-case options within a single question.
+
 #### CHANGED:
 
 * Updated KaTeX to version 0.10.0.
@@ -41,6 +43,8 @@ _Work toward next release.  Currently under development._
 * Logs are now stored in `cs_data_root/_logs` instead of `cs_data_root/__LOGS__`.
 
 * Improved display of test case results for `pythoncode` questions.
+
+* Per-test-case sandbox options for `pythoncode` questions are now specified via `test['sandbox_options']`.
 
 #### DEPRECATED:
 
