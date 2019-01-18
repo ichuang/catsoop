@@ -39,7 +39,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         context["csm_process"].set_pdeathsig()()
 
     tmpdir = context.get("csq_sandbox_dir", "/tmp/sandbox")
-    this_one = uuid.uuid4().hex
+    this_one = "_%s" % uuid.uuid4().hex
     tmpdir = os.path.join(tmpdir, this_one)
     with open(
         os.path.join(
