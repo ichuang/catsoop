@@ -263,19 +263,11 @@ def handle_submission(submissions, **info):
     count = 1
     for test in info["csq_tests"]:
         out, err, log = info["sandbox_run_test"](info, code, test)
-        try:
-            log = ast.literal_eval(log)
-        except:
-            log = {}
         if "cached_result" in test:
             log_s = repr(test["cached_result"])
             err_s = "Loaded cached result"
         else:
             out_s, err_s, log_s = info["sandbox_run_test"](info, info["csq_soln"], test)
-        try:
-            log_s = ast.literal_eval(log_s)
-        except:
-            log_s = {}
         if count != 1:
             msg += "\n\n<p></p><hr/><p></p>\n\n"
         msg += "\n<center><h3>Test %02d</h3>" % count
@@ -322,6 +314,7 @@ def handle_submission(submissions, **info):
         solution_produced_output = result_s["out"] != ""
         submission_produced_output = result["out"] != ""
         got_submission_result = "result" in result
+        got_solution_result = "result" in result_s
         if imfile is None:
             image = ""
         else:
@@ -347,14 +340,17 @@ def handle_submission(submissions, **info):
         if do_timing or do_opcount:
             msg += "\n</p>"
 
-        if (
-            expected_variable and solution_ran and show_code
-        ):  # Our solution ran successfully
-            msg += (
-                "\n<p>Our solution produced the following value for <tt>%s</tt>:"
-            ) % test["variable"]
-            m = test["transform_output"](result_s["result"])
-            msg += "\n<br/><font color='blue'>%s</font></p>" % m
+        if expected_variable and show_code:
+            if got_solution_result:
+                msg += (
+                    "\n<p>Our solution produced the following value for <tt>%s</tt>:"
+                ) % test["variable"]
+                m = test["transform_output"](result_s["result"])
+                msg += "\n<br/><font color='blue'>%s</font></p>" % m
+            else:
+                msg += (
+                    "\n<p>Our solution did not produce a value for <tt>%s</tt>.</p>"
+                ) % test["variable"]
 
         if solution_produced_output and show_code:
             msg += "\n<p>Our code produced the following output:"
@@ -396,7 +392,7 @@ def handle_submission(submissions, **info):
             else:
                 msg += (
                     "\n<p>Your submission did not produce a value for <tt>%s</tt>.</p>"
-                )
+                ) % test["variable"]
         else:
             msg += "\n<center>%s</center>" % (image)
 
