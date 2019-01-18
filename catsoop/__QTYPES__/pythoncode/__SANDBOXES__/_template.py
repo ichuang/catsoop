@@ -17,6 +17,11 @@
 import sys
 import time
 
+
+class OpcodeLimitReached(Exception):
+    pass
+
+
 OPCODE_TRACING_ENABLED = sys.version_info > (3, 7) and %(enable_opcode_count)s
 if OPCODE_TRACING_ENABLED:
 
@@ -31,7 +36,7 @@ if OPCODE_TRACING_ENABLED:
                 executed_opcodes += 1
                 if executed_opcodes >= limit:
                     limit_reached = True
-                    sys.exit(1)
+                    raise OpcodeLimitReached
             return tracer
 
         def get():
@@ -61,13 +66,14 @@ try:
     ans = getattr(test_module, "_catsoop_answer", NoAnswerGiven)
     if ans is not NoAnswerGiven:  # we got a result back
         results["result"] = ans
+    results["duration"] = time.time() - start_time
+except OpcodeLimitReached:
+    pass
 except Exception as e:
     results["exception_type"] = e.__class__.__name__
     results["exception_args"] = e.args
     raise
 finally:
-    results["duration"] = time.time() - start_time
-    sys.settrace(None)
     if OPCODE_TRACING_ENABLED:
         results["opcode_count"] = tracer("get")()
         results["opcode_limit_reached"] = tracer("killed")()

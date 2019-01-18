@@ -32,7 +32,9 @@ def prep_code(code, test, **kwargs):
     code = code.strip()
 
     if test["variable"] is not None:
-        footer = "_catsoop_answer = %s" % test["variable"]
+        footer = (
+            "_catsoop_answer = %s\nimport sys\nsys.settrace(None)" % test["variable"]
+        )
     else:
         footer = None
 
