@@ -14,6 +14,14 @@ _Work toward next release.  Currently under development._
 
 * Added `'do_rlimits'` key to the `'python'` sandbox, which can be used to disable setting resource limits (workaround for Cygwin issue).
 
+* Several additional features were added to `pythoncode` questions:
+
+    * `pythoncode` check functions now have a lot of additional information available to them, beyond the value that was returned (including `stdout`, `stderr`, information about any exceptions that were raised, and information about timing).
+
+    * Added the option to selectively show/hide `stderr` (`test['show_stderr']`).
+
+    * Added the option to count the number of executed opcodes, and to set timeouts based on number of executed opcodes.
+
 #### CHANGED:
 
 * Updated KaTeX to version 0.10.0.
@@ -31,6 +39,8 @@ _Work toward next release.  Currently under development._
 * Sessions are now stored in `cs_data_root/_sessions` instead of `cs_data_root/__SESSIONS__`.
 
 * Logs are now stored in `cs_data_root/_logs` instead of `cs_data_root/__LOGS__`.
+
+* Improved display of test case results for `pythoncode` questions.
 
 #### DEPRECATED:
 
@@ -59,6 +69,8 @@ _Work toward next release.  Currently under development._
 * Fixed bugs with multiple functions in the `catsoop.check` module.
 
 * Fixed bug in `cs_ajax.js` related to submitting manual grades.
+
+* Fixed an issue with proper display of whitespace in `pythoncode` question types' inputs/outputs.
 
 #### SECURITY:
 
