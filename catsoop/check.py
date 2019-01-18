@@ -30,14 +30,33 @@ def check_result(f):
     function that compares the 'result' fields of a submission and solution
     using the given function.
     """
-    return lambda sub, soln: f(sub['result'], soln['result'])
+    return lambda sub, soln: f(sub["result"], soln["result"])
 
 
-def number_close(threshold=1e-6):
+def number_close(absolute_threshold=None, ratio_threshold=None):
     """
-    Check whether two numbers are close (within the given threshold)
+    Check whether two numbers are close (within the given thresholds)
     """
-    return lambda sub, soln: abs(sub - soln) <= threshold
+
+    def _checker(sub, sol):
+        try:
+            r = ratio_threshold is not None
+            a = absolute_threshold is not None
+            if r and a:
+                threshold = max(ratio_threshold * sol, absolute_threshold)
+            elif r:
+                threshold = ratio_threshold * sol
+            elif a:
+                threshold = absolute_threshold
+            else:
+                return sub == sol
+            if abs(sub - sol) > abs(threshold):
+                return False
+        except:
+            return False
+        return True
+
+    return _checker
 
 
 def evaled(f):
