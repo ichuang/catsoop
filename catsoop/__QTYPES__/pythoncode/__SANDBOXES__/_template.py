@@ -61,6 +61,10 @@ try:
     ans = getattr(test_module, "_catsoop_answer", NoAnswerGiven)
     if ans is not NoAnswerGiven:  # we got a result back
         results["result"] = ans
+except Exception as e:
+    results["exception_type"] = e.__class__.__name__
+    results["exception_args"] = e.args
+    raise
 finally:
     results["duration"] = time.time() - start_time
     sys.settrace(None)
