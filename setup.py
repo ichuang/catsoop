@@ -98,43 +98,48 @@ def main():
     with open(os.path.join(os.path.dirname(__file__), "README.md"), "r") as f:
         readme = f.read()
 
-    dirty_version()
-
-    setup(
-        name="catsoop",
-        version=CS_VERSION,
-        author="CAT-SOOP Contributors",
-        author_email="catsoop-dev@mit.edu",
-        packages=["catsoop", "catsoop.test", "catsoop.thirdparty", "catsoop.scripts"],
-        scripts=[],
-        url="https://catsoop.mit.edu",
-        license="AGPLv3+",
-        description="CAT-SOOP is a tool for automatic collection and assessment of online exercises.",
-        long_description=readme,
-        long_description_content_type="text/markdown",
-        include_package_data=True,
-        entry_points={
-            "console_scripts": ["catsoop = catsoop.main:command_line_interface"]
-        },
-        install_requires=requirements,
-        package_dir={"catsoop": "catsoop"},
-        package_data={"catsoop": ["scripts/*"]},
-        test_suite="catsoop.test",
-        classifiers=[
-            "Development Status :: 4 - Beta",
-            "Intended Audience :: Education",
-            "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-            "Programming Language :: Python :: 3.5",
-            "Programming Language :: Python :: 3.6",
-            "Programming Language :: Python :: 3.7",
-            "Topic :: Education",
-            "Topic :: Internet :: WWW/HTTP :: WSGI",
-        ],
-    )
-
-    if ORIGINAL_VERSION is not None:
-        with open(VERSION_FNAME, "w") as f:
-            f.write(ORIGINAL_VERSION)
+    try:
+        dirty_version()
+        setup(
+            name="catsoop",
+            version=CS_VERSION,
+            author="CAT-SOOP Contributors",
+            author_email="catsoop-dev@mit.edu",
+            packages=[
+                "catsoop",
+                "catsoop.test",
+                "catsoop.thirdparty",
+                "catsoop.scripts",
+            ],
+            scripts=[],
+            url="https://catsoop.mit.edu",
+            license="AGPLv3+",
+            description="CAT-SOOP is a tool for automatic collection and assessment of online exercises.",
+            long_description=readme,
+            long_description_content_type="text/markdown",
+            include_package_data=True,
+            entry_points={
+                "console_scripts": ["catsoop = catsoop.main:command_line_interface"]
+            },
+            install_requires=requirements,
+            package_dir={"catsoop": "catsoop"},
+            package_data={"catsoop": ["scripts/*"]},
+            test_suite="catsoop.test",
+            classifiers=[
+                "Development Status :: 4 - Beta",
+                "Intended Audience :: Education",
+                "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+                "Programming Language :: Python :: 3.5",
+                "Programming Language :: Python :: 3.6",
+                "Programming Language :: Python :: 3.7",
+                "Topic :: Education",
+                "Topic :: Internet :: WWW/HTTP :: WSGI",
+            ],
+        )
+    finally:
+        if ORIGINAL_VERSION is not None:
+            with open(VERSION_FNAME, "w") as f:
+                f.write(ORIGINAL_VERSION)
 
 
 if __name__ == "__main__":
