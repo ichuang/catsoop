@@ -24,12 +24,13 @@ def equal():
     return lambda sub, soln: sub == soln
 
 
-def check_result(f):
+def check_result(f=None):
     """
     Given a function that compares two Python values, return a new check
     function that compares the 'result' fields of a submission and solution
     using the given function.
     """
+    f = f if f is not None else equal()
     return lambda sub, soln: f(sub["result"], soln["result"])
 
 
@@ -59,13 +60,21 @@ def number_close(absolute_threshold=None, ratio_threshold=None):
     return _checker
 
 
-def evaled(f):
+def evaled(f=None):
     """
     Returns a new check function that evaluates its arguments (using
     ast.literal_eval) before calling the given function on the evaluated
     results
     """
-    return lambda sub, soln: f(ast.literal_eval(sub), ast.literal_eval(soln))
+    f = f if f is not None else equal()
+
+    def _inner(sub, soln):
+        try:
+            return f(ast.literal_eval(sub), ast.literal_eval(soln))
+        except:
+            return False
+
+    return _inner
 
 
 def list_all(cmp_func=None):
@@ -110,12 +119,3 @@ def dict_all(cmp_func=None):
     return lambda sub, soln: (
         set(sub) == set(soln) and all(cmp_func(sub[i], soln[i]) for i in sub)
     )
-
-
-def bytecode_limited_result(cmp_func=None, bytecode_thresholds=None):
-    """
-    Compare the results of executing a piece of code using the given comparison
-    function, scaling the resulting score based on the given bytecode
-    thresholds.
-    """
-    pass
