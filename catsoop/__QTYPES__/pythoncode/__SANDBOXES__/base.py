@@ -140,9 +140,15 @@ def sandbox_run_test(context, code, test):
     err = truncate(err, "ERROR OUTPUT")
     err = fix_error_msg(fname, err, context["csq_code_pre"].count("\n") + 2, code)
     n = out.rsplit("---", 1)
+    log = {}
     if len(n) == 2:  # should be this
         out, log = n
-    elif len(n) == 1:  # code didn't run to completion
+        try:
+            log = ast.literal_eval(log.strip())
+        except:
+            log = {}
+
+    if log == {} or log.get("opcode_limit_reached", False):
         if err.strip() == "":
             err = (
                 "Your code did not run to completion, "
@@ -150,15 +156,15 @@ def sandbox_run_test(context, code, test):
                 "\nThis normally means that your code contains an "
                 "infinite loop or otherwise took too long to run."
             )
-        log = ""
-    else:  # ???
+
+    if len(n) > 2:  # ???
         out = ""
-        log = ""
+        log = {}
         err = "BAD CODE - this will be logged"
 
     out = truncate(out, "OUTPUT")
 
-    return out.strip(), err.strip(), log.strip()
+    return out.strip(), err.strip(), log
 
 
 def _ast_downward_search(node, testfunc):
