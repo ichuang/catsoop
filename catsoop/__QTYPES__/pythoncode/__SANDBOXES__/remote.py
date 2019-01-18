@@ -20,9 +20,16 @@ import urllib.request, urllib.parse, urllib.error
 SANDBOX_URL = "https://cat-soop.org/python3_sandbox/"
 
 
-def run_code(context, code, options):
+def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
     code = code.replace("\r\n", "\n")
-    data = urllib.parse.urlencode({"code": code, "options": options}).encode()
+    data = urllib.parse.urlencode(
+        {
+            "code": code,
+            "options": options,
+            "count_opcodes": count_opcodes,
+            "opcode_limit": opcode_limit,
+        }
+    ).encode()
     request = urllib.request.Request(context.get("csq_sandbox_url", SANDBOX_URL), data)
     try:
         resp = urllib.request.urlopen(request, data).read()
