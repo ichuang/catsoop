@@ -32,16 +32,11 @@ add new Python objects to a log.
 """
 
 import os
-import re
 import ast
-import sys
 import lzma
 import base64
 import pprint
-import random
-import struct
 import hashlib
-import binascii
 import importlib
 import contextlib
 
@@ -223,7 +218,7 @@ def update_log(db_name, path, logname, new, lock=True):
     # get an exclusive lock on this file before making changes
     # look up the separator and the data
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
-    with cm as lock:
+    with cm:
         _update_log(fname, new)
 
 
@@ -254,7 +249,7 @@ def overwrite_log(db_name, path, logname, new, lock=True):
     # get an exclusive lock on this file before making changes
     fname = get_log_filename(db_name, path, logname)
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
-    with cm as l:
+    with cm:
         _overwrite_log(fname, new)
 
 
@@ -262,7 +257,7 @@ def _read_log(db_name, path, logname, lock=True):
     fname = get_log_filename(db_name, path, logname)
     # get an exclusive lock on this file before reading it
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
-    with cm as lock:
+    with cm:
         try:
             f = open(fname, "rb")
             for i in f.read().split(sep):
@@ -325,7 +320,7 @@ def most_recent(db_name, path, logname, default=None, lock=True):
         return default
     # get an exclusive lock on this file before reading it
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
-    with cm as lock:
+    with cm:
         with open(fname, "rb") as f:
             return unprep(f.read().rsplit(sep, 2)[-2])
 
@@ -339,9 +334,8 @@ def modify_most_recent(
     method="update",
     lock=True,
 ):
-    fname = get_log_filename(db_name, path, logname)
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
-    with cm as lock:
+    with cm:
         old_val = most_recent(db_name, path, logname, default, lock=False)
         new_val = transform_func(old_val)
         assert can_log(new_val), "Can't log: %r" % (new_val,)

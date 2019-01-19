@@ -58,6 +58,7 @@ def sandbox_run_code(context, code, options):
     )
 
     opts = dict(DEFAULT_OPTIONS)
+    opts.update(context.get("csq_sandbox_options", {}))
     opts.update(options)
     sandbox = dict(context)
     _execfile(sandbox_file, sandbox)

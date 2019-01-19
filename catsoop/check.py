@@ -22,11 +22,11 @@ def equal():
 
 
 def number_close(threshold=1e-6):
-    return lambda sub, soln: abs(sub - soln) <= thereshold
+    return lambda sub, soln: abs(sub - soln) <= threshold
 
 
 def evaled(f):
-    return lambda sub, soln: f(ast.literal_eval(x), ast.literal_eval(y))
+    return lambda sub, soln: f(ast.literal_eval(sub), ast.literal_eval(soln))
 
 
 def list_all(cmp_func=None):

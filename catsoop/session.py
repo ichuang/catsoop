@@ -20,7 +20,6 @@ Simple session handling.
 import os
 import re
 import time
-import json
 import uuid
 import traceback
 import importlib
@@ -136,7 +135,7 @@ def get_session_data(context, sid):
     """
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
-    with cslog.log_lock(["_sessions", sid]) as lock:
+    with cslog.log_lock(["_sessions", sid]):
         try:
             with open(fname, "rb") as f:
                 out = cslog.unprep(f.read())
@@ -159,6 +158,6 @@ def set_session_data(context, sid, data):
     """
     make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
-    with cslog.log_lock(["_sessions", sid]) as lock:
+    with cslog.log_lock(["_sessions", sid]):
         with open(fname, "wb") as f:
             f.write(cslog.prep(data))

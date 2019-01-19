@@ -23,9 +23,6 @@ import sys
 import subprocess
 
 from setuptools import setup
-from setuptools.command.sdist import sdist
-from setuptools.command.install import install
-from setuptools.command.develop import develop
 
 from catsoop import __version__ as CS_VERSION
 

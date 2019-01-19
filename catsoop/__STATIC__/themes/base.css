@@ -479,7 +479,8 @@
 /* Small Screens */
  @media screen and (max-width: 900px) {
      .nav-container {
-         max-width: 100%;
+         max-width: 100% !important;
+         min-width: 100% !important;
          -ms-flex-preferred-size: 100%;
          flex-basis: 100%;
     }
@@ -497,7 +498,8 @@
          display:block;
     }
      .cs_content {
-         max-width: 100%;
+         max-width: 100% !important;
+         min-width: 100% !important;
          -ms-flex-preferred-size: 100%;
          flex-basis: 100%;
     }

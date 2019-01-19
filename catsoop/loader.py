@@ -26,7 +26,6 @@ import re
 import sys
 import shutil
 import random
-import marshal
 import importlib
 import traceback
 
@@ -401,7 +400,6 @@ def cs_compile(fname, pre_code="", post_code=""):
     **Returns:** a bytestring containing the compiled code
     """
     base_fname = fname.rsplit(".", 1)[0]
-    cache_tag = sys.implementation.cache_tag
     fdirs = os.path.dirname(fname).split(os.sep)
     if fdirs and fdirs[0] == "":
         fdirs.pop(0)

@@ -1,6 +1,12 @@
 pipeline:
-  build:
+  test:
     image: python:3.7
     commands:
-      - pip3 install -r requirements.txt
       - python3 setup.py test
+
+  style:
+    image: python:3.7
+    commands:
+      - pip3 install black
+      - rm -rf .eggs
+      - black --check .

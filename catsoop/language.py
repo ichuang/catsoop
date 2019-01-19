@@ -709,7 +709,6 @@ def handle_custom_tags(context, text):
     for ix, i in enumerate(tree.find_all("tableofcontents")):
         o_toc_dom = toc_dom = tree.new_tag("ul")
         last_handled_len = 0
-        first_section = None
         for (num, ref, elt) in toc_sections:
             n = len(num.strip().split("."))  # number of layers deep
             if n > last_handled_len and last_handled_len != 0:
