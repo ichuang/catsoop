@@ -79,7 +79,7 @@ def handle_submission(submissions, **info):
         else:
             code += "\nprint repr(%s)" % varname
         opts = info.get("csq_options", {})
-        soln = eval(info["sandbox_run_code"](info, code, opts)[1], info)
+        soln = eval(info["sandbox_run_code"](info, code, opts)[1].rsplit('---')[0], info)
     try:
         if sub == "":
             LOGGER.debug("[qtypes.pythonic] invalid submission, empty submission")
@@ -99,7 +99,7 @@ def handle_submission(submissions, **info):
             "[qtypes.pythonic] results:\nfname: %r\nout: %r\nerr: %r"
             % (fname, out, err)
         )
-        sub = eval(out, info)
+        sub = eval(out.rsplit('---')[0], info)
     except Exception as err:
         LOGGER.error("[qtypes.pythonic] invalid submission: %r" % sub)
         LOGGER.error("[qtypes.pythonic] invalid submission exception=%s" % str(err))
