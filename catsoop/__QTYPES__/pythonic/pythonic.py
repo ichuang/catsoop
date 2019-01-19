@@ -58,7 +58,6 @@ INVALID_SUBMISSION_MSG = (
 
 
 def handle_submission(submissions, **info):
-    py3k = info.get("csq_python3", True)
     sub = submissions[info["csq_name"]].strip()
     LOGGER.error("[qtypes.pythonic] submission: %r" % sub)
 
@@ -72,34 +71,19 @@ def handle_submission(submissions, **info):
     else:
         code = info["csq_code_pre"]
         s = info["csq_soln"]
-        varname = gensym(code + s)
-        code += "\n%s = %s" % (varname, s)
-        if py3k:
-            code += "\nprint(repr(%s))" % varname
-        else:
-            code += "\nprint repr(%s)" % varname
+        code += "\n_catsoop_answer = %s" % s
         opts = info.get("csq_options", {})
-        soln = eval(info["sandbox_run_code"](info, code, opts)[1].rsplit('---')[0], info)
+        soln = info["sandbox_run_code"](info, code, opts)["info"]["result"]
     try:
         if sub == "":
             LOGGER.debug("[qtypes.pythonic] invalid submission, empty submission")
             return {"score": 0.0, "msg": INVALID_SUBMISSION_MSG}
         ast.parse(sub, mode="eval")
         code = info["csq_code_pre"]
-        varname = gensym(code + sub)
-        code += "\n%s = %s" % (varname, sub)
-        if py3k:
-            code += "\nprint(repr(%s))" % varname
-        else:
-            code += "\nprint repr(%s)" % varname
+        code += "\n_catsoop_answer = %s" % sub
         opts = info.get("csq_options", {})
         LOGGER.debug("[qtypes.pythonic] code to run:\n%s" % code)
-        fname, out, err = info["sandbox_run_code"](info, code, opts)
-        LOGGER.debug(
-            "[qtypes.pythonic] results:\nfname: %r\nout: %r\nerr: %r"
-            % (fname, out, err)
-        )
-        sub = eval(out.rsplit('---')[0], info)
+        sub = info["sandbox_run_code"](info, code, opts)["info"]["result"]
     except Exception as err:
         LOGGER.error("[qtypes.pythonic] invalid submission: %r" % sub)
         LOGGER.error("[qtypes.pythonic] invalid submission exception=%s" % str(err))

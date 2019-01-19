@@ -46,6 +46,8 @@ _Work toward next release.  Currently under development._
 
 * Per-test-case sandbox options for `pythoncode` questions are now specified via `test['sandbox_options']`.
 
+* The `run_code` function for Python sandboxes now returns a dictionary, rather than a 3-tuple.
+
 #### DEPRECATED:
 
 #### REMOVED:

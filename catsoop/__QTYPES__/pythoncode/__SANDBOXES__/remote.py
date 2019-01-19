@@ -33,14 +33,9 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
     request = urllib.request.Request(context.get("csq_sandbox_url", SANDBOX_URL), data)
     try:
         resp = urllib.request.urlopen(request, data).read()
-        resp = json.loads(resp.decode())
-        out = resp["stdout"]
-        err = resp["stderr"]
-        fname = resp["filename"]
+        return json.loads(resp.decode())
     except:
-        out = ""
         err = "CAT-SOOP: Could not connect to %s" % context.get(
             "csq_sandbox_url", SANDBOX_URL
         )
-        fname = ""
-    return fname, out, err
+        return {"fname": "", "out": "", "err": err, "info": {}}

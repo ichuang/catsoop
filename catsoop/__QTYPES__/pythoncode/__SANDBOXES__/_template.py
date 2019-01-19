@@ -67,6 +67,7 @@ try:
     if ans is not NoAnswerGiven:  # we got a result back
         results["result"] = ans
     results["duration"] = time.time() - start_time
+    results["complete"] = True
 except OpcodeLimitReached:
     pass
 except Exception as e:

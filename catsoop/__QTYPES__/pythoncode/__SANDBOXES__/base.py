@@ -132,41 +132,21 @@ def sandbox_run_test(context, code, test):
     safe = safety_check(code, options["BADIMPORT"], options["BADVAR"])
     if isinstance(safe, tuple):
         return ("", ("On line %d: " % safe[0]) + safe[1], "")
-    fname, out, err = sandbox_run_code(
+    results = sandbox_run_code(
         context,
         prep_code(code, test, **context),
         options,
         count_opcodes=test["count_opcodes"],
         opcode_limit=test["opcode_limit"],
     )
-    err = truncate(err, "ERROR OUTPUT")
-    err = fix_error_msg(fname, err, context["csq_code_pre"].count("\n") + 2, code)
-    n = out.rsplit("---", 1)
-    log = {}
-    if len(n) == 2:  # should be this
-        out, log = n
-        try:
-            log = ast.literal_eval(log.strip())
-        except:
-            log = {}
 
-    if log == {} or log.get("opcode_limit_reached", False):
-        if err.strip() == "":
-            err = (
-                "Your code did not run to completion, "
-                "but no error message was returned."
-                "\nThis normally means that your code contains an "
-                "infinite loop or otherwise took too long to run."
-            )
+    err = truncate(results["err"], "ERROR OUTPUT")
+    err = fix_error_msg(
+        results["fname"], err, context["csq_code_pre"].count("\n") + 2, code
+    )
 
-    if len(n) > 2:  # ???
-        out = ""
-        log = {}
-        err = "BAD CODE - this will be logged"
-
-    out = truncate(out, "OUTPUT")
-
-    return out.strip(), err.strip(), log
+    out = truncate(results["out"], "OUTPUT")
+    return out.strip(), err.strip(), results["info"]
 
 
 def _ast_downward_search(node, testfunc):

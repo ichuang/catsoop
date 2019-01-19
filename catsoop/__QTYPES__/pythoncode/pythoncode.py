@@ -139,8 +139,6 @@ checktext = "Run Code"
 
 
 def handle_check(submissions, **info):
-    py3k = info.get("csq_python3", True)
-
     try:
         code = info["csm_loader"].get_file_data(info, submissions, info["csq_name"])
         code = code.decode().replace("\r\n", "\n")
@@ -150,29 +148,19 @@ def handle_check(submissions, **info):
             "msg": '<div class="bs-callout bs-callout-danger"><span class="text-danger"><b>Error:</b> Unable to decode the specified file.  Is this the file you intended to upload?</span></div>',
         }
 
-    if py3k:
-        _printer = "print('_catsoop_code_done_running')"
-    else:
-        _printer = "print '_catsoop_code_done_running'"
-
-    code = "\n\n".join(
-        ["import os\nos.unlink(__file__)", info["csq_code_pre"], code, _printer]
-    )
+    code = "\n\n".join(["import os\nos.unlink(__file__)", info["csq_code_pre"], code])
 
     get_sandbox(info)
-    fname, out, err = info["sandbox_run_code"](
-        info, code, info.get("csq_sandbox_options", {})
+    results = info["sandbox_run_code"](info, code, info.get("csq_sandbox_options", {}))
+
+    err = info["fix_error_msg"](
+        results["fname"], results["err"], info["csq_code_pre"].count("\n") + 2, code
     )
 
-    err = info["fix_error_msg"](fname, err, info["csq_code_pre"].count("\n") + 2, code)
-
-    complete = False
-    if "_catsoop_code_done_running" in out:
-        complete = True
-        out = out.rsplit("_catsoop_code_done_running", 1)[0]
+    complete = results.get("info", {}).get("complete", False)
 
     trunc = False
-    outlines = out.split("\n")
+    outlines = results["out"].split("\n")
     if len(outlines) > 10:
         trunc = True
         outlines = outlines[:10]

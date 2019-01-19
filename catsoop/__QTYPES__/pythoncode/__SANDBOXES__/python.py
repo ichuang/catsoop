@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import ast
 import sys
 import time
 import uuid
@@ -31,13 +32,6 @@ _resource_mapper = {
     "MEMORY": (resource.RLIMIT_AS, lambda x: (x, x)),
     "FILESIZE": (resource.RLIMIT_FSIZE, lambda x: (x, x)),
 }
-
-
-def safe_close(fd):
-    try:
-        os.close(fd)
-    except:
-        pass
 
 
 def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
@@ -127,4 +121,27 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
 
     shutil.rmtree(tmpdir, True)
 
-    return fname, out, err
+    n = out.rsplit("---", 1)
+    log = {}
+    if len(n) == 2:  # should be this
+        out, log = n
+        try:
+            log = ast.literal_eval(log.strip())
+        except:
+            log = {}
+
+    if log == {} or log.get("opcode_limit_reached", False):
+        if err.strip() == "":
+            err = (
+                "Your code did not run to completion, "
+                "but no error message was returned."
+                "\nThis normally means that your code contains an "
+                "infinite loop or otherwise took too long to run."
+            )
+
+    if len(n) > 2:  # ???
+        out = ""
+        log = {}
+        err = "BAD CODE - this will be logged"
+
+    return {"fname": fname, "out": out, "err": err, "info": log}
