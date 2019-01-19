@@ -31,7 +31,14 @@ def check_result(f=None):
     using the given function.
     """
     f = f if f is not None else equal()
-    return lambda sub, soln: f(sub["result"], soln["result"])
+
+    def _inner(sub, soln):
+        try:
+            return f(sub["result"], soln["result"])
+        except:
+            return False
+
+    return _inner
 
 
 def number_close(absolute_threshold=None, ratio_threshold=None):
