@@ -77,6 +77,7 @@ defaults = {
     "csq_font_size": 16,
     "csq_always_show_tests": False,
     "csq_test_defaults": {},
+    "csq_use_simple_checker": False,
 }
 
 
@@ -85,9 +86,13 @@ class NoResult:
 
 
 def _default_check_function(sub, soln):
-    sub = sub["result"].get("result", NoResult)
-    soln = soln["result"].get("result", NoResult)
+    sub = sub.get("result", NoResult)
+    soln = soln.get("result", NoResult)
     return sub == soln and sub is not NoResult
+
+
+def _default_simple_check_function(sub, soln):
+    return sub == soln
 
 
 test_defaults = {
@@ -103,7 +108,6 @@ test_defaults = {
     "show_description": True,
     "show_code": True,
     "show_stderr": True,
-    "check_function": _default_check_function,
     "transform_output": lambda x: '<tt style="white-space: pre-wrap">%s</tt>'
     % (html_format(repr(x)),),
     "sandbox_options": {},
@@ -210,6 +214,10 @@ def handle_submission(submissions, **info):
             "score": 0,
             "msg": '<div class="bs-callout bs-callout-danger"><span class="text-danger"><b>Error:</b> Unable to decode the specified file.  Is this the file you intended to upload?</span></div>',
         }
+    if info["csq_use_simple_checker"]:
+        default_checker = _default_simple_check_function
+    else:
+        default_checker = _default_check_function
     tests = [dict(test_defaults) for i in info["csq_tests"]]
     for (i, j) in zip(tests, info["csq_tests"]):
         i.update(info["csq_test_defaults"])
@@ -281,8 +289,13 @@ def handle_submission(submissions, **info):
                 result_s["result"] = log_s["result"]
                 del log_s["result"]
 
+        checker = test.get("check_function", default_checker)
         try:
-            percentage = test["check_function"](result, result_s)
+            if info["csq_use_simple_checker"]:
+                # legacy checker
+                percentage = checker(result["result"], result_s["result"])
+            else:
+                percentage = checker(result, result_s)
         except:
             percentage = 0.0
         imfile = None
