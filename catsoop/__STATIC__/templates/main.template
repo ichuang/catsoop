@@ -85,10 +85,10 @@
             {cs_top_menu_html}
         </div>
     </header>
+    <div id="cs_top_navigation" class="cs_top_navigation">{cs_breadcrumbs_html}</div>
     <main id="cs_body" class="cs_body">
       <div class="cs_left_menu"></div>
       <div class="cs_content">
-      <div id="cs_top_navigation" class="cs_top_navigation">{cs_breadcrumbs_html}</div>
         <div class="cs_page_body">
           <center><h1>{cs_content_header}</h1></center>
           {cs_content}
