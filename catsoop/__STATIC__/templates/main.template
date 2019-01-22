@@ -85,7 +85,9 @@
             {cs_top_menu_html}
         </div>
     </header>
-    <div id="cs_top_navigation" class="cs_top_navigation">{cs_breadcrumbs_html}</div>
+    <div class="cs_nav_wrapper cs_nav_wrapper_top">
+      <div id="cs_top_navigation" class="cs_navigation cs_top_navigation">{cs_breadcrumbs_html}</div>
+    </div>
     <main id="cs_body" class="cs_body">
       <div class="cs_left_menu"></div>
       <div class="cs_content">
@@ -98,7 +100,9 @@
       <div class="cs_right_menu"></div>
     </main>
     <footer>
-    <div id="cs_bottom_navigation" class="cs_bottom_navigation">{cs_breadcrumbs_html}</div>
+    <div class="cs_nav_wrapper cs_nav_wrapper_bottom">
+      <div id="cs_bottom_navigation" class="cs_navigation cs_bottom_navigation">{cs_breadcrumbs_html}</div>
+    </div>
     <div class="cs_footer">
       {cs_footer}
       <pre class="catsooplogo" style="font-size:50%;">{cs_base_logo_text}</pre>
