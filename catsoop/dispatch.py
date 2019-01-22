@@ -443,6 +443,8 @@ def _breadcrumbs_html(context):
     _defined = context.get("cs_breadcrumbs_html", None)
     if callable(_defined):
         return _defined(context)
+    elif _defined is not None:
+        return _defined
     if context.get("cs_course", None) in {
         None,
         "_util",
@@ -450,11 +452,12 @@ def _breadcrumbs_html(context):
         "_handler",
         "_plugin",
         "_auth",
+        "_api",
     }:
         return ""
     if len(context.get("cs_loader_states", [])) < 2:
         return ""
-    out = '<ol class="breadcrumb">'
+    elements = []
     to_skip = context.get("cs_breadcrumbs_skip_paths", [])
     link = "BASE"
     for ix, elt in enumerate(context["cs_loader_states"]):
@@ -467,13 +470,8 @@ def _breadcrumbs_html(context):
             elt.get("cs_long_name", context["cs_path_info"][ix]) if ix != 0 else "Home"
         )
         name = language.source_transform_string(context, name)
-        extra = "-active" if ix == len(context["cs_loader_states"]) - 1 else ""
-        out += '<li class="breadcrumb-item%s"><a href="%s">%s</a></li>' % (
-            extra,
-            link,
-            name,
-        )
-    return out + "</ol>"
+        elements.append('<a href="%s">%s</a>' % (link, name))
+    return " >> ".join(elements)
 
 
 def md5(x):
@@ -660,7 +658,6 @@ def main(environment, return_context=False):
             context["cs_home_link"] = "COURSE"
             context["cs_source_qstring"] = "?course=%s" % course
         context["cs_top_menu_html"] = ""
-        context["cs_breadcrumbs_html"] = ""
 
         # CHECK FOR VALID CONFIGURATION
         if e is not None:

@@ -293,7 +293,7 @@ def handle_raw_html(context):
         page += (
             "<tutoronly><center>"
             "The questions below are due on %s."
-            "<br/><hr><br/></center></tutoronly>"
+            "<br/>&nbsp;<br/></center></tutoronly>"
         ) % duetime
 
     for elt in context["cs_problem_spec"]:
@@ -349,7 +349,7 @@ def handle_content_only(context):
         page += (
             "<tutoronly><center>"
             "The questions below are due on %s."
-            "<br/><hr><br/></center></tutoronly>"
+            "<br/>&nbsp;<br/></center></tutoronly>"
         ) % duetime
 
     for elt in context["cs_problem_spec"]:
@@ -405,7 +405,7 @@ def handle_view(context):
         page += (
             "<tutoronly><center>"
             "The questions below are due on %s."
-            "<br/><hr><br/></center></tutoronly>"
+            "<br/>&nbsp;<br/></center></tutoronly>"
         ) % duetime
 
     js_loads = []
