@@ -220,7 +220,7 @@ def content_file_location(context, path):
     for f in language.source_formats:
         if broke:
             fn = os.path.join(basepath, "%s.%s" % (cur, f))
-            if os.path.isfile(fn):
+            if os.path.isfile(fn) and not (cur.startswith(".") or cur.startswith("_")):
                 return fn
         else:
             # then for directories with content files
