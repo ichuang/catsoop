@@ -997,7 +997,6 @@ def handle_submit(context):
     submit_succeeded = True
     for name in names:
         sub = context[_n("form")].get(name, "")
-        newstate["last_submit"][name] = sub
         if name.startswith("__"):
             name = name[2:].rsplit("_", 1)[0]
         if name in names_done:
@@ -1012,6 +1011,7 @@ def handle_submit(context):
             outdict[name] = out
             submit_succeeded = False
             continue
+        newstate["last_submit"][name] = sub
         newstate["last_submit_times"][name] = context["cs_timestamp"]
 
         # if we are here, no errors occurred.  go ahead with submitting.
