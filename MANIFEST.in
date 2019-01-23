@@ -3,5 +3,6 @@ recursive-include catsoop/__HANDLERS__ *
 recursive-include catsoop/__QTYPES__ *
 recursive-include catsoop/__STATIC__ *
 recursive-include catsoop/__UTIL__ *
+include LICENSE
 include requirements.txt
 include catsoop/dev.githash
