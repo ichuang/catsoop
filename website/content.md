@@ -11,8 +11,8 @@
 <center>
 <a class="btn btn-catsoop" href="https://hz.mit.edu/git/catsoop/catsoop/archive/current_release.zip">Download</a>
 <a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
-<a class="btn btn-catsoop" href="https://git.sr.ht/~adqm/catsoop">Repository</a>
-<a class="btn btn-catsoop" href="https://todo.sr.ht/~adqm/catsoop">Issue Tracker</a>
+<a class="btn btn-catsoop" target="_blank" href="https://git.sr.ht/~adqm/catsoop">Repository</a>
+<a class="btn btn-catsoop" target="_blank" href="https://todo.sr.ht/~adqm/catsoop">Issue Tracker</a>
 </center>
 
 
