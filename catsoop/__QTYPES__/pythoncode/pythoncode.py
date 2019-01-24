@@ -247,7 +247,7 @@ def handle_submission(submissions, **info):
         msg = ""
     else:
         msg = (
-            """\n<br/><button onclick="if(this.nextSibling.style.display === 'none'){this.nextSibling.style.display = 'block';}else{this.nextSibling.style.display = 'none';}">"""
+            """\n<br/><button onclick="if(this.nextSibling.style.display === 'none'){this.nextSibling.style.display = 'block';}else{this.nextSibling.style.display = 'none';}" class="btn btn-catsoop">"""
             "Show/Hide Detailed Results</button>"
         )
     msg += (
