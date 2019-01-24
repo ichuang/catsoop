@@ -31,6 +31,8 @@ importlib.reload(base_context)
 LOGGER = logging.getLogger("cs")
 LOGGER.setLevel(logging.DEBUG)
 
+_nodoc = {"LOGGER"}
+
 
 def _execfile(*args):
     fn = args[0]
@@ -200,8 +202,8 @@ def _get_user_information(context, into, course, username, do_preload=False):
         if "role" not in into:
             into["role"] = context.get("cs_default_role", None)
         plist = context.get("cs_permissions", {})
-        defaults = context.get("cs_default_permissions", ["view"])
-        into["permissions"] = plist.get(into["role"], defaults)
+        defaults = context.get("cs_default_permissions", {"view"})
+        into["permissions"] = set(plist.get(into["role"], defaults))
         spoofed_role = context.get("cs_form", {}).get("as_role", None)
         if spoofed_role is not None and "impersonate" in into["permissions"]:
             into["role"] = spoofed_role
