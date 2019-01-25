@@ -63,6 +63,6 @@ todo = """<div class="callout callout-danger">
 <p>
   Contributions to documentation are more than welcome!
   You can e-mail contributions (or questions) to
-  <code>~adqm/catsoop-dev@lists.sr.ht</code>.
+  <code>catsoop-dev@mit.edu</code>.
 </p>
 </div>"""

@@ -12,22 +12,22 @@ CAT-SOOP, and please don't hesitate to reach out if you have questions.
 
 We're happy to help!  There are a couple of options for asking questions:
 
-* send an e-mail to `~adqm/catsoop@lists.sr.ht`, or
+* send an e-mail to `catsoop-users@mit.edu`, or
 * drop by the IRC room (`#catsoop` on `irc.oftc.net`), or
-* open an issue on the [issue tracker](https://todo.sr.ht/~adqm/catsoop).
+* open an issue on the [issue tracker](https://hz.mit.edu/git/catsoop/catsoop/issues).
 
 ### Did you find a bug?
 
 **If you have found a security vulnerability, please do not post publicly.** In
-that case, please instead send e-mail to `~adqm/catsoop-security@lists.sr.ht`,
-or send e-mail directly to Adam (`hz@mit.edu`), optionally encrypting your
-message with [his public key](https://hz.mit.edu/hz_pubkey.asc).
+that case, please instead send e-mail directly to Adam (`hz@mit.edu`),
+optionally encrypting your message with [his public
+key](https://hz.mit.edu/hz_pubkey.asc).
 
 For other issues, as a first step, please ensure that they were not already
 reported by looking through the [issue
-tracker](https://todo.sr.ht/~adqm/catsoop).  If you're unable to find an open
-issue addressing the problem, feel free to report your issue in any of the ways
-described above.
+tracker](https://hz.mit.edu/git/catsoop/catsoop/issues).  If you're unable to
+find an open issue addressing the problem, feel free to report your issue in
+any of the ways described above.
 
 Regardless of how you report the issue, please be as descriptive as you can,
 and please try to include an example that demonstrates the issue if possible.
@@ -38,10 +38,10 @@ issue tracker.
 
 ### Do you intend to add a new feature, change an existing behavior, or fix a bug?
 
-A good place to start is to suggest your change in the
-`~adqm/catsoop-dev@lists.sr.ht` mailing list or in the IRC room, and to read
-through the [hacker's guide](CURRENT/hacking) for information on the process
-for contributing code, as well as information about coding style, tests, etc.
+A good place to start is to suggest your change in the `catsoop-dev@mit.edu`
+mailing list or in the IRC room, and to read through the [hacker's
+guide](CURRENT/hacking) for information on the process for contributing code,
+as well as information about coding style, tests, etc.
 
 #### Do you want to contribute to the documentation?
 
@@ -51,4 +51,4 @@ If you are comfortable doing so, the best way to submit documentation changes
 is by the same process described above, as described in the [hacker's
 guide](CURRENT/hacking).
 But we'll accept documentation changes in any format!  Feel free just to e-mail
-your changes/suggestions (in any format) to `~adqm/catsoop-dev@lists.sr.ht`.
+your changes/suggestions (in any format) to `catsoop-dev@mit.edu`.

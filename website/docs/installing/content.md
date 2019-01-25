@@ -63,7 +63,7 @@ $ sudo pip3 install catsoop
 Alternatively, you can clone the Git repository containing the source code:
 
 ```
-git clone https://git.sr.ht/~adqm/catsoop
+git clone https://hz.mit.edu/git/catsoop/catsoop
 ```
 
 and then run:
@@ -118,17 +118,13 @@ directy your browser to `http://localhost:6010` to see the CAT-SOOP instance.
 
 <section>(Optional) Sign Up for Mailing List</section>
 
-`~adqm/catsoop@lists.sr.ht` is a place to ask questions about CAT-SOOP usage.
+`catsoop-users@mit.edu` is a place to ask questions about CAT-SOOP usage.
 You can view the archives or subscribe
-[here](https://lists.sr.ht/~adqm/catsoop).
+[here](http://mailman.mit.edu/mailman/listinfo/catsoop-users).
 
-`~adqm/catsoop-announce@lists.sr.ht` is a low-volume list used to announce
-updates to CAT-SOOP.  You can view the archives or subscribe
-[here](https://lists.sr.ht/~adqm/catsoop-announce).
-
-`~adqm/catsoop-dev@lists.sr.ht` is the place to submit patches, and/or
-questions about CAT-SOOP development.  Your can view the archives or subscribe
-[here](https://lists.sr.ht/~adqm/catsoop-dev).
+`catsoop-dev@mit.edu` is the place to ask questions about CAT-SOOP development.
+You can view the archives or subscribe
+[here](http://mailman.mit.edu/mailman/listinfo/catsoop-dev).
 
 <section>Additional Configuration for Public-Facing Servers</section>
 

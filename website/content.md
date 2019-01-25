@@ -11,8 +11,7 @@
 <center>
 <a class="btn btn-catsoop" href="https://hz.mit.edu/git/catsoop/catsoop/archive/current_release.zip">Download</a>
 <a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
-<a class="btn btn-catsoop" target="_blank" href="https://git.sr.ht/~adqm/catsoop">Repository</a>
-<a class="btn btn-catsoop" target="_blank" href="https://todo.sr.ht/~adqm/catsoop">Issue Tracker</a>
+<a class="btn btn-catsoop" target="_blank" href="https://hz.mit.edu/git/catsoop/catsoop">Repository</a>
 </center>
 
 
@@ -29,18 +28,14 @@ used in several courses at MIT and at Olin College.
     * <https://catsoop.mit.edu>
     * Tor onion service: <http://5jqwpybqkwagsgmwskjoxawlfjl5j52nhvkmni7bwgwu37pmwrnbexyd.onion>
 
-* Repository Web Access: <https://git.sr.ht/~adqm/catsoop>
-
-* Clone Repository:
-    `git clone https://git.sr.ht/~adqm/catsoop`
+* Repository Web Access: <https://hz.mit.edu/git/catsoop/catsoop>
 
 * IRC: `#catsoop` on OFTC (`irc.oftc.net`)
 
 * Mailing lists:
 
-    * `~adqm/catsoop@lists.sr.ht` for general-purpose discussion, questions, feedback ([archives/subscribe](https://lists.sr.ht/~adqm/catsoop))
-    * `~adqm/catsoop-announce@lists.sr.ht`, low volume list for announcing new versions, features, etc ([archives/subscribe](https://lists.sr.ht/~adqm/catsoop-announce))
-    * `~adqm/catsoop-dev@lists.sr.ht` for development-related discussion, including patch submission ([archives/subscribe](https://lists.sr.ht/~adqm/catsoop-dev))
+    * `catsoop-users@mit.edu`, low-volume list for announcements and discussion (subscribe [here](http://mailman.mit.edu/mailman/listinfo/catsoop-users))
+    * `catsoop-dev@mit.edu` for development-related discussion (subscribe [here](http://mailman.mit.edu/mailman/listinfo/catsoop-dev))
 
 ## CAN I USE IT FOR MY COURSE?
 

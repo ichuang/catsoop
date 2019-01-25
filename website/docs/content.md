@@ -17,7 +17,7 @@ cs_content_header = "CAT-SOOP v14.x Documentation"
 trouble finding the time to sit down and write documentation.
 
 If you have questions about using the software that aren't answered here,
-please send an e-mail to `~adqm/catsoop@lists.sr.ht`; I'm happy to answer
+please send an e-mail to `catsoop-users@mit.edu`; I'm happy to answer
 questions, and I'll also try to work the result into the docs.
 
 Better yet, if you have used CAT-SOOP and are interested in contributing
