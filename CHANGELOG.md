@@ -16,13 +16,15 @@ _Work toward next release.  Currently under development._
 
 * Several additional features were added to `pythoncode` questions:
 
-    * `pythoncode` check functions now have a lot of additional information available to them, beyond the value that was returned (including `stdout`, `stderr`, information about any exceptions that were raised, and information about timing).
+* `pythoncode` check functions now have a lot of additional information available to them, beyond the value that was returned (including `stdout`, `stderr`, information about any exceptions that were raised, and information about timing).
 
-    * Added the option to selectively show/hide `stderr` (`test['show_stderr']`).
+* Added the option to selectively show/hide `stderr` (`test['show_stderr']`).
 
-    * Added the option to count the number of executed opcodes, and to set timeouts based on number of executed opcodes.
+* Added the option to count the number of executed opcodes, and to set timeouts based on number of executed opcodes.
 
-    * Added the `csq_test_defaults` option to provide default per-test-case options within a single question.
+* Added the `csq_test_defaults` option to provide default per-test-case options within a single question.
+
+* Brought back breadcrumbs in the default theme.
 
 #### CHANGED:
 
@@ -78,9 +80,19 @@ _Work toward next release.  Currently under development._
 
 * Fixed an issue with proper display of whitespace in `pythoncode` question types' inputs/outputs.
 
+* Fixed an issue that caused `'last_submit'` values to be updated too soon (before checking to see if a submission was allowed).
+
+* Fixed an issue that caused bare content files starting with `_` or `.` to be web-accessible.
+
+* Fixed the 'permissions' field in cs_user_info to make sure it is always a set.
+
+* Fixed the 'Show/Hide Detailed Results' button in the 'pythoncode' question type to have the same styling as other buttons.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
+
+* The CAT-SOOP web site is now included in the distribution, and includes a new page to automatically generate API documentation.
 
 # Version 13.0.0
 
