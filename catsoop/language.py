@@ -263,7 +263,7 @@ def assemble_page(context, source, set_problem_spec=True):
         )
         source = context["cs_course_handle_custom_tags"](source)
 
-    source = build_tree(source)
+    source = build_tree(context, source)
 
     if "cs_problem_spec" in context:
         LOGGER.warning("`cs_problem_spec` already exists; attempting to append.")
@@ -1103,6 +1103,14 @@ def legacy_tree(context, tree):
     textsections = [0, 0, 0]
     chapter = None
     toc_sections = []
+
+    section = r"((?:chapter)|(?:(?:sub){0,2}section))"
+
+    tag_map = {
+        "section": ("h2", 1),
+        "subsection": ("h3", 2),
+        "subsubsection": ("h4", 3),
+    }
 
     for i in tree.find_all(re.compile(section)):
         if i.name == "chapter":
