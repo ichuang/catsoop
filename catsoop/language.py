@@ -157,10 +157,10 @@ import traceback
 import copy
 import hashlib
 
-from .       import tutor
-from .       import dispatch
+from . import tutor
+from . import dispatch
 from .errors import html_format, clear_info
-from io      import StringIO
+from io import StringIO
 
 import markdown
 from markdown.extensions import tables
@@ -169,17 +169,22 @@ from markdown.extensions import sane_lists
 from bs4 import BeautifulSoup
 
 from . import debug_log
+
 LOGGER = debug_log.LOGGER
+
 
 class CatsoopSyntaxError(Exception):
     pass
 
+
 class CatsoopInternalError(Exception):
     pass
+
 
 # Interface Functions ----------------------------------------------------------
 #   gather_page
 #   assemble_page
+
 
 def gather_page(context, source):
     """
@@ -199,10 +204,12 @@ def gather_page(context, source):
     """
     if context["cs_source_format"] == "py":
         exec(source, context)
-        return ("<div style='color:red;'>"
-                "<b>This is a python file.</b><br>"
-                "Python files should set <tt>context['cs_problem_spec']</tt> directly."
-                "</div>")
+        return (
+            "<div style='color:red;'>"
+            "<b>This is a python file.</b><br>"
+            "Python files should set <tt>context['cs_problem_spec']</tt> directly."
+            "</div>"
+        )
     else:
         source = annotate_python(context["cs_original_path"], source)
         source = remove_comments(source)
@@ -210,6 +217,7 @@ def gather_page(context, source):
         source = remove_comments(source)
         source = replace_python_tags(context, source)
     return source
+
 
 def assemble_page(context, source, set_problem_spec=True):
     """
@@ -227,10 +235,12 @@ def assemble_page(context, source, set_problem_spec=True):
         `source`    the modified text
     """
     if context["cs_source_format"] == "py":
-        return ("<div style='color:red;'>"
-                "<b>This is a python file.</b><br>"
-                "Python files should set <tt>context['cs_problem_spec']</tt> directly."
-                "</div>")
+        return (
+            "<div style='color:red;'>"
+            "<b>This is a python file.</b><br>"
+            "Python files should set <tt>context['cs_problem_spec']</tt> directly."
+            "</div>"
+        )
 
     if "cs_transform_source" in context:
         source = context["cs_transform_source"](source)
@@ -247,7 +257,9 @@ def assemble_page(context, source, set_problem_spec=True):
     source = replace_custom_tags(context, source)
 
     if "cs_course_handle_custom_tags" in context:
-        LOGGER.warning("`cs_course_handle_custom_tags` is deprecated; use `cs_transform_source` instead.")
+        LOGGER.warning(
+            "`cs_course_handle_custom_tags` is deprecated; use `cs_transform_source` instead."
+        )
         source = context["cs_course_handle_custom_tags"](source)
 
     source = build_tree(source)
@@ -261,20 +273,24 @@ def assemble_page(context, source, set_problem_spec=True):
         # split into the format required by __HANDLERS__
         if "cs_internal_qinfo" in context and len(context["cs_internal_qinfo"]) > 0:
             page = source
-            for mark, question in context['cs_internal_qinfo'].items():
+            for mark, question in context["cs_internal_qinfo"].items():
                 p = page.split(mark)
                 if len(p) == 1:
-                    LOGGER.error("Question %s was not found in the page source; skipping it." % mark)
+                    LOGGER.error(
+                        "Question %s was not found in the page source; skipping it."
+                        % mark
+                    )
                 if len(p) == 2:
                     context["cs_problem_spec"].append(p[0])
                     context["cs_problem_spec"].append(question)
                     page = p[1]
                 else:
-                    raise CatsoopInternalError('Duplicate question %s' % s)
+                    raise CatsoopInternalError("Duplicate question %s" % s)
         else:
             context["cs_problem_spec"].append(source)
 
     return source
+
 
 # Top Level Functions ----------------------------------------------------------
 #   annotate_python
@@ -283,6 +299,7 @@ def assemble_page(context, source, set_problem_spec=True):
 #   replace_python_tags
 #   replace_custom_tags
 #   build_tree
+
 
 def annotate_python(fn, source):
     """
@@ -296,20 +313,21 @@ def annotate_python(fn, source):
     Returns:
         `source`    the modified text
     """
-    expr = re.compile(r'< *(python|printf)( *| +[^>]+)>')
+    expr = re.compile(r"< *(python|printf)( *| +[^>]+)>")
 
-    source = source.split('\n')
+    source = source.split("\n")
     for lnum in range(len(source)):
         line = source[lnum]
         tag = expr.search(line)
         while tag is not None:
-            insertion = (' cs_internal_sourcefile="%s"' % fn) \
-                      + (' cs_internal_linenumber="%d"' % lnum)
-            line = line[:tag.end()-1] + insertion + line[tag.end()-1:]
+            insertion = (' cs_internal_sourcefile="%s"' % fn) + (
+                ' cs_internal_linenumber="%d"' % lnum
+            )
+            line = line[: tag.end() - 1] + insertion + line[tag.end() - 1 :]
             pickup = tag.end() + len(insertion)
             tag = expr.search(line, pickup)
         source[lnum] = line
-    return '\n'.join(source)
+    return "\n".join(source)
 
 
 def remove_comments(source):
@@ -321,9 +339,10 @@ def remove_comments(source):
     Returns:
         `source`    the modified text
     """
-    subs_func = (lambda opening, body, closing: "")
+    subs_func = lambda opening, body, closing: ""
     source = replace_toplevel_element(source, "comment", subs_func)
     return source
+
 
 def replace_include_tags(context, source):
     """
@@ -343,7 +362,7 @@ def replace_include_tags(context, source):
         for fn in body.splitlines():
             fn = fn.strip()
             if not fn:
-                continue # skip blank lines
+                continue  # skip blank lines
             fn = os.path.realpath(os.path.join(base_dir, fn))
             if os.path.commonprefix([fn, base_dir]) != base_dir:
                 # tried to escape the course
@@ -363,8 +382,11 @@ def replace_include_tags(context, source):
                 replacements.append("</python>")
         return "\n".join(replacements)
 
-    source = replace_toplevel_element(source, "include", subs_func, disallow_nesting=True)
+    source = replace_toplevel_element(
+        source, "include", subs_func, disallow_nesting=True
+    )
     return source
+
 
 def replace_python_tags(context, source):
     """
@@ -383,6 +405,7 @@ def replace_python_tags(context, source):
     pyvar_pattern = r"(?:%%%s|%s)?" % (pyvar_pattern, pyvar_pattern)
     pyvar_pattern = r"(?P<lead>^|[^\\])@(?P<fmt>%s){(?P<body>.+?)}" % pyvar_pattern
     pyvar_regex = re.compile(pyvar_pattern, re.DOTALL | re.IGNORECASE)
+
     def atbrace2printf(x):
         g = x.groupdict()
         return "%s<printf %s>%s</printf>" % (
@@ -397,7 +420,10 @@ def replace_python_tags(context, source):
 
         if "cs_internal_linenumber" not in params:
             emergency = 10000
-            LOGGER.warning("Python tag %s has unknown position; starting line numbering at %d." % emergency)
+            LOGGER.warning(
+                "Python tag %s has unknown position; starting line numbering at %d."
+                % emergency
+            )
             params["cs_internal_linenumber"] = emergency
         if "cs_internal_sourcefile" not in params:
             LOGGER.warning("Python tag %s has unknown source." % opening)
@@ -408,16 +434,20 @@ def replace_python_tags(context, source):
 
         if name == "printf":
             keys = list(params.keys())
-            recognized_params = ["cs_internal_linenumber",
-                                 "cs_internal_sourcefile"]
+            recognized_params = ["cs_internal_linenumber", "cs_internal_sourcefile"]
             for p in recognized_params:
                 if p in keys:
                     keys.remove(p)
             if len(keys) > 1:
-                raise CatsoopSyntaxError('Improper tag %s: `printf` only admits one attribute' % opening)
+                raise CatsoopSyntaxError(
+                    "Improper tag %s: `printf` only admits one attribute" % opening
+                )
             elif len(keys) == 1:
                 if params[keys[0]] is not None:
-                    raise CatsoopSyntaxError('Improper tag %s: `printf` formatting attribute does not use "name=value" syntax' % opening)
+                    raise CatsoopSyntaxError(
+                        'Improper tag %s: `printf` formatting attribute does not use "name=value" syntax'
+                        % opening
+                    )
                 fmt = params[keys[0]]
             else:
                 fmt = "%s"
@@ -426,7 +456,9 @@ def replace_python_tags(context, source):
 
         if "show" in params:
             if params["show"] is not None:
-                raise CatsoopSyntaxError('Improper tag %s: `show` does not take any values' % opening)
+                raise CatsoopSyntaxError(
+                    "Improper tag %s: `show` does not take any values" % opening
+                )
             code = '<pre><code class="lang-python">%s</code></pre>'
             out = code % html_format(body)
         else:
@@ -434,12 +466,16 @@ def replace_python_tags(context, source):
 
         if "norun" in params:
             if params["norun"] is not None:
-                raise CatsoopSyntaxError('Improper tag %s: `norun` does not take any values' % opening)
+                raise CatsoopSyntaxError(
+                    "Improper tag %s: `norun` does not take any values" % opening
+                )
             return out.strip()
 
         if "noresult" in params:
             if params["noresult"] is not None:
-                raise CatsoopSyntaxError('Improper tag %s: `noresult` does not take any values' % opening)
+                raise CatsoopSyntaxError(
+                    "Improper tag %s: `noresult` does not take any values" % opening
+                )
             display_result = False
         else:
             display_result = True
@@ -452,7 +488,9 @@ def replace_python_tags(context, source):
         else:
             execution_context = context
 
-        result = execute_python(context, body, execution_context, linenumber, sourcefile)
+        result = execute_python(
+            context, body, execution_context, linenumber, sourcefile
+        )
         return (out + result).strip() if display_result else out.strip()
 
     if "cs__python_envs" not in context:
@@ -462,9 +500,12 @@ def replace_python_tags(context, source):
     source = re.sub(pyvar_regex, atbrace2printf, source)
 
     # evaluate <python> and <printf> tags
-    source = replace_toplevel_element(source, ["python", "printf"], subs_func, disallow_nesting=True)
+    source = replace_toplevel_element(
+        source, ["python", "printf"], subs_func, disallow_nesting=True
+    )
     source = source.replace(r"\@{", "@{")
     return source
+
 
 def replace_custom_tags(context, source):
     """
@@ -485,28 +526,38 @@ def replace_custom_tags(context, source):
 
     for name, defs in custom_tags.items():
         if not isinstance(defs, tuple):
-            LOGGER.error("Invalid definition of %s in `cs_custom_tags`: must map to tuple. Skipping it." % name)
+            LOGGER.error(
+                "Invalid definition of %s in `cs_custom_tags`: must map to tuple. Skipping it."
+                % name
+            )
             names_todo.remove(name)
         elif len(defs) < 3:
-            LOGGER.error("Invalid definition of %s in `cs_custom_tags`: underspecified. Skipping it." % name)
+            LOGGER.error(
+                "Invalid definition of %s in `cs_custom_tags`: underspecified. Skipping it."
+                % name
+            )
             names_todo.remove(name)
         elif len(defs) < 4:
             context["cs_custom_tags"][name] = defs + (0,)
         elif not isinstance(defs[3], int):
-            LOGGER.error("Invalid definition of %s in `cs_custom_tags`: precedence must be an integer. Skipping it." % name)
+            LOGGER.error(
+                "Invalid definition of %s in `cs_custom_tags`: precedence must be an integer. Skipping it."
+                % name
+            )
             names_todo.remove(name)
 
     # Since timsort is stable, we
     # sort lexicographically...
     names_todo.sort()
     # ...then sort by precedence,
-    names_todo.sort(key = lambda n: custom_tags[n][3])
+    names_todo.sort(key=lambda n: custom_tags[n][3])
     # and put biggest first
     names_todo.reverse()
 
     symbols = {}
     for name in names_todo:
         open_replmnt, body_replmnt, close_replmnt, priority = custom_tags[name]
+
         def subs_func(opening, body, closing, context):
             _, params = parse_tag(opening)
 
@@ -535,21 +586,26 @@ def replace_custom_tags(context, source):
 
             return new_open + new_body + new_close
 
-        source = replace_toplevel_element(source, name, subs_func, symbols=symbols, context=context)
+        source = replace_toplevel_element(
+            source, name, subs_func, symbols=symbols, context=context
+        )
 
     if context["cs_source_format"] == "md":
-        source = markdown.markdown(source,
-                                   extensions=[tables.TableExtension(),
-                                               fenced_code.FencedCodeExtension(),
-                                               sane_lists.SaneListExtension(),
-                                               markdown_math.MathExtension(),
-                                              ]
-                                  )
+        source = markdown.markdown(
+            source,
+            extensions=[
+                tables.TableExtension(),
+                fenced_code.FencedCodeExtension(),
+                sane_lists.SaneListExtension(),
+                markdown_math.MathExtension(),
+            ],
+        )
 
     for sym, repl in symbols.items():
         source = source.replace(sym, repl)
 
     return source
+
 
 def build_tree(context, source):
     """
@@ -569,13 +625,16 @@ def build_tree(context, source):
 
     return legacy_tree(context, tree)
 
+
 # Helper Functions -------------------------------------------------------------
 #   replace_toplevel_elements
 #   parse_tag
 #   execute_python
 
-def replace_toplevel_element(source, name, substitution, disallow_nesting=False,
-                             symbols=None, context=None):
+
+def replace_toplevel_element(
+    source, name, substitution, disallow_nesting=False, symbols=None, context=None
+):
 
     # We'd like to ensure that tags are balanced and then perform some substitu-
     # tion on top-level elements. BeautifulSoup would be just the tool for this,
@@ -592,8 +651,7 @@ def replace_toplevel_element(source, name, substitution, disallow_nesting=False,
 
     # To do: allow the ">" character to appear in quoted strings within a tag
 
-
-    generate_symbols = (symbols is not None)
+    generate_symbols = symbols is not None
 
     if generate_symbols:
         if context is None:
@@ -603,12 +661,12 @@ def replace_toplevel_element(source, name, substitution, disallow_nesting=False,
             context["cs_internal_symbol_counter"] = 0
 
     if isinstance(name, list):
-        name = '(' + '|'.join(re.escape(n) for n in name) + ')'
+        name = "(" + "|".join(re.escape(n) for n in name) + ")"
     else:
-        name = '(' + re.escape(name) + ')'
+        name = "(" + re.escape(name) + ")"
 
-    opening_expr = re.compile(r'< *%s( *| +[^>]+)>' % name)
-    closing_expr = re.compile(r'</ *%s *>' % name)
+    opening_expr = re.compile(r"< *%s( *| +[^>]+)>" % name)
+    closing_expr = re.compile(r"</ *%s *>" % name)
     # find all opening and closing tags
     opening_tags = [(m, m.group(1), True) for m in re.finditer(opening_expr, source)]
     closing_tags = [(m, m.group(1), False) for m in re.finditer(closing_expr, source)]
@@ -617,33 +675,35 @@ def replace_toplevel_element(source, name, substitution, disallow_nesting=False,
     while len(tags) > 0:
         # check for an unexpected closing tag
         if not tags[0][2]:
-            raise CatsoopSyntaxError('Unexpected closing tag %s' % tags[0][0].group(0))
+            raise CatsoopSyntaxError("Unexpected closing tag %s" % tags[0][0].group(0))
         # find paired tag
         pre_start = tags[0][0].start()
         start = tags[0][0].end()
         stack = []
         for t in tags:
-            if t[2]: # opening tag
+            if t[2]:  # opening tag
                 stack.append(t)
-            else: # closing tag
+            else:  # closing tag
                 previous = stack.pop()
                 if previous[1] != t[1]:
-                    raise CatsoopSyntaxError('Unexpected closing tag %s' % t[0].group(0))
+                    raise CatsoopSyntaxError(
+                        "Unexpected closing tag %s" % t[0].group(0)
+                    )
             if disallow_nesting and len(stack) > 1:
-                raise CatsoopSyntaxError('Nested tag %s' % t[0].group(0))
+                raise CatsoopSyntaxError("Nested tag %s" % t[0].group(0))
             if len(stack) == 0:
                 stop = t[0].start()
                 post_stop = t[0].end()
                 break
         # check for an unmatched opening tag
         if len(stack) != 0:
-            raise CatsoopSyntaxError('Unmatched opening tag %s' % tags[0][0].group(0))
+            raise CatsoopSyntaxError("Unmatched opening tag %s" % tags[0][0].group(0))
 
-        before  = source[         :pre_start]
-        opening = source[pre_start:start    ]
-        body    = source[    start:stop     ]
-        closing = source[     stop:post_stop]
-        after   = source[post_stop:         ]
+        before = source[:pre_start]
+        opening = source[pre_start:start]
+        body = source[start:stop]
+        closing = source[stop:post_stop]
+        after = source[post_stop:]
 
         if len(inspect.getfullargspec(substitution).args) == 4:
             inner = substitution(opening, body, closing, context)
@@ -651,25 +711,32 @@ def replace_toplevel_element(source, name, substitution, disallow_nesting=False,
             inner = substitution(opening, body, closing)
 
         if generate_symbols:
-            replacement = "⟨CATSOOP:SYMBOL:%d:%06X⟩" % (context["cs_internal_symbol_counter"],
-                                                        random.randint(0,2**24-1))
+            replacement = "⟨CATSOOP:SYMBOL:%d:%06X⟩" % (
+                context["cs_internal_symbol_counter"],
+                random.randint(0, 2 ** 24 - 1),
+            )
             context["cs_internal_symbol_counter"] += 1
             symbols[replacement] = inner
         else:
             replacement = inner
 
         source = before + replacement + after
-        len_change = len(replacement) - (len(opening)+len(body)+len(closing))
+        len_change = len(replacement) - (len(opening) + len(body) + len(closing))
         pickup = post_stop + len_change
 
         # rather than try to manually keep track of the matches' indices as
         # the text is changed, simply re-match (this is much less efficient,
         # but means that the match data will be correct without adjustment)
-        opening_tags = [(m, m.group(1), True) for m in opening_expr.finditer(source, pickup)]
-        closing_tags = [(m, m.group(1), False) for m in closing_expr.finditer(source, pickup)]
+        opening_tags = [
+            (m, m.group(1), True) for m in opening_expr.finditer(source, pickup)
+        ]
+        closing_tags = [
+            (m, m.group(1), False) for m in closing_expr.finditer(source, pickup)
+        ]
         tags = sorted(opening_tags + closing_tags, key=(lambda t: t[0].start()))
 
     return source
+
 
 def parse_tag(tag):
     """
@@ -702,50 +769,55 @@ def parse_tag(tag):
     tag = tag[1:].lstrip()
 
     # grab until whitespace or `>` to get the name
-    m = re.compile(r'[ >]').search(tag)
-    name = tag[:m.start()]
-    tag = tag[m.start():].lstrip()
+    m = re.compile(r"[ >]").search(tag)
+    name = tag[: m.start()]
+    tag = tag[m.start() :].lstrip()
 
     # this could just be `while True`, but those always make me nervous
     while len(tag) > 0:
-        if tag[0] == '>':
+        if tag[0] == ">":
             break
 
         # grab until whitespace or `>` or `=` to get a parameter
-        m = re.compile(r'[ >=]').search(tag)
-        p = tag[:m.start()]
-        tag = tag[m.start():].lstrip()
+        m = re.compile(r"[ >=]").search(tag)
+        p = tag[: m.start()]
+        tag = tag[m.start() :].lstrip()
 
         # case 1: parameter has a value
-        if tag[0] == '=':
+        if tag[0] == "=":
             tag = tag[1:].lstrip()
 
             if tag[0] == "'":
                 tag = tag[1:]
                 m = re.compile(r"'").search(tag)
                 if m is None:
-                    raise CatsoopSyntaxError('Improper tag %s: missing delimiter' % original_tag)
-                params[p] = tag[:m.start()]
-                tag = tag[m.start()+1:].lstrip()
+                    raise CatsoopSyntaxError(
+                        "Improper tag %s: missing delimiter" % original_tag
+                    )
+                params[p] = tag[: m.start()]
+                tag = tag[m.start() + 1 :].lstrip()
 
             elif tag[0] == '"':
                 tag = tag[1:]
                 m = re.compile(r'"').search(tag)
                 if m is None:
-                    raise CatsoopSyntaxError('Improper tag %s: missing delimiter' % original_tag)
-                params[p] = tag[:m.start()]
-                tag = tag[m.start()+1:].lstrip()
+                    raise CatsoopSyntaxError(
+                        "Improper tag %s: missing delimiter" % original_tag
+                    )
+                params[p] = tag[: m.start()]
+                tag = tag[m.start() + 1 :].lstrip()
 
             else:
-                m = re.compile(r'[ >]').search(tag)
-                params[p] = tag[:m.start()]
-                tag = tag[m.start():].lstrip()
+                m = re.compile(r"[ >]").search(tag)
+                params[p] = tag[: m.start()]
+                tag = tag[m.start() :].lstrip()
 
         # case 2: parameter does NOT have a value
         else:
             params[p] = None
 
     return (name, params)
+
 
 def execute_python(context, body, variables, offset, sourcefile):
     """
@@ -770,31 +842,33 @@ def execute_python(context, body, variables, offset, sourcefile):
     try:
         body = remove_common_leading_whitespace(body)
         if isinstance(body, int):
-            return ("<div style='color:red;'>"
-                    "<b>A Python Error Occurred:</b>"
-                    "<p><pre>"
-                    "Inconsistent indentation on line %d of python tag (line %d of file %s)"
-                    "</pre></p>"
-                    "</div>"
-                   ) % (body, body+offset, sourcefile)
+            return (
+                "<div style='color:red;'>"
+                "<b>A Python Error Occurred:</b>"
+                "<p><pre>"
+                "Inconsistent indentation on line %d of python tag (line %d of file %s)"
+                "</pre></p>"
+                "</div>"
+            ) % (body, body + offset, sourcefile)
         body = indent_python(body)
         body = (
-               ("_cs_stdout_print = print\n"
+            (
+                "_cs_stdout_print = print\n"
                 "def _cs_web_print(*args, **kwargs):\n"
                 '    if "file" not in kwargs:\n'
                 '        kwargs["file"] = cs___WEBOUT\n'
                 "    _cs_stdout_print(*args, **kwargs)\n"
                 "print = cs_print = _cs_web_print\n"
                 "try:\n"
-                )
-             +  code
-             +  (
+            )
+            + code
+            + (
                 "\nexcept Exception as e:\n"
                 "    raise e\n"
                 "finally:\n"
                 "    print = _cs_stdout_print"
-                )
-             )
+            )
+        )
         body = body.replace("tutor.init_random()", "tutor.init_random(globals())")
         body = body.replace("tutor.question(", "tutor.question(globals(),")
         exec(body, variables)
@@ -807,12 +881,11 @@ def execute_python(context, body, variables, offset, sourcefile):
         exc_only = traceback.format_exception_only(exc[0], exc[1])
 
         if exc[0] == SyntaxError:
-            text = ("Syntax error in python tag (line %d of file %s):\n"
-                 % (tb_line -8,
-                    tb_line + offset - 8,
-                    sourcefile
-                   )
-                 )
+            text = "Syntax error in python tag (line %d of file %s):\n" % (
+                tb_line - 8,
+                tb_line + offset - 8,
+                sourcefile,
+            )
 
             def replace_line_number(m):
                 return "line %d" % (int(m.group(1)) - 8)
@@ -820,13 +893,15 @@ def execute_python(context, body, variables, offset, sourcefile):
             exc_only = [re.sub(r"line (\d+)", replace_line_number, i) for i in exc_only]
 
         elif tb_func == "<module>":
-            text = ("Error on line %d of python tag (line %d of file %s):\n    %s\n\n"
-                 % (tb_line - 8,
+            text = (
+                "Error on line %d of python tag (line %d of file %s):\n    %s\n\n"
+                % (
+                    tb_line - 8,
                     tb_line + offset - 8,
                     sourcefile,
                     body.splitlines()[tb_line - 1].strip(),
-                   )
-                 )
+                )
+            )
         else:
             text = context["csm_errors"].error_message_content(context, html=False)
             exc_only = [""]
@@ -834,12 +909,14 @@ def execute_python(context, body, variables, offset, sourcefile):
         text = "".join([text] + exc_only)
 
         err = html_format(clear_info(context, text))
-        ret = ("<div style='color:red;'>"
-               "<b>A Python Error Occurred:</b>"
-               "<p><pre>%s</pre></p>"
-               "</div>"
-            ) % err
+        ret = (
+            "<div style='color:red;'>"
+            "<b>A Python Error Occurred:</b>"
+            "<p><pre>%s</pre></p>"
+            "</div>"
+        ) % err
         return ret
+
 
 # Built-in Custom Tags ---------------------------------------------------------
 #  build_question
@@ -847,8 +924,15 @@ def execute_python(context, body, variables, offset, sourcefile):
 
 ___valid_qname = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
 
+
 def ___reformat_tag(name, params):
-    return '<' + name.strip + ' '.join((a if v is None else a+'='+'...') for a,v in params.items()) + '>'
+    return (
+        "<"
+        + name.strip
+        + " ".join((a if v is None else a + "=" + "...") for a, v in params.items())
+        + ">"
+    )
+
 
 def build_question(body, params, context):
     if "cs_internal_qcount" not in context:
@@ -861,25 +945,32 @@ def build_question(body, params, context):
         context["cs_problem_spec"] = []
 
     if len(params) != 1:
-        raise CatsoopSyntaxError('Improper tag %s: `question` takes exactly one attribute' % ___reformat_tag('question', params))
+        raise CatsoopSyntaxError(
+            "Improper tag %s: `question` takes exactly one attribute"
+            % ___reformat_tag("question", params)
+        )
 
     qtype = list(params.keys())[0]
 
     if params[qtype] is not None:
-        raise CatsoopSyntaxError('Improper tag %s: qtype does not take any values' % ___reformat_tag('question', params))
+        raise CatsoopSyntaxError(
+            "Improper tag %s: qtype does not take any values"
+            % ___reformat_tag("question", params)
+        )
 
     out = []
     env = dict(context)
     try:
         code = remove_common_leading_whitespace(body)
         if isinstance(code, int):
-            return ("<div style='color:red;'>"
-                    "<b>A Python Error Occurred:</b>"
-                    "<p><pre>"
-                    "Inconsistent indentation on line %d of question tag"
-                    "</pre></p>"
-                    "</div>"
-                   ) % code
+            return (
+                "<div style='color:red;'>"
+                "<b>A Python Error Occurred:</b>"
+                "<p><pre>"
+                "Inconsistent indentation on line %d of question tag"
+                "</pre></p>"
+                "</div>"
+            ) % code
 
         exec(code, env)
 
@@ -888,16 +979,22 @@ def build_question(body, params, context):
             context["cs_internal_qcount"] += 1
 
         if ___valid_qname.match(env["csq_name"]):
-            replacement = "⟨CATSOOP:QUESTION:%s:%06X⟩" % (env["csq_name"], random.randint(0,2**24-1))
+            replacement = "⟨CATSOOP:QUESTION:%s:%06X⟩" % (
+                env["csq_name"],
+                random.randint(0, 2 ** 24 - 1),
+            )
             if qtype != "dummy":
-                context["cs_internal_qinfo"][replacement] = tutor.question(context, qtype, **env)
+                context["cs_internal_qinfo"][replacement] = tutor.question(
+                    context, qtype, **env
+                )
             return replacement
 
         else:
-            return ("<div class='question' style='color:red;'>"
-                    "ERROR: Invalid question name <code>%r</code>"
-                    "</div>"
-                   ) % env["csq_name"]
+            return (
+                "<div class='question' style='color:red;'>"
+                "ERROR: Invalid question name <code>%r</code>"
+                "</div>"
+            ) % env["csq_name"]
     except:
         exc = sys.exc_info()
         tb_entries = traceback.extract_tb(exc[2])
@@ -916,24 +1013,27 @@ def build_question(body, params, context):
             exc_only = [""]
         text = "".join([text] + exc_only)
         err = html_format(clear_info(context, text))
-        ret = ("<div style='color:red;'>"
-               "<b>A Python Error Occurred:</b>"
-               "<p><pre>%s</pre></p>"
-               "</div>"
-              ) % err
+        ret = (
+            "<div style='color:red;'>"
+            "<b>A Python Error Occurred:</b>"
+            "<p><pre>%s</pre></p>"
+            "</div>"
+        ) % err
         return ret
 
-cs_custom_tags_builtins = {"comment":        ("", "", "",             20),
-                           "question":       ("", build_question, "", 15),
-                           "pre":            (None, None, None,       14), # These definitions leave the
-                           "displaymath":    (None, None, None,       13), # tags unchanged, but they'll
-                           "math":           (None, None, None,       12), # still get turned into symbols
-                           "script":         (None, None, None,       11), # so that markdown doesnt' break
-                           "chapter":        ("<h1>", None, "</h1>",   9),
-                           "section*":       ("<h2>", None, "</h2>",   8),
-                           "subsection*":    ("<h3>", None, "</h3>",   7),
-                           "subsubsection*": ("<h4>", None, "</h4>",   6),
-                          }
+
+cs_custom_tags_builtins = {
+    "comment": ("", "", "", 20),
+    "question": ("", build_question, "", 15),
+    "pre": (None, None, None, 14),  # These definitions leave the
+    "displaymath": (None, None, None, 13),  # tags unchanged, but they'll
+    "math": (None, None, None, 12),  # still get turned into symbols
+    "script": (None, None, None, 11),  # so that markdown doesnt' break
+    "chapter": ("<h1>", None, "</h1>", 9),
+    "section*": ("<h2>", None, "</h2>", 8),
+    "subsection*": ("<h3>", None, "</h3>", 7),
+    "subsubsection*": ("<h4>", None, "</h4>", 6),
+}
 
 # Legacy Functions -------------------------------------------------------------
 #   None of these were re-written for CAT-SOOP v14
@@ -942,15 +1042,19 @@ ___indent_regex = re.compile(r"^(\s*)")
 
 ___string_regex = re.compile(
     r"""(\"\"\"[^"\\]*(?:(?:\\.|"(?!""))[^"\\]*)*\"\"\"|'''[^'\\]*(?:(?:\\.|'(?!''))[^'\\]*)*'''|'[^\n'\\]*(?:\\.[^\n'\\]*)*'|"[^\n"\\]*(?:\\.[^\n"\\]*)*")""",
-    re.MULTILINE | re.DOTALL)
+    re.MULTILINE | re.DOTALL,
+)
 
-___ascii_letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+___ascii_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 
 def ___tab_replacer(x):
     return x.group(1).replace("\t", "    ")
 
+
 def ___replace_indentation_tabs(x):
     return re.sub(___indent_regex, ___tab_replacer, x)
+
 
 def remove_common_leading_whitespace(x):
     lines = x.splitlines()
@@ -972,6 +1076,7 @@ def remove_common_leading_whitespace(x):
     lc = len(candidate)
     return "\n".join(i[lc:] for i in lines)
 
+
 def indent_python(c):
     strings = {}
     # start by removing strings and replacing them with unique character sequences
@@ -990,6 +1095,7 @@ def indent_python(c):
     for k, v in strings.items():
         c = c.replace(k, v)
     return c
+
 
 def legacy_tree(context, tree):
     labels = {}
@@ -1171,4 +1277,3 @@ def handle_math_tags(tree):
             i["class"].append("cs_displaymath")
         i["class"].append("cs_math_to_render")
     return tree
-
