@@ -159,6 +159,7 @@ import hashlib
 
 from . import tutor
 from . import dispatch
+from . import markdown_math
 from .errors import html_format, clear_info
 from io import StringIO
 
