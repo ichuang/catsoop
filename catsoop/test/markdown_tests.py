@@ -18,13 +18,18 @@ Tests for CAT-SOOP's markdown math extension
 """
 
 import unittest
+import markdown
 
 from .. import loader
-from .. import language
+from .. import markdown_math
 
 from ..test import CATSOOPTest
 
 # -----------------------------------------------------------------------------
+
+
+def _md_format_string(s):
+    return markdown.markdown(s, extensions=[markdown_math.MathExtension()])
 
 
 def math(x):
@@ -36,47 +41,39 @@ def dmath(x):
 
 
 class TestMarkdownMath(CATSOOPTest):
-    def setUp(self):
-        CATSOOPTest.setUp(self)
-        context = {}
-        loader.load_global_data(context)
-        assert "cs_unit_test_course" in context
-        self.cname = context["cs_unit_test_course"]
-        self.ctx = loader.spoof_early_load([self.cname])
-
     def test_inline_math(self):
         pairs = [
-            (r"If $x$ is 2", r"If %s is 2" % (math("x"))),
+            (r"If $x$ is 2", r"<p>If %s is 2</p>" % (math("x"))),
             (
                 r"If $x$ is $\frac{2}{3}$",
-                r"If %s is %s" % (math("x"), math(r"\frac{2}{3}")),
+                r"<p>If %s is %s</p>" % (math("x"), math(r"\frac{2}{3}")),
             ),
-            (r"If $x$ is $\frac{2}{3}", r"If %s is $\frac{2}{3}" % (math("x"),)),
-            (r"If \$2.38 is $x$", r"If $2.38 is %s" % (math("x"),)),
+            (r"If $x$ is $\frac{2}{3}", r"<p>If %s is $\frac{2}{3}</p>" % (math("x"),)),
+            (r"If \$2.38 is $x$", r"<p>If $2.38 is %s</p>" % (math("x"),)),
             (
                 r"If $x$ is \$2.38, but $y$ is $\$3.47$",
-                r"If %s is $2.38, but %s is %s"
+                r"<p>If %s is $2.38, but %s is %s</p>"
                 % (math("x"), math("y"), math(r"\$3.47")),
             ),
         ]
 
         for i, o in pairs:
-            self.assertEqual(language._md_format_string(self.ctx, i, False), o)
+            self.assertEqual(_md_format_string(i), o)
 
     def test_display_math(self):
         self.maxDiff = 10000
         _ft = r"x_5[n]= \cases{\left({1\over2}\right)^{n/2}&$n=0, 2, 4, 6, 8, \dots, \infty$\cr0&otherwise}"
         pairs = [
-            (r"If $$x$$ is 2", r"If %s is 2" % (dmath("x"))),
+            (r"If $$x$$ is 2", r"<p>If %s is 2</p>" % (dmath("x"))),
             (
                 r"If $$A$$ is $\frac{2}{3}$ and $x_5[n]$ is given by: $$%s$$" % _ft,
-                r"If %s is %s and %s is given by: %s"
+                r"<p>If %s is %s and %s is given by: %s</p>"
                 % (dmath("A"), math(r"\frac{2}{3}"), math("x_5[n]"), dmath(_ft)),
             ),
         ]
 
         for i, o in pairs:
-            self.assertEqual(language._md_format_string(self.ctx, i, False), o)
+            self.assertEqual(_md_format_string(i), o)
 
 
 if __name__ == "__main__":
