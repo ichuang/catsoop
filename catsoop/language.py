@@ -591,7 +591,7 @@ def replace_custom_tags(context, source):
             else:
                 new_close = close_replmnt(params, context)
 
-            new_body = replace_custom_tags(new_body, context)
+            new_body = replace_custom_tags(context, new_body)
 
             return new_open + new_body + new_close
 
@@ -870,7 +870,7 @@ def execute_python(context, body, variables, offset, sourcefile):
                 "print = cs_print = _cs_web_print\n"
                 "try:\n"
             )
-            + code
+            + body
             + (
                 "\nexcept Exception as e:\n"
                 "    raise e\n"
@@ -1092,7 +1092,7 @@ def indent_python(c):
     def replacer(x):
         new_id = None
         while new_id is None or new_id in strings or new_id in c:
-            new_id = "".join(random.choice(ascii_letters) for i in range(20))
+            new_id = "".join(random.choice(___ascii_letters) for i in range(20))
         strings[new_id] = x.group(1)
         return new_id
 
