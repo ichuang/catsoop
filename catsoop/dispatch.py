@@ -416,7 +416,6 @@ def display_page(context):
             "</font></b></center><p>"
         ) % {"u": context["cs_username"]}
         context["cs_content"] = impmsg + context["cs_content"]
-    context["cs_content"] = language.handle_custom_tags(context, context["cs_content"])
     default = os.path.join(
         context.get("cs_fs_root", base_context.cs_fs_root),
         "__STATIC__",
@@ -430,10 +429,7 @@ def display_page(context):
     f = open(default)
     template = f.read()
     f.close()
-    out = (
-        language.handle_custom_tags(context, CSFormatter().format(template, **context))
-        + "\n"
-    )
+    out = CSFormatter().format(template, **context)
     headers.update(context.get("cs_additional_headers", {}))
     headers.update({"Last-Modified": formatdate()})
     return ("200", "OK"), headers, out
