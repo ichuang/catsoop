@@ -316,7 +316,10 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
             lti_uname = lti_data.get(
                 "lis_person_sourcedid", lti_uname
             )  # prefer username to user_id
-        uname = "%s%s" % (lup, lti_uname)
+        if lup:
+            uname = "%s%s" % (lup, lti_uname)
+        else:
+            uname = lti_uname	# allow configuration to specify NO special prefix for LTI usernames
         email = lti_data.get("lis_person_contact_email_primary", "%s@unknown" % uname)
         name = lti_data.get("lis_person_name_full", uname)
         lti_data["cs_user_info"] = {
