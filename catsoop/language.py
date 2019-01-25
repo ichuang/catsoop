@@ -174,6 +174,9 @@ from . import debug_log
 LOGGER = debug_log.LOGGER
 
 
+source_formats = ("md", "xml", "py")
+
+
 class CatsoopSyntaxError(Exception):
     pass
 

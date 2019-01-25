@@ -217,7 +217,7 @@ def content_file_location(context, path):
     basepath = loader.get_course_fs_location(context, course)
     basepath = os.path.join(basepath, *newpath)
 
-    for f in context['csm_language'].source_formats:
+    for f in context["csm_language"].source_formats:
         if broke:
             fn = os.path.join(basepath, "%s.%s" % (cur, f))
             if os.path.isfile(fn) and not (cur.startswith(".") or cur.startswith("_")):
