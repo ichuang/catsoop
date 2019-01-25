@@ -185,6 +185,11 @@ class CatsoopInternalError(Exception):
 # Interface Functions ----------------------------------------------------------
 #   gather_page
 #   assemble_page
+#   html_from_source
+
+
+def html_from_source(context, source):
+    return assemble_page(context, gather_page(context, source), False)
 
 
 def gather_page(context, source):
