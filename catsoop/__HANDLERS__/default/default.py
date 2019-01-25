@@ -1521,9 +1521,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
         )
 
     out += '\n<div id="%s_rendered_question">\n' % name
-    out += context["csm_language"].html_from_source(
-        context, args.get("csq_prompt", "")
-    )
+    out += context["csm_language"].html_from_source(context, args.get("csq_prompt", ""))
     out += q["render_html"](lastsubmit, **args)
     out += "\n</div>"
 
