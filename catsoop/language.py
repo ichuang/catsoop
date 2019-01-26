@@ -534,7 +534,7 @@ def replace_custom_tags(context, source, disable_markdown=False):
     # sort lexicographically...
     names_todo.sort()
     # ...then sort by precedence,
-    names_todo.sort(key=lambda n: custom_tags[n].get('priority', 0))
+    names_todo.sort(key=lambda n: custom_tags[n].get("priority", 0))
     # and put biggest first
     names_todo.reverse()
 
@@ -542,11 +542,11 @@ def replace_custom_tags(context, source, disable_markdown=False):
     for name in names_todo:
         opts = custom_tags[name]
 
-        open_replmnt = opts.get('open', None)
-        body_replmnt = opts.get('body', None)
-        close_replmnt = opts.get('body', None)
-        markdown = opts.get('markdown', True)
-        verbatim = opts.get('verbatim', False)
+        open_replmnt = opts.get("open", None)
+        body_replmnt = opts.get("body", None)
+        close_replmnt = opts.get("close", None)
+        run_markdown = opts.get("markdown", True)
+        verbatim = opts.get("verbatim", False)
 
         def subs_func(opening, body, closing, context):
             _, params = parse_tag(opening)
@@ -573,7 +573,7 @@ def replace_custom_tags(context, source, disable_markdown=False):
                 new_close = close_replmnt(params, context)
 
             if not verbatim:
-                new_body = replace_custom_tags(context, new_body, not markdown)
+                new_body = replace_custom_tags(context, new_body, not run_markdown)
 
             return new_open + new_body + new_close
 
@@ -1009,17 +1009,24 @@ def build_question(body, params, context):
         ) % err
         return ret
 
+
 cs_custom_tags_builtins = {
-    "comment": {'open': "", 'body': "", 'close': "", 'verbatim': True, 'priority': 20},
-    "question": {'open': "", 'body': build_question, 'close': "", 'verbatim': True, 'priority': 15},
-    "script": {'verbatim': True, 'priority': 14},
-    "pre": {'verbatim': True, 'priority': 13},
-    "displaymath": {'verbatim': True, 'priority': 12},
-    "math": {'verbatim': True, 'priority': 11},
-    "chapter": ('open': "<h1>", 'close': "</h1>", 'priority': 9),
-    "section*": ('open': "<h2>", 'close': "</h2>", 'priority': 8),
-    "subsection*": ('open': "<h3>", 'close': "</h3>", 'priority': 7),
-    "subsubsection*": ('open': "<h4>", 'close': "</h4>", 'priority': 6),
+    "comment": {"open": "", "body": "", "close": "", "verbatim": True, "priority": 20},
+    "question": {
+        "open": "",
+        "body": build_question,
+        "close": "",
+        "verbatim": True,
+        "priority": 15,
+    },
+    "script": {"verbatim": True, "priority": 14},
+    "pre": {"verbatim": True, "priority": 13},
+    "displaymath": {"verbatim": True, "priority": 12},
+    "math": {"verbatim": True, "priority": 11},
+    "chapter": {"open": "<h1>", "close": "</h1>", "priority": 9},
+    "section*": {"open": "<h2>", "close": "</h2>", "priority": 8},
+    "subsection*": {"open": "<h3>", "close": "</h3>", "priority": 7},
+    "subsubsection*": {"open": "<h4>", "close": "</h4>", "priority": 6},
 }
 
 # Legacy Functions -------------------------------------------------------------
