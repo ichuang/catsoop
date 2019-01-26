@@ -36,7 +36,7 @@ def get_sandbox(context):
 
 def js_files(info):
     if info["csq_interface"] == "ace":
-        return ["https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js"]
+        return ["BASE/scripts/ace/ace.js"]
     else:
         return []
 
@@ -524,6 +524,7 @@ def render_html_upload(last_log, **info):
     ) % (name, name)
     out += (
         """\n<script type="text/javascript">"""
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
         """\ndocument.getElementById('%s').value = '';"""
         """\ndocument.getElementById('%s_select_button').addEventListener('click', function (){"""
         """\n    document.getElementById("%s").click();"""
@@ -531,6 +532,7 @@ def render_html_upload(last_log, **info):
         """\ndocument.getElementById('%s').addEventListener('change', function (){"""
         """\n    document.getElementById('%s_selected_file').innerText = document.getElementById('%s').value;"""
         """\n});"""
+        "\n// @license-end"
         """\n</script>"""
     ) % (name, name, name, name, name, name)
     return out
@@ -558,6 +560,7 @@ def render_html_ace(last_log, **info):
 <input type="hidden" name="%(name)s" id="%(name)s" />
 <input type="hidden" name="%(name)s_log" id="%(name)s_log" />
 <script type="text/javascript">
+    // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
     var log%(name)s = new Array();
     var editor%(name)s = ace.edit("editor%(name)s");
     editor%(name)s.setTheme("ace/theme/textmate");
@@ -577,6 +580,7 @@ def render_html_ace(last_log, **info):
     document.getElementById("container%(name)s").style.height = "%(height)spx";
     document.getElementById("editor%(name)s").style.height = "%(height)spx";
     editor%(name)s.resize(true);
+    // @license-end
 </script>"""
         % params
     )

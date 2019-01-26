@@ -61,12 +61,14 @@ def render_html(last_log, **info):
     ) % (name, name)
     out += (
         """<script type="text/javascript">"""
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
         """\ndocument.getElementById('%s_select_button').addEventListener('click', function (){"""
         """\n    document.getElementById("%s").click();"""
         """\n});"""
         """\ndocument.getElementById('%s').addEventListener('change', function (){"""
         """\n    document.getElementById('%s_selected_file').innerText = document.getElementById('%s').value;"""
         """\n});"""
+        "\n// @license-end"
         """</script>"""
     ) % (name, name, name, name, name)
     ll = last_log.get(name, None)

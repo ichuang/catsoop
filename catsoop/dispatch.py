@@ -492,7 +492,7 @@ def _top_menu_html(topmenu, header=True):
             out += '\n<a href="%s">%s</a>' % (link, i["text"])
         else:
             menu_id = md5(str(i))
-            out += '\n<div class="dropdown" onmouseleave="this.children[1].checked = false;">'
+            out += '\n<div class="dropdown" onmouseleave="clearMenu(this);">'
             out += (
                 '\n<label class="dropbtn" for="cs_menu_%s">%s<span class="downarrow">▼</span></label>'
                 % (menu_id, i["text"])
@@ -593,7 +593,7 @@ def main(environment, return_context=False):
 
     * `environment`: a dictionary containing the environment variables
         associated with this request.
-    * `return_context`: (bool) set to True if the context dict should be returned 
+    * `return_context`: (bool) set to True if the context dict should be returned
         (instead of the usual tuple) on success -- used for unit tests
 
     **Returns:** a 3-tuple `(response_code, headers, content)` as expected by

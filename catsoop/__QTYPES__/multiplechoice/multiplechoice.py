@@ -161,6 +161,7 @@ def render_html_checkbox(last_log, **info):
     checked_str = ",".join(("%r: true" % i) for i in checked)
     out += (
         '\n<script type="text/javascript">'
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
         "\nvar %s_selected = {%s};"
         '\ndocument.getElementById("%s").value = JSON.stringify(%s_selected);'
         '\ndocument.querySelectorAll("input[type=checkbox][name^=%s_opt]").forEach(function(r){'
@@ -169,6 +170,7 @@ def render_html_checkbox(last_log, **info):
         '\n    document.getElementById("%s").value = JSON.stringify(%s_selected);'
         "\n    });"
         "\n});"
+        "\n// @license-end"
         "\n</script>"
     ) % ((info["csq_name"], checked_str) + (info["csq_name"],) * 6)
     return out
@@ -197,11 +199,13 @@ def render_html_radio(last_log, **info):
     )
     out += (
         '\n<script type="text/javascript">'
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
         '\ndocument.querySelectorAll("input[type=radio][name=%s_opts]").forEach(function(r){'
         '\n    r.addEventListener("click", function(){'
         '\n        document.getElementById("%s").value = this.value;'
         "\n    });"
         "\n});"
+        "\n// @license-end"
         "\n</script>"
     ) % (info["csq_name"], info["csq_name"])
     return out

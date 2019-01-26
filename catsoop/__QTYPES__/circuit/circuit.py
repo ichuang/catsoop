@@ -198,10 +198,12 @@ def render_html(last_log, **info):
     out += ' id="%s"/>' % name
     return out + (
         '\n<script type="text/javascript">'
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
         "update_schematics();"
         'document.addEventListener("DOMContentLoaded", function(){'
         'document.getElementById("%s_buttons").addEventListener("mouseover", function(){'
         'document.getElementById("%s").schematic.prepare_submission();'
+        "\n// @license-end"
         "});"
         "});"
         "</script>"
