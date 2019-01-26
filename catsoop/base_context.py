@@ -193,7 +193,7 @@ Special: The template file to use to render the page
 
 # Default Look and Feel
 
-cs_theme = "BASE/themes/base.css"
+cs_theme = None
 """
 Special: A URL pointing to the page's CSS stylesheet
 """

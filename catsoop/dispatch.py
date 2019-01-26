@@ -425,11 +425,15 @@ def display_page(context):
     temp = _real_url_helper(context, context["cs_template"])
     if "_static" in temp:
         default = static_file_location(context, temp[2:])
+    if context['cs_theme'] is None:
+        context['cs_theme'] = '%s/_static/_base/themes/base.css' % context['cs_url_root']
     loader.run_plugins(context, context["cs_course"], "post_render", context)
     f = open(default)
     template = f.read()
     f.close()
     out = CSFormatter().format(template, **context)
+    context['cs_source_format'] = 'xml'
+    out = context['csm_language'].html_from_source(context, out)
     headers.update(context.get("cs_additional_headers", {}))
     headers.update({"Last-Modified": formatdate()})
     return ("200", "OK"), headers, out

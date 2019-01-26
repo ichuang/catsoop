@@ -121,7 +121,11 @@ LIST OF BUILT-IN CUSTOM TAGS IN `cs_custom_tags`
    Name                Attributes                  Priority
    ----------------    ------------------------    --------
    comment                                            20
-   question            qtype                          10
+   question            qtype                          15
+   chapter*                                           14
+   section*                                           13
+   subsection*                                        12
+   subsubsection*                                     11
 
 
 
@@ -135,13 +139,9 @@ LIST OF BUILT-IN CUSTOM TAGS IMPLEMENTED WITH BEAUTIFULSOUP
    math
    tableofcontents
    chapter
-   chapter*
    section
-   section*
    subsection
-   subsection*
    subsubsection
-   subsubsection*
    ref                 label=...
    footnote
 
@@ -431,7 +431,7 @@ def replace_python_tags(context, source):
             emergency = 10000
             LOGGER.warning(
                 "Python tag %s has unknown position; starting line numbering at %d."
-                % emergency
+                % (opening, emergency)
             )
             params["cs_internal_linenumber"] = emergency
         if "cs_internal_sourcefile" not in params:
@@ -950,9 +950,6 @@ def build_question(body, params, context):
     if "cs_internal_qinfo" not in context:
         context["cs_internal_qinfo"] = {}
 
-    if "cs_problem_spec" not in context:
-        context["cs_problem_spec"] = []
-
     if len(params) != 1:
         raise CatsoopSyntaxError(
             "Improper tag %s: `question` takes exactly one attribute"
@@ -1032,7 +1029,7 @@ def build_question(body, params, context):
 
 
 cs_custom_tags_builtins = {
-    "comment": ("", "", "", 20),
+    "comment": ("", "", "", True, True, 20),
     "question": ("", build_question, "", 15),
     "pre": (None, None, None, 14),  # These definitions leave the
     "displaymath": (None, None, None, 13),  # tags unchanged, but they'll
