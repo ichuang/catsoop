@@ -43,25 +43,17 @@ SUMMARY OF THIS FILE
 
 4a. Custom tags are handled. Each tag name in `cs_custom_tags`
 
-      cs_custom_tags : {string => (tag_replmnt, body_replmnt, tag_replmnt, priority)}
+      cs_custom_tags : {string => {'open' => tag_replmt
+                                   'body' => body_replmt
+                                   'close' => tag_replmt
+                                   'markdown' => bool
+                                   'verbatim' => bool}}
 
-      tag_replmt = NoneType | string | params * context -> string
+      tag_replmt = string | params * context -> string
 
-      body_replmt = NoneType | string | string * params * context -> string
+      body_replmt = string | string * params * context -> string
 
       params = {string => string}
-
-   maps to a tuple of four objects. The last is an integer setting the prece-
-   dence of the tag (higher numbers go first). In practice, priority should not
-   make a difference. If ommitted, it is assumed to be 0. Ties are broken lexico-
-   graphically.
-
-   The remaining three objects are each either a function, string, or None.
-   The first function should return the text that replaces the opening tag
-   itself, and the second function should return the text that replaces the
-   body of the tag, and the third function should return the text that
-   replaces the closing tag. If a string is given for any of these, the
-   string is used as the replacement. If None is given, no replacement is made.
 
    Here's an example:
 
@@ -77,13 +69,13 @@ SUMMARY OF THIS FILE
         color = params["color"] if "color" in params else "#808080"
         return '<b>Note:</b> <span style="color:%s">' % color
 
-      cs_custom_tags = {"note": (note_open, None, "</span>")}
+      cs_custom_tags = {"note": ('open': note_open, 'close': "</span>")}
 
       # Instead of using None, we could have written
       #
       # def note_body(text, params, context):
       #     return text
-      # cs_custom_tags = {"note": (note_open, note_body, "</span>")}
+      # cs_custom_tags = {"note": {'open': note_open, 'body': note_body, 'close': "</span>")}
       #
       # and achieved the same effect.
 
@@ -118,14 +110,18 @@ SUMMARY OF THIS FILE
 LIST OF BUILT-IN CUSTOM TAGS IN `cs_custom_tags`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   Name                Attributes                  Priority
-   ----------------    ------------------------    --------
-   comment                                            20
-   question            qtype                          15
-   chapter*                                           14
-   section*                                           13
-   subsection*                                        12
-   subsubsection*                                     11
+   Name                Attributes          Markdown    Verbatim    Priority
+   ----------------    ----------------    --------    --------    --------
+   comment                                    N           Y           20
+   question            qtype                  N           Y           15
+   script                                     N           Y           14
+   pre                                        N           Y           13
+   displaymath                                N           Y           12
+   math                                       N           Y           11
+   chapter*                                   Y           N            9
+   section*                                   Y           N            8
+   subsection*                                Y           N            7
+   subsubsection*                             Y           N            6
 
 
 
@@ -146,6 +142,7 @@ LIST OF BUILT-IN CUSTOM TAGS IMPLEMENTED WITH BEAUTIFULSOUP
    footnote
 
 """
+
 
 import re
 import os
@@ -516,7 +513,7 @@ def replace_python_tags(context, source):
     return source
 
 
-def replace_custom_tags(context, source):
+def replace_custom_tags(context, source, disable_markdown=False):
     """
     Replaces custom tags as described at the top of this file (language.py).
 
@@ -533,39 +530,23 @@ def replace_custom_tags(context, source):
     custom_tags = context["cs_custom_tags"]
     names_todo = list(custom_tags.keys())
 
-    for name, defs in custom_tags.items():
-        if not isinstance(defs, tuple):
-            LOGGER.error(
-                "Invalid definition of %s in `cs_custom_tags`: must map to tuple. Skipping it."
-                % name
-            )
-            names_todo.remove(name)
-        elif len(defs) < 3:
-            LOGGER.error(
-                "Invalid definition of %s in `cs_custom_tags`: underspecified. Skipping it."
-                % name
-            )
-            names_todo.remove(name)
-        elif len(defs) < 4:
-            context["cs_custom_tags"][name] = defs + (0,)
-        elif not isinstance(defs[3], int):
-            LOGGER.error(
-                "Invalid definition of %s in `cs_custom_tags`: precedence must be an integer. Skipping it."
-                % name
-            )
-            names_todo.remove(name)
-
     # Since timsort is stable, we
     # sort lexicographically...
     names_todo.sort()
     # ...then sort by precedence,
-    names_todo.sort(key=lambda n: custom_tags[n][3])
+    names_todo.sort(key=lambda n: custom_tags[n].get('priority', 0))
     # and put biggest first
     names_todo.reverse()
 
     symbols = {}
     for name in names_todo:
-        open_replmnt, body_replmnt, close_replmnt, priority = custom_tags[name]
+        opts = custom_tags[name]
+
+        open_replmnt = opts.get('open', None)
+        body_replmnt = opts.get('body', None)
+        close_replmnt = opts.get('body', None)
+        markdown = opts.get('markdown', True)
+        verbatim = opts.get('verbatim', False)
 
         def subs_func(opening, body, closing, context):
             _, params = parse_tag(opening)
@@ -591,7 +572,8 @@ def replace_custom_tags(context, source):
             else:
                 new_close = close_replmnt(params, context)
 
-            new_body = replace_custom_tags(context, new_body)
+            if not verbatim:
+                new_body = replace_custom_tags(context, new_body, not markdown)
 
             return new_open + new_body + new_close
 
@@ -599,7 +581,7 @@ def replace_custom_tags(context, source):
             source, name, subs_func, symbols=symbols, context=context
         )
 
-    if context["cs_source_format"] == "md":
+    if context["cs_source_format"] == "md" and not disable_markdown:
         source = markdown.markdown(
             source,
             extensions=[
@@ -1027,18 +1009,17 @@ def build_question(body, params, context):
         ) % err
         return ret
 
-
 cs_custom_tags_builtins = {
-    "comment": ("", "", "", True, True, 20),
-    "question": ("", build_question, "", 15),
-    "pre": (None, None, None, 14),  # These definitions leave the
-    "displaymath": (None, None, None, 13),  # tags unchanged, but they'll
-    "math": (None, None, None, 12),  # still get turned into symbols
-    "script": (None, None, None, 11),  # so that markdown doesnt' break
-    "chapter": ("<h1>", None, "</h1>", 9),
-    "section*": ("<h2>", None, "</h2>", 8),
-    "subsection*": ("<h3>", None, "</h3>", 7),
-    "subsubsection*": ("<h4>", None, "</h4>", 6),
+    "comment": {'open': "", 'body': "", 'close': "", 'verbatim': True, 'priority': 20},
+    "question": {'open': "", 'body': build_question, 'close': "", 'verbatim': True, 'priority': 15},
+    "script": {'verbatim': True, 'priority': 14},
+    "pre": {'verbatim': True, 'priority': 13},
+    "displaymath": {'verbatim': True, 'priority': 12},
+    "math": {'verbatim': True, 'priority': 11},
+    "chapter": ('open': "<h1>", 'close': "</h1>", 'priority': 9),
+    "section*": ('open': "<h2>", 'close': "</h2>", 'priority': 8),
+    "subsection*": ('open': "<h3>", 'close': "</h3>", 'priority': 7),
+    "subsubsection*": ('open': "<h4>", 'close': "</h4>", 'priority': 6),
 }
 
 # Legacy Functions -------------------------------------------------------------
