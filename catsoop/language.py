@@ -454,7 +454,7 @@ def replace_python_tags(context, source):
                         'Improper tag %s: `printf` formatting attribute does not use "name=value" syntax'
                         % opening
                     )
-                fmt = params[keys[0]]
+                fmt = keys[0]
             else:
                 fmt = "%s"
 
