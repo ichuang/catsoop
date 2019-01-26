@@ -425,15 +425,13 @@ def display_page(context):
     temp = _real_url_helper(context, context["cs_template"])
     if "_static" in temp:
         default = static_file_location(context, temp[2:])
-    if context['cs_theme'] is None:
-        context['cs_theme'] = '%s/_static/_base/themes/base.css' % context['cs_url_root']
     loader.run_plugins(context, context["cs_course"], "post_render", context)
     f = open(default)
     template = f.read()
     f.close()
     out = CSFormatter().format(template, **context)
-    context['cs_source_format'] = 'xml'
-    out = context['csm_language'].html_from_source(context, out)
+    context["cs_source_format"] = "xml"
+    out = context["csm_language"].html_from_source(context, out)
     headers.update(context.get("cs_additional_headers", {}))
     headers.update({"Last-Modified": formatdate()})
     return ("200", "OK"), headers, out
@@ -814,13 +812,10 @@ def main(environment, return_context=False):
                 path = os.path.join(root, "__STATIC__", "mainpage.md")
                 with open(path) as f:
                     context["cs_content"] = f.read()
-                context["cs_content"] = language.handle_includes(
+                context["cs_source_format"] = "md"
+                context["cs_content"] = language.html_from_source(
                     context, context["cs_content"]
                 )
-                context["cs_content"] = language.handle_python_tags(
-                    context, context["cs_content"]
-                )
-                context["csm_language"].md_pre_handle(context)
                 context["cs_handler"] = "passthrough"
 
         # IF NOT DOING A LOG IN ACTION, STORE QUERY STRING
