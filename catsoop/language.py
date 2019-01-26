@@ -217,7 +217,7 @@ def gather_page(context, source):
             "</div>"
         )
     else:
-        source = annotate_python(context["cs_original_path"], source)
+        source = annotate_python(context["cs_path_info"], source)
         source = remove_comments(source)
         source = replace_include_tags(context, source)
         source = remove_comments(source)
