@@ -270,12 +270,11 @@ def assemble_page(context, source, set_problem_spec=True):
 
     source = build_tree(context, source)
 
-    if "cs_problem_spec" in context:
-        LOGGER.warning("`cs_problem_spec` already exists; attempting to append.")
-    else:
-        context["cs_problem_spec"] = []
-
     if set_problem_spec:
+        if "cs_problem_spec" in context:
+            LOGGER.warning("`cs_problem_spec` already exists; attempting to append.")
+        else:
+            context["cs_problem_spec"] = []
         # split into the format required by __HANDLERS__
         if "cs_internal_qinfo" in context and len(context["cs_internal_qinfo"]) > 0:
             page = source
