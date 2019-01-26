@@ -45,6 +45,15 @@ that are loaded by CAT-SOOP, including licensing information.
                   <td><a href="BASE/scripts/highlight/cs_highlight.pack.js">cs_highlight.pack.js</a></td>
               </tr>
 <python>
+for i in ace_files:
+    print("""\
+              <tr>
+                  <td><a href="BASE/scripts/%s">%s</a></td>
+                  <td><a href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause</a></td>
+                  <td><a href="BASE/scripts/%s">%s</a></td>
+              </tr>""" % (i, i, i, i))
+</python>
+<python>
 for i in mathjax_files:
     print("""\
               <tr>

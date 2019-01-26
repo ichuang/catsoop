@@ -26,6 +26,8 @@ _Work toward next release.  Currently under development._
 
 * Brought back breadcrumbs in the default theme.
 
+* The CAT-SOOP source distribution now includes the [Ace code editor](https://ace.c9.io/).
+
 #### CHANGED:
 
 * Updated KaTeX to version 0.10.0.
