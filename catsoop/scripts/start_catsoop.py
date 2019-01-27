@@ -66,6 +66,7 @@ def main():
     # set up WSGI options
 
     if base_context.cs_wsgi_server == "cheroot":
+        print("[start_catsoop] Using cheroot for web service")
         wsgi_ports = base_context.cs_wsgi_server_port
 
         if not isinstance(wsgi_ports, list):
@@ -81,6 +82,7 @@ def main():
                 )
             )
     elif base_context.cs_wsgi_server == "uwsgi":
+        print("[start_catsoop] Using uwsgi for web service")
         if (
             base_context.cs_wsgi_server_min_processes
             >= base_context.cs_wsgi_server_max_processes
