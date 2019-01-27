@@ -4,7 +4,7 @@ _Work toward next release.  Currently under development._
 
 #### ADDED:
 
-* Added the `dummy` question type, which can be used as a placeholder for a question that should be removed (but without affecting automatically-generated csq_names for questions that follow.
+* Added the `dummy` question type, which can be used as a placeholder for a question that should be removed (but without affecting automatically-generated `csq_name`s for questions that follow.
 
 * Added support for using CAT-SOOP as an LTI Tool Provider (courtesy of Ike Chuang).
 
@@ -51,6 +51,8 @@ _Work toward next release.  Currently under development._
 * Per-test-case sandbox options for `pythoncode` questions are now specified via `test['sandbox_options']`.
 
 * The `run_code` function for Python sandboxes now returns a dictionary, rather than a 3-tuple.
+
+* Changed the structure of JS web labels for LibreJS, to make it clearer which parts of a page's Javascript are explicitly licensed under AGPLv3.
 
 #### DEPRECATED:
 
