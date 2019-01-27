@@ -1235,9 +1235,12 @@ def manage_groups(context):
         all_group_names = sorted(all_group_names)
     all_group_names = list(all_group_names)
     out += (
-        '\n<script type="text/javascript">catsoop.group_names = %s</script>'
-        % all_group_names
-    )
+        '\n<script type="text/javascript">'
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
+        "\ncatsoop.group_names = %s"
+        "\n// @license-end"
+        "\n</script>"
+    ) % all_group_names
     out += (
         '\n<script type="text/javascript" src="_handler/default/cs_groups.js"></script>'
     )
@@ -1590,9 +1593,13 @@ def render_question(elt, context, lastsubmit, wrap=True):
             with open(checker_loc, "rb") as f:
                 result = context["csm_cslog"].unprep(f.read())
             message = (
-                '\n<script type="text/javascript">document.getElementById("%s_score_display").innerHTML = %r;</script>'
-                % (name, result["score_box"])
-            )
+                '\n<script type="text/javascript">'
+                "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
+                '\ndocument.getElementById("%s_score_display").innerHTML = %r;'
+                "\n// @license-end"
+                "\n</script>"
+            ) % (name, result["score_box"])
+
             try:
                 result["response"] = result["response"].decode()
             except:
@@ -1981,6 +1988,7 @@ def default_javascript(context):
     out = """
 <script type="text/javascript" src="_handler/default/cs_ajax.js"></script>
 <script type="text/javascript">
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
 catsoop.all_questions = %(allqs)r;
 catsoop.username = %(uname)s;
 catsoop.api_token = %(secret)s;
@@ -1995,6 +2003,7 @@ catsoop.url_root = %(root)r;
 catsoop.skip_alert = %(skipalert)s;
 catsoop.viewans_confirm = "Are you sure?  Viewing the answer will prevent any further submissions to this question.  Press 'OK' to view the answer, or press 'Cancel' if you have changed your mind.";
 """
+    out += "\n// @license-end"
     out += "</script>"
 
     api_tok = "null"
@@ -2029,11 +2038,14 @@ def default_timer(context):
     if context[_n("now")] > context[_n("due")]:
         # view answers immediately if viewed past the due date
         out += '\n<script type="text/javascript">'
+        out += "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
         out += "\ncatsoop.ajaxrequest(catsoop.all_questions,'lock');"
+        out += "\n// @license-end"
         out += "\n</script>"
         return out
     else:
         out += '\n<script type="text/javascript">'
+        out += "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
         out += (
             "\ncatsoop.timer_now = %d;"
             "\ncatsoop.timer_due = %d;"
@@ -2043,6 +2055,7 @@ def default_timer(context):
             context["csm_time"].unix(context[_n("due")]),
             context["cs_url_root"] + "/_util/time",
         )
+        out += "\n// @license-end"
         out += "\n</script>"
         out += (
             '<script type="text/javascript" '
@@ -2353,6 +2366,7 @@ WEBSOCKET_RESPONSE = """
 <small%(id_css)s>ID: <code>%(magic)s</code></small>
 
 <script type="text/javascript">
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
 var magic_%(name)s = %(magic)r;
 if (typeof ws_%(name)s != 'undefined'){
     ws_%(name)s.onclose = function(){}
@@ -2418,5 +2432,6 @@ ws_%(name)s.onmessage = function(event){
 
 ws_%(name)s.onerror = function(event){
 }
+// @license-end
 </script>
 """

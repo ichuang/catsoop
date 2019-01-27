@@ -26,7 +26,6 @@ def markdownify(context, text):
 
 
 def richtext_format(context, text, msg="Preview:"):
-    # text = text.replace('<', '&lt;').replace('>', '&gt;')
     out = "</br>%s<br/>" % msg
     out += (
         '<div style="background-color: #eeeeee;' 'padding:10px; border-radius:10px;">'
@@ -36,8 +35,10 @@ def richtext_format(context, text, msg="Preview:"):
     out = out.replace("</script", "&lt;script")
     out += (
         '<script type="text/javascript">'
-        'catsoop.render_all_math(document.getElementById("cs_qdiv_%s"), true);'
-        "</script>"
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
+        '\ncatsoop.render_all_math(document.getElementById("cs_qdiv_%s"), true);'
+        "\n// @license-end"
+        "\n</script>"
     ) % context["csq_name"]
     out += "</div>"
     return out

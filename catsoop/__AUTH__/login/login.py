@@ -1008,6 +1008,7 @@ def _validate_username(context, u):
 
 
 REGISTRATION_FORM_CHECKER = """<script type="text/javascript">
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
 %s
 %s
 %s
@@ -1057,6 +1058,7 @@ function check_form(){
 }
 document.addEventListener('DOMContentLoaded', check_form);
 document.getElementById("regform").addEventListener('keyup', check_form);
+// @license-end
 </script>""" % (
     _validate_email_javascript,
     _validate_username_javascript,
@@ -1066,6 +1068,7 @@ document.getElementById("regform").addEventListener('keyup', check_form);
 
 CHANGE_PASSWORD_FORM_CHECKER = (
     """<script type="text/javascript">
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
 %s
 function check_form(){
     var p_msg = "";
@@ -1085,6 +1088,7 @@ function check_form(){
 }
 document.addEventListener('DOMContentLoaded', check_form);
 document.getElementById("pwdform").addEventListener('keyup', check_form);
+// @license-end
 </script>"""
     % _validate_password_javascript
 )
@@ -1175,12 +1179,17 @@ def _submit_button(fields, username, preserve, form, value="Submit"):
         ' value="%s"'
         ' onclick="catsoop.hashlib.hash_passwords(%r, %r, %r, %r)" />'
     )
-    base += '<script type="text/javascript">document.querySelectorAll("#%s input").forEach(function(a){'
-    base += '    a.addEventListener("keypress",function(e){'
-    base += '        if(e.which == 13) document.getElementById("%s_submitter").click();'
-    base += "    });"
-    base += "});"
-    base += "</script>"
+    base += (
+        '<script type="text/javascript">'
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
+        '\ndocument.querySelectorAll("#%s input").forEach(function(a){'
+        '\n    a.addEventListener("keypress",function(e){'
+        '\n        if(e.which == 13) document.getElementById("%s_submitter").click();'
+        "\n    });"
+        "\n});"
+        "\n// @license-end"
+        "\n</script>"
+    )
     return base % (form, value, fields, username, preserve, form, form, form)
 
 

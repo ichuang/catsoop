@@ -605,7 +605,11 @@ def render_html(last_log, **info):
 def answer_display(**info):
     out = (
         "Here is the solution we wrote:<br/>"
-        '<pre><code id="%s_soln_highlight" class="lang-python">%s</code></pre>'
-        '<script type="text/javascript">hljs.highlightBlock(document.getElementById("%s_soln_highlight"));</script>'
+        '\n<pre><code id="%s_soln_highlight" class="lang-python">%s</code></pre>'
+        '\n<script type="text/javascript">'
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
+        '\nhljs.highlightBlock(document.getElementById("%s_soln_highlight"));'
+        "\n// @license-end"
+        "\n</script>"
     ) % (info["csq_name"], info["csq_soln"].replace("<", "&lt;"), info["csq_name"])
     return out

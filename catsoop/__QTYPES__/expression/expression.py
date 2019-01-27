@@ -471,8 +471,11 @@ def handle_submission(submissions, **info):
         msg += info["csq_msg_function"](submissions[info["csq_name"]])
         msg = info["csm_language"].source_transform_string(info, msg)
         msg = (
-            """\n<script type="text/javascript">"""
-            """document.getElementById('image%s').innerHTML = %r;</script>\n"""
+            '\n<script type="text/javascript">'
+            "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
+            '\ndocument.getElementById("image%s").innerHTML = %r;'
+            "\n// @license-end"
+            "\n</script>"
         ) % (n, msg)
         if info["csq_render_result"]:
             msg += get_display(info, n, sub, False, _m or "")
@@ -516,8 +519,11 @@ def get_display(info, name, last, reparse=True, extra_msg=""):
     last += csm_language.source_transform_string(info, extra_msg)
     out = '<div id="expr%s">Your entry was parsed as:<br/>%s</div>' % (name, last)
     out += (
-        '<script type="text/javascript">catsoop.render_all_math(document.getElementById("expr%s"), true);</script>'
-        % name
+        '<script type="text/javascript">'
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
+        '\ncatsoop.render_all_math(document.getElementById("expr%s"), true);'
+        "\n// @license-end"
+        "\n</script>" % name
     )
     return out
 
@@ -550,8 +556,11 @@ def answer_display(**info):
             count += 1
         out += "</div>"
     out += (
-        '<script type="text/javascript">catsoop.render_all_math(document.getElementById("%s_soln"), true);</script>'
-        % info["csq_name"]
+        '<script type="text/javascript">'
+        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
+        '\ncatsoop.render_all_math(document.getElementById("%s_soln"), true);'
+        "\n// @license-end"
+        "\n</script>" % info["csq_name"]
     )
     return out
 

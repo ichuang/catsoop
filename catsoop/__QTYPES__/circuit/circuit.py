@@ -199,13 +199,13 @@ def render_html(last_log, **info):
     return out + (
         '\n<script type="text/javascript">'
         "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
-        "update_schematics();"
-        'document.addEventListener("DOMContentLoaded", function(){'
-        'document.getElementById("%s_buttons").addEventListener("mouseover", function(){'
-        'document.getElementById("%s").schematic.prepare_submission();'
+        "\nupdate_schematics();"
+        '\ndocument.addEventListener("DOMContentLoaded", function(){'
+        '\ndocument.getElementById("%s_buttons").addEventListener("mouseover", function(){'
+        '\ndocument.getElementById("%s").schematic.prepare_submission();'
         "\n// @license-end"
-        "});"
-        "});"
+        "\n});"
+        "\n});"
         "</script>"
     ) % (name, name)
 
