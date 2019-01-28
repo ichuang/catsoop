@@ -541,7 +541,10 @@ def replace_custom_tags(context, source, disable_markdown=False):
         premier = names_todo.pop()
         this_level = custom_tags[premier].get("priority", 0)
         at_this_level = [premier]
-        while len(names_todo) > 0 and custom_tags[names_todo[-1]].get("priority") == this_level:
+        while (
+            len(names_todo) > 0
+            and custom_tags[names_todo[-1]].get("priority") == this_level
+        ):
             at_this_level.append(names_todo.pop())
 
         def make_subs_func(opts):
