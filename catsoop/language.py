@@ -217,7 +217,12 @@ def gather_page(context, source):
             "</div>"
         )
     else:
-        source = annotate_python(os.path.join(*context["cs_path_info"]), source)
+        path = (
+            ("%s%s" % (os.sep, os.path.join(*context["cs_path_info"])))
+            if context["cs_path_info"]
+            else os.sep
+        )
+        source = annotate_python(path, source)
         source = remove_comments(source)
         source = replace_include_tags(context, source)
         source = remove_comments(source)
