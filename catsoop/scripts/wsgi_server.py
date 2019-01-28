@@ -17,9 +17,14 @@
 import os
 import sys
 
-CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 if CATSOOP_LOC not in sys.path:
-    sys.path.append(CATSOOP_LOC)
+    if os.environ.get("CATSOOP_PREPEND_PATH"):
+        print("[wsgi_server] prepending %s to path" % CATSOOP_LOC)
+        sys.path.insert(0, CATSOOP_LOC)
+    else:
+        print("[wsgi_server] appending %s to path" % CATSOOP_LOC)
+        sys.path.append(CATSOOP_LOC)
 
 from catsoop.wsgi import application
 from cheroot import wsgi
