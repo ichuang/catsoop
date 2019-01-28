@@ -1018,7 +1018,7 @@ def build_question(body, params, context):
             except:
                 pass
         else:
-            text = context["csm_errors"].error_message_content(context, html=false)
+            text = context["csm_errors"].error_message_content(context, html=False)
             exc_only = [""]
         text = "".join([text] + exc_only)
         err = html_format(clear_info(context, text))
