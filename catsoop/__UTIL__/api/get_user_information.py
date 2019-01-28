@@ -32,4 +32,12 @@ output = csm_api.get_user_information(
     _as=cs_form.get("as", None),
 )
 
-response = json.dumps(output, default=lambda x: None)
+
+def _json_mapper(x):
+    if isinstance(x, (set, tuple)):
+        return list(x)
+    else:
+        return None
+
+
+response = json.dumps(output, default=_json_mapper)
