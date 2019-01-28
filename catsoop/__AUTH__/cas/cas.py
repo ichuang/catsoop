@@ -27,7 +27,7 @@ def get_logged_in_user(context):
     LOGGER.info("[auth.cas] login action=%s" % action)
 
     if action == "logout":
-        ticket = context['cs_session_data'].get("cas_ticket")
+        ticket = context['cs_session_data'].get("cas_ticket", "")
         logout_url = cas_url + "/logout" + '?service=' + urllib.parse.quote(redir_url) + '&ticket=' + urllib.parse.quote(ticket)
         try:
             ret = urllib.request.urlopen(logout_url).read()
