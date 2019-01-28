@@ -532,52 +532,63 @@ def replace_custom_tags(context, source, disable_markdown=False):
     # Since timsort is stable, we
     # sort lexicographically...
     names_todo.sort()
+    names_todo.reverse()
     # ...then sort by precedence,
     names_todo.sort(key=lambda n: custom_tags[n].get("priority", 0))
-    # and put biggest first
-    names_todo.reverse()
 
     symbols = {}
-    for name in names_todo:
-        opts = custom_tags[name]
+    while len(names_todo) > 0:
+        premier = names_todo.pop()
+        this_level = custom_tags[premier].get("priority", 0)
+        at_this_level = [premier]
+        while len(names_todo) > 0 and custom_tags[names_todo[-1]].get("priority") == this_level:
+            at_this_level.append(names_todo.pop())
 
-        open_replmnt = opts.get("open", None)
-        body_replmnt = opts.get("body", None)
-        close_replmnt = opts.get("close", None)
-        run_markdown = opts.get("markdown", True)
-        verbatim = opts.get("verbatim", False)
+        def make_subs_func(opts):
+            open_replmnt = opts.get("open", None)
+            body_replmnt = opts.get("body", None)
+            close_replmnt = opts.get("close", None)
+            run_markdown = opts.get("markdown", True)
+            verbatim = opts.get("verbatim", False)
 
-        def subs_func(opening, body, closing, context):
-            _, params = parse_tag(opening)
+            def subs_func(opening, body, closing, context):
+                _, params = parse_tag(opening)
 
-            if open_replmnt is None:
-                new_open = opening
-            elif isinstance(open_replmnt, str):
-                new_open = open_replmnt
-            else:
-                new_open = open_replmnt(params, context)
+                if open_replmnt is None:
+                    new_open = opening
+                elif isinstance(open_replmnt, str):
+                    new_open = open_replmnt
+                else:
+                    new_open = open_replmnt(params, context)
 
-            if body_replmnt is None:
-                new_body = body
-            elif isinstance(body_replmnt, str):
-                new_body = body_replmnt
-            else:
-                new_body = body_replmnt(body, params, context)
+                if body_replmnt is None:
+                    new_body = body
+                elif isinstance(body_replmnt, str):
+                    new_body = body_replmnt
+                else:
+                    new_body = body_replmnt(body, params, context)
 
-            if close_replmnt is None:
-                new_close = closing
-            elif isinstance(close_replmnt, str):
-                new_close = close_replmnt
-            else:
-                new_close = close_replmnt(params, context)
+                if close_replmnt is None:
+                    new_close = closing
+                elif isinstance(close_replmnt, str):
+                    new_close = close_replmnt
+                else:
+                    new_close = close_replmnt(params, context)
 
-            if not verbatim:
-                new_body = replace_custom_tags(context, new_body, not run_markdown)
+                if not verbatim:
+                    new_body = replace_custom_tags(context, new_body, not run_markdown)
 
-            return new_open + new_body + new_close
+                return new_open + new_body + new_close
+
+            return subs_func
+
+        subs_funcs = {}
+        for name in at_this_level:
+            opts = custom_tags[name]
+            subs_funcs[name] = make_subs_func(opts)
 
         source = replace_toplevel_element(
-            source, name, subs_func, symbols=symbols, context=context
+            source, at_this_level, subs_funcs, symbols=symbols, context=context
         )
 
     if context["cs_source_format"] == "md" and not disable_markdown:
@@ -694,6 +705,9 @@ def replace_toplevel_element(
         body = source[start:stop]
         closing = source[stop:post_stop]
         after = source[post_stop:]
+
+        if isinstance(substitution, dict):
+            substitution = substitution[tags[0][1]]
 
         if len(inspect.getfullargspec(substitution).args) == 4:
             inner = substitution(opening, body, closing, context)
