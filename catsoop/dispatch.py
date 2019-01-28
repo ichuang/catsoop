@@ -574,6 +574,11 @@ def _compute_light_color(base):
     light_hsv = (base_hsv[0], _clip(base_hsv[1] - 0.2), _clip(base_hsv[2] + 0.2))
     return _rgb_to_hex(_hsv_to_rgb(light_hsv))
 
+def get_client_ipaddr(environment):
+    try:
+        return environment['HTTP_X_FORWARDED_FOR'].split(',')[-1].strip()
+    except KeyError:
+        return environment['REMOTE_ADDR']
 
 def main(environment, return_context=False):
     """
@@ -703,8 +708,9 @@ def main(environment, return_context=False):
                 path,
             )
         session_data = session.get_session_data(context, context["cs_sid"])
+        session_data['ip_addr'] = get_client_ipaddr(environment)
         context["cs_session_data"] = session_data
-        LOGGER.info("[dispatch.main] session_id=%s" % context["cs_sid"])
+        LOGGER.info("[dispatch.main] (%s) session_id=%s" % (session_data['ip_addr'], context["cs_sid"]))
         LOGGER.info("[dispatch.main] path_info=%s" % path_info)
 
         # Handle LTI (must be done prior to authentication & other processing)
