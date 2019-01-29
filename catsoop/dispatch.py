@@ -469,7 +469,7 @@ def _breadcrumbs_html(context):
         )
         name = language.html_from_source(context, name)
         elements.append('<span class="line"><a href="%s">%s</a></span>' % (link, name))
-    return ' <span class="cs_nav_separator">&gt;&gt;</span> '.join(elements)
+    return ' <span class="cs_nav_separator">/</span> '.join(elements)
 
 
 def md5(x):

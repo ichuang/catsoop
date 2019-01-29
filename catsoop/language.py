@@ -217,11 +217,8 @@ def gather_page(context, source):
             "</div>"
         )
     else:
-        path = (
-            ("%s%s" % (os.sep, os.path.join(*context["cs_path_info"])))
-            if context["cs_path_info"]
-            else os.sep
-        )
+        path = context.get("cs_path_info", [])
+        path = ("%s%s" % (os.sep, os.path.join(*path))) if path else os.sep
         source = annotate_python(path, source)
         source = remove_comments(source)
         source = replace_include_tags(context, source)
@@ -430,13 +427,15 @@ def replace_python_tags(context, source):
 
         if "cs_internal_linenumber" not in params:
             emergency = 10000
-            LOGGER.warning(
-                "Python tag %s has unknown position; starting line numbering at %d."
-                % (opening, emergency)
-            )
+            if name != "printf":
+                LOGGER.warning(
+                    "Python tag %s has unknown position; starting line numbering at %d."
+                    % (opening, emergency)
+                )
             params["cs_internal_linenumber"] = emergency
         if "cs_internal_sourcefile" not in params:
-            LOGGER.warning("Python tag %s has unknown source." % opening)
+            if name != "printf":
+                LOGGER.warning("Python tag %s has unknown source." % opening)
             params["cs_internal_sourcefile"] = "UNKNOWN"
 
         linenumber = int(params["cs_internal_linenumber"])
@@ -609,6 +608,33 @@ def replace_custom_tags(context, source, disable_markdown=False):
                 markdown_math.MathExtension(),
             ],
         )
+        # Markdown inserts a lot of paragraph tags; let's make sure they're balanced
+        opening_expr = re.compile(r"<p>")
+        closing_expr = re.compile(r"</p>")
+        opening_pars = [(m, +1) for m in re.finditer(opening_expr, source)]
+        closing_pars = [(m, -1) for m in re.finditer(closing_expr, source)]
+        pars = sorted(opening_pars + closing_pars, key=(lambda t: t[0].start()))
+        depth = 0
+        toplevel_pars = 0
+        for p in pars:
+            depth += p[1]
+            if depth < 0:
+                raise CatsoopSyntaxError("Unexpected closing tag </p>" % tags[0][0].group(0))
+            if depth == 0:
+                toplevel_pars += 1
+        if depth != 0:
+            raise CatsoopSyntaxError("Unmatched opening tag <p>")
+
+        # If everything is inside one paragraph element, strip it away
+        # (it's more or less never something we want)
+        if toplevel_pars == 1:
+            preopen = pars[0][0].start()
+            postopen = pars[0][0].end()
+            preclose = pars[-1][0].start()
+            postclose = pars[-1][0].end()
+            if (source[:preopen].strip() == ''
+                and source[postclose:].strip() == ''):
+                source = source[postopen:preclose]
 
     for sym, repl in symbols.items():
         source = source.replace(sym, repl)
