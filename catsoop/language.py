@@ -583,7 +583,7 @@ def replace_custom_tags(context, source, disable_markdown=False):
                     new_close = close_replmnt(params, context)
 
                 if not verbatim:
-                    new_body = replace_custom_tags(context, new_body, not run_markdown)
+                    new_body = replace_custom_tags(context, new_body, disable_markdown = not run_markdown)
 
                 return new_open + new_body + new_close
 
@@ -636,8 +636,14 @@ def replace_custom_tags(context, source, disable_markdown=False):
                 and source[postclose:].strip() == ''):
                 source = source[postopen:preclose]
 
-    for sym, repl in symbols.items():
-        source = source.replace(sym, repl)
+    # It's possible that an element of high priority gets replaced by a symbol,
+    # and then later an element of lower priority enclosing that symbol itself
+    # is replaced. Then it is necessary to substitute twice succesively – once
+    # to restore the lower priority element (and the high priority symbol), and
+    # then once more to restore the higher priority element.
+    while any(sym in source for sym in symbols):
+        for sym, repl in symbols.items():
+            source = source.replace(sym, repl)
 
     return source
 
