@@ -217,7 +217,7 @@ def content_file_location(context, path):
     basepath = loader.get_course_fs_location(context, course)
     basepath = os.path.join(basepath, *newpath)
 
-    for f in context["csm_language"].source_formats:
+    for f in language.source_formats:
         if broke:
             fn = os.path.join(basepath, "%s.%s" % (cur, f))
             if os.path.isfile(fn) and not (cur.startswith(".") or cur.startswith("_")):
@@ -431,7 +431,7 @@ def display_page(context):
     f.close()
     out = CSFormatter().format(template, **context)
     context["cs_source_format"] = "xml"
-    out = context["csm_language"].html_from_source(context, out)
+    out = language.html_from_source(context, out)
     headers.update(context.get("cs_additional_headers", {}))
     headers.update({"Last-Modified": formatdate()})
     return ("200", "OK"), headers, out

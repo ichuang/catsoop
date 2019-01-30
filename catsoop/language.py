@@ -182,33 +182,59 @@ class CatsoopInternalError(Exception):
     pass
 
 
+_nodoc = {
+    "source_formats",
+    "html_from_source",
+    "replace_toplevel_element",
+    "parse_tag",
+    "___valid_qname",
+    "___reformat_tag",
+    "build_question",
+    "cs_custom_tags_builtins",
+    "___indent_regex",
+    "___string_regex",
+    "___ascii_letters",
+    "___tab_replacer",
+    "___replace_indentation_tabs",
+    "remove_common_leading_whitespace",
+    "indent_python",
+    "legacy_tree",
+    "handle_math_tags",
+}
+
 # Interface Functions ----------------------------------------------------------
 #   gather_page
 #   assemble_page
 #   html_from_source
 
 
-def html_from_source(context, source):
-    return assemble_page(context, gather_page(context, source), False)
+def html_from_source(context, source, override_format=None):
+    return assemble_page(
+        context, gather_page(context, source, override_format), override_format, False
+    )
 
 
-def gather_page(context, source):
+def gather_page(context, source, override_format=None):
     """
     Gathers all the sources for a page.
 
-    Parameters:
-        `context` = the context of this request (should be `into` from loader.py)
-        `source`    the text of this request
-    Calls:
+    **Parameters:**
+        `context`           the context of this request (should be `into` from loader.py)
+        `source`            the text of this request
+    **Optional Paramters:**
+        `override_format`   the format that `source` should be considered to have, regardless of `cs_source_format`
+    **Returns:**
+        `source`    the modified text
+    **Calls:**
         (0) `annotate_python`
             `remove_comments`
         (1) `replace_include_tags`
             `remove_comments`
         (2) `replace_python_tags`
-    Returns:
-        `source`    the modified text
     """
-    if context["cs_source_format"] == "py":
+    source_format = override_format or context["cs_source_format"]
+
+    if source_format == "py":
         exec(source, context)
         return (
             "<div style='color:red;'>"
@@ -227,22 +253,27 @@ def gather_page(context, source):
     return source
 
 
-def assemble_page(context, source, set_problem_spec=True):
+def assemble_page(context, source, override_format=None, set_problem_spec=True):
     """
     Assembles the final HTML of a page.
 
-    Parameters:
-        `context`   the context of this request (should be `into` from loader.py)
-        `source`    the text of this request
-    Calls:
+    **Parameters:**
+        `context`           the context of this request (should be `into` from loader.py)
+        `source`            the text of this request
+    **Optional Paramters:**
+        `override_format`   the format that `source` should be considered to have, regardless of `cs_source_format`
+        `set_problem_spec`  a boolean that controls whether `cs_problem_spec` is set or not
+    **Returns:**
+        `source`            the modified text
+    **Calls:**
         (3) `context["cs_transform_source"]`
         (4) `replace_custom_tags`
         (5) `context["cs_course_handle_custom_tags"]`
         (6) `build_tree`
-    Returns:
-        `source`    the modified text
     """
-    if context["cs_source_format"] == "py":
+    source_format = override_format or context["cs_source_format"]
+
+    if source_format == "py":
         return (
             "<div style='color:red;'>"
             "<b>This is a python file.</b><br>"
@@ -262,7 +293,7 @@ def assemble_page(context, source, set_problem_spec=True):
         if name not in context["cs_custom_tags"]:
             context["cs_custom_tags"][name] = cs_custom_tags_builtins[name]
 
-    source = replace_custom_tags(context, source)
+    source = replace_custom_tags(context, source, source_format)
 
     if "cs_course_handle_custom_tags" in context:
         LOGGER.warning(
@@ -314,10 +345,10 @@ def annotate_python(fn, source):
         cs_internal_sourcefile  the name of source file that this tag is from
         cs_internal_linenumber  the line number of this tag in its source file
 
-    Parameters:
+    **Parameters:**
         `fn`        the name of the original file containing the tag
         `source`    the text of this request
-    Returns:
+    **Returns:**
         `source`    the modified text
     """
     expr = re.compile(r"< *(python|printf)( *| +[^>]+)>")
@@ -341,9 +372,9 @@ def remove_comments(source):
     """
     Removes `<comment>` elements.
 
-    Parameters:
+    **Parameters:**
         `source`    the text of this request
-    Returns:
+    **Returns:**
         `source`    the modified text
     """
     subs_func = lambda opening, body, closing: ""
@@ -355,10 +386,10 @@ def replace_include_tags(context, source):
     """
     Replaces `<include>` tags with the contents of the files they reference.
 
-    Parameters:
+    **Parameters:**
         `context`   the context of this request
         `source`    the text of this request
-    Returns:
+    **Returns:**
         `source`    the modified text
     """
     # handle paths relative to here unless given an absolute path
@@ -400,10 +431,10 @@ def replace_python_tags(context, source):
     Replaces `<python>` elements with the output of the code within, and `@{}`
     and `<printf>` with the representation of the variable they reference.
 
-    Parameters:
+    **Parameters:**
         `context`   the context of this request
         `source`    the text of this request
-    Returns:
+    **Returns:**
         `source`    the modified text
     """
     # The next 11 lines are legacy code, and
@@ -516,7 +547,7 @@ def replace_python_tags(context, source):
     return source
 
 
-def replace_custom_tags(context, source, disable_markdown=False):
+def replace_custom_tags(context, source, source_format, disable_markdown=False):
     """
     Replaces custom tags as described at the top of this file (language.py).
 
@@ -524,11 +555,14 @@ def replace_custom_tags(context, source, disable_markdown=False):
     function should not modify `context`. The argument `source` is passed in as
     a separate argument to reflect this difference in paradigm.
 
-    Parameters:
-        `context`   the context of this request
-        `source`    the text of this request
-    Returns:
-        `source`    the modified text
+    **Parameters:**
+        `context`           the context of this request
+        `source`            the text of this request
+        `source_format`     the format that `source` should be considered to have
+    **Optional Parameters:**
+        `disable_markdown`  a boolean that disables markdown transformations
+    **Returns:**
+        `source`            the modified text
     """
     custom_tags = context["cs_custom_tags"]
     names_todo = list(custom_tags.keys())
@@ -583,7 +617,12 @@ def replace_custom_tags(context, source, disable_markdown=False):
                     new_close = close_replmnt(params, context)
 
                 if not verbatim:
-                    new_body = replace_custom_tags(context, new_body, disable_markdown = not run_markdown)
+                    new_body = replace_custom_tags(
+                        context,
+                        new_body,
+                        source_format,
+                        disable_markdown=not run_markdown,
+                    )
 
                 return new_open + new_body + new_close
 
@@ -598,7 +637,7 @@ def replace_custom_tags(context, source, disable_markdown=False):
             source, at_this_level, subs_funcs, symbols=symbols, context=context
         )
 
-    if context["cs_source_format"] == "md" and not disable_markdown:
+    if source_format == "md" and not disable_markdown:
         source = markdown.markdown(
             source,
             extensions=[
@@ -619,11 +658,13 @@ def replace_custom_tags(context, source, disable_markdown=False):
         for p in pars:
             depth += p[1]
             if depth < 0:
-                raise CatsoopSyntaxError("Unexpected closing tag </p>" % tags[0][0].group(0))
+                # raise CatsoopSyntaxError("Unexpected closing tag </p>")
+                pass
             if depth == 0:
                 toplevel_pars += 1
         if depth != 0:
-            raise CatsoopSyntaxError("Unmatched opening tag <p>")
+            # raise CatsoopSyntaxError("Unmatched opening tag <p>")
+            pass
 
         # If everything is inside one paragraph element, strip it away
         # (it's more or less never something we want)
@@ -632,8 +673,7 @@ def replace_custom_tags(context, source, disable_markdown=False):
             postopen = pars[0][0].end()
             preclose = pars[-1][0].start()
             postclose = pars[-1][0].end()
-            if (source[:preopen].strip() == ''
-                and source[postclose:].strip() == ''):
+            if source[:preopen].strip() == "" and source[postclose:].strip() == "":
                 source = source[postopen:preclose]
 
     # It's possible that an element of high priority gets replaced by a symbol,
@@ -653,10 +693,10 @@ def build_tree(context, source):
     Create a BeautifulSoup tree and implement the functionality of the remainder
     of the custom tags.
 
-    Parameters:
+    **Parameters:**
         `context`   the context of this request
         `source`    the text of this request
-    Returns:
+    **Returns:**
         `source`    the modified text
     """
     tree = BeautifulSoup(source, "html.parser")
@@ -716,7 +756,12 @@ def replace_toplevel_element(
     while len(tags) > 0:
         # check for an unexpected closing tag
         if not tags[0][2]:
-            raise CatsoopSyntaxError("Unexpected closing tag %s" % tags[0][0].group(0))
+            err_start = max(0, tags[0][0].start() - 80)
+            err_end = tags[0][0].end()
+            raise CatsoopSyntaxError(
+                "Unexpected closing tag %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
+                % (tags[0][0].group(0), source[err_start:err_end])
+            )
         # find paired tag
         pre_start = tags[0][0].start()
         start = tags[0][0].end()
@@ -727,18 +772,31 @@ def replace_toplevel_element(
             else:  # closing tag
                 previous = stack.pop()
                 if previous[1] != t[1]:
+                    err_start = max(0, t[0].start() - 80)
+                    err_end = t[0].end()
                     raise CatsoopSyntaxError(
-                        "Unexpected closing tag %s" % t[0].group(0)
+                        "Unexpected closing tag %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
+                        % (t[0].group(0), source[err_start:err_end])
                     )
             if disallow_nesting and len(stack) > 1:
-                raise CatsoopSyntaxError("Nested tag %s" % t[0].group(0))
+                err_start = max(0, t[0].start() - 80)
+                err_end = t[0].end()
+                raise CatsoopSyntaxError(
+                    "Nested tag %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
+                    % (t[0].group(0), source[err_start:err_end])
+                )
             if len(stack) == 0:
                 stop = t[0].start()
                 post_stop = t[0].end()
                 break
         # check for an unmatched opening tag
         if len(stack) != 0:
-            raise CatsoopSyntaxError("Unmatched opening tag %s" % tags[0][0].group(0))
+            err_start = max(0, tags[0][0].start() - 80)
+            err_end = tags[0][0].end()
+            raise CatsoopSyntaxError(
+                "Unexpected opening tag %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
+                % (tags[0][0].group(0), source[err_start:err_end])
+            )
 
         before = source[:pre_start]
         opening = source[pre_start:start]
@@ -872,14 +930,14 @@ def execute_python(context, body, variables, offset, sourcefile):
     the given environment so that its output is directed to `cs___WEBOUT`
     instead of STDOUT.
 
-    Parameters:
+    **Parameters:**
         `context`       the context of this request
         `body`          the string representation of python code to be executed
         `variables`     the dictionary representation of the environment in
                           which the code should be executed
         `offset`        the adjustment that should be made to line numbering
         `sourcefile`    the name of the file from which this code was taken
-    Returns:
+    **Returns:**
         `result`        string containing anything written to `cs___WEBOUT`
     """
     variables.update({"cs___WEBOUT": StringIO()})
