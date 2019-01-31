@@ -265,7 +265,7 @@ def handle_submission(submissions, **info):
         else:
             out_s, err_s, log_s = info["sandbox_run_test"](info, info["csq_soln"], test)
         if count != 1:
-            msg += "\n\n<p></p><hr/><p></p>\n\n"
+            msg += "\n<p></p><hr/><p></p>"
         msg += "\n<center><h3>Test %02d</h3>" % count
         if test["show_description"]:
             msg += "\n<i>%s</i>" % test["description"]

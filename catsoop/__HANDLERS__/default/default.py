@@ -535,7 +535,7 @@ def handle_viewexplanation(context):
 
         q, args = context[_n("name_map")][name]
         exp = explanation_display(args["csq_explanation"])
-        out["explanation"] = language.source_transform_string(context, exp)
+        out["explanation"] = language.html_from_source(context, exp)
         outdict[name] = out
 
         explanationviewed.add(name)
@@ -593,7 +593,7 @@ def handle_viewanswer(context):
 
         # if we are here, no errors occurred.  go ahead with checking.
         ans = q["answer_display"](**args)
-        out["answer"] = language.source_transform_string(context, ans)
+        out["answer"] = language.html_from_source(context, ans)
         outdict[name] = out
 
         answerviewed.add(name)
@@ -819,7 +819,7 @@ def handle_save(context):
 
         rerender = args.get("csq_rerender", question.get("always_rerender", False))
         if rerender is True:
-            out["rerender"] = context["csm_language"].source_transform_string(
+            out["rerender"] = context["csm_language"].html_from_source(
                 context, args.get("csq_prompt", "")
             )
             out["rerender"] += question["render_html"](newstate["last_submit"], **args)
@@ -1049,7 +1049,7 @@ def handle_submit(context):
             try:
                 resp = question["handle_submission"](context[_n("form")], **args)
                 score = resp["score"]
-                msg = context["csm_language"].handle_custom_tags(context, resp["msg"])
+                msg = context["csm_language"].html_from_source(context, resp["msg"])
                 extra = resp.get("extra_data", None)
             except:
                 resp = {}
@@ -1521,9 +1521,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
         )
 
     out += '\n<div id="%s_rendered_question">\n' % name
-    out += context["csm_language"].source_transform_string(
-        context, args.get("csq_prompt", "")
-    )
+    out += context["csm_language"].html_from_source(context, args.get("csq_prompt", ""))
     out += q["render_html"](lastsubmit, **args)
     out += "\n</div>"
 
@@ -1562,7 +1560,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
     if showanswer:
         ans = q["answer_display"](**args)
         out += "\n"
-        out += context["csm_language"].source_transform_string(context, ans)
+        out += context["csm_language"].html_from_source(context, ans)
     out += "\n</div>"
     out += '\n<div id="%s_solution_explanation">' % name
     if (
@@ -1570,7 +1568,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
         and args.get("csq_explanation", "") != ""
     ):
         exp = explanation_display(args["csq_explanation"])
-        out += context["csm_language"].source_transform_string(context, exp)
+        out += context["csm_language"].html_from_source(context, exp)
     out += "\n</div>"
     out += "\n</div>"
 
