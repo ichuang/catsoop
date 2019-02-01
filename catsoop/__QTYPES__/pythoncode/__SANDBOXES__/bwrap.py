@@ -113,8 +113,6 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         p.kill()
         p.wait()
         out, err = p.communicate()
-    out = out.decode("utf-8")
-    err = err.decode("utf-8")
 
     files = []
     for root, _, fs in os.walk(tmpdir):
