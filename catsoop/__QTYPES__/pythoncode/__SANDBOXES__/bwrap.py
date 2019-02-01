@@ -75,12 +75,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         "csq_python_interpreter", context.get("cs_python_interpreter", "python3")
     )
 
-    args = [
-        "bwrap",
-        "--bind",
-        tmpdir,
-        "/run",
-    ]
+    args = ["bwrap", "--bind", tmpdir, "/run"]
     supplied_args = context.get("csq_bwrap_arguments", None)
     if supplied_args is None:
         args.extend(
@@ -107,6 +102,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        encoding="utf-8",
     )
 
     out = ""
@@ -117,8 +113,8 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         p.kill()
         p.wait()
         out, err = p.communicate()
-    out = out.decode()
-    err = err.decode()
+    out = out.decode("utf-8")
+    err = err.decode("utf-8")
 
     files = []
     for root, _, fs in os.walk(tmpdir):

@@ -101,6 +101,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             env={},
+            encoding="utf-8",
         )
     except Exception as err:
         raise Exception(
@@ -116,8 +117,8 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         p.kill()
         p.wait()
         out, err = p.communicate()
-    out = out.decode()
-    err = err.decode()
+    out = out.decode("utf-8")
+    err = err.decode("utf-8")
 
     shutil.rmtree(tmpdir, True)
 
