@@ -323,7 +323,12 @@ def assemble_page(context, source, override_format=None, set_problem_spec=True):
                     context["cs_problem_spec"].append(question)
                     page = p[1]
                 else:
-                    raise CatsoopInternalError("Duplicate question %s" % s)
+                    preceding_length = max(80, len(p[0]))
+                    preceding = p[0][-preceding_length:]
+                    raise CatsoopInternalError(
+                        "Duplicate question %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
+                        % (mark, preceding)
+                    )
         else:
             context["cs_problem_spec"].append(source)
 
@@ -983,7 +988,7 @@ def execute_python(context, body, variables, offset, sourcefile):
         exc_only = traceback.format_exception_only(exc[0], exc[1])
 
         if exc[0] == SyntaxError:
-            text = "Syntax error in python tag (line %d of file %s):\n" % (
+            text = "Syntax error on line %d of python tag (line %d of file %s):\n" % (
                 tb_line - 8,
                 tb_line + offset - 8,
                 sourcefile,
