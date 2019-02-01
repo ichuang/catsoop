@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import ast
 import sys
 import time
 import uuid
@@ -74,15 +75,12 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         "csq_python_interpreter", context.get("cs_python_interpreter", "python3")
     )
 
-    args = ["bwrap"]
+    args = ["bwrap", "--bind", tmpdir, "/run"]
     supplied_args = context.get("csq_bwrap_arguments", None)
     if supplied_args is None:
         args.extend(
             [
                 "--unshare-all",
-                "--bind",
-                tmpdir,
-                "/run",
                 "--chdir",
                 "/run",
                 "--hostname",
@@ -104,6 +102,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        encoding="utf-8",
     )
 
     out = ""
@@ -114,8 +113,6 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         p.kill()
         p.wait()
         out, err = p.communicate()
-    out = out.decode()
-    err = err.decode()
 
     files = []
     for root, _, fs in os.walk(tmpdir):
@@ -132,7 +129,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
     if len(n) == 2:  # should be this
         out, log = n
         try:
-            log = context["csm_cslog"].unprep(log.strip().encode("utf8"))
+            log = ast.literal_eval(log)
         except:
             log = {}
 

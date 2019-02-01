@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import ast
 import sys
 import time
 import uuid
@@ -100,6 +101,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             env={},
+            encoding="utf-8",
         )
     except Exception as err:
         raise Exception(
@@ -115,8 +117,6 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         p.kill()
         p.wait()
         out, err = p.communicate()
-    out = out.decode()
-    err = err.decode()
 
     shutil.rmtree(tmpdir, True)
 
@@ -125,7 +125,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
     if len(n) == 2:  # should be this
         out, log = n
         try:
-            log = context["csm_cslog"].unprep(log.strip().encode("utf8"))
+            log = ast.literal_eval(log.strip())
         except:
             log = {}
 
