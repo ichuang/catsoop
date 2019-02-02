@@ -13,22 +13,37 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Library of common checker functions.
+"""
 
 import ast
 
 
 def equal():
     """
-    Check whether two values are equivalent using Python's ==
+    Generate a check function that checks whether two values are equivalent
+    using Python's `==`.
+
+    **Parameters:** none
+
+    **Returns:** a function suitable for use as a `csq_check_function`.
     """
     return lambda sub, soln: sub == soln
 
 
 def check_result(f=None):
     """
-    Given a function that compares two Python values, return a new check
-    function that compares the 'result' fields of a submission and solution
-    using the given function.
+    Given a check function that directly compares values, return a new check
+    function that compares the `'result'` fields of a submission and solution
+    using the given function.  For use with the `pythoncode` question type.
+
+    **Parameters:**
+
+    * `f` (optional:) a function that compares two values.  Defaults to
+        comparison using `==`.
+
+    **Returns:** a function suitable for use as a `csq_check_function`.
     """
     f = f if f is not None else equal()
 
@@ -43,7 +58,17 @@ def check_result(f=None):
 
 def number_close(absolute_threshold=None, ratio_threshold=None):
     """
-    Check whether two numbers are close (within the given thresholds)
+    Generate a check function that checks whether two numbers are close (within
+    the given thresholds).
+
+    **Parameters:**
+
+    * `absolute_threshold` (optional): the maximum absolute difference that
+        will be accepted.
+    * `ration_threshold` (optional): the maximum ratio `submission / solution`
+        that will be accepted.
+
+    **Returns:** a function suitable for use as a `csq_check_function`.
     """
 
     def _checker(sub, sol):
@@ -69,9 +94,16 @@ def number_close(absolute_threshold=None, ratio_threshold=None):
 
 def evaled(f=None):
     """
-    Returns a new check function that evaluates its arguments (using
-    ast.literal_eval) before calling the given function on the evaluated
-    results
+    Given a check function that directly compares values, return a new check
+    function that evaluates its arguments (using `ast.literal_eval`) before
+    calling the given function on the evaluated results
+
+    **Parameters:**
+
+    * `f` (optional:) a function that compares two values.  Defaults to
+        comparison using `==`.
+
+    **Returns:** a function suitable for use as a `csq_check_function`.
     """
     f = f if f is not None else equal()
 
@@ -84,22 +116,38 @@ def evaled(f=None):
     return _inner
 
 
-def list_all(cmp_func=None):
+def list_all(f=None):
     """
-    Check that two lists are equal (same values in the same order)
+    Given a function that compares two values, generate a new check function
+    that checks that two lists are equal (same values in the same order).
+
+    **Parameters:**
+
+    * `f` (optional:) a function that compares two values.  Defaults to
+        comparison using `==`.
+
+    **Returns:** a function suitable for use as a `csq_check_function`.
     """
-    cmp_func = cmp_func or equal()
+    f = f or equal()
     return lambda sub, soln: (
-        len(sub) == len(soln) and all(cmp_func(i, j) for i, j in zip(sub, soln))
+        len(sub) == len(soln) and all(f(i, j) for i, j in zip(sub, soln))
     )
 
 
-def list_all_unordered(cmp_func=None):
+def list_all_unordered(f=None):
     """
-    Check function for lists containing all the same elements (including
-    duplicates), regardless of order.
+    Given a function that directly compares two values, generate a new check
+    function that checks whether two lists contain all the same elements
+    (including duplicates), regardless of order.
+
+    **Parameters:**
+
+    * `f` (optional:) a function that compares two values.  Defaults to
+        comparison using `==`.
+
+    **Returns:** a function suitable for use as a `csq_check_function`.
     """
-    cmp_func = cmp_func or equal()
+    f = f or equal()
 
     def _cmp(sub, soln):
         sub = list(sub)
@@ -107,7 +155,7 @@ def list_all_unordered(cmp_func=None):
         while sub:
             elt = sub.pop()
             for elt2 in soln:
-                if cmp_func(elt, elt2):
+                if f(elt, elt2):
                     soln.remove(elt2)
                     break
             else:
@@ -117,12 +165,21 @@ def list_all_unordered(cmp_func=None):
     return _cmp
 
 
-def dict_all(cmp_func=None):
+def dict_all(f=None):
     """
-    Checker function for dictionaries.  Makes sure all keys and associated
-    values match.
+    Given a function that directly compares two valies, generate a new check
+    function that takes two dictionaries and checks that all keys are idntical,
+    and that the associated values are equivalent according to the given
+    function.
+
+    **Parameters:**
+
+    * `f` (optional:) a function that compares two values.  Defaults to
+        comparison using `==`.
+
+    **Returns:** a function suitable for use as a `csq_check_function`.
     """
-    cmp_func = cmp_func or equal()
+    f = f or equal()
     return lambda sub, soln: (
-        set(sub) == set(soln) and all(cmp_func(sub[i], soln[i]) for i in sub)
+        set(sub) == set(soln) and all(f(sub[i], soln[i]) for i in sub)
     )
