@@ -719,7 +719,7 @@ def main(environment, return_context=False):
         # Handle LTI (must be done prior to authentication & other processing)
         if path_info and context["cs_course"] == "_lti":
             LOGGER.info("[dispatch.main] serving LTI")
-            return lti.serve_lti(context, path_info, environment, form_data, main)
+            return lti.serve_lti(context, path_info, environment, form_data, main, return_context)
 
         # DO EARLY LOAD FOR THIS REQUEST
         if context["cs_course"] is not None:
