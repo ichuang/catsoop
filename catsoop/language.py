@@ -14,135 +14,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-SUMMARY OF THIS FILE
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   The overall flow when parsing a page is:
-
-0. Label all the <python> tags with their line number and the current file; e.g.
-
-      <python>
-
-   on line 67 in file "COURSE/information/content.md" becomes
-
-      <python cs_internal_sourcefile="COURSE/information/content.md" cs_internal_linenumber=67>
-
-½. <comment> elements are removed.
-
-1. <include> tags are replaced by the contents of the files they reference.
-   Before substitution into the current document, step 0 is run analagously on
-   the contents of each file.
-
-1½. <comment> elements are removed again.
-
-2. <python> tags are replaced by the output of the code inside them.
-
-   [At this point, any `post_load` events occur.]
-
-3. `cs_transform_source : string -> string` is run on the entire page.
-
-4a. Custom tags are handled. Each tag name in `cs_custom_tags`
-
-      cs_custom_tags : {string => {'open' => tag_replmt
-                                   'body' => body_replmt
-                                   'close' => tag_replmt
-                                   'markdown' => bool
-                                   'verbatim' => bool}}
-
-      tag_replmt = string | params * context -> string
-
-      body_replmt = string | string * params * context -> string
-
-      params = {string => string}
-
-   Here's an example:
-
-      # <note>hello!</note>
-      #   will become
-      # <b>Note:</b> <span style="color: #808080;">hello!</span>
-      #
-      # <note color="#333366">sample text</note>
-      #   will become
-      # <b>Note:</b> <span style="color: #333366;">sample text</span>
-
-      def note_open(params, context):
-        color = params["color"] if "color" in params else "#808080"
-        return '<b>Note:</b> <span style="color:%s">' % color
-
-      cs_custom_tags = {"note": ('open': note_open, 'close': "</span>")}
-
-      # Instead of using None, we could have written
-      #
-      # def note_body(text, params, context):
-      #     return text
-      # cs_custom_tags = {"note": {'open': note_open, 'body': note_body, 'close': "</span>")}
-      #
-      # and achieved the same effect.
-
-   For each top-level custom element in the content file,
-
-    - everything between the opening and closing tags (including the tags them-
-      selves) is removed and replaced with a unique, random string ("uid").
-
-    - The replacement opening tag and body are generated using the corresponding
-      functions in `cs_custom_tags`.
-
-    - Step 4 is recursively run on the replacement body.
-
-    - The results are saved in the `custom_elements` dict, keyed on the uid.
-
-4b. If the content file is in markdown, modify the source up to this point by
-   calling the `md` function.
-
-4c. Each uid in `custom_elements` is replaced by its corresponding text.
-
-5. `cs_course_handle_custom_tags` is deprecated, but for legacy support its
-   behavior is replicated here.
-
-6. Other CAT-SOOP-specific tags are implemented using BeautifulSoup.
-   If the function `cs_transform_tree : tree -> tree` is defined, it is
-   called before the built-ins are applied.
-
-7. the page source is split into the format required by __HANDLERS__ and placed
-   in `cs_problem_spec`.
-
-
-LIST OF BUILT-IN CUSTOM TAGS IN `cs_custom_tags`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   Name                Attributes          Markdown    Verbatim    Priority
-   ----------------    ----------------    --------    --------    --------
-   comment                                    N           Y           20
-   question            qtype                  N           Y           15
-   script                                     N           Y           14
-   pre                                        N           Y           13
-   displaymath                                N           Y           12
-   math                                       N           Y           11
-   chapter*                                   Y           N            9
-   section*                                   Y           N            8
-   subsection*                                Y           N            7
-   subsubsection*                             Y           N            6
-
-
-
-LIST OF BUILT-IN CUSTOM TAGS IMPLEMENTED WITH BEAUTIFULSOUP
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   Name                Attributes
-   ----------------    ------------------------
-   showhide            label=...
-   displaymath
-   math
-   tableofcontents
-   chapter
-   section
-   subsection
-   subsubsection
-   ref                 label=...
-   footnote
-
+Handling of the CAT-SOOP specification language(s): Markdown, XML, and Python
 """
-
 
 import re
 import os
@@ -172,34 +45,49 @@ LOGGER = debug_log.LOGGER
 
 
 source_formats = ("md", "xml", "py")
+"""
+Tuple of the CAT-SOOP source formats, in the order they should be considered.
+"""
 
 
 class CatsoopSyntaxError(Exception):
+    """
+    Exception raised due to invalid CAT-SOOP syntax
+    """
+
     pass
 
 
 class CatsoopInternalError(Exception):
+    """
+    Exception raised when input cannot be properly handled (but is
+    syntactically valid)
+    """
+
     pass
 
 
 _nodoc = {
-    "source_formats",
-    "html_from_source",
+    "annotate_python",
+    "remove_comments",
+    "replace_include_tags",
+    "replace_python_tags",
+    "replace_custom_tags",
     "replace_toplevel_element",
+    "execute_python",
     "parse_tag",
-    "___valid_qname",
-    "___reformat_tag",
+    "build_tree",
     "build_question",
     "cs_custom_tags_builtins",
-    "___indent_regex",
-    "___string_regex",
-    "___ascii_letters",
-    "___tab_replacer",
-    "___replace_indentation_tabs",
     "remove_common_leading_whitespace",
     "indent_python",
     "legacy_tree",
     "handle_math_tags",
+    "BeautifulSoup",
+    "LOGGER",
+    "StringIO",
+    "html_format",
+    "clear_info",
 }
 
 # Interface Functions ----------------------------------------------------------
@@ -209,6 +97,19 @@ _nodoc = {
 
 
 def html_from_source(context, source, override_format=None):
+    """
+    Given a piece of text representing source code, return the associated HTML
+    (determined by calling `gather_page` and `assemble_page`).
+
+    * `context`: the context of this request
+    * `source`:  the input to be formatted (generally a page or a small snippet
+        of source)
+
+    **Optional Paramters:**
+
+    * `override_format`: The format that `source` should be considered to have.
+        Defaults to `context["cs_source_format"]
+    """
     return assemble_page(
         context, gather_page(context, source, override_format), override_format, False
     )
@@ -216,21 +117,20 @@ def html_from_source(context, source, override_format=None):
 
 def gather_page(context, source, override_format=None):
     """
-    Gathers all the sources for a page.
+    In a given piece of source text, replaces includes and annotates python
+    tags.
 
     **Parameters:**
-        `context`           the context of this request (should be `into` from loader.py)
-        `source`            the text of this request
+
+    * `context`: the context of this request
+    * `source`:  the input to be formatted
+
     **Optional Paramters:**
-        `override_format`   the format that `source` should be considered to have, regardless of `cs_source_format`
-    **Returns:**
-        `source`    the modified text
-    **Calls:**
-        (0) `annotate_python`
-            `remove_comments`
-        (1) `replace_include_tags`
-            `remove_comments`
-        (2) `replace_python_tags`
+
+    * `override_format`: The format that `source` should be considered to have.
+        Defaults to `context["cs_source_format"]
+
+    **Returns:** the modified text
     """
     source_format = override_format or context["cs_source_format"]
 
@@ -255,21 +155,24 @@ def gather_page(context, source, override_format=None):
 
 def assemble_page(context, source, override_format=None, set_problem_spec=True):
     """
-    Assembles the final HTML of a page.
+    Assembles the final HTML of a page by running python code, handling custom
+    tags, and handling built-in tags.
 
     **Parameters:**
-        `context`           the context of this request (should be `into` from loader.py)
-        `source`            the text of this request
+
+    * `context`:  The context of this request
+    * `source`: The source of a page, which should now have no includes
+
     **Optional Paramters:**
-        `override_format`   the format that `source` should be considered to have, regardless of `cs_source_format`
-        `set_problem_spec`  a boolean that controls whether `cs_problem_spec` is set or not
-    **Returns:**
-        `source`            the modified text
-    **Calls:**
-        (3) `context["cs_transform_source"]`
-        (4) `replace_custom_tags`
-        (5) `context["cs_course_handle_custom_tags"]`
-        (6) `build_tree`
+
+    * `override_format`: the format that `source` should be considered to have.
+        Defaults to `context[cs_source_format"]
+
+    * `set_problem_spec`: a boolean that controls whether `cs_problem_spec` is
+        set or not.  Defaults to `True`, but should be set to `False` in the
+        context of evaluating CAT-SOOP source outside of a normal page load.
+
+    **Returns:** a string containing the final HTML generated from the input.
     """
     source_format = override_format or context["cs_source_format"]
 
@@ -335,26 +238,11 @@ def assemble_page(context, source, override_format=None, set_problem_spec=True):
     return source
 
 
-# Top Level Functions ----------------------------------------------------------
-#   annotate_python
-#   remove_comments
-#   replace_include_tags
-#   replace_python_tags
-#   replace_custom_tags
-#   build_tree
-
-
 def annotate_python(fn, source):
     """
-    Modifies `<python>` tags to include two parameters:
+    Helper, modifies `<python>` tags to include two parameters:
         cs_internal_sourcefile  the name of source file that this tag is from
         cs_internal_linenumber  the line number of this tag in its source file
-
-    **Parameters:**
-        `fn`        the name of the original file containing the tag
-        `source`    the text of this request
-    **Returns:**
-        `source`    the modified text
     """
     expr = re.compile(r"< *(python|printf)( *| +[^>]+)>")
 
@@ -375,12 +263,7 @@ def annotate_python(fn, source):
 
 def remove_comments(source):
     """
-    Removes `<comment>` elements.
-
-    **Parameters:**
-        `source`    the text of this request
-    **Returns:**
-        `source`    the modified text
+    Helper, removes `<comment>` elements.
     """
     subs_func = lambda opening, body, closing: ""
     source = replace_toplevel_element(source, "comment", subs_func)
@@ -389,13 +272,8 @@ def remove_comments(source):
 
 def replace_include_tags(context, source):
     """
-    Replaces `<include>` tags with the contents of the files they reference.
-
-    **Parameters:**
-        `context`   the context of this request
-        `source`    the text of this request
-    **Returns:**
-        `source`    the modified text
+    Helper, replaces `<include>` tags with the contents of the files they
+    reference.
     """
     # handle paths relative to here unless given an absolute path
     def subs_func(opening, body, closing):
@@ -433,14 +311,9 @@ def replace_include_tags(context, source):
 
 def replace_python_tags(context, source):
     """
-    Replaces `<python>` elements with the output of the code within, and `@{}`
-    and `<printf>` with the representation of the variable they reference.
-
-    **Parameters:**
-        `context`   the context of this request
-        `source`    the text of this request
-    **Returns:**
-        `source`    the modified text
+    Helper, replaces `<python>` elements with the output of the code within,
+    and `@{}` and `<printf>` with the representation of the variable they
+    reference.
     """
     # The next 11 lines are legacy code, and
     # should probably be rewritten eventually.
@@ -554,20 +427,9 @@ def replace_python_tags(context, source):
 
 def replace_custom_tags(context, source, source_format, disable_markdown=False):
     """
-    Replaces custom tags as described at the top of this file (language.py).
-
     Unlike `replace_include_tags`, `replace_python_tags`, and `build_tree`, this
     function should not modify `context`. The argument `source` is passed in as
     a separate argument to reflect this difference in paradigm.
-
-    **Parameters:**
-        `context`           the context of this request
-        `source`            the text of this request
-        `source_format`     the format that `source` should be considered to have
-    **Optional Parameters:**
-        `disable_markdown`  a boolean that disables markdown transformations
-    **Returns:**
-        `source`            the modified text
     """
     custom_tags = context["cs_custom_tags"]
     names_todo = list(custom_tags.keys())
@@ -695,14 +557,8 @@ def replace_custom_tags(context, source, source_format, disable_markdown=False):
 
 def build_tree(context, source):
     """
-    Create a BeautifulSoup tree and implement the functionality of the remainder
-    of the custom tags.
-
-    **Parameters:**
-        `context`   the context of this request
-        `source`    the text of this request
-    **Returns:**
-        `source`    the modified text
+    Helper to create a BeautifulSoup tree and implement the functionality of
+    the remainder of the custom tags.
     """
     tree = BeautifulSoup(source, "html.parser")
 
@@ -847,17 +703,7 @@ def replace_toplevel_element(
 
 def parse_tag(tag):
     """
-    Railroad diagram for the syntax of a tag
-
-                             /<----------+---------------------------------------------------\
-                            /             \                                                   \
-    `<` -> WS* -> name -> WS -> parameter -+-> WS* -> `=` -> WS* -> value ---------------------+-> WS* -> `>`
-                       \                                         \                            /
-                        \-> `>`                                   \---> `"` -> .* -> `"` --->/
-                                                                   \                        /
-                                                                    \-> `'` -> .* -> `'` ->/
-    WS = whitespace, * = Kleene star,
-    . = any character besides relevant delimiter
+    Helper to parse a tag into its components.
     """
     # Note that this allows for strange things, like
     #   <example opt=ion=s>
@@ -928,22 +774,13 @@ def parse_tag(tag):
 
 def execute_python(context, body, variables, offset, sourcefile):
     """
-    Evalutes code in a given environment, and returns its output (if any).
+    Helper.  Evalutes code in a given environment, and returns its output (if
+    any).
 
     Makes use of a special variable `cs___WEBOUT`, which is a file-like object.
     Any data written to `cs___WEBOUT` will be returned. Overwrites `print` in
     the given environment so that its output is directed to `cs___WEBOUT`
     instead of STDOUT.
-
-    **Parameters:**
-        `context`       the context of this request
-        `body`          the string representation of python code to be executed
-        `variables`     the dictionary representation of the environment in
-                          which the code should be executed
-        `offset`        the adjustment that should be made to line numbering
-        `sourcefile`    the name of the file from which this code was taken
-    **Returns:**
-        `result`        string containing anything written to `cs___WEBOUT`
     """
     variables.update({"cs___WEBOUT": StringIO()})
     try:
