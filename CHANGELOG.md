@@ -28,6 +28,8 @@ _Work toward next release.  Currently under development._
 
 * The CAT-SOOP source distribution now includes the [Ace code editor](https://ace.c9.io/).
 
+* Added `cs_custom_tags` for specifying custom tags for a course.
+
 #### CHANGED:
 
 * Updated KaTeX to version 0.10.0.
@@ -55,6 +57,8 @@ _Work toward next release.  Currently under development._
 * Changed the structure of JS web labels for LibreJS, to make it clearer which parts of a page's Javascript are explicitly licensed under AGPLv3.
 
 #### DEPRECATED:
+
+* `cs_course_handle_custom_tags` is deprecated.  This function should be called `cs_transform_source` instead.
 
 #### REMOVED:
 
@@ -91,6 +95,8 @@ _Work toward next release.  Currently under development._
 * Fixed the 'permissions' field in cs_user_info to make sure it is always a set.
 
 * Fixed the 'Show/Hide Detailed Results' button in the 'pythoncode' question type to have the same styling as other buttons.
+
+* Fixes for reporting line numbers in `<python>` tags.
 
 #### SECURITY:
 
