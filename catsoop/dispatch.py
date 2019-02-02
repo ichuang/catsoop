@@ -708,9 +708,12 @@ def main(environment, return_context=False):
                 path,
             )
         session_data = session.get_session_data(context, context["cs_sid"])
-        session_data['ip_addr'] = get_client_ipaddr(environment)
+        try:
+            session_data['ip_addr'] = get_client_ipaddr(environment)
+        except Exception as err:
+            LOGGER.error("[dispatch.main] Cannot get IP address of client, err=%s" % str(err))
         context["cs_session_data"] = session_data
-        LOGGER.info("[dispatch.main] (%s) session_id=%s" % (session_data['ip_addr'], context["cs_sid"]))
+        LOGGER.info("[dispatch.main] (%s) session_id=%s" % (session_data.get('ip_addr'), context["cs_sid"]))
         LOGGER.info("[dispatch.main] path_info=%s" % path_info)
 
         # Handle LTI (must be done prior to authentication & other processing)
