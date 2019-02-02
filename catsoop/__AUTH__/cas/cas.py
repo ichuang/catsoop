@@ -1,6 +1,6 @@
-'''
+"""
 Authenticate using CAS (https://en.wikipedia.org/wiki/Central_Authentication_Service)
-'''
+"""
 
 import urllib.parse
 import urllib.request
@@ -9,12 +9,13 @@ from catsoop import debug_log
 
 LOGGER = debug_log.LOGGER
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def get_logged_in_user(context):
-    '''
+    """
     Authenticate using CAS
-    '''
+    """
     session = context["cs_session_data"]
     logintype = context["csm_auth"].get_auth_type_by_name(context, "login")
     _get_base_url = logintype["_get_base_url"]
@@ -27,13 +28,22 @@ def get_logged_in_user(context):
     LOGGER.info("[auth.cas] login action=%s" % action)
 
     if action == "logout":
-        ticket = context['cs_session_data'].get("cas_ticket", "")
-        logout_url = cas_url + "/logout" + '?service=' + urllib.parse.quote(redir_url) + '&ticket=' + urllib.parse.quote(ticket)
+        ticket = context["cs_session_data"].get("cas_ticket", "")
+        logout_url = (
+            cas_url
+            + "/logout"
+            + "?service="
+            + urllib.parse.quote(redir_url)
+            + "&ticket="
+            + urllib.parse.quote(ticket)
+        )
         try:
             ret = urllib.request.urlopen(logout_url).read()
             LOGGER.info("[auth.cas] CAS server logout returnd ret=%s" % ret)
         except Exception as err:
-            LOGGER.error("[auth.cas] CAS server rejected logout request, err=%s" % str(err))
+            LOGGER.error(
+                "[auth.cas] CAS server rejected logout request, err=%s" % str(err)
+            )
 
         context["cs_session_data"] = {}
         return {"cs_reload": True}
@@ -69,15 +79,12 @@ def get_logged_in_user(context):
         else:
             context["cs_handler"] = "passthrough"
             context["cs_content_header"] = "Please Log In"
-            context["cs_content"] = LOGIN_PAGE % (
-                _get_base_url(context),
-                cas_url,
-            )
+            context["cs_content"] = LOGIN_PAGE % (_get_base_url(context), cas_url)
             return {"cs_render_now": True}
 
     elif action == "login":
-        login_url = cas_url + '/login' + '?service=' + urllib.parse.quote(redir_url)
-        LOGGER.info('no auth, reditecting to %s' % login_url)
+        login_url = cas_url + "/login" + "?service=" + urllib.parse.quote(redir_url)
+        LOGGER.info("no auth, reditecting to %s" % login_url)
         session["_cas_course"] = context["cs_course"]
         session["_cas_path"] = context["cs_path_info"]
         return {"cs_redirect": login_url}
