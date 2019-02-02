@@ -13,10 +13,20 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Module to initialize a debugger for CAT-SOOP.
+"""
 import logging
 
 
 def setup_logging(context):
+    """
+    Set up CAT-SOOP logging.
+
+    **Parameters**: none
+
+    **Returns:** `None`
+    """
     logging.getLogger("pylti.common").setLevel(
         context.get("cs_lti_debug_level", "WARNING")
     )
@@ -25,3 +35,6 @@ def setup_logging(context):
 
 
 LOGGER = logging.getLogger("cs")
+"""
+An instance of `logging.Logger` for CAT-SOOP-related logging.
+"""

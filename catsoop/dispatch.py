@@ -39,7 +39,7 @@ from . import language
 from . import debug_log
 from . import base_context
 
-_nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form"}
+_nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form", "LOGGER", "md5"}
 
 LOGGER = debug_log.LOGGER
 

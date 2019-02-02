@@ -31,6 +31,9 @@ from catsoop import __version__
 LOGGER = logging.getLogger("cs")
 
 _nodoc = {
+    "LOGGER",
+    "config_loc",
+    "default_config_location",
     "contents",
     "cs_all_pieces",
     "cs_all_thirdparty",
@@ -230,7 +233,7 @@ cs_question_type_defaults = {}
 """
 Special: A dictionary mapping question type names to dictionaries containing
 default values to use for that question type.  These values are loaded in
-before the values in a <question> tag are evaluated.
+before the values in a &lt;question&gt; tag are evaluated.
 """
 
 cs_checker_websocket = "ws://localhost:6011"
