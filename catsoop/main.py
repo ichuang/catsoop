@@ -59,6 +59,12 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
     parser.add_argument(
         "-v", "--verbose", help="increase debug output verbosity", action="store_true"
     )
+    parser.add_argument(
+        "--quiet", help="decrease debug output verbosity", action="store_true"
+    )
+    parser.add_argument(
+        "--log-level", type=int, help="force log level to that specified", default=None
+    )
     default_config_location = os.environ.get(
         "XDG_CONFIG_HOME", os.path.expanduser(os.path.join("~", ".config"))
     )
@@ -80,6 +86,13 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
 
     if args.verbose:
         os.environ["CATSOOP_DEBUG_LEVEL"] = "1"
+
+    if args.quiet:
+        os.environ["CATSOOP_DEBUG_LEVEL"] = "20"
+
+    if args.log_level:
+        os.environ["CATSOOP_DEBUG_LEVEL"] = str(args.log_level)
+        print("Forcing catsoop debug log level to %s" % os.environ["CATSOOP_DEBUG_LEVEL"])
 
     if args.command == "configure":
         from .scripts import configure
