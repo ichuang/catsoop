@@ -92,6 +92,8 @@ _Work toward next release.  Currently under development._
 
 * Fixed the 'Show/Hide Detailed Results' button in the 'pythoncode' question type to have the same styling as other buttons.
 
+* Fixed a bug with `catsoop.modal` Javascript that caused an error if `cancel` was set to `false`.
+
 #### SECURITY:
 
 #### DOCUMENTATION:

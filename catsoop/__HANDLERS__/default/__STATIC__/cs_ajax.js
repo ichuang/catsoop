@@ -344,7 +344,6 @@ catsoop.modal = function(header, text, input, cancel){
             buttons.appendChild(document.createTextNode(' '));
             buttons.appendChild(cancel_button);
         }
-        buttons.appendChild(cancel_button);
         mbody.appendChild(buttons);
 
         content.appendChild(mbody);
