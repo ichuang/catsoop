@@ -45,7 +45,6 @@ CURRENT = {"queued": [], "running": set()}
 PORTNUM = base_context.cs_checker_server_port
 logging.basicConfig(format="%(asctime)s - %(message)s")
 LOGGER = logging.getLogger("cs")
-LOGGER.setLevel(1)
 WSLOGGER = logging.getLogger("websockets.server")
 WSLOGGER.setLevel(LOGGER.level)
 WSLOGGER.addHandler(logging.StreamHandler())
