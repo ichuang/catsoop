@@ -1,3 +1,23 @@
+# Current Developments
+
+_Work toward next release. Currently under development._
+
+#### ADDED:
+
+#### CHANGED:
+
+#### DEPRECATED:
+
+#### REMOVED:
+
+#### FIXED:
+
+* Fix for a problem with unicode characters in the `pythoncode` question type when using the `'ace'` interface.
+
+#### SECURITY:
+
+#### DOCUMENTATION:
+
 # Version 14.0.0
 
 #### ADDED:

@@ -543,7 +543,7 @@ def render_html_ace(last_log, **info):
     init = last_log.get(name, None)
     if init is None:
         init = make_initial_display(info)
-    init = str(init.encode("utf-8", "replace").decode("ascii", "ignore"))
+    init = str(init)
     fontsize = info["csq_font_size"]
     params = {
         "name": name,
