@@ -34,6 +34,7 @@ from .errors import html_format, clear_info
 from io import StringIO
 
 import markdown
+from collections import OrderedDict
 from markdown.extensions import tables
 from markdown.extensions import fenced_code
 from markdown.extensions import sane_lists
@@ -220,11 +221,10 @@ def assemble_page(context, source, override_format=None, set_problem_spec=True):
             for mark, question in context["cs_internal_qinfo"].items():
                 p = page.split(mark)
                 if len(p) == 1:
-                    LOGGER.error(
-                        "Question %s was not found in the page source; skipping it."
-                        % mark
+                    raise CatsoopInternalError(
+                        "Could not find question %s in source" % mark
                     )
-                if len(p) == 2:
+                elif len(p) == 2:
                     context["cs_problem_spec"].append(p[0])
                     context["cs_problem_spec"].append(question)
                     page = p[1]
@@ -886,7 +886,7 @@ def build_question(body, params, context):
         context["cs_internal_qcount"] = 0
 
     if "cs_internal_qinfo" not in context:
-        context["cs_internal_qinfo"] = {}
+        context["cs_internal_qinfo"] = OrderedDict()
 
     if len(params) != 1:
         raise CatsoopSyntaxError(
