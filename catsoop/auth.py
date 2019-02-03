@@ -29,7 +29,6 @@ from . import base_context
 importlib.reload(base_context)
 
 LOGGER = logging.getLogger("cs")
-LOGGER.setLevel(logging.DEBUG)
 
 
 def _execfile(*args):
