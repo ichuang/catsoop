@@ -33,7 +33,7 @@ from catsoop.cslog import unprep
 import catsoop.base_context as base_context
 import websockets
 
-DEBUG = False
+DEBUG = True
 
 CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "_logs", "_checker")
 RUNNING = os.path.join(CHECKER_DB_LOC, "running")
@@ -43,7 +43,7 @@ RESULTS = os.path.join(CHECKER_DB_LOC, "results")
 CURRENT = {"queued": [], "running": set()}
 
 PORTNUM = base_context.cs_checker_server_port
-
+logging.basicConfig(format="%(asctime)s - %(message)s")
 LOGGER = logging.getLogger("cs")
 WSLOGGER = logging.getLogger("websockets.server")
 WSLOGGER.setLevel(LOGGER.level)

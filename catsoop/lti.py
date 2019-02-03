@@ -234,6 +234,7 @@ class LTI_Consumer(object):
             "lti_url": self.lti_url,
             "lti_version": u"LTI-1p0",
             "lis_result_sourcedid": self.username,
+            "lis_person_sourcedid": self.username,
             "lis_outcome_service_url": self.service_url,
             "lti_message_type": "basic-lti-launch-request",  # required, see https://www.imsglobal.org/specs/ltiv2p0/implementation-guide#toc-21
             "resource_link_id": "123",
@@ -287,12 +288,13 @@ class LTI_Consumer(object):
 # -----------------------------------------------------------------------------
 
 
-def serve_lti(context, path_info, environment, params, dispatch_main):
+def serve_lti(context, path_info, environment, params, dispatch_main, return_context):
     """
     context: (dict) catsoop global context
     path_info: (list) URL path components
     environment: (dict-like) web server data, such as form input
     dispatch_main: (proc) call this with environment to dispatch to render URL
+    return_context: (bool) passed on to dispatch_main
     """
     if not "cs_lti_config" in context:
         msg = "[lti] LTI not configured - missing cs_lti_config in config.py"
@@ -347,9 +349,13 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
             environment["session_id"] = context[
                 "cs_sid"
             ]  # so that a new session ID isn't generated
-            return dispatch_main(environment)
+            return dispatch_main(environment, return_context=return_context)
 
         msg = "Hello LTI"
+
+    if return_context:
+        LOGGER.info("[lti] Returning context instead of HTML response")
+        return context
 
     return (
         ("200", "Ok"),

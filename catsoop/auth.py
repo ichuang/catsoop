@@ -128,7 +128,8 @@ def get_logged_in_user(context):
     """
     # handle auto-login for LTI users
     lti_data = context["cs_session_data"].get("lti_data")
-    if lti_data:
+    doing_logout = context["cs_form"].get("loginaction", None) == "logout"
+    if lti_data and not doing_logout:
         cui = lti_data.get("cs_user_info")
         context["cs_user_info"] = cui
         generate_api_token_for_user(context, cui)

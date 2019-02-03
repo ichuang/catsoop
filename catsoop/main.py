@@ -42,12 +42,14 @@ def command_line_interface(args=None, arglist=None):
 Example commands:
 
     runserver      : starts the CAT-SOOP webserver
+    start          : alias for runserver
     configure      : generate CAT-SOOP configuration file using an interactive wizard
 
 """
     cmd_help = """A variety of commands are available, each with different arguments:
 
 runserver      : starts the CAT-SOOP webserver
+start          : alias for runserver
 configure      : generate CAT-SOOP configuration file using an interactive wizard
 
 """
@@ -58,6 +60,12 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
     parser.add_argument("command", help=cmd_help)
     parser.add_argument(
         "-v", "--verbose", help="increase debug output verbosity", action="store_true"
+    )
+    parser.add_argument(
+        "--quiet", help="decrease debug output verbosity", action="store_true"
+    )
+    parser.add_argument(
+        "--log-level", type=int, help="force log level to that specified", default=None
     )
     default_config_location = os.environ.get(
         "XDG_CONFIG_HOME", os.path.expanduser(os.path.join("~", ".config"))
@@ -81,12 +89,21 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
     if args.verbose:
         os.environ["CATSOOP_DEBUG_LEVEL"] = "1"
 
+    if args.quiet:
+        os.environ["CATSOOP_DEBUG_LEVEL"] = "20"
+
+    if args.log_level:
+        os.environ["CATSOOP_DEBUG_LEVEL"] = str(args.log_level)
+        print(
+            "Forcing catsoop debug log level to %s" % os.environ["CATSOOP_DEBUG_LEVEL"]
+        )
+
     if args.command == "configure":
         from .scripts import configure
 
         configure.main()
 
-    elif args.command == "runserver":
+    elif args.command in {"runserver", "start"}:
         from .scripts import start_catsoop
 
         print("cfn=%s" % cfn)

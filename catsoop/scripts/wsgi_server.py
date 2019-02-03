@@ -17,14 +17,13 @@
 import os
 import sys
 
-CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if CATSOOP_LOC not in sys.path:
-    sys.path.append(CATSOOP_LOC)
-
 from catsoop.wsgi import application
 from cheroot import wsgi
 
 PORT_NUMBER = int(sys.argv[1])
+
+CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+print("[wsgi_server] CATSOOP_LOC=%s" % CATSOOP_LOC)
 
 addr = "0.0.0.0", PORT_NUMBER
 server = wsgi.Server(addr, application)

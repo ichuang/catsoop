@@ -575,6 +575,13 @@ def _compute_light_color(base):
     return _rgb_to_hex(_hsv_to_rgb(light_hsv))
 
 
+def get_client_ipaddr(environment):
+    try:
+        return environment["HTTP_X_FORWARDED_FOR"].split(",")[-1].strip()
+    except KeyError:
+        return environment["REMOTE_ADDR"]
+
+
 def main(environment, return_context=False):
     """
     Generate the page content associated with this request, properly handling
@@ -703,14 +710,25 @@ def main(environment, return_context=False):
                 path,
             )
         session_data = session.get_session_data(context, context["cs_sid"])
+        try:
+            session_data["ip_addr"] = get_client_ipaddr(environment)
+        except Exception as err:
+            LOGGER.error(
+                "[dispatch.main] Cannot get IP address of client, err=%s" % str(err)
+            )
         context["cs_session_data"] = session_data
-        LOGGER.info("[dispatch.main] session_id=%s" % context["cs_sid"])
+        LOGGER.info(
+            "[dispatch.main] (%s) session_id=%s"
+            % (session_data.get("ip_addr"), context["cs_sid"])
+        )
         LOGGER.info("[dispatch.main] path_info=%s" % path_info)
 
         # Handle LTI (must be done prior to authentication & other processing)
         if path_info and context["cs_course"] == "_lti":
             LOGGER.info("[dispatch.main] serving LTI")
-            return lti.serve_lti(context, path_info, environment, form_data, main)
+            return lti.serve_lti(
+                context, path_info, environment, form_data, main, return_context
+            )
 
         # DO EARLY LOAD FOR THIS REQUEST
         if context["cs_course"] is not None:

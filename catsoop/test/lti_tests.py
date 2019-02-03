@@ -85,7 +85,12 @@ class Test_LTI(CATSOOPTest):
         path = "/_lti/foo"
         host = "localhost:6010"
         url = "http://%s%s" % (host, path)
-        ltic = lti.LTI_Consumer(lti_url=url, consumer_key=self.ckey, secret=self.secret)
+        ltic = lti.LTI_Consumer(
+            lti_url=url,
+            consumer_key=self.ckey,
+            secret=self.secret,
+            username="anltiuser",
+        )
 
         def retform():
             return ltic.lti_context
@@ -101,6 +106,16 @@ class Test_LTI(CATSOOPTest):
         status, retinfo, msg = dispatch.main(env)
         assert status[0] == "200"
         assert "Hello LTI" in msg
+
+        context = dispatch.main(env, return_context=True)
+        cui = context["cs_user_info"]
+        assert cui["username"] == "lti_anltiuser"
+
+        # ensure lti_username_prefix can be set to empty string
+        self.cs_lti_config["lti_username_prefix"] = ""
+        context = dispatch.main(env, return_context=True)
+        cui = context["cs_user_info"]
+        assert cui["username"] == "anltiuser"
 
     def test_lti_auth3(self):
         """
