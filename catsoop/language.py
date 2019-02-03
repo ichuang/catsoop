@@ -34,6 +34,7 @@ from .errors import html_format, clear_info
 from io import StringIO
 
 import markdown
+from collections import OrderedDict
 from markdown.extensions import tables
 from markdown.extensions import fenced_code
 from markdown.extensions import sane_lists
@@ -886,7 +887,7 @@ def build_question(body, params, context):
         context["cs_internal_qcount"] = 0
 
     if "cs_internal_qinfo" not in context:
-        context["cs_internal_qinfo"] = {}
+        context["cs_internal_qinfo"] = OrderedDict()
 
     if len(params) != 1:
         raise CatsoopSyntaxError(

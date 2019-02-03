@@ -14,6 +14,8 @@ _Work toward next release. Currently under development._
 
 * Fix for a problem with unicode characters in the `pythoncode` question type when using the `'ace'` interface.
 
+* Fixed an issue with older Pythons by using an `OrderedDict` to store `cs_internal_qinfo` in `language.py`.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
