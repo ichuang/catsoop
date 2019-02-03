@@ -92,7 +92,9 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
 
     if args.log_level:
         os.environ["CATSOOP_DEBUG_LEVEL"] = str(args.log_level)
-        print("Forcing catsoop debug log level to %s" % os.environ["CATSOOP_DEBUG_LEVEL"])
+        print(
+            "Forcing catsoop debug log level to %s" % os.environ["CATSOOP_DEBUG_LEVEL"]
+        )
 
     if args.command == "configure":
         from .scripts import configure
