@@ -1,6 +1,4 @@
-# Current Developments
-
-_Work toward next release.  Currently under development._
+# Version 14.0.0
 
 #### ADDED:
 
@@ -60,8 +58,6 @@ _Work toward next release.  Currently under development._
 
 * `cs_course_handle_custom_tags` is deprecated.  This function should be called `cs_transform_source` instead.
 
-#### REMOVED:
-
 #### FIXED:
 
 * `js_files` now preserves the order of its arguments.
@@ -99,8 +95,6 @@ _Work toward next release.  Currently under development._
 * Fixed a bug with `catsoop.modal` Javascript that caused an error if `cancel` was set to `false`.
 
 * Fixes for reporting line numbers in `<python>` tags.
-
-#### SECURITY:
 
 #### DOCUMENTATION:
 
