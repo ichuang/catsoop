@@ -178,6 +178,8 @@ _Work toward next release.  Currently under development._
 
 * "Log In" and "Log Out" no longer discard the query string associated with the current page.
 
+* Fixed the `'check'` action so that it respects `csq_grading_mode` and checks to see whether checking is allowed before actually running the check.
+
 #### SECURITY:
 
 * Prevent submissions from being able to access materials defined in `csq_code_pre` from pythoncode questions.

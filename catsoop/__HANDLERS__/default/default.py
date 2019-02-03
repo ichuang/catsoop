@@ -899,42 +899,63 @@ def handle_check(context):
             continue
         out = {}
         sub = context[_n("form")].get(name, "")
+        error = check_msg(context, context[_n("perms")], name)
+        if error is not None:
+            out["error_msg"] = error
+            outdict[name] = out
+            submit_succeeded = False
+            continue
 
         # if we are here, no errors occurred.  go ahead with checking.
         newstate["last_submit"][name] = sub
         question, args = namemap[name]
 
-        magic = new_entry(context, name, "check")
+        grading_mode = _get(args, "csq_grading_mode", "auto", str)
+        if grading_mode == "legacy":
+            try:
+                msg = question["handle_check"](context[_n("form")], **args)
+            except:
+                msg = exc_message(context)
+            out["score_display"] = ""
+            out["message"] = context["csm_language"].handle_custom_tags(context, msg)
+            if name in newstate.get("checker_ids", {}):
+                del newstate["checker_ids"][name]
 
-        entry_ids[name] = entry_id = magic
+            newstate["cached_responses"][name] = out["message"]
+            newstate["score_displays"][name] = ""
+        else:
+            magic = new_entry(context, name, "check")
 
-        rerender = args.get("csq_rerender", question.get("always_rerender", False))
-        if rerender is True:
-            out["rerender"] = question["render_html"](newstate["last_submit"], **args)
-        elif rerender:
-            out["rerender"] = rerender
+            entry_ids[name] = entry_id = magic
 
-        out["score_display"] = ""
-        out["message"] = WEBSOCKET_RESPONSE % {
-            "name": name,
-            "magic": entry_id,
-            "websocket": context["cs_checker_websocket"],
-            "loading": context["cs_loading_image"],
-            "id_css": (
-                ' style="display:none;"'
-                if context.get("cs_show_submission_id", True)
-                else ""
-            ),
-        }
-        out["magic"] = entry_id
+            rerender = args.get("csq_rerender", question.get("always_rerender", False))
+            if rerender is True:
+                out["rerender"] = question["render_html"](
+                    newstate["last_submit"], **args
+                )
+            elif rerender:
+                out["rerender"] = rerender
+
+            out["score_display"] = ""
+            out["message"] = WEBSOCKET_RESPONSE % {
+                "name": name,
+                "magic": entry_id,
+                "websocket": context["cs_checker_websocket"],
+                "loading": context["cs_loading_image"],
+                "id_css": (
+                    ' style="display:none;"'
+                    if context.get("cs_show_submission_id", True)
+                    else ""
+                ),
+            }
+            out["magic"] = entry_id
+            # cache responses
+            newstate["checker_ids"][name] = entry_id
+            newstate["score_displays"][name] = ""
+            if name in newstate.get("cached_responses", {}):
+                del newstate["cached_responses"][name]
 
         outdict[name] = out
-
-        # cache responses
-        newstate["checker_ids"][name] = entry_id
-        newstate["score_displays"][name] = ""
-        if name in newstate.get("messages", {}):
-            del newstate["messages"][name]
 
     # update problemstate log
     uname = context[_n("uname")]
