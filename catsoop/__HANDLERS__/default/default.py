@@ -917,7 +917,7 @@ def handle_check(context):
             except:
                 msg = exc_message(context)
             out["score_display"] = ""
-            out["message"] = context["csm_language"].handle_custom_tags(context, msg)
+            out["message"] = context["csm_language"].html_from_source(context, msg)
             if name in newstate.get("checker_ids", {}):
                 del newstate["checker_ids"][name]
 
