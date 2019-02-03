@@ -221,11 +221,10 @@ def assemble_page(context, source, override_format=None, set_problem_spec=True):
             for mark, question in context["cs_internal_qinfo"].items():
                 p = page.split(mark)
                 if len(p) == 1:
-                    LOGGER.error(
-                        "Question %s was not found in the page source; skipping it."
-                        % mark
+                    raise CatsoopInternalError(
+                        "Could not find question %s in source" % mark
                     )
-                if len(p) == 2:
+                elif len(p) == 2:
                     context["cs_problem_spec"].append(p[0])
                     context["cs_problem_spec"].append(question)
                     page = p[1]
