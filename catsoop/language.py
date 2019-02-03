@@ -110,6 +110,9 @@ def html_from_source(context, source, override_format=None):
     * `override_format`: The format that `source` should be considered to have.
         Defaults to `context["cs_source_format"]
     """
+    override_format = override_format or context["cs_source_format"]
+    if override_format == "py":
+        override_format = "xml"
     return assemble_page(
         context, gather_page(context, source, override_format), override_format, False
     )
