@@ -34,7 +34,7 @@ importlib.reload(base_context)
 
 LOGGER = debug_log.LOGGER
 
-_nodoc = {"SimpleCookie", "make_session_dir"}
+_nodoc = {"SimpleCookie", "make_session_dir", "LOGGER"}
 
 VALID_SESSION_RE = re.compile(r"^[A-Fa-f0-9]{32}$")
 """
