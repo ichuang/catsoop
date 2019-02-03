@@ -1,14 +1,4 @@
-# Current Developments
-
-_Work toward next release. Currently under development._
-
-#### ADDED:
-
-#### CHANGED:
-
-#### DEPRECATED:
-
-#### REMOVED:
+# Version 14.0.1
 
 #### FIXED:
 
@@ -16,9 +6,6 @@ _Work toward next release. Currently under development._
 
 * Fixed an issue with older Pythons by using an `OrderedDict` to store `cs_internal_qinfo` in `language.py`.
 
-#### SECURITY:
-
-#### DOCUMENTATION:
 
 # Version 14.0.0
 
