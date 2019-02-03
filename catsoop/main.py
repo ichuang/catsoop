@@ -42,12 +42,14 @@ def command_line_interface(args=None, arglist=None):
 Example commands:
 
     runserver      : starts the CAT-SOOP webserver
+    start          : alias for runserver
     configure      : generate CAT-SOOP configuration file using an interactive wizard
 
 """
     cmd_help = """A variety of commands are available, each with different arguments:
 
 runserver      : starts the CAT-SOOP webserver
+start          : alias for runserver
 configure      : generate CAT-SOOP configuration file using an interactive wizard
 
 """
@@ -101,7 +103,7 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
 
         configure.main()
 
-    elif args.command == "runserver":
+    elif args.command in {"runserver", "start"}:
         from .scripts import start_catsoop
 
         print("cfn=%s" % cfn)
