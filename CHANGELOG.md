@@ -16,6 +16,8 @@ _Work toward next release. Currently under development._
 
 * Fixed an issue with the `post_load` hook not being able to affect page content.
 
+* Fixed the LTI behavior by passing form POSTs through, if the session is already LTI authenticated.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
