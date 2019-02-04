@@ -75,12 +75,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         "csq_python_interpreter", context.get("cs_python_interpreter", "python3")
     )
 
-    args = [
-        "bwrap",
-        "--bind",
-        tmpdir,
-        "/run",
-    ]
+    args = ["bwrap", "--bind", tmpdir, "/run"]
     supplied_args = context.get("csq_bwrap_arguments", None)
     if supplied_args is None:
         args.extend(
