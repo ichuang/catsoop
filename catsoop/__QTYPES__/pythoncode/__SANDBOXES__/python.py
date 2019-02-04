@@ -100,7 +100,6 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            env={},
         )
     except Exception as err:
         raise Exception(
