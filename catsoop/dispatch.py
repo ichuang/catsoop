@@ -582,7 +582,7 @@ def get_client_ipaddr(environment):
     except KeyError:
         return environment['REMOTE_ADDR']
 
-def main(environment, return_context=False):
+def main(environment, return_context=False, form_data=None):
     """
     Generate the page content associated with this request, properly handling
     dynamic pages and static files.
@@ -602,6 +602,8 @@ def main(environment, return_context=False):
         associated with this request.
     * `return_context`: (bool) set to True if the context dict should be returned 
         (instead of the usual tuple) on success -- used for unit tests
+    * `form_data`: (dict) provided by LTI on callback, because form information is
+        removed from environment after initial call
 
     **Returns:** a 3-tuple `(response_code, headers, content)` as expected by
     `catsoop.wsgi.application`
@@ -634,7 +636,8 @@ def main(environment, return_context=False):
             )
         else:
             fields = cgi.FieldStorage()
-        form_data = dict_from_cgi_form(fields)
+        form_data = form_data or dict_from_cgi_form(fields)
+        LOGGER.error("[dispatch] form_data=%s" % form_data)
 
         # INITIALIZE CONTEXT
         context["cs_additional_headers"] = {}

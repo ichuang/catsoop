@@ -304,11 +304,15 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     LOGGER.info("[lti] lti_action=%s, path_info=%s" % (lti_action, path_info))
 
     session_data = context["cs_session_data"]
-    l4c = lti4cs(context, session_data, {}, {})
-    lti_ok = l4c.verify_request(params, environment)
+    if 'is_lti_user' in session_data:	# needed to handle form POSTS to _lti/course/...
+        lti_ok = True			# already authenticated
+        l4c = None
+    else:
+        l4c = lti4cs(context, session_data, {}, {})	# not yet authenticated; check now
+        lti_ok = l4c.verify_request(params, environment)
     if not lti_ok:
         msg = "LTI verification failed"
-    else:
+    elif l4c is not None:
         lti_data = session_data["lti_data"]
         lup = context["cs_lti_config"].get("lti_username_prefix", "lti_")
         lti_uname = lti_data["user_id"]
@@ -337,8 +341,11 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
             context
         )  # saves user_info in context["cs_user_info"]
         LOGGER.info("[lti] auth user_info=%s" % user_info)
-
         l4c.save_lti_data(context)  # save lti data, e.g. for later use by the checker
+
+    if lti_ok:
+
+        uname = session_data['username']
         if lti_action == "course":
 
             LOGGER.info("[lti] rendering course page for %s" % uname)
@@ -350,8 +357,7 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
             environment["session_id"] = context[
                 "cs_sid"
             ]  # so that a new session ID isn't generated
-            return dispatch_main(environment)
-
+            return dispatch_main(environment, form_data=params)
         msg = "Hello LTI"
 
     return (
