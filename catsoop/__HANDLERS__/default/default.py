@@ -1070,7 +1070,9 @@ def handle_submit(context):
             try:
                 resp = question["handle_submission"](context[_n("form")], **args)
                 score = resp["score"]
-                msg = context["csm_language"].html_from_source(context, resp["msg"], override_format="xml")
+                msg = context["csm_language"].html_from_source(
+                    context, resp["msg"], override_format="xml"
+                )
                 extra = resp.get("extra_data", None)
             except:
                 resp = {}
