@@ -1,3 +1,9 @@
+# Version 14.0.3
+
+#### FIXED
+
+* Fix for issue with multiple blank lines in output from `pythoncode` questions.
+
 # Version 14.0.2
 
 #### FIXED:
