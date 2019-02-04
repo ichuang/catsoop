@@ -14,6 +14,8 @@ _Work toward next release. Currently under development._
 
 * For for a UI issue with the alignment of the timer when used in an iframe.
 
+* Fixed an issue with the `post_load` hook not being able to affect page content.
+
 #### SECURITY:
 
 #### DOCUMENTATION:

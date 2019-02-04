@@ -530,13 +530,13 @@ def do_late_load(context, course, path, into, content_file=None):
     with open(content_file) as f:
         into["cs_content"] = f.read()
 
-    page_src = language.gather_page(into, into["cs_content"])
+    into["cs_content"] = language.gather_page(into, into["cs_content"])
 
     if "cs_post_load" in into:
         into["cs_post_load"](into)
     run_plugins(context, course, "post_load", into)
 
-    page_src = language.assemble_page(into, page_src)
+    page_src = language.assemble_page(into, into["cs_content"])
 
     if "cs_pre_handle" in into:
         into["cs_pre_handle"](into)
