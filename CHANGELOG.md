@@ -18,6 +18,10 @@ _Work toward next release. Currently under development._
 
 * Fixed the LTI behavior by passing form POSTs through, if the session is already LTI authenticated.
 
+* Fixed a regression from `language.py` changes that prevented content after the last question on a page from being rendered.
+
+* Fixed a regression from `language.py` that prevented footnotes from being shown in most cases.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
