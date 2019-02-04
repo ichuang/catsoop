@@ -30,6 +30,24 @@ document.body.append(timerelt);
 document.addEventListener("DOMContentLoaded", function(event) {
     var timerelt = document.getElementById('timer');
     catsoop.timer_remaining = catsoop.timer_due-catsoop.timer_now;
+    catsoop.lti_iframe_handler = function(){  // for LTI
+	var irr = function(x){	// receive parent page position info, including scrollTop
+            var newbot = window.innerHeight - x.scrollTop - x.clientHeight + 550;
+            if (x.iframeHeight < (x.clientHeight + 500)){ newbot += 70; }
+            console.log(x);
+            if (newbot < 0){ newbot = 0; }
+	    timerelt.style.bottom = String(newbot) + "px";
+	}
+	var trycnt = 10;
+	var setup = function(){  // iframe resize receiver
+            if ('parentIFrame' in window) { window.parentIFrame.getPageInfo(irr); }
+	    else{ trycnt = trycnt - 1;
+		  if (trycnt > 0){ setTimeout(setup, 500); }
+		}
+	}
+	setup();
+    }
+
     catsoop.timer = function () {
         catsoop.timer_remaining=catsoop.timer_remaining-1;
         if(catsoop.timer_remaining <= 0){
@@ -54,4 +72,5 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
     catsoop.timer_counter = setInterval(catsoop.timer,1000);
     catsoop.timer();
+    try { catsoop.lti_iframe_handler(); } catch(err){ console.log("lti iframe handling failed"); }
 });
