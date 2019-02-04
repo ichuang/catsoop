@@ -280,8 +280,8 @@ catsoop.modal = function(header, text, input, cancel){
 
 	if ('parentIFrame' in window) {
 	    var irr = function(x){	// receive parent page position info, including scrollTop
-		console.log(x);
-		var top = x.scrollTop - x.clientHeight + 400;
+                var top = x.scrollTop + x.clientHeight - 1000;
+                if (top > (window.innerHeight - 400)){ top = window.innerHeight - 400; }
 		content.style.marginTop = String(top) + "px";
 		content.style.marginLeft = "auto";
 		content.style.marginRight = "auto";
