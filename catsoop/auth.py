@@ -191,7 +191,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
             text = f.read()
         exec(text, into)
         loader.clean_builtins(into)
-        LOGGER.warning("[auth] loaded from %s user=%s" % (fname, into))
+        LOGGER.warning("[auth] loaded from %s user=%s" % (fname, str(into)[:200]))
     else:
         LOGGER.error("[auth] missing user definition file %s" % fname)
 
