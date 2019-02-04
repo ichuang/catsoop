@@ -280,8 +280,13 @@ catsoop.modal = function(header, text, input, cancel){
 
 	if ('parentIFrame' in window) {
 	    var irr = function(x){	// receive parent page position info, including scrollTop
-		console.log(x);
-		var top = x.scrollTop - x.clientHeight + 400;
+		// var top = x.scrollTop - x.clientHeight + 550;
+		// var top = x.scrollTop + x.clientHeight - window.innerHeight;
+		var top = x.scrollTop + x.clientHeight - 1000;
+		if (top > (window.innerHeight - 400)){ top = window.innerHeight - 400; }
+		// if (top < 20){ top = 20; }
+		// var top = window.innerHeight - x.scrollTop - x.clientHeight + 250;
+		// console.log("[cs_ajax] st=", x.scrollTop, ", ch=", x.clientHeight, "wih=", window.innerHeight, ", top=", top);
 		content.style.marginTop = String(top) + "px";
 		content.style.marginLeft = "auto";
 		content.style.marginRight = "auto";
