@@ -235,6 +235,7 @@ def assemble_page(context, source, override_format=None, set_problem_spec=True):
                         "Duplicate question %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
                         % (mark, preceding)
                     )
+            context["cs_problem_spec"].append(page)
         else:
             context["cs_problem_spec"].append(source)
 
@@ -1163,9 +1164,7 @@ def legacy_tree(context, tree):
         ref["class"] = "anchor"
         link.insert_before(ref)
 
-    if len(footnotes) == 0:
-        fnote = ""
-    else:
+    if footnotes and not context["cs_footnotes"]:
         fnote = '<br/>&nbsp;<hr/><b name="cs_footnotes">Footnotes</b>'
         for (ix, f) in enumerate(footnotes):
             ix = ix + 1
@@ -1175,7 +1174,7 @@ def legacy_tree(context, tree):
                 '<span class="noprint">(click to return to text)</span>'
                 "</a></p>"
             ) % (ix, ix, f, ix)
-    context["cs_footnotes"] = fnote
+        context["cs_footnotes"] = fnote
 
     # hints (<showhide>)
 
