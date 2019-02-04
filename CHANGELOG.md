@@ -1,3 +1,24 @@
+# Current Developments
+
+_Work toward next release. Currently under development._
+
+#### ADDED:
+
+#### CHANGED:
+
+#### DEPRECATED:
+
+#### REMOVED:
+
+#### FIXED:
+
+* For for a UI issue with the alignment of the timer when used in an iframe.
+
+#### SECURITY:
+
+#### DOCUMENTATION:
+
+
 # Version 14.0.1
 
 #### FIXED:
