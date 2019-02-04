@@ -1,14 +1,4 @@
-# Current Developments
-
-_Work toward next release. Currently under development._
-
-#### ADDED:
-
-#### CHANGED:
-
-#### DEPRECATED:
-
-#### REMOVED:
+# Version 14.0.2
 
 #### FIXED:
 
@@ -22,9 +12,7 @@ _Work toward next release. Currently under development._
 
 * Fixed a regression from `language.py` that prevented footnotes from being shown in most cases.
 
-#### SECURITY:
-
-#### DOCUMENTATION:
+* Fixes for Python unicode.
 
 
 # Version 14.0.1
