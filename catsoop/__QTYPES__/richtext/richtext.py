@@ -22,7 +22,7 @@ defaults.update({"csq_soln": "", "csq_npoints": 1, "csq_show_check": False})
 
 
 def markdownify(context, text):
-    return context["csm_language"]._md(text)
+    return context["csm_language"].html_from_source(context, text, override_format="md")
 
 
 def richtext_format(context, text, msg="Preview:"):
