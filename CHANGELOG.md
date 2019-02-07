@@ -14,6 +14,8 @@ _Work toward next release. Currently under development._
 
 * Fix for malformed HTML in `multiexpression` question output.
 
+* Fix for "preview" in `richtext` question type.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
