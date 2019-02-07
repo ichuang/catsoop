@@ -41,7 +41,7 @@ def get_parsed_reps(submissions, **info):
             )
         except:
             parsed.append(
-                '%s</br><center><font color="red">Error: could not parse your expression <code>%s</code></center></font>'
+                '%s<br/><center><font color="red">Error: could not parse your expression <code>%s</code></font></center>'
                 % (fprompt, repr(osub))
             )
     msg = '<div class="question">Your expressions were parsed as:<hr/>'
@@ -133,7 +133,7 @@ def answer_display(**info):
                 )
             except:
                 parsed.append(
-                    '%s</br><center><font color="red">Error: could not parse expression <code>%s</code></center></font>'
+                    '%s<br/><center><font color="red">Error: could not parse expression <code>%s</code></font></center>'
                     % (fprompt, repr(soln))
                 )
     return "<hr/>".join(parsed)

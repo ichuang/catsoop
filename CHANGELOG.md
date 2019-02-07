@@ -1,3 +1,23 @@
+# Current Developments
+
+_Work toward next release. Currently under development._
+
+#### ADDED:
+
+#### CHANGED:
+
+#### DEPRECATED:
+
+#### REMOVED:
+
+#### FIXED:
+
+* Fix for malformed HTML in `multiexpression` question output.
+
+#### SECURITY:
+
+#### DOCUMENTATION:
+
 # Version 14.0.3
 
 #### FIXED
