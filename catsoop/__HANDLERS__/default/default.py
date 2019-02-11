@@ -1814,12 +1814,14 @@ def make_buttons(context, name):
         "clearanswer",
         "new_seed",
     ):
-        x = {"b": buttons[k], "k": k, "n": name}
+        x = {"b": buttons[k], "k": k, "n": name, 's': ""}
+        if k=="viewexplanation":
+            x['s'] = "background-color:blue;"
         if buttons[k] is not None:
             out += (
                 '\n<button id="%(n)s_%(k)s" '
                 'class="%(k)s btn btn-catsoop" '
-                'style="margin-top: 10px;" '
+                'style="margin-top: 10px;%(s)s" '
                 "onclick=\"catsoop.%(k)s('%(n)s');\">"
                 "%(b)s</button>"
             ) % x
