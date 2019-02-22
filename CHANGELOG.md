@@ -6,6 +6,8 @@ _Work toward next release. Currently under development._
 
 #### CHANGED:
 
+* Upgraded KaTeX to v0.10.1.
+
 #### DEPRECATED:
 
 #### REMOVED:
