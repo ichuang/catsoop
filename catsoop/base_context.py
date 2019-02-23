@@ -281,6 +281,15 @@ Special: The maximum number of worker processes the UWSGI server should have
 running
 """
 
+# user interface configuration flags
+
+cs_ui_config_flags = {'highlight_explanation_button': True,
+                      'auto_show_explanation_with_answer': False,
+}
+"""
+Special: user interface configuration flags
+"""
+
 # Log Encryption
 
 cs_log_compression = False

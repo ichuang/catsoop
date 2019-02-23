@@ -508,7 +508,11 @@ def explanation_display(x):
     return "<hr /><p><b>Explanation:</b></p>%s" % x
 
 
-def handle_viewexplanation(context):
+def handle_viewexplanation(context, outdict=None):
+    '''
+    context: (dict) catsoop context 
+    outdict: (dict) output for each question, defaults to {}
+    '''
     names = context[_n("question_names")]
     due = context[_n("due")]
     lastlog = context[_n("last_log")]
@@ -521,11 +525,11 @@ def handle_viewexplanation(context):
     if "last_submit" not in newstate:
         newstate["last_submit"] = {}
 
-    outdict = {}  # dictionary containing the responses for each question
+    outdict = outdict or {}  # dictionary containing the responses for each question
     for name in names:
         if name.startswith("__"):
             continue
-        out = {}
+        out = outdict.get(name, {})
 
         error = viewexp_msg(context, context[_n("perms")], name)
         if error is not None:
@@ -618,6 +622,10 @@ def handle_viewanswer(context):
             "due_date": duetime,
         },
     )
+
+    if context.get('cs_ui_config_flags', {}).get('auto_show_explanation_with_answer'):
+        context[_n("last_log")] = newstate
+        return handle_viewexplanation(context, outdict)
 
     return make_return_json(context, outdict)
 
@@ -1815,7 +1823,7 @@ def make_buttons(context, name):
         "new_seed",
     ):
         x = {"b": buttons[k], "k": k, "n": name, 's': ""}
-        if k=="viewexplanation":
+        if k=="viewexplanation" and context.get('cs_ui_config_flags', {}).get('highlight_explanation_button'):
             x['s'] = "background-color:blue;"
         if buttons[k] is not None:
             out += (
