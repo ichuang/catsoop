@@ -509,10 +509,10 @@ def explanation_display(x):
 
 
 def handle_viewexplanation(context, outdict=None):
-    '''
+    """
     context: (dict) catsoop context 
     outdict: (dict) output for each question, defaults to {}
-    '''
+    """
     names = context[_n("question_names")]
     due = context[_n("due")]
     lastlog = context[_n("last_log")]
@@ -623,7 +623,7 @@ def handle_viewanswer(context):
         },
     )
 
-    if context.get('cs_ui_config_flags', {}).get('auto_show_explanation_with_answer'):
+    if context.get("cs_ui_config_flags", {}).get("auto_show_explanation_with_answer"):
         context[_n("last_log")] = newstate
         return handle_viewexplanation(context, outdict)
 
@@ -1850,9 +1850,11 @@ def make_buttons(context, name):
         "clearanswer",
         "new_seed",
     ):
-        x = {"b": buttons[k], "k": k, "n": name, 's': ""}
-        if k=="viewexplanation" and context.get('cs_ui_config_flags', {}).get('highlight_explanation_button'):
-            x['s'] = "background-color:blue;"
+        x = {"b": buttons[k], "k": k, "n": name, "s": ""}
+        if k == "viewexplanation" and context.get("cs_ui_config_flags", {}).get(
+            "highlight_explanation_button"
+        ):
+            x["s"] = "background-color:blue;"
         if buttons[k] is not None:
             out += (
                 '\n<button id="%(n)s_%(k)s" '
