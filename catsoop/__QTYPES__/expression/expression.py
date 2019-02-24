@@ -186,6 +186,8 @@ def eval_name(context, names, funcs, n):
 
 
 def eval_number(context, names, funcs, n):
+    if n[1].endswith("j"):
+        return mpmath.mpc(imag=n[1][:-1])
     return mpmath.mpf(n[1])
 
 
@@ -314,7 +316,7 @@ def _fix_precision(names):
 
 
 def _get_all_mappings(context, soln_names, sub_names):
-    names = dict(default_names)
+    names = dict(context.get("csq_default_names", default_names))
     names.update(_fix_precision(context.get("csq_names", {})))
     dimensions = context["csq_variable_dimensions"]
     dim_vars = defaultdict(lambda: random.randint(2, 30))
@@ -410,7 +412,7 @@ def handle_submission(submissions, **info):
 
         parser = _get_parser(info)
 
-        funcs = dict(default_funcs)
+        funcs = dict(info.get("csq_default_funcs", default_funcs))
         funcs.update(info.get("csq_funcs", {}))
 
         try:

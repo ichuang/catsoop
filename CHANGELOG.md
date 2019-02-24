@@ -20,6 +20,8 @@ _Work toward next release. Currently under development._
 
 * Fix for "preview" in `richtext` question type.
 
+* Fixed an issue related to complex numbers in the `expression` question type.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
