@@ -28,8 +28,8 @@ def parser(lex=None, yacc=None):
         "COMMA",
         "LPAREN",
         "RPAREN",
-        "NAME",
         "NUMBER",
+        "NAME",
         "CARET",
         "LBRACKET",
         "RBRACKET",
@@ -142,7 +142,7 @@ def parser(lex=None, yacc=None):
         """
         number : NUMBER
         """
-        t[0] = ["NUMBER", t[1]]
+        t[0] = ["NUMBER", t[1].lower()]
 
     def p_name(t):
         """

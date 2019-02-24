@@ -186,6 +186,8 @@ def eval_name(context, names, funcs, n):
 
 
 def eval_number(context, names, funcs, n):
+    if n[1].endswith("j"):
+        return mpmath.mpc(imag=n[1][:-1])
     return mpmath.mpf(n[1])
 
 
