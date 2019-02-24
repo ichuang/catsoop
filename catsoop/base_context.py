@@ -294,6 +294,15 @@ cs_ui_config_flags = {
 Special: user interface configuration flags
 """
 
+# user information data configuration flags
+
+cs_user_config = {'section_variable': 'section', # variable for class section
+                  'default_section_name': 'default',
+}
+"""
+Special: user information data configuration flags (e.g. used for groups)
+"""
+
 # Log Encryption
 
 cs_log_compression = False
