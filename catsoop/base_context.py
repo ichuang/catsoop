@@ -286,8 +286,9 @@ running
 
 # user interface configuration flags
 
-cs_ui_config_flags = {'highlight_explanation_button': False,
-                      'auto_show_explanation_with_answer': False,
+cs_ui_config_flags = {
+    "highlight_explanation_button": False,
+    "auto_show_explanation_with_answer": False,
 }
 """
 Special: user interface configuration flags

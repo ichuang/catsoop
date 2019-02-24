@@ -534,7 +534,7 @@ def handle_viewexplanation(context, outdict=None, skip_empty=False):
         q, args = context[_n("name_map")][name]
         if "csq_explanation" not in args and skip_empty:
             continue
-        
+
         error = viewexp_msg(context, context[_n("perms")], name)
         if error is not None:
             out["error_msg"] = error
