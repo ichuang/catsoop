@@ -4,6 +4,8 @@ _Work toward next release. Currently under development._
 
 #### ADDED:
 
+* Added `cs_ui_config_flags`, including option to automaticall view explanations when viewing answers, and to highlight the 'view explanation' button.
+
 #### CHANGED:
 
 * Upgraded KaTeX to v0.10.1.
