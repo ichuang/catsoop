@@ -1851,10 +1851,12 @@ def make_buttons(context, name):
         "new_seed",
     ):
         x = {"b": buttons[k], "k": k, "n": name, "s": ""}
-        if k == "viewexplanation" and context.get("cs_ui_config_flags", {}).get(
-            "highlight_explanation_button"
-        ):
-            x["s"] = "background-color:blue;"
+        heb = context.get("cs_ui_config_flags", {}).get("highlight_explanation_button")
+        if k == "viewexplanation" and heb:
+            color = "blue"
+            if heb is not True:
+                color = heb
+            x["s"] = "background-color:%s;" % color
         if buttons[k] is not None:
             out += (
                 '\n<button id="%(n)s_%(k)s" '
