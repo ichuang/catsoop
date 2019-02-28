@@ -58,18 +58,6 @@ _nodoc = {
     "OrderedDict",
     "datetime",
     "timedelta",
-    "COMPRESS",
-    "Cipher",
-    "ENCRYPT_KEY",
-    "ENCRYPT_PASS",
-    "RawFernet",
-    "compress_encrypt",
-    "decompress_decrypt",
-    "default_backend",
-    "log_lock",
-    "prep",
-    "sep",
-    "unprep",
 }
 
 
@@ -306,6 +294,10 @@ def most_recent(db_name, path, logname, default=None, lock=True):
     This code works by reading backward through the log until the separator is
     found, treating the piece of the file after the last separator as a log
     entry, and using `unprep` to return the associated Python object.
+
+    Based on <a
+    href="http://stackoverflow.com/questions/136168/get-last-n-lines-of-a-file-with-python-similar-to-tail"
+    target="_blank">code by S.Lott and Pykler</a>
 
     **Parameters:**
 

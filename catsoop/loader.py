@@ -529,14 +529,15 @@ def do_late_load(context, course, path, into, content_file=None):
     into["cs_source_format"] = content_file.rsplit(".", 1)[-1]
     with open(content_file) as f:
         into["cs_content"] = f.read()
-
-    into["cs_content"] = language.gather_page(into, into["cs_content"])
-
+    if into["cs_source_format"] != "py":
+        into["cs_content"] = language.handle_includes(into, into["cs_content"])
+        into["cs_content"] = language.handle_python_tags(into, into["cs_content"])
+    else:
+        exec(context["cs_content"], context)
     if "cs_post_load" in into:
         into["cs_post_load"](into)
     run_plugins(context, course, "post_load", into)
-
-    page_src = language.assemble_page(into, into["cs_content"])
+    language.source_formats[into["cs_source_format"]](into)
 
     if "cs_pre_handle" in into:
         into["cs_pre_handle"](into)

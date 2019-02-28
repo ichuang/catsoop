@@ -34,7 +34,7 @@ from . import base_context
 
 importlib.reload(base_context)
 
-_nodoc = {"timedelta", "OrderedDict"}
+_nodoc = {"timedelta"}
 
 
 def _get(context, key, default, cast=lambda x: x):

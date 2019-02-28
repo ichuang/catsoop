@@ -32,7 +32,7 @@ def callout(note, header, style):
 </div>""" % (
         style,
         header,
-        csm_language.html_from_source(globals(), note, "md"),
+        csm_language._md_format_string(globals(), note),
     )
 
 

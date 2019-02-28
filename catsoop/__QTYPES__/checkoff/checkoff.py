@@ -58,7 +58,7 @@ def handle_submission(submissions, **info):
 def render_html(last_log, **info):
     if info["csq_description"] == info["csq_display_name"] == "":
         return ""
-    info["csq_description"] = info["csm_language"].html_from_source(
+    info["csq_description"] = info["csm_language"].source_transform_string(
         info, info["csq_description"]
     )
     return "<b>%s</b>:<br/>%s" % (info["csq_display_name"], info["csq_description"])

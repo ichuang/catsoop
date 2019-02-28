@@ -33,8 +33,6 @@ from . import debug_log
 
 LOGGER = debug_log.LOGGER
 
-_nodoc = {"Client", "ElementMaker", "etree", "LOGGER"}
-
 
 class lti4cs(pylti.common.LTIBase):
     """
@@ -292,12 +290,11 @@ class LTI_Consumer(object):
 
 def serve_lti(context, path_info, environment, params, dispatch_main, return_context):
     """
-    **Parameters**:
-
-    * `context`: dictionary, the context associated with this request
-    * `path_info`: list of URL path components
-    * `environment`: dictionary containing web server data, such as form input
-    * `dispatch_main`: function of the same form as `catsoop.dispatch.main`
+    context: (dict) catsoop global context
+    path_info: (list) URL path components
+    environment: (dict-like) web server data, such as form input
+    dispatch_main: (proc) call this with environment to dispatch to render URL
+    return_context: (bool) passed on to dispatch_main
     """
     if not "cs_lti_config" in context:
         msg = "[lti] LTI not configured - missing cs_lti_config in config.py"

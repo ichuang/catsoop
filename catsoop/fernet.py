@@ -22,12 +22,6 @@
 # Apache License, Version 2.0, and the BSD License. See
 # https://github.com/pyca/cryptography/blob/master/LICENSE for complete
 # details.
-"""
-Fernet-style encryption forked from the
-[`cryptography`](https://cryptography.io/en/latest/) package.  Implements
-Fernet encryption, but without the bade64-encoding step (produces raw binary
-data).
-"""
 
 import binascii
 import os
@@ -42,18 +36,6 @@ from cryptography.hazmat.primitives import hashes, padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.hmac import HMAC
 
-_nodoc = {
-    "InvalidSignature",
-    "default_backend",
-    "hashes",
-    "padding",
-    "Cipher",
-    "algorithms",
-    "modes",
-    "HMAC",
-    "InvalidToken",
-}
-
 
 class InvalidToken(Exception):
     pass
@@ -63,11 +45,6 @@ _MAX_CLOCK_SKEW = 60
 
 
 class RawFernet(object):
-    """
-    Class (forked from the `Fernet` class in the `cryptography` package) that
-    implements a raw binary form of Fernet encryption.
-    """
-
     def __init__(self, key, backend=None):
         if backend is None:
             backend = default_backend()
