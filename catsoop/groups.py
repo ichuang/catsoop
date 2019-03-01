@@ -21,6 +21,7 @@ import random
 
 from . import util
 
+
 def list_groups(context, path):
     """
     **Parameters:**
@@ -48,9 +49,9 @@ def get_section(context, course, username):
     no section
     """
     uinfo = util.read_user_file(context, course, username, {})
-    cuc = context['cs_user_config']
-    secvar = cuc.get('section_variable', 'section')
-    defsec = cuc.get('default_section_name', 'default')
+    cuc = context["cs_user_config"]
+    secvar = cuc.get("section_variable", "section")
+    defsec = cuc.get("default_section_name", "default")
     return str(uinfo.get(secvar, defsec))
 
 

@@ -4,7 +4,9 @@ _Work toward next release. Currently under development._
 
 #### ADDED:
 
-* Added `cs_ui_config_flags`, including option to automaticall view explanations when viewing answers, and to highlight the 'view explanation' button.
+* Added `cs_ui_config_flags`, including option to automatically view explanations when viewing answers, and to highlight the 'view explanation' button.
+
+* Added `cs_user_config`, including option to specify which variable should be used for grouping when managing groups.
 
 #### CHANGED:
 
