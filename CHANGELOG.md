@@ -12,6 +12,10 @@ _Work toward next release. Currently under development._
 
 * Upgraded KaTeX to v0.10.1.
 
+* Reverted changes to `language` module from 14.0.0.
+
+* Changed the solution display for the `richtext` question type.
+
 #### DEPRECATED:
 
 #### REMOVED:

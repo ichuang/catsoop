@@ -416,6 +416,7 @@ def display_page(context):
             "</font></b></center><p>"
         ) % {"u": context["cs_username"]}
         context["cs_content"] = impmsg + context["cs_content"]
+    context["cs_content"] = language.handle_custom_tags(context, context["cs_content"])
     default = os.path.join(
         context.get("cs_fs_root", base_context.cs_fs_root),
         "__STATIC__",
@@ -429,9 +430,10 @@ def display_page(context):
     f = open(default)
     template = f.read()
     f.close()
-    out = CSFormatter().format(template, **context)
-    context["cs_source_format"] = "xml"
-    out = language.html_from_source(context, out)
+    out = (
+        language.handle_custom_tags(context, CSFormatter().format(template, **context))
+        + "\n"
+    )
     headers.update(context.get("cs_additional_headers", {}))
     headers.update({"Last-Modified": formatdate()})
     return ("200", "OK"), headers, out
@@ -467,7 +469,7 @@ def _breadcrumbs_html(context):
         name = (
             elt.get("cs_long_name", context["cs_path_info"][ix]) if ix != 0 else "Home"
         )
-        name = language.html_from_source(context, name, "md")
+        name = language.source_transform_string(context, name)
         elements.append('<span class="line"><a href="%s">%s</a></span>' % (link, name))
     return ' <span class="cs_nav_separator">/</span> '.join(elements)
 
@@ -833,10 +835,13 @@ def main(environment, return_context=False, form_data=None):
                 path = os.path.join(root, "__STATIC__", "mainpage.md")
                 with open(path) as f:
                     context["cs_content"] = f.read()
-                context["cs_source_format"] = "md"
-                context["cs_content"] = language.html_from_source(
+                context["cs_content"] = language.handle_includes(
                     context, context["cs_content"]
                 )
+                context["cs_content"] = language.handle_python_tags(
+                    context, context["cs_content"]
+                )
+                context["csm_language"].md_pre_handle(context)
                 context["cs_handler"] = "passthrough"
 
         # IF NOT DOING A LOG IN ACTION, STORE QUERY STRING

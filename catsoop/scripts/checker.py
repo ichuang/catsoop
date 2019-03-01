@@ -187,7 +187,7 @@ def do_check(row):
 
         row["score"] = score
         row["score_box"] = score_box
-        row["response"] = language.html_from_source(context, msg, override_format="xml")
+        row["response"] = language.handle_custom_tags(context, msg)
         row["extra_data"] = extra
 
         # make temporary file to write results to

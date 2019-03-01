@@ -150,7 +150,7 @@ def render_html_checkbox(last_log, **info):
         else:
             _s = ""
         out += '<input type="checkbox" name="%s" value="%s"%s />' % (_n, ix, _s)
-        text = csm_language.html_from_source(info, i)
+        text = csm_language.source_transform_string(info, i)
         out += "</td><td>%s</td></tr>" % text
     out += "\n</table>"
     out += '<input type="hidden" name="%s" id="%s" value="%s">' % (
@@ -189,7 +189,7 @@ def render_html_radio(last_log, **info):
         else:
             _s = ""
         out += '<input type="radio" name="%s_opts" value="%s"%s />' % (name, ix, _s)
-        text = csm_language.html_from_source(info, i)
+        text = csm_language.source_transform_string(info, i)
         out += "</td><td>%s</td></tr>" % text
     out += "\n</table>"
     out += '<input type="hidden" name="%s" id="%s" value="%s">' % (
@@ -227,7 +227,7 @@ def answer_display(**info):
             _im = "check" if c else "cross"
             out += '<img src="BASE/images/%s.png" />' % _im
             out += "</td><td>"
-            text = csm_language.html_from_source(info, i)
+            text = csm_language.source_transform_string(info, i)
             out += text
             out += "</td></tr>"
         out += "</table>"

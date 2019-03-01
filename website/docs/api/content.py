@@ -110,5 +110,5 @@ if not broke:
             _print()
 
 cs_problem_spec = [
-    csm_language.html_from_source(globals(), "".join(cs_problem_spec), "md")
+    csm_language._md_format_string(globals(), "".join(cs_problem_spec), False)
 ]

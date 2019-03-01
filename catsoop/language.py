@@ -15,996 +15,310 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 Handling of the CAT-SOOP specification language(s): Markdown, XML, and Python
+
+The real goal of parsing of a page's source is to convert it back to the
+original Python specification format.  Markdown is translated to XML, which is
+translated to Python.  The overall flow when parsing a page is:
+
+1. If the content file is in Markdown, parse it down to HTML.
+2. If the content file was in Markdown or XML, parse it down to Python
+    (stripping out comments and seperating &lt;question&gt; tags into
+    appropriate calls to `catsoop.tutor.question`).
 """
 
-import re
 import os
+import re
+import ast
 import sys
+import copy
 import random
-import inspect
+import string
+import hashlib
 import traceback
 
-import copy
-import hashlib
+from io import StringIO
+from collections import OrderedDict
 
 from . import tutor
 from . import dispatch
 from . import markdown_math
 from .errors import html_format, clear_info
-from io import StringIO
 
 import markdown
-from collections import OrderedDict
 from markdown.extensions import tables
 from markdown.extensions import fenced_code
 from markdown.extensions import sane_lists
 from bs4 import BeautifulSoup
 
-from . import debug_log
-
-LOGGER = debug_log.LOGGER
-
-
-source_formats = ("md", "xml", "py")
-"""
-Tuple of the CAT-SOOP source formats, in the order they should be considered.
-"""
-
-
-class CatsoopSyntaxError(Exception):
-    """
-    Exception raised due to invalid CAT-SOOP syntax
-    """
-
-    pass
-
-
-class CatsoopInternalError(Exception):
-    """
-    Exception raised when input cannot be properly handled (but is
-    syntactically valid)
-    """
-
-    pass
-
-
 _nodoc = {
-    "annotate_python",
-    "remove_comments",
-    "replace_include_tags",
-    "replace_python_tags",
-    "replace_custom_tags",
-    "replace_toplevel_element",
-    "execute_python",
-    "parse_tag",
-    "build_tree",
-    "build_question",
-    "cs_custom_tags_builtins",
-    "remove_common_leading_whitespace",
-    "indent_python",
-    "legacy_tree",
-    "handle_math_tags",
     "BeautifulSoup",
-    "LOGGER",
+    "OrderedDict",
     "StringIO",
-    "html_format",
     "clear_info",
+    "html_format",
+    "PYTHON_REGEX",
+    "PYVAR_REGEX",
+    "remove_common_leading_whitespace",
+    "source_formats",
+    "source_format_string",
 }
 
-# Interface Functions ----------------------------------------------------------
-#   gather_page
-#   assemble_page
-#   html_from_source
+_malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
+
+_valid_qname = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
 
 
-def html_from_source(context, source, override_format=None):
+def xml_pre_handle(context):
     """
-    Given a piece of text representing source code, return the associated HTML
-    (determined by calling `gather_page` and `assemble_page`).
+    Translate the value in `cs_content` from XML to Python, storing the result
+    as `cs_problem_spec` in the given context.
 
-    * `context`: the context of this request
-    * `source`:  the input to be formatted (generally a page or a small snippet
-        of source)
-
-    **Optional Paramters:**
-
-    * `override_format`: The format that `source` should be considered to have.
-        Defaults to `context["cs_source_format"]
-    """
-    override_format = override_format or context["cs_source_format"]
-    if override_format == "py":
-        override_format = "xml"
-    return assemble_page(
-        context, gather_page(context, source, override_format), override_format, False
-    )
-
-
-def gather_page(context, source, override_format=None):
-    """
-    In a given piece of source text, replaces includes and annotates python
-    tags.
+    This function mostly strips out comments and converts &lt;question&gt; tags
+    into appropriate calls to `catsoop.tutor.question`.
 
     **Parameters:**
 
-    * `context`: the context of this request
-    * `source`:  the input to be formatted
+    * `context`: the context associated with this request (from which
+      `cs_content` is taken)
 
-    **Optional Paramters:**
-
-    * `override_format`: The format that `source` should be considered to have.
-        Defaults to `context["cs_source_format"]
-
-    **Returns:** the modified text
+    **Returns:** `None`
     """
-    source_format = override_format or context["cs_source_format"]
-
-    if source_format == "py":
-        exec(source, context)
-        return (
-            "<div style='color:red;'>"
-            "<b>This is a python file.</b><br>"
-            "Python files should set <tt>context['cs_problem_spec']</tt> directly."
-            "</div>"
-        )
-    else:
-        path = context.get("cs_path_info", [])
-        path = ("%s%s" % (os.sep, os.path.join(*path))) if path else os.sep
-        source = annotate_python(path, source)
-        source = remove_comments(source)
-        source = replace_include_tags(context, source)
-        source = remove_comments(source)
-        source = replace_python_tags(context, source)
-    return source
-
-
-def assemble_page(context, source, override_format=None, set_problem_spec=True):
-    """
-    Assembles the final HTML of a page by running python code, handling custom
-    tags, and handling built-in tags.
-
-    **Parameters:**
-
-    * `context`:  The context of this request
-    * `source`: The source of a page, which should now have no includes
-
-    **Optional Paramters:**
-
-    * `override_format`: the format that `source` should be considered to have.
-        Defaults to `context[cs_source_format"]
-
-    * `set_problem_spec`: a boolean that controls whether `cs_problem_spec` is
-        set or not.  Defaults to `True`, but should be set to `False` in the
-        context of evaluating CAT-SOOP source outside of a normal page load.
-
-    **Returns:** a string containing the final HTML generated from the input.
-    """
-    source_format = override_format or context["cs_source_format"]
-
-    if source_format == "py":
-        return (
-            "<div style='color:red;'>"
-            "<b>This is a python file.</b><br>"
-            "Python files should set <tt>context['cs_problem_spec']</tt> directly."
-            "</div>"
-        )
-
-    if "cs_transform_source" in context:
-        source = context["cs_transform_source"](source)
-
-    # create `cs_custom_tags` if it does not exist
-    if not "cs_custom_tags" in context:
-        context["cs_custom_tags"] = {}
-
-    # if any built-ins are missing, add them in
-    for name in cs_custom_tags_builtins:
-        if name not in context["cs_custom_tags"]:
-            context["cs_custom_tags"][name] = cs_custom_tags_builtins[name]
-
-    source = replace_custom_tags(context, source, source_format)
-
-    if "cs_course_handle_custom_tags" in context:
-        LOGGER.warning(
-            "`cs_course_handle_custom_tags` is deprecated; use `cs_transform_source` instead."
-        )
-        source = context["cs_course_handle_custom_tags"](source)
-
-    source = build_tree(context, source)
-
-    if set_problem_spec:
-        if "cs_problem_spec" in context:
-            LOGGER.warning("`cs_problem_spec` already exists; attempting to append.")
-        else:
-            context["cs_problem_spec"] = []
-        # split into the format required by __HANDLERS__
-        if "cs_internal_qinfo" in context and len(context["cs_internal_qinfo"]) > 0:
-            page = source
-            for mark, question in context["cs_internal_qinfo"].items():
-                p = page.split(mark)
-                if len(p) == 1:
-                    raise CatsoopInternalError(
-                        "Could not find question %s in source" % mark
-                    )
-                elif len(p) == 2:
-                    context["cs_problem_spec"].append(p[0])
-                    context["cs_problem_spec"].append(question)
-                    page = p[1]
-                else:
-                    preceding_length = max(80, len(p[0]))
-                    preceding = p[0][-preceding_length:]
-                    raise CatsoopInternalError(
-                        "Duplicate question %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
-                        % (mark, preceding)
-                    )
-            context["cs_problem_spec"].append(page)
-        else:
-            context["cs_problem_spec"].append(source)
-
-    return source
-
-
-def annotate_python(fn, source):
-    """
-    Helper, modifies `<python>` tags to include two parameters:
-        cs_internal_sourcefile  the name of source file that this tag is from
-        cs_internal_linenumber  the line number of this tag in its source file
-    """
-    expr = re.compile(r"< *(python|printf)( *| +[^>]+)>")
-
-    source = source.split("\n")
-    for lnum in range(len(source)):
-        line = source[lnum]
-        tag = expr.search(line)
-        while tag is not None:
-            insertion = (' cs_internal_sourcefile="%s"' % fn) + (
-                ' cs_internal_linenumber="%d"' % lnum
-            )
-            line = line[: tag.end() - 1] + insertion + line[tag.end() - 1 :]
-            pickup = tag.end() + len(insertion)
-            tag = expr.search(line, pickup)
-        source[lnum] = line
-    return "\n".join(source)
-
-
-def remove_comments(source):
-    """
-    Helper, removes `<comment>` elements.
-    """
-    subs_func = lambda opening, body, closing: ""
-    source = replace_toplevel_element(source, "comment", subs_func)
-    return source
-
-
-def replace_include_tags(context, source):
-    """
-    Helper, replaces `<include>` tags with the contents of the files they
-    reference.
-    """
-    # handle paths relative to here unless given an absolute path
-    def subs_func(opening, body, closing):
-        base_dir = dispatch.content_file_location(context, context["cs_path_info"])
-        base_dir = os.path.realpath(os.path.dirname(base_dir))
-        replacements = []
-        for fn in body.splitlines():
-            fn = fn.strip()
-            if not fn:
-                continue  # skip blank lines
-            fn = os.path.realpath(os.path.join(base_dir, fn))
-            if os.path.commonprefix([fn, base_dir]) != base_dir:
-                # tried to escape the course
-                LOGGER.error('Unable to include "%s": outside base directory.' % fn)
-                continue
-            if not os.path.isfile(fn):
-                LOGGER.error('Unable to include "%s": is not a file.' % fn)
-                continue
-            ext = os.path.splitext(fn)[1]
-            if ext == ".py":
-                replacements.append("<python>")
-            with open(fn) as fh:
-                external_source = fh.read()
-                external_source = annotate_python(fn, external_source)
-                replacements.append(external_source)
-            if ext == ".py":
-                replacements.append("</python>")
-        return "\n".join(replacements)
-
-    source = replace_toplevel_element(
-        source, "include", subs_func, disallow_nesting=True
-    )
-    return source
-
-
-def replace_python_tags(context, source):
-    """
-    Helper, replaces `<python>` elements with the output of the code within,
-    and `@{}` and `<printf>` with the representation of the variable they
-    reference.
-    """
-    # The next 11 lines are legacy code, and
-    # should probably be rewritten eventually.
-    pyvar_pattern = r"[\#0\- +]*\d*(?:.\d+)?[hlL]?[diouxXeEfFgGcrs]"
-    pyvar_pattern = r"(?:%%%s|%s)?" % (pyvar_pattern, pyvar_pattern)
-    pyvar_pattern = r"(?P<lead>^|[^\\])@(?P<fmt>%s){(?P<body>.+?)}" % pyvar_pattern
-    pyvar_regex = re.compile(pyvar_pattern, re.DOTALL | re.IGNORECASE)
-
-    def atbrace2printf(x):
-        g = x.groupdict()
-        return "%s<printf %s>%s</printf>" % (
-            g.get("lead", ""),
-            g.get("fmt", None) or "%s",
-            g["body"],
-        )
-
-    # substitution function for `python` and `printf` tags
-    def subs_func(opening, body, closing):
-        name, params = parse_tag(opening)
-
-        if "cs_internal_linenumber" not in params:
-            emergency = 10000
-            if name != "printf":
-                LOGGER.warning(
-                    "Python tag %s has unknown position; starting line numbering at %d."
-                    % (opening, emergency)
-                )
-            params["cs_internal_linenumber"] = emergency
-        if "cs_internal_sourcefile" not in params:
-            if name != "printf":
-                LOGGER.warning("Python tag %s has unknown source." % opening)
-            params["cs_internal_sourcefile"] = "UNKNOWN"
-
-        linenumber = int(params["cs_internal_linenumber"])
-        sourcefile = params["cs_internal_sourcefile"]
-
-        if name == "printf":
-            keys = list(params.keys())
-            recognized_params = ["cs_internal_linenumber", "cs_internal_sourcefile"]
-            for p in recognized_params:
-                if p in keys:
-                    keys.remove(p)
-            if len(keys) > 1:
-                raise CatsoopSyntaxError(
-                    "Improper tag %s: `printf` only admits one attribute" % opening
-                )
-            elif len(keys) == 1:
-                if params[keys[0]] is not None:
-                    raise CatsoopSyntaxError(
-                        'Improper tag %s: `printf` formatting attribute does not use "name=value" syntax'
-                        % opening
-                    )
-                fmt = keys[0]
-            else:
-                fmt = "%s"
-
-            body = "print(%r %% (%s,))" % (fmt, body)
-
-        if "show" in params:
-            if params["show"] is not None:
-                raise CatsoopSyntaxError(
-                    "Improper tag %s: `show` does not take any values" % opening
-                )
-            code = '<pre><code class="lang-python">%s</code></pre>'
-            out = code % html_format(body)
-        else:
-            out = ""
-
-        if "norun" in params:
-            if params["norun"] is not None:
-                raise CatsoopSyntaxError(
-                    "Improper tag %s: `norun` does not take any values" % opening
-                )
-            return out.strip()
-
-        if "noresult" in params:
-            if params["noresult"] is not None:
-                raise CatsoopSyntaxError(
-                    "Improper tag %s: `noresult` does not take any values" % opening
-                )
-            display_result = False
-        else:
-            display_result = True
-
-        if "env" in params:
-            envname = params["env"]
-            if envname not in context["cs__python_envs"]:
-                context["cs__python_envs"][envname] = {}
-            execution_context = context["cs__python_envs"][envname]
-        else:
-            execution_context = context
-
-        result = execute_python(
-            context, body, execution_context, linenumber, sourcefile
-        )
-        return (out + result).strip() if display_result else out.strip()
-
-    if "cs__python_envs" not in context:
-        context["cs__python_envs"] = {}
-
-    # convert @{...} notation into <printf>...</printf>
-    source = re.sub(pyvar_regex, atbrace2printf, source)
-
-    # evaluate <python> and <printf> tags
-    source = replace_toplevel_element(
-        source, ["python", "printf"], subs_func, disallow_nesting=True
-    )
-    source = source.replace(r"\@{", "@{")
-    return source
-
-
-def replace_custom_tags(context, source, source_format, disable_markdown=False):
-    """
-    Unlike `replace_include_tags`, `replace_python_tags`, and `build_tree`, this
-    function should not modify `context`. The argument `source` is passed in as
-    a separate argument to reflect this difference in paradigm.
-    """
-    custom_tags = context["cs_custom_tags"]
-    names_todo = list(custom_tags.keys())
-
-    # Since timsort is stable, we
-    # sort lexicographically...
-    names_todo.sort()
-    names_todo.reverse()
-    # ...then sort by precedence,
-    names_todo.sort(key=lambda n: custom_tags[n].get("priority", 0))
-
-    symbols = {}
-    while len(names_todo) > 0:
-        premier = names_todo.pop()
-        this_level = custom_tags[premier].get("priority", 0)
-        at_this_level = [premier]
-        while (
-            len(names_todo) > 0
-            and custom_tags[names_todo[-1]].get("priority") == this_level
-        ):
-            at_this_level.append(names_todo.pop())
-
-        def make_subs_func(opts):
-            open_replmnt = opts.get("open", None)
-            body_replmnt = opts.get("body", None)
-            close_replmnt = opts.get("close", None)
-            run_markdown = opts.get("markdown", True)
-            verbatim = opts.get("verbatim", False)
-
-            def subs_func(opening, body, closing, context):
-                _, params = parse_tag(opening)
-
-                if open_replmnt is None:
-                    new_open = opening
-                elif isinstance(open_replmnt, str):
-                    new_open = open_replmnt
-                else:
-                    new_open = open_replmnt(params, context)
-
-                if body_replmnt is None:
-                    new_body = body
-                elif isinstance(body_replmnt, str):
-                    new_body = body_replmnt
-                else:
-                    new_body = body_replmnt(body, params, context)
-
-                if close_replmnt is None:
-                    new_close = closing
-                elif isinstance(close_replmnt, str):
-                    new_close = close_replmnt
-                else:
-                    new_close = close_replmnt(params, context)
-
-                if not verbatim:
-                    new_body = replace_custom_tags(
-                        context,
-                        new_body,
-                        source_format,
-                        disable_markdown=not run_markdown,
-                    )
-
-                return new_open + new_body + new_close
-
-            return subs_func
-
-        subs_funcs = {}
-        for name in at_this_level:
-            opts = custom_tags[name]
-            subs_funcs[name] = make_subs_func(opts)
-
-        source = replace_toplevel_element(
-            source, at_this_level, subs_funcs, symbols=symbols, context=context
-        )
-
-    if source_format == "md" and not disable_markdown:
-        source = markdown.markdown(
-            source,
-            extensions=[
-                tables.TableExtension(),
-                fenced_code.FencedCodeExtension(),
-                sane_lists.SaneListExtension(),
-                markdown_math.MathExtension(),
-            ],
-        )
-        # Markdown inserts a lot of paragraph tags; let's make sure they're balanced
-        opening_expr = re.compile(r"<p>")
-        closing_expr = re.compile(r"</p>")
-        opening_pars = [(m, +1) for m in re.finditer(opening_expr, source)]
-        closing_pars = [(m, -1) for m in re.finditer(closing_expr, source)]
-        pars = sorted(opening_pars + closing_pars, key=(lambda t: t[0].start()))
-        depth = 0
-        toplevel_pars = 0
-        for p in pars:
-            depth += p[1]
-            if depth < 0:
-                # raise CatsoopSyntaxError("Unexpected closing tag </p>")
-                pass
-            if depth == 0:
-                toplevel_pars += 1
-        if depth != 0:
-            # raise CatsoopSyntaxError("Unmatched opening tag <p>")
-            pass
-
-        # If everything is inside one paragraph element, strip it away
-        # (it's more or less never something we want)
-        if toplevel_pars == 1:
-            preopen = pars[0][0].start()
-            postopen = pars[0][0].end()
-            preclose = pars[-1][0].start()
-            postclose = pars[-1][0].end()
-            if source[:preopen].strip() == "" and source[postclose:].strip() == "":
-                source = source[postopen:preclose]
-
-    # It's possible that an element of high priority gets replaced by a symbol,
-    # and then later an element of lower priority enclosing that symbol itself
-    # is replaced. Then it is necessary to substitute twice succesively – once
-    # to restore the lower priority element (and the high priority symbol), and
-    # then once more to restore the higher priority element.
-    while any(sym in source for sym in symbols):
-        for sym, repl in symbols.items():
-            source = source.replace(sym, repl)
-
-    return source
-
-
-def build_tree(context, source):
-    """
-    Helper to create a BeautifulSoup tree and implement the functionality of
-    the remainder of the custom tags.
-    """
-    tree = BeautifulSoup(source, "html.parser")
-
-    if "cs_transform_tree" in context:
-        tree = context["cs_transform_tree"](tree)
-
-    return legacy_tree(context, tree)
-
-
-# Helper Functions -------------------------------------------------------------
-#   replace_toplevel_elements
-#   parse_tag
-#   execute_python
-
-
-def replace_toplevel_element(
-    source, name, substitution, disallow_nesting=False, symbols=None, context=None
-):
-
-    # We'd like to ensure that tags are balanced and then perform some substitu-
-    # tion on top-level elements. BeautifulSoup would be just the tool for this,
-    # but the HTML parser we use with bs4 amends the tree to make it well-formed
-    # (which we don't want to happen yet). Using a different parser could poten-
-    # tially work, and perhaps in the future we'll do that instead.
-
-    # Note that in some cases (when elements interleave), there is a difference
-    # between, e.g.,
-    #   source = replace_toplevel_element(source, a, subs_func)
-    #   source = replace_toplevel_element(source, b, subs_func)
-    # and
-    #   source = replace_toplevel_element(source, [a, b], subs_func)
-
-    # To do: allow the ">" character to appear in quoted strings within a tag
-
-    generate_symbols = symbols is not None
-
-    if generate_symbols:
-        if context is None:
-            context = {}
-
-        if "cs_internal_symbol_counter" not in context:
-            context["cs_internal_symbol_counter"] = 0
-
-    if isinstance(name, list):
-        name = "(" + "|".join(re.escape(n) for n in name) + ")"
-    else:
-        name = "(" + re.escape(name) + ")"
-
-    opening_expr = re.compile(r"< *%s( *| +[^>]+)>" % name)
-    closing_expr = re.compile(r"</ *%s *>" % name)
-    # find all opening and closing tags
-    opening_tags = [(m, m.group(1), True) for m in re.finditer(opening_expr, source)]
-    closing_tags = [(m, m.group(1), False) for m in re.finditer(closing_expr, source)]
-    tags = sorted(opening_tags + closing_tags, key=(lambda t: t[0].start()))
-
-    while len(tags) > 0:
-        # check for an unexpected closing tag
-        if not tags[0][2]:
-            err_start = max(0, tags[0][0].start() - 80)
-            err_end = tags[0][0].end()
-            raise CatsoopSyntaxError(
-                "Unexpected closing tag %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
-                % (tags[0][0].group(0), source[err_start:err_end])
-            )
-        # find paired tag
-        pre_start = tags[0][0].start()
-        start = tags[0][0].end()
-        stack = []
-        for t in tags:
-            if t[2]:  # opening tag
-                stack.append(t)
-            else:  # closing tag
-                previous = stack.pop()
-                if previous[1] != t[1]:
-                    err_start = max(0, t[0].start() - 80)
-                    err_end = t[0].end()
-                    raise CatsoopSyntaxError(
-                        "Unexpected closing tag %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
-                        % (t[0].group(0), source[err_start:err_end])
-                    )
-            if disallow_nesting and len(stack) > 1:
-                err_start = max(0, t[0].start() - 80)
-                err_end = t[0].end()
-                raise CatsoopSyntaxError(
-                    "Nested tag %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
-                    % (t[0].group(0), source[err_start:err_end])
-                )
-            if len(stack) == 0:
-                stop = t[0].start()
-                post_stop = t[0].end()
-                break
-        # check for an unmatched opening tag
-        if len(stack) != 0:
-            err_start = max(0, tags[0][0].start() - 80)
-            err_end = tags[0][0].end()
-            raise CatsoopSyntaxError(
-                "Unexpected opening tag %s at\n<<<BEGIN>>>\n%s\n<<<END>>>"
-                % (tags[0][0].group(0), source[err_start:err_end])
-            )
-
-        before = source[:pre_start]
-        opening = source[pre_start:start]
-        body = source[start:stop]
-        closing = source[stop:post_stop]
-        after = source[post_stop:]
-
-        if isinstance(substitution, dict):
-            substitution = substitution[tags[0][1]]
-
-        if len(inspect.getfullargspec(substitution).args) == 4:
-            inner = substitution(opening, body, closing, context)
-        else:
-            inner = substitution(opening, body, closing)
-
-        if generate_symbols:
-            replacement = "⟨CATSOOP:SYMBOL:%d:%06X⟩" % (
-                context["cs_internal_symbol_counter"],
-                random.randint(0, 2 ** 24 - 1),
-            )
-            context["cs_internal_symbol_counter"] += 1
-            symbols[replacement] = inner
-        else:
-            replacement = inner
-
-        source = before + replacement + after
-        len_change = len(replacement) - (len(opening) + len(body) + len(closing))
-        pickup = post_stop + len_change
-
-        # rather than try to manually keep track of the matches' indices as
-        # the text is changed, simply re-match (this is much less efficient,
-        # but means that the match data will be correct without adjustment)
-        opening_tags = [
-            (m, m.group(1), True) for m in opening_expr.finditer(source, pickup)
-        ]
-        closing_tags = [
-            (m, m.group(1), False) for m in closing_expr.finditer(source, pickup)
-        ]
-        tags = sorted(opening_tags + closing_tags, key=(lambda t: t[0].start()))
-
-    return source
-
-
-def parse_tag(tag):
-    """
-    Helper to parse a tag into its components.
-    """
-    # Note that this allows for strange things, like
-    #   <example opt=ion=s>
-    # producing
-    #   ("example", {"opt": "ion=s"})
-    #
-    # The upside is that the rules are simple and
-    # there's only one way to produce an error.
-
-    # To do: add support for backslash escape
-
-    original_tag = tag
-    params = {}
-
-    # we know the first character is `<`
-    tag = tag[1:].lstrip()
-
-    # grab until whitespace or `>` to get the name
-    m = re.compile(r"[ >]").search(tag)
-    name = tag[: m.start()]
-    tag = tag[m.start() :].lstrip()
-
-    # this could just be `while True`, but those always make me nervous
-    while len(tag) > 0:
-        if tag[0] == ">":
+    text = context["cs_content"]
+    text = re.sub(_environment_matcher("comment"), "", text)
+    tmp = text.split("<question")
+    qcount = 0
+    o = [tmp[0]]
+    for piece in tmp[1:]:
+        chunks = piece.strip().split(">", 1)
+        if len(chunks) != 2:
+            o.append(_malformed_question)
             break
-
-        # grab until whitespace or `>` or `=` to get a parameter
-        m = re.compile(r"[ >=]").search(tag)
-        p = tag[: m.start()]
-        tag = tag[m.start() :].lstrip()
-
-        # case 1: parameter has a value
-        if tag[0] == "=":
-            tag = tag[1:].lstrip()
-
-            if tag[0] == "'":
-                tag = tag[1:]
-                m = re.compile(r"'").search(tag)
-                if m is None:
-                    raise CatsoopSyntaxError(
-                        "Improper tag %s: missing delimiter" % original_tag
+        type_, rest = chunks
+        otherrest = rest.split("</question>", 1)
+        if len(otherrest) != 2:
+            o.append(_malformed_question)
+            break
+        code, rest = otherrest
+        e = dict(context)
+        try:
+            code = remove_common_leading_whitespace(code)
+            if isinstance(code, int):
+                o.append(
+                    (
+                        "<div><font color='red'><b>A Python Error Occurred:</b></font>"
+                        "<p><pre>"
+                        "Inconsistent indentation on line %d of question tag"
+                        "</pre></p></div>"
                     )
-                params[p] = tag[: m.start()]
-                tag = tag[m.start() + 1 :].lstrip()
-
-            elif tag[0] == '"':
-                tag = tag[1:]
-                m = re.compile(r'"').search(tag)
-                if m is None:
-                    raise CatsoopSyntaxError(
-                        "Improper tag %s: missing delimiter" % original_tag
-                    )
-                params[p] = tag[: m.start()]
-                tag = tag[m.start() + 1 :].lstrip()
-
-            else:
-                m = re.compile(r"[ >]").search(tag)
-                params[p] = tag[: m.start()]
-                tag = tag[m.start() :].lstrip()
-
-        # case 2: parameter does NOT have a value
-        else:
-            params[p] = None
-
-    return (name, params)
-
-
-def execute_python(context, body, variables, offset, sourcefile):
-    """
-    Helper.  Evalutes code in a given environment, and returns its output (if
-    any).
-
-    Makes use of a special variable `cs___WEBOUT`, which is a file-like object.
-    Any data written to `cs___WEBOUT` will be returned. Overwrites `print` in
-    the given environment so that its output is directed to `cs___WEBOUT`
-    instead of STDOUT.
-    """
-    variables.update({"cs___WEBOUT": StringIO()})
-    try:
-        body = remove_common_leading_whitespace(body)
-        if isinstance(body, int):
-            return (
-                "<div style='color:red;'>"
-                "<b>A Python Error Occurred:</b>"
-                "<p><pre>"
-                "Inconsistent indentation on line %d of python tag (line %d of file %s)"
-                "</pre></p>"
-                "</div>"
-            ) % (body, body + offset, sourcefile)
-        body = indent_python(body)
-        body = (
-            (
-                "_cs_stdout_print = print\n"
-                "def _cs_web_print(*args, **kwargs):\n"
-                '    if "file" not in kwargs:\n'
-                '        kwargs["file"] = cs___WEBOUT\n'
-                "    _cs_stdout_print(*args, **kwargs)\n"
-                "print = cs_print = _cs_web_print\n"
-                "try:\n"
-            )
-            + body
-            + (
-                "\nexcept Exception as e:\n"
-                "    raise e\n"
-                "finally:\n"
-                "    print = _cs_stdout_print"
-            )
-        )
-        body = body.replace("tutor.init_random()", "tutor.init_random(globals())")
-        body = body.replace("tutor.question(", "tutor.question(globals(),")
-        exec(body, variables)
-        return variables["cs___WEBOUT"].getvalue()
-
-    except:
-        exc = sys.exc_info()
-        tb_entries = traceback.extract_tb(exc[2])
-        tb_fname, tb_line, tb_func, tb_text = tb_entries[-1]
-        exc_only = traceback.format_exception_only(exc[0], exc[1])
-
-        if exc[0] == SyntaxError:
-            text = "Syntax error on line %d of python tag (line %d of file %s):\n" % (
-                tb_line - 8,
-                tb_line + offset - 8,
-                sourcefile,
-            )
-
-            def replace_line_number(m):
-                return "line %d" % (int(m.group(1)) - 8)
-
-            exc_only = [re.sub(r"line (\d+)", replace_line_number, i) for i in exc_only]
-
-        elif tb_func == "<module>":
-            text = (
-                "Error on line %d of python tag (line %d of file %s):\n    %s\n\n"
-                % (
-                    tb_line - 8,
-                    tb_line + offset - 8,
-                    sourcefile,
-                    body.splitlines()[tb_line - 1].strip(),
+                    % code
                 )
-            )
-        else:
-            text = context["csm_errors"].error_message_content(context, html=False)
-            exc_only = [""]
+                o.append(rest)
+                continue
+            exec(code, e)
+            if "csq_name" not in e:
+                e["csq_name"] = "q%06d" % qcount
+                qcount += 1
+            if _valid_qname.match(e["csq_name"]):
+                if type_ != "dummy":
+                    o.append(tutor.question(context, type_, **e))
+            else:
+                o.append(
+                    (
+                        '<div class="question">'
+                        '<font color="red">'
+                        "ERROR: Invalid question name <code>%r</code>"
+                        "</font></div>"
+                    )
+                    % e["csq_name"]
+                )
+        except:
+            e = sys.exc_info()
+            tb_entries = traceback.extract_tb(e[2])
+            fname, lineno, func, text = tb_entries[-1]
+            exc_only = traceback.format_exception_only(e[0], e[1])
+            if e[0] == SyntaxError:
+                tb_text = "Syntax error in question tag:\n"
+            elif func == "<module>":
+                tb_text = "Error on line %d of question tag." % lineno
+                try:
+                    tb_text += "\n    %s\n\n" % code.splitlines()[lineno - 1].strip()
+                except:
+                    pass
+            else:
+                tb_text = context["csm_errors"].error_message_content(
+                    context, html=False
+                )
+                exc_only = [""]
+            tb_text = "".join([tb_text] + exc_only)
 
-        text = "".join([text] + exc_only)
-
-        err = html_format(clear_info(context, text))
-        ret = (
-            "<div style='color:red;'>"
-            "<b>A Python Error Occurred:</b>"
-            "<p><pre>%s</pre></p>"
-            "</div>"
-        ) % err
-        return ret
-
-
-# Built-in Custom Tags ---------------------------------------------------------
-#  build_question
-#  cs_custom_tags_builtins
-
-___valid_qname = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
+            err = html_format(clear_info(context, tb_text))
+            ret = (
+                "<div><font color='red'>"
+                "<b>A Python Error Occurred:</b>"
+                "<p><pre>%s</pre><p>"
+                "</font></div>"
+            ) % err
+            o.append(ret)
+        o.append(rest)
+    context["cs_problem_spec"] = o
 
 
-def ___reformat_tag(name, params):
-    return (
-        "<"
-        + name.strip
-        + " ".join((a if v is None else a + "=" + "...") for a, v in params.items())
-        + ">"
+def _md(x):
+    o = markdown.markdown(
+        x,
+        extensions=[
+            tables.TableExtension(),
+            fenced_code.FencedCodeExtension(),
+            sane_lists.SaneListExtension(),
+            markdown_math.MathExtension(),
+        ],
+    )
+    return o
+
+
+def md_pre_handle(context, xml=True):
+    """
+    Translate the value in `cs_content` from Markdown to HTML
+
+    **Parameters:**
+
+    * `context`: the context associated with this request (from which
+      `cs_content` is taken)
+
+    **Optional Parameters:**
+
+    * `xml` (default `True`): whether `catsoop.language.xml_pre_handle` should
+      be invoked after translating to HTML
+
+    **Returns:** `None`
+    """
+    text = context["cs_content"]
+
+    text = re.sub(_environment_matcher("comment"), "", text)
+
+    text = _md_format_string(context, text, False)
+
+    context["cs_content"] = text
+    if xml:
+        xml_pre_handle(context)
+
+
+def py_pre_handle(context):
+    """
+    'Pre-handler' for Python.
+
+    This function exists to mirror the interface of `md_pre_handle` and
+    `xml_pre_handle`, but it does nothing (since the `cs_problem_spec` does not
+    need any additional processing at this point).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request (from which
+      `cs_content` is taken)
+
+    **Returns:** `None`
+    """
+    pass
+
+
+def _md_format_string(context, s, xml=True):
+    # generate a unique string to split around
+    splitter = None
+    while splitter is None or splitter in s:
+        splitter = "".join(random.choice(string.ascii_letters) for i in range(20))
+
+    # extract tags, replace with splitter
+    tag_contents = []
+
+    def _replacer(m):
+        tag_contents.append(m.groups())
+        return splitter
+
+    tags_to_replace = context.get("cs_markdown_ignore_tags", tuple())
+    tags = ("pre", "question", "(?:display)?math", "script") + tuple(tags_to_replace)
+    checker = re.compile(
+        r"<(%s)(.*?)>(.*?)</\1>" % "|".join(tags), re.MULTILINE | re.DOTALL
+    )
+
+    text = re.sub(checker, _replacer, s)
+
+    text = _md(text)
+
+    num_tags = len(tag_contents)
+    pieces = text.split(splitter)
+    o = ""
+    for ix, piece in enumerate(pieces):
+        o += piece
+        if ix < num_tags:
+            t, r, b = tag_contents[ix]
+            o += "<%s%s>%s</%s>" % (t, r, b, t)
+    text = o
+
+    if text.startswith("<p>") and text.endswith("</p>"):
+        text = text[3:-4]
+
+    return _xml_format_string(context, text) if xml else text
+
+
+def _xml_format_string(context, s):
+    return handle_custom_tags(context, s)
+
+
+source_formats = OrderedDict(
+    [("md", md_pre_handle), ("xml", xml_pre_handle), ("py", py_pre_handle)]
+)
+"""OrderedDict mapping source format names to formatting handlers"""
+
+source_format_string = OrderedDict(
+    [("md", _md_format_string), ("xml", _xml_format_string), ("py", _xml_format_string)]
+)
+"""OrderedDict mapping source format names to formatters"""
+
+
+def source_transform_string(context, s):
+    """
+    Convert the given string to HTML, based on the syntax associated with the
+    type of the current content file.
+
+    If the content file is Markdown, this will translate the string into HTML
+    and handle custom tags.  If the content file is in HTML or Python, custom
+    tags will be handled, but no other translation will occur.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `s`: the string to be translated to HTML
+
+    **Returns:** the translated string
+    """
+    src_format = context.get("cs_source_format", None)
+    if src_format is not None:
+        return source_format_string[src_format](context, s)
+    else:
+        return s
+
+
+# Handling of custom XML tags
+
+
+def _environment_matcher(tag):
+    return re.compile(
+        """<%s>(?P<body>.*?)</%s>""" % (tag, tag),
+        re.MULTILINE | re.DOTALL | re.IGNORECASE,
     )
 
 
-def build_question(body, params, context):
-    if "cs_internal_qcount" not in context:
-        context["cs_internal_qcount"] = 0
+_matcher = r"[\#0\- +]*\d*(?:.\d+)?[hlL]?[diouxXeEfFgGcrs]"
+_matcher = r"(?:%%%s|%s)?" % (_matcher, _matcher)
+_pyvar_matcher = r"(?P<lead>^|[^\\])@(?P<fmt>%s){(?P<body>.+?)}" % _matcher
+PYVAR_REGEX = re.compile(_pyvar_matcher, re.DOTALL | re.IGNORECASE)
+"""Regular expression for matching `@{}` syntax"""
 
-    if "cs_internal_qinfo" not in context:
-        context["cs_internal_qinfo"] = OrderedDict()
-
-    if len(params) != 1:
-        raise CatsoopSyntaxError(
-            "Improper tag %s: `question` takes exactly one attribute"
-            % ___reformat_tag("question", params)
-        )
-
-    qtype = list(params.keys())[0]
-
-    if params[qtype] is not None:
-        raise CatsoopSyntaxError(
-            "Improper tag %s: qtype does not take any values"
-            % ___reformat_tag("question", params)
-        )
-
-    out = []
-    env = dict(context)
-    try:
-        code = remove_common_leading_whitespace(body)
-        if isinstance(code, int):
-            return (
-                "<div style='color:red;'>"
-                "<b>A Python Error Occurred:</b>"
-                "<p><pre>"
-                "Inconsistent indentation on line %d of question tag"
-                "</pre></p>"
-                "</div>"
-            ) % code
-
-        exec(code, env)
-
-        if "csq_name" not in env:
-            env["csq_name"] = "q%06d" % context["cs_internal_qcount"]
-            context["cs_internal_qcount"] += 1
-
-        if ___valid_qname.match(env["csq_name"]):
-            replacement = "⟨CATSOOP:QUESTION:%s:%06X⟩" % (
-                env["csq_name"],
-                random.randint(0, 2 ** 24 - 1),
-            )
-            if qtype != "dummy":
-                context["cs_internal_qinfo"][replacement] = tutor.question(
-                    context, qtype, **env
-                )
-            return replacement
-
-        else:
-            return (
-                "<div class='question' style='color:red;'>"
-                "ERROR: Invalid question name <code>%r</code>"
-                "</div>"
-            ) % env["csq_name"]
-    except:
-        exc = sys.exc_info()
-        tb_entries = traceback.extract_tb(exc[2])
-        tb_fname, tb_line, tb_func, tb_text = tb_entries[-1]
-        exc_only = traceback.format_exception_only(exc[0], exc[1])
-        if exc[0] == SyntaxError:
-            text = "Syntax error in question tag:\n"
-        elif tb_func == "<module>":
-            text = "Error on line %d of question tag." % tb_line
-            try:
-                text += "\n    %s\n\n" % code.splitlines()[tb_line - 1].strip()
-            except:
-                pass
-        else:
-            text = context["csm_errors"].error_message_content(context, html=False)
-            exc_only = [""]
-        text = "".join([text] + exc_only)
-        err = html_format(clear_info(context, text))
-        ret = (
-            "<div style='color:red;'>"
-            "<b>A Python Error Occurred:</b>"
-            "<p><pre>%s</pre></p>"
-            "</div>"
-        ) % err
-        return ret
-
-
-cs_custom_tags_builtins = {
-    "comment": {"open": "", "body": "", "close": "", "verbatim": True, "priority": 20},
-    "question": {
-        "open": "",
-        "body": build_question,
-        "close": "",
-        "verbatim": True,
-        "priority": 15,
-    },
-    "script": {"verbatim": True, "priority": 14},
-    "pre": {"verbatim": True, "priority": 13},
-    "displaymath": {"verbatim": True, "priority": 12},
-    "math": {"verbatim": True, "priority": 11},
-    "chapter": {"open": "<h1>", "close": "</h1>", "priority": 9},
-    "section*": {"open": "<h2>", "close": "</h2>", "priority": 8},
-    "subsection*": {"open": "<h3>", "close": "</h3>", "priority": 7},
-    "subsubsection*": {"open": "<h4>", "close": "</h4>", "priority": 6},
-}
-
-# Legacy Functions -------------------------------------------------------------
-#   None of these were re-written for CAT-SOOP v14
-
-___indent_regex = re.compile(r"^(\s*)")
-
-___string_regex = re.compile(
-    r"""(\"\"\"[^"\\]*(?:(?:\\.|"(?!""))[^"\\]*)*\"\"\"|'''[^'\\]*(?:(?:\\.|'(?!''))[^'\\]*)*'''|'[^\n'\\]*(?:\\.[^\n'\\]*)*'|"[^\n"\\]*(?:\\.[^\n"\\]*)*")""",
-    re.MULTILINE | re.DOTALL,
+PYTHON_REGEX = re.compile(
+    r"""<(?P<tag>python|printf) *(?P<opts>.*?)>(?P<body>.*?)</(?P=tag)>""",
+    re.MULTILINE | re.DOTALL | re.IGNORECASE,
 )
-
-___ascii_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-
-def ___tab_replacer(x):
-    return x.group(1).replace("\t", "    ")
-
-
-def ___replace_indentation_tabs(x):
-    return re.sub(___indent_regex, ___tab_replacer, x)
+"""Regular expression for matching &lt;python&gt; tags"""
 
 
 def remove_common_leading_whitespace(x):
@@ -1015,7 +329,7 @@ def remove_common_leading_whitespace(x):
         if lines[ix].strip():
             break
     first_ix = ix
-    candidate = re.match(___indent_regex, lines[first_ix])
+    candidate = re.match(_indent_regex, lines[first_ix])
     if candidate is None:
         return x
     candidate = candidate.group(1)
@@ -1028,19 +342,36 @@ def remove_common_leading_whitespace(x):
     return "\n".join(i[lc:] for i in lines)
 
 
-def indent_python(c):
+def _tab_replacer(x):
+    return x.group(1).replace("\t", "    ")
+
+
+_indent_regex = re.compile(r"^(\s*)")
+
+
+def _replace_indentation_tabs(x):
+    return re.sub(_indent_regex, _tab_replacer, x)
+
+
+_string_regex = re.compile(
+    r"""(\"\"\"[^"\\]*(?:(?:\\.|"(?!""))[^"\\]*)*\"\"\"|'''[^'\\]*(?:(?:\\.|'(?!''))[^'\\]*)*'''|'[^\n'\\]*(?:\\.[^\n'\\]*)*'|"[^\n"\\]*(?:\\.[^\n"\\]*)*")""",
+    re.MULTILINE | re.DOTALL,
+)
+
+
+def indent_code(c):
     strings = {}
     # start by removing strings and replacing them with unique character sequences
-    def replacer(x):
+    def _replacer(x):
         new_id = None
         while new_id is None or new_id in strings or new_id in c:
-            new_id = "".join(random.choice(___ascii_letters) for i in range(20))
+            new_id = "".join(random.choice(string.ascii_letters) for i in range(20))
         strings[new_id] = x.group(1)
         return new_id
 
-    c = re.sub(___string_regex, replacer, c)
+    c = re.sub(_string_regex, _replacer, c)
     # now that strings are out of the way, change the indentation of every line
-    c = "\n".join("    %s" % ___replace_indentation_tabs(i) for i in c.splitlines())
+    c = "\n".join("    %s" % _replace_indentation_tabs(i) for i in c.splitlines())
     c = "    pass\n%s" % c
     # finally, reintroduce strings
     for k, v in strings.items():
@@ -1048,19 +379,274 @@ def indent_python(c):
     return c
 
 
-def legacy_tree(context, tree):
-    labels = {}
-    textsections = [0, 0, 0]
-    chapter = None
-    toc_sections = []
+def get_python_output(context, code, variables, line_offset=0):
+    """
+    Helper function.  Evaluate code in the given environment, and return its
+    output, if any.
+
+    Makes use of a special variable `cs___WEBOUT`, which is a file-like
+    object.  Any data written to `cs___WEBOUT` will be returned.  Overwrites
+    `print` in the given environment so that it outputs to `cs___WEBOUT`
+    instead of to stdout.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `code`: a strin containing the Python code to be executed
+    * `variables`: a dictionary representing the environment in which the code
+        should be executed
+
+    **Optional Parameters**:
+
+    * `line_offset` (default `0`): the offset, in lines, of this code's
+        &lt;python&gt; tag from the top of the source file; used in case an error
+        occurs, to try to point authors to the right location in the original
+        source file
+
+    **Returns:** a string containing any values written to `cs___WEBOUT`
+    """
+    variables.update({"cs___WEBOUT": StringIO()})
+    try:
+        code = remove_common_leading_whitespace(code)
+        if isinstance(code, int):
+            return (
+                "<div><font color='red'><b>A Python Error Occurred:</b></font>"
+                "<p><pre>"
+                "Inconsistent indentation on line %d of python tag (line %d of source)"
+                "</pre></p></div>"
+            ) % (code, code + line_offset + 1)
+        code = indent_code(code)
+        code = (
+            (
+                "_cs_oprint = print\n"
+                "def myprint(*args, **kwargs):\n"
+                '    if "file" not in kwargs:\n'
+                '        kwargs["file"] = cs___WEBOUT\n'
+                "    _cs_oprint(*args, **kwargs)\n"
+                "print = cs_print = myprint\n"
+                "try:\n\n"
+            )
+            + code
+            + (
+                "\nexcept Exception as e:\n"
+                "    raise e\n"
+                "finally:\n"
+                "    print = _cs_oprint"
+            )
+        )
+        code = code.replace("tutor.init_random()", "tutor.init_random(globals())")
+        code = code.replace("tutor.question(", "tutor.question(globals(),")
+        exec(code, variables)
+        return variables["cs___WEBOUT"].getvalue()
+    except:
+        e = sys.exc_info()
+        tb_entries = traceback.extract_tb(e[2])
+        fname, lineno, func, text = tb_entries[-1]
+        exc_only = traceback.format_exception_only(e[0], e[1])
+        if e[0] == SyntaxError:
+            tb_text = "Syntax error in Python tag:\n"
+
+            def lineno_replacer(x):
+                return "line %d" % (ast.literal_eval(x.group(1)) - 9)
+
+            exc_only = [re.sub(r"line (\d)+", lineno_replacer, i) for i in exc_only]
+        elif func == "<module>":
+            tb_text = (
+                "Error on line %d of Python tag (line %d of source):\n    %s\n\n"
+                % (
+                    lineno - 9,
+                    lineno + line_offset - 8,
+                    code.splitlines()[lineno - 1].strip(),
+                )
+            )
+        else:
+            tb_text = context["csm_errors"].error_message_content(context, html=False)
+            exc_only = [""]
+        tb_text = "".join([tb_text] + exc_only)
+
+        err = html_format(clear_info(context, tb_text))
+        ret = (
+            "<div><font color='red'>"
+            "<b>A Python Error Occurred:</b>"
+            "<p><pre>%s</pre><p>"
+            "</font></div>"
+        ) % (err,)
+        return ret
+
+
+def _make_python_handler(context, fulltext):
+    if "cs__python_envs" not in context:
+        context["cs__python_envs"] = {}
+
+    def python_tag_handler(match):
+        execcontext = context
+        guess_line = fulltext[: match.start()].count("\n")
+        #       guess_line = 0
+        d = match.groupdict()
+        opts = (d["opts"] or "").strip().split(" ")
+        body = d["body"]
+        if d["tag"] == "printf":
+            if len(opts) == 1 and opts[0] == "":
+                f = "%s"
+            else:
+                f = opts[0]
+            body = "print(%r %% (%s,))" % (f, body)
+            opts = []
+        out = ""
+        # decide whether to show the code
+        if "show" in opts:
+            opts.remove("show")
+            code = '<pre><code class="lang-python">%s</code></pre>'
+            out += code % html_format(body)
+        # decide whether to run the code
+        if "norun" in opts:
+            return (out).strip()
+        # decide in which environment the code should be run
+        for i in opts:
+            if i.startswith("env="):
+                envname = "=".join(i.split("=")[1:])
+                if envname not in context["cs__python_envs"]:
+                    context["cs__python_envs"][envname] = {}
+                execcontext = context["cs__python_envs"][envname]
+        # run the code
+        code_result = get_python_output(context, body, execcontext, guess_line)
+        # decide whether to show the result
+        return (out + code_result).strip() if "noresult" not in opts else (out).strip()
+
+    return python_tag_handler
+
+
+def handle_includes(context, text):
+    """
+    Handles all `<include>` tags in the provided text, replacing them with the
+    contents of the files they reference.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: a string containing the raw HTML source of the page
+
+    **Returns:** a string representing the updated HTML after includes have
+    been handled
+    """
+    # we'll handle paths relative to here unless given an absolute path
+    def _include_handler(match):
+        base_dir = dispatch.content_file_location(context, context["cs_path_info"])
+        base_dir = os.path.realpath(os.path.dirname(base_dir))
+        b = match.groupdict()["body"]
+        replacements = []
+        for fname in b.splitlines():
+            fname = fname.strip()
+            if not fname:
+                continue  # skip blank lines
+            fname = os.path.join(base_dir, fname)
+            fname = os.path.realpath(fname)
+            if os.path.commonprefix([fname, base_dir]) != base_dir:
+                # tried to escape the course
+                continue
+            if not os.path.isfile(fname):
+                continue
+            with open(fname) as f:
+                replacements.append(f.read())
+        return "\n\n".join(replacements)
+
+    return re.sub(_environment_matcher("include"), _include_handler, text)
+
+
+def handle_python_tags(context, text):
+    """
+    Process all Python-related custom tags.
+
+    Firstly, each `@{}` is translated into an appropriate `<printf>` tag.
+    Then, `<python>` and `<printf>` tags are handled sequentially, each being
+    replaced with its output after having its code evaluated in the current
+    context (using `catsoop.language.get_python_output`).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: a string containing the raw HTML source of the page
+
+    **Returns:** a string representing the updated HTML after python tags have
+    been handled
+    """
+
+    def printf_handler(x):
+        g = x.groupdict()
+        return "%s<printf %s>%s</printf>" % (
+            g.get("lead", ""),
+            g.get("fmt", None) or "%s",
+            g["body"],
+        )
+
+    text = re.sub(PYVAR_REGEX, printf_handler, text)
+    text = re.sub(PYTHON_REGEX, _make_python_handler(context, text), text)
+    return text.replace(r"\@{", "@{")
+
+
+def handle_custom_tags(context, text):
+    """
+    Process custom HTML tags
+
+    This function begins by calling `cs_course_handle_custom_tags` on the input
+    text, so that courses can implement their own custom HTML tags.  This
+    function is responsible for handling the following custom tags:
+
+    * `<chapter>`, `<section>`, `<subsection>`, etc.
+    * `<chapter*>`, `<section*>`, etc.
+    * `<ref>`
+    * `<tableofcontents/>`
+    * `<footnote>`
+    * `<showhide>`
+    * `<math>` and `<displaymath>`
+
+    It also takes care of making sure links, images, etc are referencing real
+    URLs instead of internal URLs, and also for making sure that syntax
+    highlighting is approprtiately applied for code snippets.
+
+    It is not responsible for handling Python tags or includes (which are
+    handled elsewhere, before this function is invoked).
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: a string containing the raw HTML source of the page, after
+        running through the handler
+
+    **Returns:** a string representing the updated HTML after custom tags have
+    been handled
+    """
+
+    if "cs_course_handle_custom_tags" in context:
+        text = context["cs_course_handle_custom_tags"](text)
 
     section = r"((?:chapter)|(?:(?:sub){0,2}section))"
+    section_star = r"<(?P<tag>%s)\*>(?P<body>.*?)</(?P=tag)\*?>" % section
+    section_star = re.compile(section_star, re.MULTILINE | re.DOTALL | re.IGNORECASE)
 
     tag_map = {
         "section": ("h2", 1),
         "subsection": ("h3", 2),
         "subsubsection": ("h4", 3),
     }
+
+    def _section_star_matcher(x):
+        d = x.groupdict()
+        t = d["tag"].rstrip("*")
+        b = d["body"]
+        t = tag_map[t][0]
+        return "<%s>%s</%s>" % (t, b, t)
+
+    text = re.sub(section_star, _section_star_matcher, text)
+
+    tree = BeautifulSoup(text, "html.parser")
+
+    # handle sections, etc.
+
+    labels = {}
+    textsections = [0, 0, 0]
+    chapter = None
+    toc_sections = []
 
     for i in tree.find_all(re.compile(section)):
         if i.name == "chapter":
@@ -1164,7 +750,9 @@ def legacy_tree(context, tree):
         ref["class"] = "anchor"
         link.insert_before(ref)
 
-    if footnotes and not context["cs_footnotes"]:
+    if len(footnotes) == 0:
+        fnote = ""
+    else:
         fnote = '<br/>&nbsp;<hr/><b name="cs_footnotes">Footnotes</b>'
         for (ix, f) in enumerate(footnotes):
             ix = ix + 1
@@ -1174,7 +762,7 @@ def legacy_tree(context, tree):
                 '<span class="noprint">(click to return to text)</span>'
                 "</a></p>"
             ) % (ix, ix, f, ix)
-        context["cs_footnotes"] = fnote
+    context["cs_footnotes"] = fnote
 
     # hints (<showhide>)
 
@@ -1224,6 +812,19 @@ def legacy_tree(context, tree):
 
 
 def handle_math_tags(tree):
+    """
+    Handles `<math>` and `<displaymath>` tags, replacing them with `<span>` and
+    `<div>` elements with appropriate classes so the Javascript math renderer
+    can find them.
+
+    **Parameters:**
+
+    * `context`: the context associated with this request
+    * `text`: a string containing the raw HTML source of the page
+
+    **Returns:** a string representing the updated HTML after math tags have
+    been handled
+    """
     for ix, i in enumerate(tree.find_all(re.compile("(?:display)?math"))):
         i["class"] = i.get("class", [])
         if i.name == "math":

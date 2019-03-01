@@ -17,12 +17,13 @@
 tutor.qtype_inherit("bigbox")
 
 _base_render_html = render_html
+_base_handle_submit = handle_submission
 
 defaults.update({"csq_soln": "", "csq_npoints": 1, "csq_show_check": False})
 
 
 def markdownify(context, text):
-    return context["csm_language"].html_from_source(context, text, override_format="md")
+    return context["csm_language"]._md(text)
 
 
 def richtext_format(context, text, msg="Preview:"):
@@ -35,10 +36,8 @@ def richtext_format(context, text, msg="Preview:"):
     out = out.replace("</script", "&lt;script")
     out += (
         '<script type="text/javascript">'
-        "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
-        '\ncatsoop.render_all_math(document.getElementById("cs_qdiv_%s"), true);'
-        "\n// @license-end"
-        "\n</script>"
+        'catsoop.render_all_math(document.getElementById("cs_qdiv_%s"), true);'
+        "</script>"
     ) % context["csq_name"]
     out += "</div>"
     return out
@@ -52,6 +51,14 @@ def handle_check(submission, **info):
     return richtext_format(info, last)
 
 
+def handle_submission(submissions, **info):
+    o = _base_handle_submit(submissions, **info)
+    o["msg"] = o.get("msg", "") + richtext_format(
+        info, submissions[info["csq_name"]], msg="Submitted:"
+    )
+    return o
+
+
 def render_html(last_log, **info):
     out = _base_render_html(last_log, **info)
     help_url = "/".join([info["cs_url_root"], "_qtype", "richtext", "formatting.html"])
@@ -61,4 +68,9 @@ def render_html(last_log, **info):
         """style="cursor:pointer; cursor:hand;">"""
         """Formatting Help</a>"""
     ) % help_url
+    return out
+
+
+def answer_display(**info):
+    out = "<b>Solution:</b><br/>&nbsp;<br/> %s" % (info["csq_soln"])
     return out
