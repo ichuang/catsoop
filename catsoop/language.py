@@ -235,7 +235,9 @@ def _md_format_string(context, s, xml=True):
         return splitter
 
     tags_to_replace = context.get("cs_markdown_ignore_tags", tuple())
-    tags = ("pre", "question", "(?:display)?math", "script") + tuple(tags_to_replace)
+    tags = ("pre", "question", "(?:display)?math", "script", "showhide") + tuple(
+        tags_to_replace
+    )
     checker = re.compile(
         r"<(%s)(.*?)>(.*?)</\1>" % "|".join(tags), re.MULTILINE | re.DOTALL
     )
@@ -772,10 +774,14 @@ def handle_custom_tags(context, text):
     for ix, i in enumerate(tree.find_all("showhide")):
         i.name = "div"
         i.attrs["style"] = "display:none;"
+        contents = i.decode_contents()
+        i.clear()
+        i.append(
+            BeautifulSoup(source_transform_string(context, contents), "html.parser")
+        )
         wrap = tree.new_tag("div")
         wrap["class"] = ["response"]
         i.wrap(wrap)
-        #        button = tree.new_tag('button', onclick="function(){var x=document.getElementById(%r);if(x.style.indexOf('none')>-1){x.style='display: block';}else{x.style='display:none;'}}" % i.attrs['id'])
         button = tree.new_tag(
             "button",
             onclick="if(this.nextSibling.style.display === 'none'){this.nextSibling.style.display = 'block';}else{this.nextSibling.style.display = 'none';}",
@@ -825,7 +831,7 @@ def handle_math_tags(tree):
     **Returns:** a string representing the updated HTML after math tags have
     been handled
     """
-    for ix, i in enumerate(tree.find_all(re.compile("(?:display)?math"))):
+    for i in tree.find_all(re.compile("(?:display)?math")):
         i["class"] = i.get("class", [])
         if i.name == "math":
             i.name = "span"

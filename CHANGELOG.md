@@ -28,6 +28,8 @@ _Work toward next release. Currently under development._
 
 * Fixed an issue related to complex numbers in the `expression` question type.
 
+* Implemented a fix for the long-standing issue with empty lines in `showhide` tags escaping out of them.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
