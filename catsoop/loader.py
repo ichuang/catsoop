@@ -477,7 +477,7 @@ def get_subdirs(context, course, path):
         i
         for i in os.listdir(directory)
         if os.path.isdir(os.path.join(directory, i))
-        and re.match("[^_\.].*", i) is not None
+        and re.match(r"[^_\.].*", i) is not None
     ]
 
 
@@ -514,7 +514,7 @@ def do_late_load(context, course, path, into, content_file=None):
     if os.path.basename(content_file).rsplit(".", 1)[0] == "content":
         subdirs = get_subdirs(context, course, path)
         shortnames = [
-            (".".join(i.split(".")[1:]) if re.match("\d*\..*", i) else i)
+            (".".join(i.split(".")[1:]) if re.match(r"\d*\..*", i) else i)
             for i in subdirs
         ]
         children = dict([(i, dict(into)) for i in shortnames])
