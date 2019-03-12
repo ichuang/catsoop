@@ -17,7 +17,9 @@
 import os
 import re
 import ast
+import logging
 
+LOGGER = logging.getLogger("cs")
 
 def _execfile(*args):
     fn = args[0]
@@ -59,15 +61,19 @@ def sandbox_run_code(context, code, options, count_opcodes=False, opcode_limit=N
         context["cs_fs_root"], "__QTYPES__", "pythoncode", "__SANDBOXES__", "%s.py" % s
     )
 
+    LOGGER.info("[pythoncode.sandbox.base] sandbox_file=%s" % sandbox_file)
     opts = dict(DEFAULT_OPTIONS)
     opts.update(context.get("csq_sandbox_options", {}))
     opts.update(options)
     sandbox = dict(context)
     _execfile(sandbox_file, sandbox)
-    return sandbox["run_code"](
-        context, code, opts, count_opcodes=count_opcodes, opcode_limit=opcode_limit
-    )
-
+    try:
+        return sandbox["run_code"](
+            context, code, opts, count_opcodes=count_opcodes, opcode_limit=opcode_limit
+        )
+    except Exception as err:
+        LOGGER.error("[pythoncode.sandbox.base] Failed to run_code, opts=%s, err=%s" % (opts, err))
+        raise
 
 def fix_error_msg(fname, err, offset, sub):
     sublen = sub.count("\n")
