@@ -23,6 +23,7 @@ from urllib.parse import urlencode
 
 LOGGER = logging.getLogger("cs")
 
+
 def _execfile(*args):
     fn = args[0]
     with open(fn) as f:
@@ -69,7 +70,7 @@ defaults = {
     "csq_initial": "pass  # Your code here",
     "csq_soln": 'print("Hello, World!")',
     "csq_tests": [],
-    "csq_hint": lambda score,code,info: "",    # post-test hint generator
+    "csq_hint": lambda score, code, info: "",  # post-test hint generator
     "csq_log_keypresses": True,
     "csq_variable_blacklist": [],
     "csq_import_blacklist": [],
@@ -202,7 +203,10 @@ def handle_submission(submissions, **info):
         code = info["csm_loader"].get_file_data(info, submissions, info["csq_name"])
         code = code.decode().replace("\r\n", "\n")
     except Exception as err:
-        LOGGER.warn("[pythoncode] handle_submission error '%s', traceback=%s" % (err, traceback.format_exc()))
+        LOGGER.warn(
+            "[pythoncode] handle_submission error '%s', traceback=%s"
+            % (err, traceback.format_exc())
+        )
         return {
             "score": 0,
             "msg": '<div class="bs-callout bs-callout-danger"><span class="text-danger"><b>Error:</b> Unable to decode the specified file.  Is this the file you intended to upload?</span></div>',
@@ -325,7 +329,10 @@ def handle_submission(submissions, **info):
             msg += hint or ""
             LOGGER.debug("[pythoncode] hint=%s" % hint)
         except Exception as err:
-            LOGGER.warn("[pythoncode] hint function %s produced error=%s at %s" % (hint_func, err, traceback.format_exc()))
+            LOGGER.warn(
+                "[pythoncode] hint function %s produced error=%s at %s"
+                % (hint_func, err, traceback.format_exc())
+            )
     msg = (
         ("\n<br/>&nbsp;Your score on your most recent " "submission was: %01.02f%%")
         % (overall * 100)

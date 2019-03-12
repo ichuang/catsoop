@@ -21,6 +21,7 @@ import logging
 
 LOGGER = logging.getLogger("cs")
 
+
 def _execfile(*args):
     fn = args[0]
     with open(fn) as f:
@@ -68,7 +69,10 @@ def sandbox_run_code(context, code, options):
     try:
         return sandbox["run_code"](context, code, opts)
     except Exception as err:
-        LOGGER.error("[pythoncode.sandbox.base] Failed to run_code, opts=%s, err=%s" % (opts, err))
+        LOGGER.error(
+            "[pythoncode.sandbox.base] Failed to run_code, opts=%s, err=%s"
+            % (opts, err)
+        )
         raise
 
 
