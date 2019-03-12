@@ -104,7 +104,10 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
             stderr=subprocess.PIPE,
         )
     except Exception as err:
-        LOGGER.error("[pythoncode.sandbox.python] error executing subprocess, interp=%s, fname=%s, tmpdir=%s, preexec_fn=%s" % (interp, fname, tmpdir, limiter))
+        LOGGER.error(
+            "[pythoncode.sandbox.python] error executing subprocess, interp=%s, fname=%s, tmpdir=%s, preexec_fn=%s"
+            % (interp, fname, tmpdir, limiter)
+        )
         raise Exception(
             "[cs.qtypes.pythoncode.python] Failed to execute subprocess interp=%s (need to set csq_python_interpreter?), err=%s"
             % (interp, err)
