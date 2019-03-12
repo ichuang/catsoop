@@ -25,6 +25,8 @@ import tempfile
 import resource
 import subprocess
 
+LOGGER = logging.getLogger("cs")
+
 _resource_mapper = {
     "CPUTIME": (resource.RLIMIT_CPU, lambda x: (x, x + 1)),
     "MEMORY": (resource.RLIMIT_AS, lambda x: (x, x)),
@@ -72,8 +74,8 @@ def run_code(context, code, options):
     with open(os.path.join(tmpdir, fname), "w") as fileobj:
         fileobj.write(code.replace("\r\n", "\n"))
 
-    logging.debug(
-        "context cs_version=%s, cs_python_interpreter=%s"
+    LOGGER.debug(
+        "[pythoncode.sandbox.python] context cs_version=%s, cs_python_interpreter=%s"
         % (context.get("cs_version"), context.get("cs_python_interpreter"))
     )
 
@@ -93,6 +95,7 @@ def run_code(context, code, options):
             env={},
         )
     except Exception as err:
+        LOGGER.error("[pythoncode.sandbox.python] error executing subprocess, interp=%s, fname=%s, tmpdir=%s, preexec_fn=%s" % (interp, fname, tmpdir, limiter))
         raise Exception(
             "[cs.qtypes.pythoncode.python] Failed to execute subprocess interp=%s (need to set csq_python_interpreter?), err=%s"
             % (interp, err)
