@@ -1,3 +1,4 @@
+import sys
 import logging
 import catsoop
 import catsoop.loader as loader
@@ -85,8 +86,8 @@ class Test_Pythoncode(CATSOOPTest):
         info["cs_fs_root"] = context["cs_fs_root"]
         info["cs_cross_image"] = "FILE_CROSS_IMAGE"
         info["cs_check_image"] = "FILE_CHECK_IMAGE"
-        info["cs_python_interpreter"] = "/usr/local/bin/python"
-        info["csq_python_interpreter"] = "/usr/local/bin/python"
+        info["cs_python_interpreter"] = sys.executable
+        info["csq_python_interpreter"] = sys.executable
         info["csq_python_sandbox"] = "python"
         self.csq = csq
         self.info = info
