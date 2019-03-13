@@ -9,8 +9,9 @@ from ..test import CATSOOPTest
 
 LOGGER = logging.getLogger("cs")
 
-LOGGER.disabled = False
-LOGGER.setLevel(0)
+# uncomment the following to debug
+# LOGGER.disabled = False
+# LOGGER.setLevel(0)
 
 def gd_test(submission, solution):
     if isinstance(submission, dict):
@@ -98,7 +99,8 @@ class Test_Pythoncode(CATSOOPTest):
         info["csq_python_sandbox"] = "python"
         self.csq = csq
         self.info = info
-        LOGGER.setLevel(0)
+        # uncomment the following to debug
+        # LOGGER.setLevel(0)
 
     def test_submit(self):
         # test code submission (and evaluation using local sandbox)
