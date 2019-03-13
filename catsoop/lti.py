@@ -304,7 +304,9 @@ def serve_lti(context, path_info, environment, params, dispatch_main):
     LOGGER.info("[lti] lti_action=%s, path_info=%s" % (lti_action, path_info))
 
     session_data = context["cs_session_data"]
-    if 'is_lti_user' in session_data:	# needed to handle form POSTS to _lti/course/...
+    is_lti_post = environment.get("REQUEST_METHOD")=="POST" and ('oauth_consumer_key' in environment)
+    # needed to handle form POSTS to _lti/course/...
+    if (not is_lti_post) and ('is_lti_user' in session_data):	
         lti_ok = True			# already authenticated
         l4c = None
     else:

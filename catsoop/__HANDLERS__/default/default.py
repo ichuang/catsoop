@@ -508,7 +508,7 @@ def explanation_display(x):
     return "<hr /><p><b>Explanation:</b></p>%s" % x
 
 
-def handle_viewexplanation(context, outdict=None):
+def handle_viewexplanation(context, outdict=None, skip_empty=False):
     """
     context: (dict) catsoop context 
     outdict: (dict) output for each question, defaults to {}
@@ -531,13 +531,16 @@ def handle_viewexplanation(context, outdict=None):
             continue
         out = outdict.get(name, {})
 
+        q, args = context[_n("name_map")][name]
+        if "csq_explanation" not in args and skip_empty:
+            continue
+        
         error = viewexp_msg(context, context[_n("perms")], name)
         if error is not None:
             out["error_msg"] = error
             outdict[name] = out
             continue
 
-        q, args = context[_n("name_map")][name]
         exp = explanation_display(args["csq_explanation"])
         out["explanation"] = language.source_transform_string(context, exp)
         outdict[name] = out
@@ -625,7 +628,7 @@ def handle_viewanswer(context):
 
     if context.get("cs_ui_config_flags", {}).get("auto_show_explanation_with_answer"):
         context[_n("last_log")] = newstate
-        return handle_viewexplanation(context, outdict)
+        return handle_viewexplanation(context, outdict, skip_empty=True)
 
     return make_return_json(context, outdict)
 

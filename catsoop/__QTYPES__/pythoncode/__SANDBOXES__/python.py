@@ -90,7 +90,7 @@ def run_code(context, code, options):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            env={},
+            #env={},
         )
     except Exception as err:
         raise Exception(
