@@ -637,7 +637,7 @@ def main(environment, return_context=False, form_data=None):
         else:
             fields = cgi.FieldStorage()
         form_data = form_data or dict_from_cgi_form(fields)
-        LOGGER.error("[dispatch] form_data=%s" % form_data)
+        LOGGER.error("[dispatch] form_data=%s" % str(form_data)[:400])
 
         # INITIALIZE CONTEXT
         context["cs_additional_headers"] = {}
