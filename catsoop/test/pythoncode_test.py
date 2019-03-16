@@ -13,11 +13,12 @@ LOGGER = logging.getLogger("cs")
 # LOGGER.disabled = False
 # LOGGER.setLevel(0)
 
+
 def gd_test(submission, solution):
     if isinstance(submission, dict):
-        submission = submission.get('result')
+        submission = submission.get("result")
     if isinstance(solution, dict):
-        solution = solution.get('result')
+        solution = solution.get("result")
     print("submission=%s, solution=%s" % (submission, solution))
     return submission == solution
 

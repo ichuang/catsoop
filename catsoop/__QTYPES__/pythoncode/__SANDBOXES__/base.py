@@ -79,6 +79,7 @@ def sandbox_run_code(context, code, options, count_opcodes=False, opcode_limit=N
         )
         raise
 
+
 def fix_error_msg(fname, err, offset, sub):
     sublen = sub.count("\n")
 
