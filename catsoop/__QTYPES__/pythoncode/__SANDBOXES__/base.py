@@ -161,6 +161,7 @@ def sandbox_run_test(context, code, test):
         options,
         count_opcodes=test["count_opcodes"],
         opcode_limit=test["opcode_limit"],
+        result_as_string=test["result_as_string"],
     )
 
     err = truncate(results["err"], "ERROR OUTPUT")

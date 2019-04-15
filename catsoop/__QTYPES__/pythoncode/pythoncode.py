@@ -276,6 +276,9 @@ def handle_submission(submissions, **info):
     )
     count = 1
     for test in info["csq_tests"]:
+        test["result_as_string"] = test.get(
+            "result_as_string", info.get("csq_result_as_string", False)
+        )
         out, err, log = info["sandbox_run_test"](info, code, test)
         if "cached_result" in test:
             log_s = repr(test["cached_result"])
