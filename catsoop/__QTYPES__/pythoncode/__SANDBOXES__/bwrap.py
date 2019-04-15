@@ -34,7 +34,14 @@ default_ro_bind = [
 ]
 
 
-def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
+def run_code(
+    context,
+    code,
+    options,
+    count_opcodes=False,
+    opcode_limit=None,
+    result_as_string=False,
+):
     def limiter():
         os.setsid()
         context["csm_process"].set_pdeathsig()()
@@ -54,6 +61,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         template = f.read()
     template %= {
         "enable_opcode_count": count_opcodes,
+        "result_as_string": result_as_string,
         "test_module": this_one,
         "opcode_limit": opcode_limit or float("inf"),
     }

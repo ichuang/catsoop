@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import ast
 import json
 import logging
 import traceback
@@ -83,6 +84,7 @@ defaults = {
     "csq_always_show_tests": False,
     "csq_test_defaults": {},
     "csq_use_simple_checker": False,
+    "csq_result_as_string": False,
 }
 
 
@@ -98,6 +100,10 @@ def _default_check_function(sub, soln):
 
 def _default_simple_check_function(sub, soln):
     return sub == soln
+
+
+def _default_string_check_function(sub, soln):
+    return ast.literal_eval(sub) == ast.literal_eval(soln)
 
 
 test_defaults = {
@@ -224,7 +230,10 @@ def handle_submission(submissions, **info):
             "msg": '<div class="bs-callout bs-callout-danger"><span class="text-danger"><b>Error:</b> Unable to decode the specified file.  Is this the file you intended to upload?</span></div>',
         }
     if info["csq_use_simple_checker"]:
-        default_checker = _default_simple_check_function
+        if info["csq_result_as_string"]:
+            default_checker = _default_string_check_function
+        else:
+            default_checker = _default_simple_check_function
     else:
         default_checker = _default_check_function
     tests = [dict(test_defaults) for i in info["csq_tests"]]

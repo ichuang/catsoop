@@ -8,6 +8,8 @@ _Work toward next release. Currently under development._
 
 * Added `cs_user_config`, including option to specify which variable should be used for grouping when managing groups.
 
+* Added `csq_result_as_string` option to `pythoncode` question types, allowing the result to come back as a string (useful for custom types as return values from `pythoncode` or `pythonic` question types, where evaluation would otherwise fail).
+
 #### CHANGED:
 
 * Upgraded KaTeX to v0.10.1.
