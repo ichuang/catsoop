@@ -22,6 +22,8 @@ class OpcodeLimitReached(Exception):
     pass
 
 
+RESULT_AS_STRING = %(result_as_string)r
+
 OPCODE_TRACING_ENABLED = sys.version_info > (3, 7) and %(enable_opcode_count)s
 if OPCODE_TRACING_ENABLED:
 
@@ -65,6 +67,8 @@ try:
 
     ans = getattr(test_module, "_catsoop_answer", NoAnswerGiven)
     if ans is not NoAnswerGiven:  # we got a result back
+        if RESULT_AS_STRING:
+            ans = repr(ans)
         results["result"] = ans
     results["duration"] = time.time() - start_time
     results["complete"] = True

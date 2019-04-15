@@ -56,7 +56,14 @@ def prep_code(code, test, **kwargs):
     return code
 
 
-def sandbox_run_code(context, code, options, count_opcodes=False, opcode_limit=None):
+def sandbox_run_code(
+    context,
+    code,
+    options,
+    count_opcodes=False,
+    opcode_limit=None,
+    result_as_string=False,
+):
     s = context.get("csq_python_sandbox", "remote")
     sandbox_file = os.path.join(
         context["cs_fs_root"], "__QTYPES__", "pythoncode", "__SANDBOXES__", "%s.py" % s
@@ -70,7 +77,12 @@ def sandbox_run_code(context, code, options, count_opcodes=False, opcode_limit=N
     _execfile(sandbox_file, sandbox)
     try:
         return sandbox["run_code"](
-            context, code, opts, count_opcodes=count_opcodes, opcode_limit=opcode_limit
+            context,
+            code,
+            opts,
+            count_opcodes=count_opcodes,
+            opcode_limit=opcode_limit,
+            result_as_string=result_as_string,
         )
     except Exception as err:
         LOGGER.error(
@@ -149,6 +161,7 @@ def sandbox_run_test(context, code, test):
         options,
         count_opcodes=test["count_opcodes"],
         opcode_limit=test["opcode_limit"],
+        result_as_string=test["result_as_string"],
     )
 
     err = truncate(results["err"], "ERROR OUTPUT")

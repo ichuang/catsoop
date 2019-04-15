@@ -73,7 +73,10 @@ def handle_submission(submissions, **info):
         s = info["csq_soln"]
         code += "\n_catsoop_answer = %s" % s
         opts = info.get("csq_options", {})
-        soln = info["sandbox_run_code"](info, code, opts)["info"]["result"]
+        soln = info["sandbox_run_code"](info, code, opts, result_as_string=True)[
+            "info"
+        ]["result"]
+        soln = eval(soln, info)
     try:
         if sub == "":
             LOGGER.debug("[qtypes.pythonic] invalid submission, empty submission")
@@ -83,7 +86,11 @@ def handle_submission(submissions, **info):
         code += "\n_catsoop_answer = %s" % sub
         opts = info.get("csq_options", {})
         LOGGER.debug("[qtypes.pythonic] code to run:\n%s" % code)
-        sub = info["sandbox_run_code"](info, code, opts)["info"]["result"]
+        sub = info["sandbox_run_code"](
+            info, code, opts, result_as_string=info["csq_mode"] != "raw"
+        )["info"]["result"]
+        if info["csq_mode"] != "raw":
+            sub = eval(sub, info)
     except Exception as err:
         LOGGER.error("[qtypes.pythonic] invalid submission: %r" % sub)
         LOGGER.error("[qtypes.pythonic] invalid submission exception=%s" % str(err))

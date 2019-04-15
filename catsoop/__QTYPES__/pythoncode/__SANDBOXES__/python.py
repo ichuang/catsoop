@@ -36,7 +36,14 @@ _resource_mapper = {
 }
 
 
-def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
+def run_code(
+    context,
+    code,
+    options,
+    count_opcodes=False,
+    opcode_limit=None,
+    result_as_string=False,
+):
     if options.get("do_rlimits", True):
         rlimits = [(resource.RLIMIT_NPROC, (0, 0))]
         for key, val in _resource_mapper.items():
@@ -67,6 +74,7 @@ def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
         template = f.read()
     template %= {
         "enable_opcode_count": count_opcodes,
+        "result_as_string": result_as_string,
         "test_module": this_one,
         "opcode_limit": opcode_limit or float("inf"),
     }
