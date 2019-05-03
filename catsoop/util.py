@@ -57,7 +57,7 @@ def list_all_users(context, course):
     return [i.rsplit(".", 1)[0] for i in os.listdir(usrdir) if not _hide(i)]
 
 
-def read_user_file(context, course, user, default=None):
+def read_user_file(context, course, user, default={}):
     """
     Retrieve the contents of a given user's `__USERS__` file within a course.
 
@@ -69,22 +69,25 @@ def read_user_file(context, course, user, default=None):
 
     **Optional Parameters:**
 
-    * `default` (default `None`): the value to be returned if the given user
-        does not have a `__USERS__` file
+    * `default` (default `{}`): values to be included in the returned
+        dictionary if the given user does not have a
+        `__USERS__` file
 
     **Returns:** a dictionary containing the variables defined in the given
     user's file
     """
     user_file = os.path.join(users_dir(context, course), "%s.py" % user)
-    if os.path.isfile(user_file):
-        uinfo = {}
+    uinfo = dict(default)
+    try:
         with open(user_file) as f:
             exec(f.read(), uinfo)
         uinfo["username"] = user
-        loader.clean_builtins(uinfo)
-        return uinfo
-    else:
-        return default
+        uinfo["_load_ok"] = True
+    except:
+        uinfo["_load_ok"] = False
+        uinfo["_load_exception"] = sys.exc_info()
+    loader.clean_builtins(uinfo)
+    return uinfo
 
 
 def all_users_info(context, course, filter_func=lambda uinfo: True):
