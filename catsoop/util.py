@@ -18,6 +18,8 @@ Various utilies (primarily for user management)
 """
 
 import os
+import sys
+import traceback
 
 from . import loader
 
@@ -85,7 +87,7 @@ def read_user_file(context, course, user, default={}):
         uinfo["_load_ok"] = True
     except:
         uinfo["_load_ok"] = False
-        uinfo["_load_exception"] = sys.exc_info()
+        uinfo["_load_exception"] = traceback.format_exception(*sys.exc_info())
     loader.clean_builtins(uinfo)
     return uinfo
 
