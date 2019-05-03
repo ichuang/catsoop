@@ -463,6 +463,9 @@ def make_initial_display(info):
         init += "\n\n\n### Test Cases:\n"
     get_sandbox(info)
     for ix, i in enumerate(show_tests):
+        i["result_as_string"] = i.get(
+            "result_as_string", info.get("csq_result_as_string", False)
+        )
         init += "\n# Test Case %d" % (ix + 1)
         if i["include_soln"]:
             if "cached_result" in i:
