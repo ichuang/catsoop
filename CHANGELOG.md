@@ -32,6 +32,8 @@ _Work toward next release. Currently under development._
 
 * Implemented a fix for the long-standing issue with empty lines in `showhide` tags escaping out of them.
 
+* Fixed an issue with the checker process, whereby submissions would forever be marked as 'running' if they experienced an error during page load or when looking up the question to submit.
+
 #### SECURITY:
 
 #### DOCUMENTATION:
