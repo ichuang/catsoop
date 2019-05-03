@@ -33,6 +33,7 @@ add new Python objects to a log.
 
 import os
 import ast
+import sys
 import lzma
 import base64
 import pickle
@@ -190,6 +191,7 @@ def _modify_log(fname, new, mode):
     entry = prep(new)
     length = struct.pack("<Q", len(entry))
     with open(fname, mode) as f:
+        f.write(length)
         f.write(entry)
         f.write(length)
 
@@ -247,14 +249,15 @@ def _read_log(db_name, path, logname, lock=True):
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm:
         try:
-            f = open(fname, "rb")
-            while True:
-                try:
-                    yield pickle.load(f)
-                except EOFError:
-                    break
-                f.seek(8, os.SEEK_CUR)
-            return
+            with open(fname, "rb") as f:
+                while True:
+                    try:
+                        length = struct.unpack("<Q", f.read(8))[0]
+                        yield unprep(f.read(length))
+                    except EOFError:
+                        break
+                    f.seek(8, os.SEEK_CUR)
+                return
         except:
             return
 
