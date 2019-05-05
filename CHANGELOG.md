@@ -18,6 +18,8 @@ _Work toward next release. Currently under development._
 
 * Changed the solution display for the `richtext` question type.
 
+* `util.read_user_file` now does not raise an exception if there is an error in a user's file.  Rather, it always returns a dictionary, but includes error information in the case of an error.
+
 #### DEPRECATED:
 
 #### REMOVED:
