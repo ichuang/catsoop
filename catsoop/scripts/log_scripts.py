@@ -98,22 +98,24 @@ or:
 def _find_log(args):
     if len(args) == 1:
         filename = os.path.realpath(args[0])
-        base = os.path.join(
-            os.path.realpath(base_context.cs_data_root), "_logs/_courses/"
-        )
+        base = os.path.join(os.path.realpath(base_context.cs_data_root), "_logs/")
         if not (filename.startswith(base) and filename.endswith(".log")):
             print(
                 ("The given file is not a valid log file for this " "installation."),
                 file=sys.stderr,
             )
             sys.exit(1)
-        fields = filename[len(base) : -4].split("/")
-        username = fields[1]
-        path = [fields[0]] + fields[2:-1]
+        fields = filename[len(base) : -4].lstrip("/").split("/")
+        if fields[0] != "_courses":
+            username = fields[0]
+            path = []
+        else:
+            username = fields[2]
+            path = [fields[1]] + fields[3:-1]
         logname = fields[-1]
     else:
         username, path, logname = args
-        path = path.split("/")
+        path = path.split("/") if path else []
     return username, path, logname
 
 
