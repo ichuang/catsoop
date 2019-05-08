@@ -44,7 +44,7 @@ Example commands:
     runserver      : starts the CAT-SOOP webserver
     start          : alias for runserver
     configure      : generate CAT-SOOP configuration file using an interactive wizard
-    logcat         : show the content of a given log
+    logread        : show the content of a given log
     logwrite       : overwrite the content of a given log
     logedit        : edit the content of a given log in a text editor
 
@@ -54,7 +54,7 @@ Example commands:
 runserver      : starts the CAT-SOOP webserver
 start          : alias for runserver
 configure      : generate CAT-SOOP configuration file using an interactive wizard
-logcat         : show the content of a given log
+logread        : show the content of a given log
 logwrite       : overwrite the content of a given log
 logedit        : edit the content of a given log in a text editor
 
@@ -116,10 +116,10 @@ logedit        : edit the content of a given log in a text editor
         print("cfn=%s" % cfn)
         start_catsoop.startup_catsoop(cfn)
 
-    elif args.command == "logcat":
+    elif args.command == "logread":
         from .scripts import log_scripts
 
-        log_scripts.log_cat(args.args)
+        log_scripts.log_read(args.args)
 
     elif args.command == "logwrite":
         from .scripts import log_scripts

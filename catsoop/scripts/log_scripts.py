@@ -32,13 +32,13 @@ LOGCAT_USAGE = """\
 Print a log in human readable format.
 
 There are two ways to use this command, either:
-    catsoop logcat FILE
+    catsoop logread FILE
 
     FILE: a file on disk representing a CAT-SOOP log
 
 
 or:
-    catsoop logcat USERNAME PATH LOGNAME
+    catsoop logread USERNAME PATH LOGNAME
 
     USERNAME: the name of the user
     PATH: a path from the root, separated by slashes, including the course
@@ -61,7 +61,7 @@ There are two ways to use this command, either:
 
 
 or:
-    catsoop logcat USERNAME PATH LOGNAME ENTRYFILE
+    catsoop logread USERNAME PATH LOGNAME ENTRYFILE
 
     USERNAME: the name of the user
     PATH: a path from the root, separated by slashes, including the course
@@ -76,7 +76,7 @@ LOGEDIT_USAGE = """\
 Open a log entry for editing in a human readable format.  Changes made
 to the file will be written back to the log.  If $EDITOR is set, it will
 be used.  Otherwise, we'll try a sensible default (vim, emacs, or nano).
-This is a small wrapper around logcat and logwrite.
+This is a small wrapper around logread and logwrite.
 
 There are two ways to use this command, either:
     catsoop logedit FILE
@@ -117,7 +117,7 @@ def _find_log(args):
     return username, path, logname
 
 
-def log_cat(args):
+def log_read(args):
     if len(args) not in {1, 3} or "-h" in args or "--help" in args:
         print(LOGCAT_USAGE, file=sys.stderr)
         sys.exit(1)
