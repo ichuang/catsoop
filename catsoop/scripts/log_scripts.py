@@ -172,7 +172,7 @@ def log_edit(args):
     ed = find_editor()
     if ed is None:
         print(
-            ("Error: could not find a valid editor.  Please set " "$EDITOR."),
+            ("Error: could not find a valid editor.  Please set $EDITOR."),
             file=sys.stderr,
         )
         sys.exit(1)
