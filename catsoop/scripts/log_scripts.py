@@ -28,7 +28,7 @@ import subprocess
 from .. import cslog
 from .. import base_context
 
-LOGCAT_USAGE = """\
+LOGREAD_USAGE = """\
 Print a log in human readable format.
 
 There are two ways to use this command, either:
@@ -121,7 +121,7 @@ def _find_log(args):
 
 def log_read(args):
     if len(args) not in {1, 3} or "-h" in args or "--help" in args:
-        print(LOGCAT_USAGE, file=sys.stderr)
+        print(LOGREAD_USAGE, file=sys.stderr)
         sys.exit(1)
     username, path, logname = _find_log(args)
     entries = cslog.read_log(username, path, logname)
@@ -167,7 +167,7 @@ def find_editor():
 
 def log_edit(args):
     if len(args) not in {1, 3} or "-h" in args or "--help" in args:
-        print(LOGCAT_USAGE, file=sys.stderr)
+        print(LOGREAD_USAGE, file=sys.stderr)
         sys.exit(1)
     ed = find_editor()
     if ed is None:
@@ -190,7 +190,7 @@ def log_edit(args):
         # open the file for editing
         subprocess.check_call(ed + [f.name])
 
-        # seek the the start of the file, read the entries in
+        # seek to the start of the file, read the entries in
         f.seek(0)
         entries = f.read().split("\n\n")
         entries = [ast.literal_eval(e) for e in entries if e]
