@@ -1979,7 +1979,9 @@ def pre_handle(context):
                     info = {
                         "filename": value[0],
                         "username": context["cs_username"],
-                        "time": context["cs_now"],
+                        "time": context["csm_time"].detailed_timestamp(
+                            context["cs_now"]
+                        ),
                         "question": name,
                         "hash": hstring,
                     }

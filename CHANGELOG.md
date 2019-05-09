@@ -10,6 +10,8 @@ _Work toward next release. Currently under development._
 
 * Added `csq_result_as_string` option to `pythoncode` question types, allowing the result to come back as a string (useful for custom types as return values from `pythoncode` or `pythonic` question types, where evaluation would otherwise fail).
 
+* Added `logread`, `logwrite`, and `logedit` commands for working with log entries in a human-readable format.
+
 #### CHANGED:
 
 * Upgraded KaTeX to v0.10.1.
@@ -19,6 +21,8 @@ _Work toward next release. Currently under development._
 * Changed the solution display for the `richtext` question type.
 
 * `util.read_user_file` now does not raise an exception if there is an error in a user's file.  Rather, it always returns a dictionary, but includes error information in the case of an error.
+
+* Logs are now stored in a binary format in order to improve the efficiency of reading/writing log entries.
 
 #### DEPRECATED:
 

@@ -44,6 +44,9 @@ Example commands:
     runserver      : starts the CAT-SOOP webserver
     start          : alias for runserver
     configure      : generate CAT-SOOP configuration file using an interactive wizard
+    logread        : show the content of a given log
+    logwrite       : overwrite the content of a given log
+    logedit        : edit the content of a given log in a text editor
 
 """
     cmd_help = """A variety of commands are available, each with different arguments:
@@ -51,6 +54,9 @@ Example commands:
 runserver      : starts the CAT-SOOP webserver
 start          : alias for runserver
 configure      : generate CAT-SOOP configuration file using an interactive wizard
+logread        : show the content of a given log
+logwrite       : overwrite the content of a given log
+logedit        : edit the content of a given log in a text editor
 
 """
 
@@ -58,6 +64,7 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
         description=help_text, formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument("command", help=cmd_help)
+    parser.add_argument("args", nargs="*", help="arguments for the given command")
     parser.add_argument(
         "-v", "--verbose", help="increase debug output verbosity", action="store_true"
     )
@@ -108,6 +115,21 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
 
         print("cfn=%s" % cfn)
         start_catsoop.startup_catsoop(cfn)
+
+    elif args.command == "logread":
+        from .scripts import log_scripts
+
+        log_scripts.log_read(args.args)
+
+    elif args.command == "logwrite":
+        from .scripts import log_scripts
+
+        log_scripts.log_write(args.args)
+
+    elif args.command == "logedit":
+        from .scripts import log_scripts
+
+        log_scripts.log_edit(args.args)
 
     else:
         print("Unknown command %s" % args.command)

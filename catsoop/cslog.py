@@ -21,10 +21,13 @@ From a high-level perspective, CAT-SOOP's logs are sequences of Python objects.
 A log is identified by a `db_name` (typically a username), a `path` (a list of
 strings starting with a course name), and a `logname` (a string).
 
-On disk, each log is a file containing pretty-printed Python objects separated
-by blank lines.  This is an implementation detail that most people shouldn't
-need to worry about, but it does mean that log files cna be read or manipulated
-manually, in addition to using the functions in this module.
+On disk, each log is a file containing one or more entries, where each entry
+consists of:
+
+* 8 bits representing the length of the entry
+* a binary blob (pickled Python object, potentially encrypted and/or
+    compressed)
+* the 8-bit length repeated
 
 This module provides functions for interacting with and modifying those logs.
 In particular, it provides ways to retrieve the Python objects in a log, or to
@@ -33,9 +36,11 @@ add new Python objects to a log.
 
 import os
 import ast
+import sys
 import lzma
 import base64
-import pprint
+import pickle
+import struct
 import hashlib
 import importlib
 import contextlib
@@ -100,16 +105,6 @@ if ENCRYPT_PASS is not None:
     FERNET = RawFernet(ENCRYPT_KEY)
 
 
-def _split_path(path, sofar=[]):
-    folder, path = os.path.split(path)
-    if path == "":
-        return sofar[::-1]
-    elif folder == "":
-        return (sofar + [path])[::-1]
-    else:
-        return _split_path(folder, sofar + [path])
-
-
 def log_lock(path):
     lock_loc = os.path.join(base_context.cs_data_root, "_locks", *path)
     os.makedirs(os.path.dirname(lock_loc), exist_ok=True)
@@ -128,10 +123,7 @@ def prep(x):
     """
     Helper function to serialize a Python object.
     """
-    out = compress_encrypt(pprint.pformat(x).replace("datetime.", "").encode("utf8"))
-    if COMPRESS or (ENCRYPT_KEY is not None):
-        out = base64.b85encode(out)
-    return out
+    return compress_encrypt(pickle.dumps(x, -1))
 
 
 def decompress_decrypt(x):
@@ -146,9 +138,7 @@ def unprep(x):
     """
     Helper function to deserialize a Python object.
     """
-    if COMPRESS or (ENCRYPT_KEY is not None):
-        x = base64.b85decode(x)
-    return literal_eval(decompress_decrypt(x).decode("utf8"))
+    return pickle.loads(decompress_decrypt(x))
 
 
 def _e(x, seed):  # not sure seed is the right term here...
@@ -199,15 +189,14 @@ def get_log_filename(db_name, path, logname):
         )
 
 
-sep = b"\n\n"
-
-
-def _update_log(fname, new):
-    assert can_log(new), "Can't log: %r" % (new,)
+def _modify_log(fname, new, mode):
     os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, "ab") as f:
-        f.write(prep(new))
-        f.write(sep)
+    entry = prep(new)
+    length = struct.pack("<Q", len(entry))
+    with open(fname, mode) as f:
+        f.write(length)
+        f.write(entry)
+        f.write(length)
 
 
 def update_log(db_name, path, logname, new, lock=True):
@@ -231,15 +220,7 @@ def update_log(db_name, path, logname, new, lock=True):
     # look up the separator and the data
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm:
-        _update_log(fname, new)
-
-
-def _overwrite_log(fname, new):
-    assert can_log(new), "Can't log: %r" % (new,)
-    os.makedirs(os.path.dirname(fname), exist_ok=True)
-    with open(fname, "wb") as f:
-        f.write(prep(new))
-        f.write(sep)
+        _modify_log(fname, new, "ab")
 
 
 def overwrite_log(db_name, path, logname, new, lock=True):
@@ -262,7 +243,7 @@ def overwrite_log(db_name, path, logname, new, lock=True):
     fname = get_log_filename(db_name, path, logname)
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm:
-        _overwrite_log(fname, new)
+        _modify_log(fname, new, "wb")
 
 
 def _read_log(db_name, path, logname, lock=True):
@@ -271,10 +252,15 @@ def _read_log(db_name, path, logname, lock=True):
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm:
         try:
-            f = open(fname, "rb")
-            for i in f.read().split(sep):
-                if i:
-                    yield unprep(i)
+            with open(fname, "rb") as f:
+                while True:
+                    try:
+                        length = struct.unpack("<Q", f.read(8))[0]
+                        yield unprep(f.read(length))
+                    except EOFError:
+                        break
+                    f.seek(8, os.SEEK_CUR)
+                return
         except:
             return
 
@@ -330,7 +316,10 @@ def most_recent(db_name, path, logname, default=None, lock=True):
     cm = log_lock([db_name] + path + [logname]) if lock else passthrough()
     with cm:
         with open(fname, "rb") as f:
-            return unprep(f.read().rsplit(sep, 2)[-2])
+            f.seek(-8, os.SEEK_END)
+            length = struct.unpack("<Q", f.read(8))[0]
+            f.seek(-length - 8, os.SEEK_CUR)
+            return unprep(f.read(length))
 
 
 def modify_most_recent(
@@ -346,104 +335,9 @@ def modify_most_recent(
     with cm:
         old_val = most_recent(db_name, path, logname, default, lock=False)
         new_val = transform_func(old_val)
-        assert can_log(new_val), "Can't log: %r" % (new_val,)
         if method == "update":
             updater = update_log
         else:
             updater = overwrite_log
         updater(db_name, path, logname, new_val, lock=False)
     return new_val
-
-
-_literal_eval_funcs = {
-    "OrderedDict": OrderedDict,
-    "frozenset": frozenset,
-    "set": set,
-    "datetime": datetime,
-    "timedelta": timedelta,
-}
-
-
-def literal_eval(node_or_string):
-    """
-    Helper function to read a log entry and return the associated Python
-    object.  Forked from Python 3.5's ast.literal_eval function:
-
-    Safely evaluate an expression node or a string containing a Python
-    expression.  The string or node provided may only consist of the following
-    Python literal structures: strings, bytes, numbers, tuples, lists, dicts,
-    sets, booleans, and None.
-
-    Modified for CAT-SOOP to include collections.OrderedDict.
-    """
-    if isinstance(node_or_string, str):
-        node_or_string = ast.parse(node_or_string, mode="eval")
-    if isinstance(node_or_string, ast.Expression):
-        node_or_string = node_or_string.body
-
-    def _convert(node):
-        if isinstance(node, (ast.Str, ast.Bytes)):
-            return node.s
-        elif isinstance(node, ast.Num):
-            return node.n
-        elif isinstance(node, ast.Tuple):
-            return tuple(map(_convert, node.elts))
-        elif isinstance(node, ast.List):
-            return list(map(_convert, node.elts))
-        elif isinstance(node, ast.Set):
-            return set(map(_convert, node.elts))
-        elif isinstance(node, ast.Dict):
-            return dict(
-                (_convert(k), _convert(v)) for k, v in zip(node.keys, node.values)
-            )
-        elif isinstance(node, ast.NameConstant):
-            return node.value
-        elif (
-            isinstance(node, ast.UnaryOp)
-            and isinstance(node.op, (ast.UAdd, ast.USub))
-            and isinstance(node.operand, (ast.Num, ast.UnaryOp, ast.BinOp))
-        ):
-            operand = _convert(node.operand)
-            if isinstance(node.op, ast.UAdd):
-                return +operand
-            else:
-                return -operand
-        elif (
-            isinstance(node, ast.BinOp)
-            and isinstance(node.op, (ast.Add, ast.Sub))
-            and isinstance(node.right, (ast.Num, ast.UnaryOp, ast.BinOp))
-            and isinstance(node.left, (ast.Num, ast.UnaryOp, ast.BinOp))
-        ):
-            left = _convert(node.left)
-            right = _convert(node.right)
-            if isinstance(node.op, ast.Add):
-                return left + right
-            else:
-                return left - right
-        elif (
-            isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Name)
-            and node.func.id in _literal_eval_funcs
-        ):
-            return _literal_eval_funcs[node.func.id](*(_convert(i) for i in node.args))
-        raise ValueError("malformed node or string: " + repr(node))
-
-    return _convert(node_or_string)
-
-
-NoneType = type(None)
-
-
-def can_log(x):
-    """
-    Checks whether a given value can be a log entry.
-    """
-    if isinstance(
-        x, (str, bytes, int, float, complex, NoneType, bool, datetime, timedelta)
-    ):
-        return True
-    elif isinstance(x, (list, tuple, set, frozenset)):
-        return all(can_log(i) for i in x)
-    elif isinstance(x, (dict, OrderedDict)):
-        return all((can_log(k) and can_log(v)) for k, v in x.items())
-    return False
