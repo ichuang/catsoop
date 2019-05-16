@@ -14,7 +14,7 @@ _Work toward next release. Currently under development._
 
 #### CHANGED:
 
-* Upgraded KaTeX to v0.10.1.
+* Upgraded KaTeX to v0.10.2.
 
 * Reverted changes to `language` module from 14.0.0.
 
