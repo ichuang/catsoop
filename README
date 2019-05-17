@@ -8,9 +8,9 @@
 
 * Web Site: https://catsoop.org
 * Clone Repository: git clone git://catsoop.org/catsoop.git
-* IRC: `#catsoop` on OFTC (`irc.oftc.net`)
-* Mailing List: `catsoop-users@mit.edu` (subscribe at http://mailman.mit.edu/mailman/listinfo/catsoop-users)
-
+* IRC: #catsoop on OFTC (irc.oftc.net)
+* Mailing List: catsoop-users@mit.edu
+  (subscribe at http://mailman.mit.edu/mailman/listinfo/catsoop-users)
 
 
 WHAT IS IT?
@@ -24,7 +24,6 @@ General Public License, version 3+.  Please note that the terms of this license
 apply to the CAT-SOOP system itself and any plugins in use, but not to any
 course material hosted on a CAT-SOOP instance, unless explicitly stated
 otherwise.
-
 
 
 HOW DO I INSTALL IT?
@@ -49,17 +48,15 @@ To run all the unit tests:
   $ python3 setup.py test
 
 
-
 IS IT ANY GOOD?
 
 Yes.
 
 
-
 INCLUDED SOFTWARE
 
 CAT-SOOP incorporates pieces of third-party software.  Licensing information
-for the original programs is available in the `LICENSE.included_software` file.
+for the original programs is available in the LICENSE.included_software file.
 The CAT-SOOP distribution also includes several pieces of third-party software.
 Licensing information for these programs is included in this distribution, in
-the `LICENSE.bundled_software` file.
+the LICENSE.bundled_software file.
