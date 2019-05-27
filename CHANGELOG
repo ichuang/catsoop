@@ -24,8 +24,8 @@ ADDED:
 CHANGED:
 
   * CAT-SOOP will use date-based versioning moving forward.  Planned regular
-    releases are 20XX.09 and 20XX.02 (corresponding with the start of the fall
-    and spring terms at MIT, respectively).
+    releases are 20XX.9 and 20XX.2 (September and February, corresponding with
+    the start of the fall and spring terms at MIT, respectively).
 
   * Upgraded KaTeX to v0.10.2.
 

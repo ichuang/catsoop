@@ -95,7 +95,7 @@ def main():
     with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "r") as f:
         requirements = f.read().split("\n")
 
-    with open(os.path.join(os.path.dirname(__file__), "README.md"), "r") as f:
+    with open(os.path.join(os.path.dirname(__file__), "README"), "r") as f:
         readme = f.read()
 
     try:
