@@ -55,6 +55,7 @@ def dev_number_git():
     except ValueError:  # tag name may contain "-"
         print("failed to parse git version", file=sys.stderr)
         return
+    sha = sha.lstrip("g")
     try:
         _cmd = ["git", "show", "-s", "--format=%cD", sha]
         _date = subprocess.check_output(_cmd)
@@ -77,7 +78,6 @@ def dev_number_hg():
         tags = {k: v.split(":") for k, v in tags.items()}
     except Exception:
         print("failed to find hg tags", file=sys.stderr)
-        raise
         return
     sha = tags["tip"][1]
     N = int(tags["tip"][0]) - int(tags[max(tags, key=_version_sort)][0])
@@ -113,7 +113,6 @@ def dirty_version():
 
     # if we get to this point, we are not at a particular tag.  we'll modify
     # the __version__ from catsoop/__init__.py to include a .devN suffix.
-    sha = sha.lstrip("g")
     CS_VERSION = CS_VERSION + ".dev%s" % (N,)
     with open(os.path.join(os.path.dirname(__file__), "catsoop", "dev.hash"), "w") as f:
         f.write("{}|{}|{}".format(vcs, sha, _date))
