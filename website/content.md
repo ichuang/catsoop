@@ -10,9 +10,9 @@
 </div>
 
 <center>
-<a class="btn btn-catsoop" href="/repo/catsoop/archive/current_release.zip">Download</a>
+<a class="btn btn-catsoop" href="/hg/catsoop/archive/current_release.zip">Download</a>
 <a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
-<a class="btn btn-catsoop" target="_blank" href="/repo">Code</a>
+<a class="btn btn-catsoop" target="_blank" href="/hg">Code</a>
 <a class="btn btn-catsoop" target="_blank" href="/bugs">Issue Tracker</a>
 </center>
 
@@ -31,9 +31,9 @@ used in several courses at MIT and at Olin College.
     * Tor onion service: <http://6ddrxqky42dq4yqyunroejbnrj37gj4ydtyqmijkt2q3yhua2bfzvwid.onion>
 
 * Repository:
-    * Clone (with Mercurial): `@{TOR_STRING('hg')} clone @{cs_url_root}/repo/catsoop`
+    * Clone (with Mercurial): `@{TOR_STRING('hg')} clone @{cs_url_root}/hg/catsoop`
     * Clone (Git mirror): `@{TOR_STRING('git')} clone git://@{cs_url_root.split('/',2)[-1]}/catsoop.git`
-    * Web Access: <@{cs_url_root}/repo/>
+    * Web Access: <@{cs_url_root}/hg/>
 
 * IRC: `#catsoop` on OFTC (`irc.oftc.net`)
 

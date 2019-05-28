@@ -62,7 +62,7 @@ $ sudo pip3 install catsoop
 
 Alternatively, you can clone the Mercurial repository (or the Git mirror):
 
-* Mercurial: `@{TOR_STRING('hg')} clone @{cs_url_root}/repo/catsoop`
+* Mercurial: `@{TOR_STRING('hg')} clone @{cs_url_root}/hg/catsoop`
 * Git: `@{TOR_STRING('git')} clone git://@{cs_url_root.split('/',2)[-1]}/catsoop.git`
 
 After you have a local copy, you can then run:
