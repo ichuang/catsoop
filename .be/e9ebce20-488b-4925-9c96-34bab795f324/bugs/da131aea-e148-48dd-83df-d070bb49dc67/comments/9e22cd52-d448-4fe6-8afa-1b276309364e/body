@@ -1,0 +1,8 @@
+I'm thinking the right idea is actually to have things always stored in the
+binary format, but to provide a way to manually edit.  This might be a script
+like `catsoop logedit USERNAME PATH LOGNAME`, which translates the given file
+to its human-readable form, opens `$EDITOR` on that, and then converts the
+result back into the binary format after editing.  That would be a relatively
+easy way to get the best of both worlds (the logs can be fast/small, but we can
+still have an easy way to view/edit them).  Maybe a `catsoop logcat` as well,
+for viewing (but not editing) logs.

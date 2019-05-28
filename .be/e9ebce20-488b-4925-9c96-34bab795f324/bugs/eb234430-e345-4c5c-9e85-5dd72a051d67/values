@@ -1,0 +1,71 @@
+{
+
+
+
+
+
+
+    "creator": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "TAG:question-type"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "reporter": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "severity": "wishlist", 
+
+
+
+
+
+
+    "status": "fixed", 
+
+
+
+
+
+
+    "summary": "Allow pythoncode Checkers To See More Than Just Log Output", 
+
+
+
+
+
+
+    "time": "Tue, 28 May 2019 12:40:16 +0000"
+
+
+
+
+
+
+}

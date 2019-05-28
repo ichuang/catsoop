@@ -1,0 +1,3 @@
+We should add a flag to enable directory listings within `__STATIC__`
+directories (i.e., navigating to a directory should show a listing of the files
+contained therein if a particular flag is set).

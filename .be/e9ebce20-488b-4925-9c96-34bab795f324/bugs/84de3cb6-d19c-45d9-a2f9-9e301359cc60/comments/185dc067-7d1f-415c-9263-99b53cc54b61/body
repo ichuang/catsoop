@@ -1,0 +1,6 @@
+Currently, a lot of the code for handling roles, sections, and custom weekly
+times (e.g., homework releases on Tuesdays at 8am) lives not in CAT-SOOP
+itself, but rather within courses. Many classes at MIT now have the same (or
+similar) code in their preload files to handle these kinds of things.    It
+might be time to integrate these into CAT-SOOP itself, rather than requiring
+courses to include code for them.

@@ -1,0 +1,2 @@
+I think this depends on #25, since per-user-per-course logs can be huge, and
+the current log format is really slow on big objects.

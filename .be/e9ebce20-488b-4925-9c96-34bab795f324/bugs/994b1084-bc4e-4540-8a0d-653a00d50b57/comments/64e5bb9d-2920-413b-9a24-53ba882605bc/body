@@ -1,0 +1,4 @@
+A few people have requested integrating the queue into CAT-SOOP. It would be
+great if we can retain all of the functionality from the old queue but improve
+logging and make the setup much easier (ideally, just integrated with the
+regular script for starting CAT-SOOP).

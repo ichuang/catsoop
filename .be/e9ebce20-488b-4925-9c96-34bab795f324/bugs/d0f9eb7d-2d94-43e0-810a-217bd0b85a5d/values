@@ -1,0 +1,71 @@
+{
+
+
+
+
+
+
+    "creator": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "TAG:question-type"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "reporter": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "severity": "wishlist", 
+
+
+
+
+
+
+    "status": "fixed", 
+
+
+
+
+
+
+    "summary": "Bytecode-based \"timing\" limits for python code", 
+
+
+
+
+
+
+    "time": "Tue, 28 May 2019 12:40:24 +0000"
+
+
+
+
+
+
+}

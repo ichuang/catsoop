@@ -1,0 +1,9 @@
+Also, the last line:
+
+   "Setup is complete.  You can now start CAT-SOOP by running the
+    start_catsoop.py script."
+
+should be emended to
+
+   "Setup is complete.  You can now start CAT-SOOP by running `catsoop
+    runserver`."

@@ -1,0 +1,4 @@
+I've received the request from multiple people to implement relative due dates,
+and I agree it should be implemented. For example, it would be nice to have an
+exercise come due some amount of time after it was started, rather than at a
+fixed time.

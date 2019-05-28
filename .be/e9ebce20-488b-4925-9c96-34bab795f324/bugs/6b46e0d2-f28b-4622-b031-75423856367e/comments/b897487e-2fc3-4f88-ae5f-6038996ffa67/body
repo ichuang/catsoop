@@ -1,0 +1,5 @@
+This whole function could use some refactoring, but the relevant portion of
+code is near the bottom of `content_file_location` in `dispatch.py`.  I think
+it should just be another check in the case we're loading from a file, to make
+sure not only that the file in question exists, but also that it does not start
+with `_` or `.`.

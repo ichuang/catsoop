@@ -1,0 +1,4 @@
+Two different users cannot currently simultaneously run separate instances of
+catsoop on a single machine, because `/tmp/catsoop_locks` is used by both
+instances.    This path should be configurable, or made world writable, or
+something.

@@ -1,0 +1,4 @@
+PR #83 implemented a temporary fix for this, but there is still work to be done
+here.  Rather than the catch-all that's currently implemented, it would be good
+to carefully `try` the different pieces associated with loading a page so we
+can give a better error message than "an unexpected error occurred".

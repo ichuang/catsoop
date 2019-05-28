@@ -1,0 +1,8 @@
+Hmm.  I see what's happening.  I agree that a crash is bad, but I'm not sure I
+know what makes sense as the right behavior here.  I'm not sure there is a way
+for us to know that the user intends a directory, versus a file.    I guess in
+your example it could be inferred from looking at the two given paths, but is
+there something we can do to infer that in a general sense?  At the point when
+we would want to do that check, no directories have been made yet, so I think
+it's hard.    Do you have a sense of (or suggestion for) how we might handle
+this in a general sense?

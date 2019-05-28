@@ -1,0 +1,71 @@
+{
+
+
+
+
+
+
+    "creator": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "TAG:bug"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "reporter": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "Checker Concurrency Issues?", 
+
+
+
+
+
+
+    "time": "Tue, 28 May 2019 12:40:18 +0000"
+
+
+
+
+
+
+}

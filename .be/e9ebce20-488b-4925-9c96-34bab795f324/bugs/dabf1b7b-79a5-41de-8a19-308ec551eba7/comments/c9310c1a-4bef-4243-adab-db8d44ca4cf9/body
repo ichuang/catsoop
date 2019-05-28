@@ -1,0 +1,4 @@
+Along these lines, the tooling for auto-generating the API docs should be
+brought up to date for the new infrastructure and included in the repo, and we
+should maybe think about whether there is a way to automatically generate docs
+for the question types (if we add some docstrings, etc to those files).

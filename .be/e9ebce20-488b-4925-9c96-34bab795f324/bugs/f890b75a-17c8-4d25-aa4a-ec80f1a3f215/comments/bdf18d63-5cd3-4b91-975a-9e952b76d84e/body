@@ -1,0 +1,5 @@
+The intention was to make sure that, when on a screen that it itself bigger
+than 900px, the `cs_content` div is always at least 900px wide.  It looks like
+that is being applied everywhere (making it difficult to view CAT-SOOP pages on
+mobile devices).    The appropriate place to look is
+__STATIC__/themes/base.css.

@@ -1,0 +1,78 @@
+{
+
+
+
+
+
+
+    "creator": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "TAG:beginner-friendly", 
+
+
+
+
+
+
+        "TAG:ui/ux"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "reporter": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "improve UI when an error occurs during page load from checker", 
+
+
+
+
+
+
+    "time": "Tue, 28 May 2019 12:40:30 +0000"
+
+
+
+
+
+
+}

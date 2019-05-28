@@ -1,0 +1,7 @@
+Maybe something along the lines of
+
+1. Create the cat-soop-data directory (`cs_data_root`).
+2. Does `config_loc` already exists as a directory?
+    Yes: Write the config to `config_loc/config.py`, after prompting for
+         confirmation.
+    No: Write the config to `config_loc` (current behavior)

@@ -1,0 +1,71 @@
+{
+
+
+
+
+
+
+    "creator": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "TAG:bug"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "reporter": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "Imports from preload or content files are broken", 
+
+
+
+
+
+
+    "time": "Tue, 28 May 2019 12:40:29 +0000"
+
+
+
+
+
+
+}

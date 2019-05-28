@@ -1,0 +1,71 @@
+{
+
+
+
+
+
+
+    "creator": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "TAG:infrastructure"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "reporter": "adam j hartz <hz@mit.edu>", 
+
+
+
+
+
+
+    "severity": "critical", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "Set Up New Remote Sandbox", 
+
+
+
+
+
+
+    "time": "Tue, 28 May 2019 12:40:29 +0000"
+
+
+
+
+
+
+}

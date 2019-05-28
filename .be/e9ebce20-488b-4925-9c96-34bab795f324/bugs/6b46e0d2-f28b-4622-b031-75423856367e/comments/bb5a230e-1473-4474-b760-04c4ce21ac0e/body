@@ -1,0 +1,7 @@
+Part of CAT-SOOP's specification format is that resources starting with `_` or
+`.` are not viewable via the web (or, at least, that they are reserved for CAT-
+SOOP's use).  This is properly handled in the case of a directory that starts
+with `_` or `.` and contains a `content.md` or other content file, but it is
+not the case for bare content files.    For example, a file called `_hidden.md`
+inside of `course/somewhere` will be web accessible under
+`<cs_url_root>/course/somewhere/_hidden`.

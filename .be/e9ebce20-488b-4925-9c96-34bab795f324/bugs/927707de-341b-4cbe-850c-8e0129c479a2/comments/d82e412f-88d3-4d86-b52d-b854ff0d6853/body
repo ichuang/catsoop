@@ -1,0 +1,4 @@
+Since `config_loc` is written before the directory for `cs_data_root` is
+created, creating `cs_data_root/courses` fails.  If `config_loc` is (intended
+by the user) to be a directory rather than a file name, presumably CAT-SOOP
+should just create the directory and then name the config file `config.py`?

@@ -1,0 +1,4 @@
+After talking with Ike, I think it would be a good idea for us to extend
+plugins' capabilities to include scripts that will be run when CAT-SOOP is
+started, and at regular intervals (like cron).  Not quite sure what the
+structure looks like yet, but we should definitely do this.

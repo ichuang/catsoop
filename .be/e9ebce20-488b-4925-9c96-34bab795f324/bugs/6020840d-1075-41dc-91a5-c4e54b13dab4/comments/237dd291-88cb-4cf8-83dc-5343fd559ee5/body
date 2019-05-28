@@ -1,0 +1,3 @@
+I've gotten the request a few times to include integrals and derivatives in the
+`expression` question type.  Hopefully with the inclusion of `mpmath` this will
+have gotten easier.
