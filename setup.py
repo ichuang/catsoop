@@ -81,7 +81,7 @@ def dev_number_hg():
         return
     sha = tags["tip"][1]
     N = int(tags["tip"][0]) - int(tags[max(tags, key=_version_sort)][0])
-    if N == 0:
+    if N <= 1:
         return
     try:
         _cmd = ["hg", "log", "-r", "tip"]
