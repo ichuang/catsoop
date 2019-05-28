@@ -1,0 +1,120 @@
+{
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "BLOCKED-BY:235fa90a-d998-47b4-85ca-e637aad21532", 
+
+
+
+
+
+
+        "BLOCKED-BY:318eb61b-8c93-4dc5-9cc0-cb7ac493d751", 
+
+
+
+
+
+
+        "BLOCKED-BY:3306d990-c9a9-4e6e-8059-1fac5a1bfb06", 
+
+
+
+
+
+
+        "BLOCKED-BY:6650181e-725a-41b0-8432-1f74139f45e9", 
+
+
+
+
+
+
+        "BLOCKED-BY:8acc674d-15e7-449d-a559-dbb1bf7f224f", 
+
+
+
+
+
+
+        "BLOCKED-BY:ae2995de-0b30-43d2-a8dc-85dfc962108d", 
+
+
+
+
+
+
+        "BLOCKED-BY:f271a815-dfa2-4900-8039-66ef9a238bcb", 
+
+
+
+
+
+
+        "BLOCKED-BY:f7c07451-de9b-432c-812c-3ff984acd65b", 
+
+
+
+
+
+
+        "BLOCKED-BY:fa1f0e7d-3c1c-43cb-87ff-f30aed97c91e", 
+
+
+
+
+
+
+        "BLOCKED-BY:fea70e1d-1b72-45d1-807b-09aea8936772"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "severity": "target", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "v2019.9", 
+
+
+
+
+
+
+    "time": "Tue, 28 May 2019 13:58:54 +0000"
+
+
+
+
+
+
+}
