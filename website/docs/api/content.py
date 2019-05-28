@@ -81,7 +81,7 @@ if not broke:
 
             try:
                 lines, start = inspect.getsourcelines(x)
-                l = ', <a href="%s/%s.py#L%s" target="_blank">lines %s-%s</a>' % (
+                l = ', <a href="%s/%s.py#l%s" target="_blank">lines %s-%s</a>' % (
                     source_view_url_root,
                     module.__name__.replace(".", "/"),
                     start,

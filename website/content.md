@@ -12,7 +12,7 @@
 <center>
 <a class="btn btn-catsoop" href="/repo/catsoop/archive/current_release.zip">Download</a>
 <a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
-<a class="btn btn-catsoop" target="_blank" href="repo/catsoop">Code</a>
+<a class="btn btn-catsoop" target="_blank" href="/repo">Code</a>
 </center>
 
 
