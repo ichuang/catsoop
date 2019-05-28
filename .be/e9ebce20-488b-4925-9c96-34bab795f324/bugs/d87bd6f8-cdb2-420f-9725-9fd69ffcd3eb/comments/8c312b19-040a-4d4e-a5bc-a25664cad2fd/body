@@ -1,0 +1,4 @@
+The "legacy" grading mode doesn't currently store the result of checking as
+part of its entries into problemactions.  This makes it difficult (impossible?)
+to look at results from older submissions.
+
