@@ -29,12 +29,12 @@ def command_line_interface(args=None, arglist=None):
 
     version = pkg_resources.require("catsoop")[0].version
     if "dev" in version:
-        gitfile = os.path.join(os.path.dirname(__file__), "dev.githash")
+        gitfile = os.path.join(os.path.dirname(__file__), "dev.hash")
         if os.path.isfile(gitfile):
             with open(gitfile, "r") as f:
                 try:
-                    hash_, date = f.read().split("|")
-                    version = "%s\nGit revision: %s\n%s" % (version, hash_, date)
+                    vcs, hash_, date = f.read().split("|")
+                    version = "%s\n%s revision: %s\n%s" % (version, vcs, hash_, date)
                 except:
                     pass
 

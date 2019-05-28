@@ -1,7 +1,7 @@
 syntax:glob
 
 # Git hash from installing
-catsoop/dev.githash
+catsoop/dev.hash
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

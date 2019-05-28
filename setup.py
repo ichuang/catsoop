@@ -41,13 +41,7 @@ VERSION_FNAME = os.path.join(os.path.dirname(__file__), "catsoop", "__init__.py"
 ORIGINAL_VERSION = None
 
 
-def dirty_version():
-    """
-    If install/sdist is run from a git directory, add a devN suffix to reported
-    version number and write a gitignored file that holds the git hash of the
-    current state of the repo.
-    """
-    global CS_VERSION, ORIGINAL_VERSION
+def dev_number_git():
     try:
         last_version = subprocess.check_output(
             ["git", "describe", "--tags", "--match", "v*"]
@@ -61,24 +55,68 @@ def dirty_version():
     except ValueError:  # tag name may contain "-"
         print("failed to parse git version", file=sys.stderr)
         return
+    try:
+        _cmd = ["git", "show", "-s", "--format=%cD", sha]
+        _date = subprocess.check_output(_cmd)
+        _date = _date.decode("ascii")
+        _date = "".join(_date.split(" ", 1)[1:])
+    except:
+        _date = ""
+        print("failed to get git commit date", file=sys.stderr)
+    return ("Git", sha, N, _date)
+
+
+def _version_sort(x):
+    return tuple(map(int, x[1:].split("."))) if x.startswith("v") else (float("-inf"),)
+
+
+def dev_number_hg():
+    try:
+        tags = subprocess.check_output(["hg", "tags"]).decode("ascii")
+        tags = dict(i.strip().split() for i in tags.splitlines())
+        tags = {k: v.split(":") for k, v in tags.items()}
+    except Exception:
+        print("failed to find hg tags", file=sys.stderr)
+        raise
+        return
+    sha = tags["tip"][1]
+    N = int(tags["tip"][0]) - int(tags[max(tags, key=_version_sort)][0])
+    if N == 0:
+        return
+    try:
+        _cmd = ["hg", "log", "-r", "tip"]
+        _info = subprocess.check_output(_cmd).decode("ascii")
+        _info = dict(i.strip().split(" ", 1) for i in _info.strip().splitlines())
+        _date = _info["date:"].strip()
+    except Exception:
+        _date = ""
+        print("failed to get hg commit date", file=sys.stderr)
+    return ("Mercurial", sha, N, _date)
+
+
+def dev_number():
+    return dev_number_hg() or dev_number_git()
+
+
+def dirty_version():
+    """
+    If install/sdist is run from a git directory, add a devN suffix to reported
+    version number and write an ignored file that holds info about the current
+    state of the repo.
+    """
+    global CS_VERSION, ORIGINAL_VERSION
+
+    dev_num = dev_number()
+    if not dev_num:
+        return
+    vcs, sha, N, _date = dev_num
 
     # if we get to this point, we are not at a particular tag.  we'll modify
     # the __version__ from catsoop/__init__.py to include a .devN suffix.
     sha = sha.lstrip("g")
     CS_VERSION = CS_VERSION + ".dev%s" % (N,)
-    _cmd = ["git", "show", "-s", "--format=%cD", sha]
-    try:
-        _date = subprocess.check_output(_cmd)
-        _date = _date.decode("ascii")
-        # remove weekday name for a shorter string
-        _date = "".join(_date.split(" ", 1)[1:])
-    except:
-        _date = ""
-        print("failed to get commit date", file=sys.stderr)
-    with open(
-        os.path.join(os.path.dirname(__file__), "catsoop", "dev.githash"), "w"
-    ) as f:
-        f.write("{}|{}".format(sha, _date))
+    with open(os.path.join(os.path.dirname(__file__), "catsoop", "dev.hash"), "w") as f:
+        f.write("{}|{}|{}".format(vcs, sha, _date))
     with open(VERSION_FNAME, "r") as f:
         ORIGINAL_VERSION = f.read()
     with open(VERSION_FNAME, "w") as f:
@@ -112,11 +150,10 @@ def main():
                 "catsoop.scripts",
             ],
             scripts=[],
-            url="https://catsoop.mit.edu",
+            url="https://catsoop.org",
             license="AGPLv3+",
             description="CAT-SOOP is a tool for automatic collection and assessment of online exercises.",
             long_description=readme,
-            long_description_content_type="text/markdown",
             include_package_data=True,
             entry_points={
                 "console_scripts": ["catsoop = catsoop.main:command_line_interface"]
