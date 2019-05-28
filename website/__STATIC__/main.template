@@ -85,7 +85,7 @@ hljs.initHighlightingOnLoad();
 
 <div id="footer">
     {cs_footer}
-    Powered by <a href='https://catsoop.mit.edu'>CAT-SOOP</a> v{cs_version}<br/>
+    Powered by <a href='https://catsoop.org'>CAT-SOOP</a> v{cs_version}<br/>
     (<a href="BASE/cs_util/license" target="_blank">View License</a>, <a href="BASE/cs_util/source.zip{cs_source_qstring}" download>Download Source Code</a>)
 <pre class="catsooplogo" style="font-size:50%;">{cs_base_logo_text}</pre>
     </div>

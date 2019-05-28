@@ -1,3 +1,4 @@
+
 <div style="text-align:center; width:100%;" margin-top:0px;>
 <pre style="font-weight:bold;line-height:1.1;background-color:transparent;border-color:transparent;font-size:16pt;text-align:left;display:inline-block; margin-top:0px;">
 \
@@ -9,9 +10,9 @@
 </div>
 
 <center>
-<a class="btn btn-catsoop" href="https://hz.mit.edu/git/catsoop/catsoop/archive/current_release.zip">Download</a>
+<a class="btn btn-catsoop" href="/repo/catsoop/archive/current_release.zip">Download</a>
 <a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
-<a class="btn btn-catsoop" target="_blank" href="https://hz.mit.edu/git/catsoop/catsoop">Repository</a>
+<a class="btn btn-catsoop" target="_blank" href="repo/catsoop">Code</a>
 </center>
 
 
@@ -25,10 +26,13 @@ used in several courses at MIT and at Olin College.
 **More information:**
 
 * Web Site:
-    * <https://catsoop.mit.edu>
-    * Tor onion service: <http://5jqwpybqkwagsgmwskjoxawlfjl5j52nhvkmni7bwgwu37pmwrnbexyd.onion>
+    * <https://catsoop.org>
+    * Tor onion service: <http://6ddrxqky42dq4yqyunroejbnrj37gj4ydtyqmijkt2q3yhua2bfzvwid.onion>
 
-* Repository Web Access: <https://hz.mit.edu/git/catsoop/catsoop>
+* Repository:
+    * Clone (with Mercurial): `@{TOR_STRING('hg')} clone @{cs_url_root}/repo/catsoop`
+    * Clone (Git mirror): `@{TOR_STRING('git')} clone git://@{cs_url_root.split('/',2)[-1]}/catsoop.git`
+    * Web Access: <@{cs_url_root}/repo/catsoop>
 
 * IRC: `#catsoop` on OFTC (`irc.oftc.net`)
 

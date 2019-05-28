@@ -60,13 +60,12 @@ $ sudo pip3 install catsoop
 
 <subsection>Manual Installation</subsection>
 
-Alternatively, you can clone the Git repository containing the source code:
+Alternatively, you can clone the Mercurial repository (or the Git mirror):
 
-```
-git clone https://hz.mit.edu/git/catsoop/catsoop
-```
+* Mercurial: `@{TOR_STRING('hg')} clone @{cs_url_root}/repo/catsoop`
+* Git: `@{TOR_STRING('git')} clone git://@{cs_url_root.split('/',2)[-1]}/catsoop.git`
 
-and then run:
+After you have a local copy, you can then run:
 
 ```
 $ sudo python3 setup.py install
@@ -109,14 +108,14 @@ to that location.
 To start the server, you should run:
 
 ```
-$ catsoop runserver
+$ catsoop start
 ```
 
 This will start the server listening on port 6010.  You should then be able to
 directy your browser to `http://localhost:6010` to see the CAT-SOOP instance.
 
 
-<section>(Optional) Sign Up for Mailing List</section>
+<section>(Optional) Sign Up for Mailing List(s)</section>
 
 `catsoop-users@mit.edu` is a place to ask questions about CAT-SOOP usage.
 You can view the archives or subscribe

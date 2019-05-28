@@ -33,7 +33,7 @@ the web server's user.</p>
 the web server's user has read/write access.</p>
 </div>
 
-By default, running `catsoop runserver` will start several processes.  The most
+By default, running `catsoop start` will start several processes.  The most
 important are the UWSGI server (default port `6010`) and the websocket server
 (default port `6011`).  You can change these ports by setting additional
 variables `cs_wsgi_server_port` and `cs_checker_server_port`, respectively, in
@@ -187,7 +187,7 @@ From within the `scripts` directory of the CAT-SOOP source, run the following
 command to start CAT-SOOP:
 
 ```
-$ catsoop runserver
+$ catsoop start
 ```
 
 On a typical webserver, it is a good idea to run the command in a screen so
@@ -195,7 +195,7 @@ that the process does not die when you hang up.  Alternatively, you can use
 `nohup`.  For example,
 
 ```
-$ nohup catsoop runserver > /dev/null &
+$ nohup catsoop start > /dev/null &
 ```
 
 <section>Test Configuration</section>
