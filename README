@@ -47,6 +47,11 @@ To run all the unit tests:
   $ python3 setup.py test
 
 
+HACKING
+
+See https://catsoop.org/website/docs/contributing/hacking
+
+
 IS IT ANY GOOD?
 
 Yes.

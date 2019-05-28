@@ -13,6 +13,7 @@
 <a class="btn btn-catsoop" href="/repo/catsoop/archive/current_release.zip">Download</a>
 <a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
 <a class="btn btn-catsoop" target="_blank" href="/repo">Code</a>
+<a class="btn btn-catsoop" target="_blank" href="/bugs">Issue Tracker</a>
 </center>
 
 
@@ -32,7 +33,7 @@ used in several courses at MIT and at Olin College.
 * Repository:
     * Clone (with Mercurial): `@{TOR_STRING('hg')} clone @{cs_url_root}/repo/catsoop`
     * Clone (Git mirror): `@{TOR_STRING('git')} clone git://@{cs_url_root.split('/',2)[-1]}/catsoop.git`
-    * Web Access: <@{cs_url_root}/repo/catsoop>
+    * Web Access: <@{cs_url_root}/repo/>
 
 * IRC: `#catsoop` on OFTC (`irc.oftc.net`)
 
