@@ -38,7 +38,7 @@ To generate a config.py file, run:
 
 If you are setting up a public-facing copy of CAT-SOOP (as opposed to a local
 copy for debugging purposes), see the instructions at
-https://catsoop.mit.edu/website/docs/installing/server_configuration
+https://catsoop.org/website/docs/installing/server_configuration
 
 To start the server, run:
   $ catsoop start
