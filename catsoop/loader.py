@@ -32,6 +32,7 @@ import traceback
 from collections import OrderedDict
 
 from . import time
+from . import cslog
 from . import language
 from . import debug_log
 from . import base_context
@@ -65,7 +66,7 @@ def get_file_data(context, form, name):
             )
             with open(path, "rb") as f:
                 data = f.read()
-            return data
+            return cslog.decompress_decrypt(data)
         elif up == "db":
             return context["csm_thirdparty"].data_uri.DataURI(data[1]).data
         else:
