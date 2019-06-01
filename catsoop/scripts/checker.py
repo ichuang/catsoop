@@ -277,24 +277,25 @@ while True:
         id_, row, p = running[i]
         if not p.is_alive():
             log("    Process %s is dead" % p)
-            row["score"] = 0.0
-            row["score_box"] = ""
-            if p.exitcode < 0:  # this probably only happens if we killed it
-                row["response"] = (
-                    "<font color='red'><b>Your submission could not be checked "
-                    "because the checker ran for too long.</b></font>"
-                )
-            else:  # a python error or similar
-                row["response"] = (
-                    "<font color='red'><b>An unknown error occurred when "
-                    "processing your submission</b></font>"
-                )
-            magic = row["magic"]
-            newloc = os.path.join(RESULTS, magic[0], magic[1], magic)
-            with open(newloc, "wb") as f:
-                f.write(cslog.prep(row))
-            # then remove from running
-            os.unlink(os.path.join(RUNNING, row["magic"]))
+            if p.exitcode != 0:
+                row["score"] = 0.0
+                row["score_box"] = ""
+                if p.exitcode < 0:  # this probably only happens if we killed it
+                    row["response"] = (
+                        "<font color='red'><b>Your submission could not be checked "
+                        "because the checker ran for too long.</b></font>"
+                    )
+                else:  # a python error or similar
+                    row["response"] = (
+                        "<font color='red'><b>An unknown error occurred when "
+                        "processing your submission</b></font>"
+                    )
+                magic = row["magic"]
+                newloc = os.path.join(RESULTS, magic[0], magic[1], magic)
+                with open(newloc, "wb") as f:
+                    f.write(cslog.prep(row))
+                # then remove from running
+                os.unlink(os.path.join(RUNNING, row["magic"]))
             dead.add(i)
         elif time.time() - p._started > REAL_TIMEOUT:
             try:
