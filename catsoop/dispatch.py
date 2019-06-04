@@ -832,7 +832,7 @@ def main(environment, return_context=False, form_data=None):
             else:
                 _set_colors(context)
                 root = context.get("cs_fs_root", base_context.cs_fs_root)
-                path = os.path.join(root, "__STATIC__", "mainpage.md")
+                path = os.path.join(root, "__STATIC__", "mainpage.catsoop")
                 with open(path) as f:
                     context["cs_content"] = f.read()
                 context["cs_content"] = language.handle_includes(

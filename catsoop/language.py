@@ -267,12 +267,22 @@ def _xml_format_string(context, s):
 
 
 source_formats = OrderedDict(
-    [("md", md_pre_handle), ("xml", xml_pre_handle), ("py", py_pre_handle)]
+    [
+        ("catsoop", md_pre_handle),
+        ("md", md_pre_handle),
+        ("xml", xml_pre_handle),
+        ("py", py_pre_handle),
+    ]
 )
 """OrderedDict mapping source format names to formatting handlers"""
 
 source_format_string = OrderedDict(
-    [("md", _md_format_string), ("xml", _xml_format_string), ("py", _xml_format_string)]
+    [
+        ("catsoop", _md_format_string),
+        ("md", _md_format_string),
+        ("xml", _xml_format_string),
+        ("py", _xml_format_string),
+    ]
 )
 """OrderedDict mapping source format names to formatters"""
 
