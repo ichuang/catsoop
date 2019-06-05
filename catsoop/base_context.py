@@ -416,8 +416,6 @@ for i in cs_all_pieces:
         exec("from . import %s" % i)
         exec("csm_%s = %s" % (i, i))
 
-exec("csm_tools = csm_thirdparty")
-
 for i in cs_all_thirdparty:
     exec("from .thirdparty import %s" % i)
     exec("csm_thirdparty.%s = %s" % (i, i))

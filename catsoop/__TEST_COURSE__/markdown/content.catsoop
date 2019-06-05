@@ -45,7 +45,7 @@ CAT-SOOP will start looking in the current directory.  For locations starting
 with `COURSE`, CAT-SOOP will start looking the course's root directory.
 
 These kinds of lookups first look for a regular CAT-SOOP page with the given
-name.  If one isn't found, CAT-SOOP will look in the corresponding `__MEDIA__`
+name.  If one isn't found, CAT-SOOP will look in the corresponding `__STATIC__`
 directory.
 
 <section>Question</section>

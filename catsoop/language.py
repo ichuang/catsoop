@@ -435,7 +435,7 @@ def get_python_output(context, code, variables, line_offset=0):
                 '    if "file" not in kwargs:\n'
                 '        kwargs["file"] = cs___WEBOUT\n'
                 "    _cs_oprint(*args, **kwargs)\n"
-                "print = cs_print = myprint\n"
+                "print = myprint\n"
                 "try:\n\n"
             )
             + code

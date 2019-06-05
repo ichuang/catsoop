@@ -26,7 +26,8 @@ ADDED:
 
 CHANGED:
 
-  * Changed the name of the `util` module to `user`.
+  * Changed the name of the `util` module to `user` to better reflect its
+    purpose.
 
   * CAT-SOOP will use date-based versioning moving forward.  Planned regular
     releases are 20XX.9 and 20XX.2 (September and February, corresponding with
@@ -47,27 +48,24 @@ CHANGED:
 
 DEPRECATED:
 
-  * The special directory name `__MEDIA__` has been renamed to `__STATIC__` to
-    better reflect its purpose.  `__MEDIA__` will be removed in v2020.2.0.  Use
-    `__STATIC__` instead.
-
-  * The `catsoop.tools` library was renamed to `catsoop.thirdparty` to better
-    reflect its contents.  The `csm_tools` pointer to these libraries will be
-    removed in v2020.2.0.  Use `csm_thirdparty` instead.  Many of the libraries
-    themselves were also removed (and should be imported directly, rather than
-    accessed via `csm_thirdparty`)
-
-  * `print` should now be used instead of `cs_print` to inject page content
-    from within `<python>` tags.  `cs_print` will be removed in a v2020.2.0.
-
-  * The `csq_multiplechoice_renderer` and `csq_multiplechoice_soln_mode`
-    variables have been renamed to `csq_renderer` and `csq_soln_mode`.  The
-    options including `_multiplechoice` will be removed in v2020.2.0.
-
-  * `cs_score_message` has been deprecated, in favor of `csq_score_message`.
-    `cs_score_message` will be removed in v2020.2.0.
-
 REMOVED:
+
+  * Removed several deprecated features:
+
+      * `__MEDIA__` can no longer be used as a name for directories containing
+        static files.  `__STATIC__` should be used instead.
+
+      * `csm_tools` no longer points to utility functions from third-party
+        libraries.  Use `csm_thirdparty` instead.
+
+      * `cs_print` has been removed.  Use `print` instead.
+
+      * `csq_multiplechoice_renderer` and `csq_multiplechoice_soln_mode`
+        variables for multieplchoice questions have been renamed to
+        `csq_renderer` and `csq_soln_mode`, respectively.
+
+      * `cs_score_message` has been removed as a special variable.  Use
+        `csq_score_message` instead.
 
 FIXED:
 
@@ -330,6 +328,26 @@ CHANGED:
     `csq_ratio_threshold` and `csq_absolute_threshold` in the `expression`
     question type.  The more lenient of the two thresholds is used.  Default
     behavior is the same as before.
+
+DEPRECATED:
+
+  * The special directory name `__MEDIA__` has been renamed to `__STATIC__` to
+    better reflect its purpose.  `__MEDIA__` will be removed in a future
+    version.  Use `__STATIC__` instead.
+
+  * The `catsoop.tools` library was renamed to `catsoop.thirdparty` to better
+    reflect its contents.  The `csm_tools` pointer to these libraries will be
+    removed in a future version.  Use `csm_thirdparty` instead.  Many of the
+    libraries themselves were also removed (and should be imported directly,
+    rather than accessed via `csm_thirdparty`)
+
+  * `print` should now be used instead of `cs_print` to inject page content
+    from within `<python>` tags.  `cs_print` will be removed in a future
+    version.
+
+  * The `csq_multiplechoice_renderer` and `csq_multiplechoice_soln_mode`
+    variables have been renamed to `csq_renderer` and `csq_soln_mode`.  The
+    options including `_multiplechoice` will be removed in a future version.
 
 REMOVED:
 
@@ -791,6 +809,11 @@ CHANGED:
 
   * Cross/check images are now preceded by a newline.
 
+DEPRECATED:
+
+  * `cs_score_message` has been deprecated, in favor of `csq_score_message`.
+    `cs_score_message` will be removed in a future version.
+
 REMOVED:
 
   * Removed lots of unused imports, unused local variables, etc, courtesy of
@@ -917,6 +940,12 @@ CHANGED:
 
   * The built-in `print` function can now be used instead of `cs_print` to
     inject page content from within `<python>` tags.
+
+DEPRECATED:
+
+  * `print` should now be used instead of `cs_print` to inject page content
+    from within `<python>` tags.  `cs_print` will be removed in a future
+    version.
 
 FIXED:
 

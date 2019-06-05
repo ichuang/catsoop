@@ -161,9 +161,6 @@ def static_file_location(context, path):
             loc = os.path.join(basepath, *newpath[:ix], "__STATIC__")
             if os.path.isdir(loc):
                 break
-            loc = os.path.join(basepath, *newpath[:ix], "__MEDIA__")
-            if os.path.isdir(loc):
-                break
 
     rest = [i for i in rest if i not in {"..", "."}]
     return os.path.join(loc, *rest)

@@ -53,7 +53,7 @@ csq_check_function = lambda sub, sol: 1 # check functions two args
 
 <subsection>multiplechoice</subsection>
 
-Multiple choice questions come in a few different forms, based on the value of `csq_multiplechoice_renderer`.  The default mode renders choices as a drop-down menu:
+Multiple choice questions come in a few different forms, based on the value of `csq_renderer`.  The default mode renders choices as a drop-down menu:
 
 <question multiplechoice>
 csq_prompt='What color is an orange?'
@@ -67,17 +67,17 @@ csq_explanation = '''While some oranges may be slightly different colors
 For complicated options (that use math or other formatting, for example), the options can be rendered as radio buttons:
 
 <question multiplechoice>
-csq_multiplechoice_renderer = 'radio'
+csq_renderer = 'radio'
 csq_prompt='Which of the following is right?'
 csq_options=['$x^2$', r'$\log\left(x\right)$', r'$\frac{x}{2}$']
 csq_soln = 0
-csq_multiplechoice_soln_mode = 'index' # (otherwies csq_soln = csq_options[0])
+csq_soln_mode = 'index' # (otherwies csq_soln = csq_options[0])
 </question>
 
 The forms above are all "multiple choice, single answer."  For "multiple choice, multiplce answer" questions, you can use the `'checkbox'` renderer.
 
 <question multiplechoice>
-csq_multiplechoice_renderer = 'checkbox'
+csq_renderer = 'checkbox'
 csq_prompt='Which of the following are valid ways to greet someone?  Check all that apply.'
 csq_options=['Aloha', 'Guten Tag', 'Auf Wiedersehen', 'Hey', 'Goodbye', 'Tschüß']
 csq_soln = [True, True, False, True, False, False]

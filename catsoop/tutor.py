@@ -132,7 +132,7 @@ def make_score_display(
             return "Grade not available."
         else:
             return ""
-    c = args.get("csq_score_message", args.get("cs_score_message", None))
+    c = args.get("csq_score_message", None)
     try:
         return c(score)
     except:
