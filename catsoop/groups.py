@@ -19,7 +19,7 @@ Utilities for handling grouping of students
 
 import random
 
-from . import util
+from . import user
 
 
 def list_groups(context, path):
@@ -48,7 +48,7 @@ def get_section(context, course, username):
     **Returns:** a string; the user's section, or `'default'` if the user has
     no section
     """
-    uinfo = util.read_user_file(context, course, username, {})
+    uinfo = user.read_user_file(context, course, username, {})
     cuc = context["cs_user_config"]
     secvar = cuc.get("section_variable", "section")
     defsec = cuc.get("default_section_name", "default")
@@ -213,7 +213,7 @@ def make_all_groups(context, path, section):
     **Returns:** `None` on success, or an error message on failure.
     """
     course = path[0]
-    util = context["csm_util"]
+    user = context["csm_user"]
     size = context.get("cs_group_size", 2)
 
     def cat(uname):
@@ -222,7 +222,7 @@ def make_all_groups(context, path, section):
 
     group_names = context.get("cs_group_names", list(map(str, range(1000))))
     group_names = list(group_names)
-    students = util.list_all_users(context, course)
+    students = user.list_all_users(context, course)
 
     def filt(uinfo):
         return uinfo.get("role", None) == "Student" and str(
@@ -231,7 +231,7 @@ def make_all_groups(context, path, section):
 
     cats = {}
     for s in students:
-        if not filt(util.read_user_file(context, course, s, {})):
+        if not filt(user.read_user_file(context, course, s, {})):
             continue
         c = cat(s)
         cats[c] = cats.get(c, []) + [s]

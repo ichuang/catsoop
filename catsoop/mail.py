@@ -224,7 +224,7 @@ def internal_message(context, course, recipient, subject, body, from_addr=None):
     **Returns:** a dictionary containing error information (empty on success),
     or a string containing an error message.
     """
-    if recipient not in context["csm_util"].list_all_users(context, course):
+    if recipient not in context["csm_user"].list_all_users(context, course):
         return "%s is not a user in %s." % (recipient, course)
     into = {"username": recipient}
     ctx = context["csm_loader"].spoof_early_load([course])
