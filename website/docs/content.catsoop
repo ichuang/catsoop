@@ -31,7 +31,7 @@ contributing documentation</a> for more information.
 <python>
 for i in sorted(cs_children, key=lambda i: cs_children[i].get('cs_order', 1000)):
     if i == 'api':
-        cs_print("* [API Documentation](CURRENT/api?p=catsoop)")
+        print("* [API Documentation](CURRENT/api?p=catsoop)")
     else:
-        cs_print("* [%s](CURRENT/%s)" % (cs_children[i].get('cs_long_name', i), i))
+        print("* [%s](CURRENT/%s)" % (cs_children[i].get('cs_long_name', i), i))
 </python>

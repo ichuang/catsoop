@@ -37,22 +37,22 @@ def callout(note, header, style):
 
 
 def note(x):
-    cs_print(callout(x, "Note", "info"))
+    print(callout(x, "Note", "info"))
     return ""
 
 
 def warning(x):
-    cs_print(callout(x, "Warning", "danger"))
+    print(callout(x, "Warning", "danger"))
     return ""
 
 
 def doublecheck(x):
-    cs_print(callout(x, "Double Check", "warning"))
+    print(callout(x, "Double Check", "warning"))
     return ""
 
 
 def aside(x):
-    cs_print(callout(x, "Aside", "warning"))
+    print(callout(x, "Aside", "warning"))
     return ""
 
 
