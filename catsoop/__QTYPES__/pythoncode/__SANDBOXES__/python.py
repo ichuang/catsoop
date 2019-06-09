@@ -139,7 +139,7 @@ def run_code(
     if len(n) == 2:  # should be this
         out, log = n
         try:
-            log = ast.literal_eval(log.strip())
+            log = context['csm_util'].literal_eval(log)
         except:
             log = {}
 

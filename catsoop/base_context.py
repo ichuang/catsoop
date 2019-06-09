@@ -407,6 +407,7 @@ cs_all_pieces = [
     "thirdparty",
     "tutor",
     "user",
+    "util",
 ]
 
 cs_all_thirdparty = ["data_uri"]

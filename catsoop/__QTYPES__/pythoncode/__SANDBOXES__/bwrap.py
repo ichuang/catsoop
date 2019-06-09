@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import ast
 import sys
 import time
 import uuid
@@ -138,7 +137,7 @@ def run_code(
     if len(n) == 2:  # should be this
         out, log = n
         try:
-            log = ast.literal_eval(log)
+            log = context['csm_util'].literal_eval(log)
         except:
             log = {}
 

@@ -69,6 +69,9 @@ REMOVED:
 
 FIXED:
 
+  * Fixed an issue whereby "set()" could not be accepted as an answer to a
+    `pythonic` or `pythonliteral` question.
+
   * Fix for malformed HTML in `multiexpression` question output.
 
   * Fix for "preview" in `richtext` question type.
