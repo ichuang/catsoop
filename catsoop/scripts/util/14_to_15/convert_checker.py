@@ -18,9 +18,11 @@ for root, dirs, files in os.walk(results):
         fn = os.path.join(root, fname)
         try:
             with open(fn, "r") as f:
-                x = eval(f.read().strip())
+                infile = f.read().strip()
+                x = eval(infile)
         except:
             continue
+        t = cslog.prep(x)
         with open(fn, "wb") as f:
-            f.write(cslog.prep(x))
-        print(fn)
+            f.write(t)
+        print(fn, len(infile), len(t))

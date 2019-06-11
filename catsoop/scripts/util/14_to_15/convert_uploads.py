@@ -30,4 +30,12 @@ for root, dirs, files in os.walk(results):
             continue
         with open(fn, "wb") as f:
             f.write(cslog.prep(x))
-        print(fn)
+
+        if bc.cs_log_compression:
+            fn2 = os.path.join(root, "content")
+            with open(fn2, "rb") as f:
+                t = f.read()
+            with open(fn2, "wb") as f:
+                o = cslog.compress_encrypt(t)
+                f.write(o)
+        print(root, len(t), len(o))
