@@ -26,6 +26,9 @@ ADDED:
 
 CHANGED:
 
+  * File locks are now stored with a `.lock` extension, to avoid potential
+    collisions with directory names.
+
   * Changed the name of the `util` module to `user` to better reflect its
     purpose.
 
