@@ -774,7 +774,8 @@ def handle_custom_tags(context, text):
                 '<span class="noprint">(click to return to text)</span>'
                 "</a></p>"
             ) % (ix, ix, f, ix)
-    context["cs_footnotes"] = fnote
+    if not context.get("cs_footnotes", ""):
+        context["cs_footnotes"] = fnote
 
     # hints (<showhide>)
 
