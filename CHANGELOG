@@ -89,6 +89,9 @@ FIXED:
     be marked as 'running' if they experienced an error during page load or
     when looking up the question to submit.
 
+  * Fixed the lack of decompression of uploaded files when downloaded via the 
+    'Download Most Recent Submission' link.
+
 SECURITY:
 
 DOCUMENTATION:

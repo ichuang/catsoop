@@ -44,9 +44,8 @@ if error is None:
             or "text/plain"
         )
     with open(os.path.join(loc, "content"), "rb") as f:
-        response = f.read()
-    if csm_cslog.ENCRYPT_KEY is not None:
-        response = csm_cslog.decompress_decrypt(response)
+        response = csm_cslog.decompress_decrypt(f.read())
+
 # except:
 #    error = 'There was an error retrieving the file.'
 
