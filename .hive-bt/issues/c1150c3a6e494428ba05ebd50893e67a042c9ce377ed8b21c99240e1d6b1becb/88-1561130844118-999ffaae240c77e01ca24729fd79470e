@@ -5,7 +5,7 @@
     "parameters": {
       "assignees": [],
       "author": "adam j hartz <hz@mit.edu>",
-      "body": "Two different users cannot currently simultaneously run separate instances of catsoop on a single machine, because `/tmp/catsoop_locks` is used by both instances.\r\n\r\nThis path should be configurable, or made world writable, or something.\r\n\r\nhttps://hz.mit.edu/git/catsoop/catsoop/src/branch/master/catsoop/cslog.py#L114\n",
+      "body": "Two different users cannot currently simultaneously run separate instances of catsoop on a single machine, because `/tmp/catsoop_locks` is used by both instances.\r\n\r\nThis path should be configurable, or made world writable, or something.\r\n\r\n<https://hz.mit.edu/git/catsoop/catsoop/src/branch/master/catsoop/cslog.py#L114>\n",
       "labels": [],
       "priority": 0,
       "target": null,

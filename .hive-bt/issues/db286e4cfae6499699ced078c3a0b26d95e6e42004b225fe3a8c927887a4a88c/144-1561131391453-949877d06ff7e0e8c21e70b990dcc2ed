@@ -1,0 +1,17 @@
+[
+  {
+    "action": "set_parameters",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "143-1561131382810-e16e8c80b965ba4e0546521eb09183fd",
+    "parameters": {
+      "priority": 2
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "144-1561131391453-3ccd1609275c7de151dac1b862cdd572",
+    "labels": [
+      "critical"
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "145-1561131443576-e4657c5b30a8d67ce19502870f74057a",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "The \"legacy\" grading mode doesn't currently store the result of checking as\npart of its entries into problemactions.  This makes it difficult (impossible?)\nto look at results from older submissions.",
+      "labels": [],
+      "priority": 1,
+      "target": null,
+      "title": "Legacy mode problemactions log doesn't store results"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "146-1561131471295-72a91fac2238b5506aab78379ea5339d",
+    "labels": [
+      "bug"
+    ]
+  },
+  {
+    "action": "add_labels",
+    "id": "147-1561131482683-ee6e531e294e4d203368b26067e5f62c",
+    "labels": [
+      "beginner-friendly"
+    ]
+  }
+]

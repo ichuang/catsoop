@@ -1,0 +1,17 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "150-1561131611186-060465c0df444b210fdf8edb34b4292d",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "In 6.003 spring 2019, we had a couple of students who clicked 'check' on\n`richtext` questions, but didn't submit.  There should be some clearer feedback\nabout the current state, and submissions should be tracked separately from\nchecks.",
+      "labels": [
+        "enhancement"
+      ],
+      "priority": 0,
+      "target": null,
+      "title": "Cache results from 'submit' separately from 'check'"
+    }
+  }
+]

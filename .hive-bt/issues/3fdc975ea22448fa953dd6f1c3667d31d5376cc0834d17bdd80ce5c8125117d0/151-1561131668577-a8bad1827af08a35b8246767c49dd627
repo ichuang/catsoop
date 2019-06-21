@@ -1,0 +1,17 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "151-1561131668577-a8bad1827af08a35b8246767c49dd627",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "It would be really neat if CAT-SOOP could work without Javascript enabled.  I\nthink it actually wouldn't be too bad to implement this.  The only thing that\nwould be a little painful would be replacing the websocket-related stuff for\nthe checker queue with a reload every-so-often, and the math rendering.",
+      "labels": [
+        "enhancement"
+      ],
+      "priority": 0,
+      "target": null,
+      "title": "Javascriptless CAT-SOOP"
+    }
+  }
+]

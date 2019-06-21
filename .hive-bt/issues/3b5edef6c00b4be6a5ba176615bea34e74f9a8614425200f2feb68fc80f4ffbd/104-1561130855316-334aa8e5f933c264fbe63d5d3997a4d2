@@ -5,7 +5,7 @@
     "parameters": {
       "assignees": [],
       "author": "adam j hartz <hz@mit.edu>",
-      "body": "Right now, each section's anchor's name takes the form `catsoop_section_X_Y_Z`, which results in links to specific sections of a document looking like `http://url_root/page#catsoop_section_X_Y_Z`.\n\nIt would be great if these instead (or additionally) had names that went like the section titles.  Wikipedia does something like this, for example: https://en.wikipedia.org/wiki/Smash_Mouth#Band_members\n",
+      "body": "Right now, each section's anchor's name takes the form `catsoop_section_X_Y_Z`, which results in links to specific sections of a document looking like `http://url_root/page#catsoop_section_X_Y_Z`.\n\nIt would be great if these instead (or additionally) had names that went like the section titles.  Wikipedia does something like this, for example: <https://en.wikipedia.org/wiki/Smash_Mouth#Band_members>\n",
       "labels": [],
       "priority": 0,
       "target": null,
