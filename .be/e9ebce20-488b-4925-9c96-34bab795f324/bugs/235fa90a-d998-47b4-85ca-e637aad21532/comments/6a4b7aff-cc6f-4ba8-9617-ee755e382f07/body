@@ -1,4 +1,0 @@
-It's a lot nicer to install in a virtual environment than in the system's
-Python (particularly for people who use package managers that put things in the
-same spot as pip).  We should document setting up a virtual environment and
-installing `catsoop` in that environment.

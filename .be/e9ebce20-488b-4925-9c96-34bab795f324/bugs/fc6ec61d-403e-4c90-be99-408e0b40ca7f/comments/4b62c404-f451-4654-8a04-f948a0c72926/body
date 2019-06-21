@@ -1,3 +1,0 @@
-Currently, the "log out" option when using the 'openid_connect' authentication
-mode just invalidates the CAT-SOOP session.  It should also actually send a
-logout request to OIDC.

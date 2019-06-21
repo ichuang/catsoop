@@ -1,4 +1,0 @@
-See attached screenshot.  The solution actually contains more spaces than the
-submission, but the browser renders '  ' (multiple spaces) as a single space.
-Same issue in the input.    I've temporarily patched on `py.mit.edu` and am
-testing now, but I'll need to remember to merge back in to master.

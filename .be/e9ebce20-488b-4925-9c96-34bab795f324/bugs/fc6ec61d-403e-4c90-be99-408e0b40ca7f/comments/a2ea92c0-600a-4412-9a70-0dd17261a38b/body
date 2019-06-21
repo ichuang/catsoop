@@ -1,6 +1,0 @@
-I'm going to mark this resolved. Unfortunately, as far as I can tell,
-`oidc.mit.edu` doesn't currently support logging out with a redirect back to
-CAT-SOOP. I think until that is changed, we can't do this without making the
-sacrifice of having the user logged out and redirected to the OIDC landing page,
-rather than back to our site (which I think would be confusing).  If I'm wrong
-and there is a way around that, feel free to reopen this.

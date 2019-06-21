@@ -1,6 +1,0 @@
-Currently, an empty line in the middle of a custom tag will often lead to that
-tag being "cut off" before the first empty line, and the remaining content will
-render outside the tag in question.    A workaround is to use HTML `<p></p>`
-tags in place of line breaks inside of custom tags, but that is pretty ugly.
-@kade is in the process of a rewrite of the `catsoop.language` module to handle
-things more generally.

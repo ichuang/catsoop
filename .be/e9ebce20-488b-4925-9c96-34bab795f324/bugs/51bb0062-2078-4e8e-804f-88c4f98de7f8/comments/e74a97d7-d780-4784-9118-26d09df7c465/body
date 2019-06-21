@@ -1,8 +1,0 @@
-With `cs_checker_parallel_checks` >= 1, there is a chance that the results
-recorded to the `problemstate` log are not actually associated with the most
-recent submission.  A check should be added to make sure that the result we
-just computed is actually associated with the most recent submission before
-writing to the `problemstate` log.    I think this is what happened on 6.009's
-quiz 3 last term, where several students' submissions were left spinning.
-Some work needs to be done here to reproduce the issue before we can really
-track down a fix.

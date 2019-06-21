@@ -1,2 +1,0 @@
-The 'last_submit' field in the problemstate log is updated too soon
-(immediately upon submitting, even if a submission isn't allowed).

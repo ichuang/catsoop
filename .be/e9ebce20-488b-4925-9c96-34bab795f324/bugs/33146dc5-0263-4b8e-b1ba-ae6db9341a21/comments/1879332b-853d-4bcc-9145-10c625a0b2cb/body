@@ -1,5 +1,0 @@
-It would be really neat if CAT-SOOP could work without Javascript enabled.  I
-think it actually wouldn't be too bad to implement this.  The only thing that
-would be a little painful would be replacing the websocket-related stuff for
-the checker queue with a reload every-so-often.
-

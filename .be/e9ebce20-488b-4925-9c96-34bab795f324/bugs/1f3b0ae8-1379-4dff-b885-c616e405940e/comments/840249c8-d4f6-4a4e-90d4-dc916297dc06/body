@@ -1,5 +1,0 @@
-In 6.003 spring 2019, we had a couple of students who clicked 'check' on
-`richtext` questions, but didn't submit.  There should be some clearer feedback
-about the current state, and submissions should be tracked separately from
-checks.
-

@@ -1,4 +1,0 @@
-When a `pythoncode` question using the `'remote'` sandbox can't actually reach
-the remote sandbox, it currently reports the same error as if a Python
-expression had been entered that couldn't be evaluated.    It would be great to
-have different error messages for the two cases.

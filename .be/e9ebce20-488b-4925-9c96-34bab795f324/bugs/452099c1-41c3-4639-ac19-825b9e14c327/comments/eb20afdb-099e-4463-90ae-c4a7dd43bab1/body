@@ -1,5 +1,0 @@
-Jason Ku brought this up in a brief conversation.  It is currently possible to
-find out some information about the inputs used in "hidden" test cases in the
-`pythoncode` question type, by printing that information to `stderr`.  While
-`stdout` can currently be hidden, `stderr` cannot.  It shouldn't be hard to add
-a toggle to disable showing `stderr`.

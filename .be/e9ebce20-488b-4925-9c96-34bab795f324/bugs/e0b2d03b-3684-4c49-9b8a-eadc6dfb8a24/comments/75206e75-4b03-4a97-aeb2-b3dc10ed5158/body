@@ -1,5 +1,0 @@
-CAT-SOOP has traditionally been stylized with a hyphen, but maybe it's easier
-for everyone if it is always stylized as `catsoop`, including in URLs, repo
-name, etc.  It's a little weird to have the hyphen in some places (e.g., the
-default location of a clone of this repo) but not in others (the directory
-within that clone, the pip package name, etc).

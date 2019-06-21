@@ -1,5 +1,0 @@
-In the case where someone doesn't care about having human-readable/human-
-editable logs, we should add a flag for using the old binary format instead.
-It turns out to be a lot faster, and it should probably be the default in the
-case where logs are encrypted and/or compressed, since they stop being
-human-readable in that case anyway.

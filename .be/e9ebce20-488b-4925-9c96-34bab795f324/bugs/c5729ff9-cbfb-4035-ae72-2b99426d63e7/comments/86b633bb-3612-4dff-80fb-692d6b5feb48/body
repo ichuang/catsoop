@@ -1,6 +1,0 @@
-Some subset of Chrome users have recently (fall 2017) begun having trouble
-logging in to CAT-SOOP, both with the `login` and `openid_connect`
-authentication types.    Clearing cookies seems to work as a fix, as does
-working in Incognito mode.    I've not yet been able to track down a pattern,
-and I'm not entirely sure this is something that can be fixed from CAT-SOOP's
-side.  If someone is able to figure something out, help would be appreciated!

@@ -1,4 +1,0 @@
-Or, at the very least, they don't behave the way that people might expect.  The
-directory in which the file is located isn't on the search path and so gets
-ignored.    To be honest, I don't remember how that code works, but it's worth
-looking into and fixing this, or at least providing a workaround.

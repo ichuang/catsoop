@@ -1,4 +1,0 @@
-I've gotten the request to allow some submissions (maybe invalid syntax in an
-`expression` question or similar) to pass through without counting toward the
-total number of submissions used.    This is actually a non-trivial fix,
-unfortunately.

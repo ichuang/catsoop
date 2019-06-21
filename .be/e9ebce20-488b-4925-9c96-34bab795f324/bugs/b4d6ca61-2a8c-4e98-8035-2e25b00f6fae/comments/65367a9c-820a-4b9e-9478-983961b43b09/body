@@ -1,3 +1,0 @@
-I hadn't thought about this (two catsoops on the same machine) before, but yes,
-you're right.  How about using a subdirectory of `cs_data_root` for the locks
-instead of something in `/tmp`, so that everything is isolated?

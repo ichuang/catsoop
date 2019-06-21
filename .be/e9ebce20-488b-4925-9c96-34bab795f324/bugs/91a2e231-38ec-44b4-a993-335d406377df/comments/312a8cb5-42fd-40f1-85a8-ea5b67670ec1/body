@@ -1,4 +1,0 @@
-The relevant code for this is in `__HANDLERS__/default/default.py`.  Near the
-top of the `handle_submission` function (around line 1000 or so), we update the
-log _before_ using the `submit_msg` function to check for an error, instead of
-after.

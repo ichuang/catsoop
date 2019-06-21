@@ -1,4 +1,0 @@
-Calling `tutor.compute_page_stats` should re-build the `question_info` cache if
-necessary.  I had thought this machinery was in place, but it does not work
-(changes to a page require someone reloading that page to be noticed by
-`compute_page_stats`).
