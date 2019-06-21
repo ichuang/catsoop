@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "0-1561130782998-3bc80a41461456d157fffac3f6954c2a",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "A few people have requested integrating the queue into CAT-SOOP. It would be great if we can retain all of the functionality from the old queue but improve logging and make the setup much easier (ideally, just integrated with the regular script for starting CAT-SOOP).\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Integrate Help Queue With CAT-SOOP"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "142-1561130936371-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

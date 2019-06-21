@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "16-1561130794136-68bc4e1ecdfc585d9f1654133012ec0a",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "It might be nice to be able to distinguish between someone who is authenticated but does not have access to the course in question, and someone who is not authenticated at all. This is particularly true at MIT, where courses using OpenID Connect may wish to restrict access to MIT students (but not necessarily just to those in the class).\r\n\r\nWe could implement a separate \"Unauthenticated\" role for users who are not logged in, and use that to control access.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Add Support for \"Unauthenticated\" Role"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "17-1561130794845-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

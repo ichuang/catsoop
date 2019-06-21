@@ -1,0 +1,36 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "119-1561130865801-ad1c8b02b9adabe0a38c1713cc470dc2",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "See attached screenshot.  The solution actually contains more spaces than the submission, but the browser renders `'  '` as a single space.  Same issue in the input.\r\n\r\nI've temporarily patched on <code>py.mit.edu</code> and am testing now, but I'll need to remember to merge back in to master.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Whitespace not preserved in pythoncode question test results"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Closed via #46\n",
+    "id": "120-1561130866497-500b268b18bccc081b5d98413b617494",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "121-1561130867199-f2ce0c076d80d6da3b6499370e6da395",
+    "labels": [
+      "question-type",
+      "bug",
+      "ui-ux"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "122-1561130867870-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

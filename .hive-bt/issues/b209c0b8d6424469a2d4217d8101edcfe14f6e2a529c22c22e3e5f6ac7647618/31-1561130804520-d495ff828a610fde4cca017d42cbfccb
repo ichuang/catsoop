@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "30-1561130803836-2779650eb5a058473b7d423666477274",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "With <code>cs_checker_parallel_checks</code> >= 1, there is a chance that the results recorded to the <code>problemstate</code> log are not actually associated with the most\r\nrecent submission.  A check should be added to make sure that the result we just computed is actually associated with the most recent submission before writing to the <code>problemstate</code> log.\r\n\r\nI think this is what happened on 6.009's quiz 3 last term, where several students' submissions were left spinning.\r\n\r\nSome work needs to be done here to reproduce the issue before we can really track down a fix.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Checker Concurrency Issues?"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "31-1561130804520-72a91fac2238b5506aab78379ea5339d",
+    "labels": [
+      "bug"
+    ]
+  }
+]

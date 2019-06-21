@@ -1,0 +1,35 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "99-1561130851856-25f49038500336899a0e3c5e2793de3a",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Currently, an empty line in the middle of a custom tag will often lead to that tag being \"cut off\" before the first empty line, and the remaining content will render outside the tag in question.\r\n\r\nA workaround is to use HTML `<p></p>` tags in place of line breaks inside of custom tags, but that is pretty ugly.  @kade is in the process of a rewrite of the `catsoop.language` module to handle things more generally.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Line breaks in the middle of custom tags are not properly handled"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Resolved vi #77\n",
+    "id": "100-1561130852552-5c3f77a93fc2a06edadc41cc8f0d465f",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "101-1561130853220-a5ce2306293dce300e8b157092a9a4b6",
+    "labels": [
+      "in-progress",
+      "bug"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "102-1561130853914-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

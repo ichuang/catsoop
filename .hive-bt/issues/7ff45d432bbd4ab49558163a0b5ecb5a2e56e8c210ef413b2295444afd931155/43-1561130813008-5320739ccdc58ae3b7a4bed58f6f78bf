@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "42-1561130812295-61b1bd46986e252e60a20fdba5ca5fc4",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Calling <code>tutor.compute_page_stats</code> should re-build the <code>question_info</code> cache if necessary.  I had thought this machinery was in place, but it does not work (changes to a page require someone reloading that page to be noticed by <code>compute_page_stats</code>).\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "question_info Cache Not Properly Updated by compute_page_stats"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "43-1561130813008-72a91fac2238b5506aab78379ea5339d",
+    "labels": [
+      "bug"
+    ]
+  }
+]

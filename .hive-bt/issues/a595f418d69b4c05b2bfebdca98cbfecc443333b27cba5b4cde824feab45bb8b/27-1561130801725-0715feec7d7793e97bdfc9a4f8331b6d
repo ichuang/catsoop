@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "26-1561130801059-dd597a7d39956e2bd2261ed001abbb6d",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "The current manual grading interface is a hack that was done very quickly for 6.02 a long time ago.  A number of changes would be nice:\r\n\r\n<ul>\r\n<li>Grading and impersonation should be separate permissions.</li>\r\n<li>Assigning graders to individual students</li>\r\n<li>Anonymizing students when displayed to graders</li>\r\n<li>Better interface for viewing student submissions (e.g., to <code>richtext</code> questions).</li>\r\n</ul>\r\n\r\nIt's possible that some infrastructure could be taken from 6.01's exam grading infrastructure.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Improve Manual Grading Interface/Permissions"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "27-1561130801725-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

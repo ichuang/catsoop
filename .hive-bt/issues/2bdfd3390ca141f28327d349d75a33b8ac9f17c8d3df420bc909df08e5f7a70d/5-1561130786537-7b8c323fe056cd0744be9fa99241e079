@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "4-1561130785846-192d5b78d614a3e1033fc041e551ec39",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "I've had a few thoughts and received a few suggestions for ways to improve hint-giving within CAT-SOOP.  In particular, it would be nice to support (at least) the following kinds of hints:\r\n\r\n<b>MasteringPhysics-style Hints</b>\r\n\r\nThese kinds of hints are hidden pieces of help that a student can activate by clicking them.  Viewing hints may or may or may not affect the student's grade.  It would be nice if these hints could contain questions themselves.\r\n\r\n<b>Post-submission Hints Based on Response</b>\r\n\r\nRight now, there are ways to provide feedback specific to a user's submission in most question types, by setting an appropriate message function.  However, that can be kind of a pain.  It would be nice for CAT-SOOP to handle giving hints in some situations.  Probably, we would want to have a way to give hints based on the user's input alone, and, for some questions, also based on the results of evaluating the user's input (so based on the result, not just the form of the solution; particularly relevant for code).\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Improve Infrastructure for Giving Hints"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "5-1561130786537-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

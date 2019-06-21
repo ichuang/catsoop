@@ -1,0 +1,30 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "1-1561130783730-3e10b046956c5bc7c13997fa1857b883",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "I've received the request from multiple people to implement relative due dates, and I agree it should be implemented. For example, it would be nice to have an exercise come due some amount of time after it was started, rather than at a fixed time.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Support relative due dates"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Jeremy started work on this last summer.  I can check in with him to see where things left off.\n",
+    "id": "2-1561130784425-ede24bc85493f81f12473ce7b4617a3d",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "3-1561130785119-19db6204e809a29ceeeb0961f1cbf1c9",
+    "labels": [
+      "enhancement",
+      "in-progress"
+    ]
+  }
+]

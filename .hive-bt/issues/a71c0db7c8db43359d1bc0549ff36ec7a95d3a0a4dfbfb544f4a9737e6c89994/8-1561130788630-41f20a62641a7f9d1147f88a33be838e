@@ -1,0 +1,29 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "6-1561130787259-83ea0f7a1a7453d831e62d0b0404bd02",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "A couple of people have asked for the \"drag-and-drop\" question type to be ported over from edX.\r\n\r\nI think this would be the place to start:  https://github.com/edx-solutions/xblock-drag-and-drop-v2\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Port Drag-and-Drop Question Type from edX"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "We will probably also want to fork https://github.com/mitocw/latex2dnd, which enables using LaTeX to create drag-and-drop questions.\n",
+    "id": "7-1561130787951-85fd349d6a22527e4e282533fdb4bf06",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "8-1561130788630-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

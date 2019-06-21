@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "24-1561130799676-8741ee4260d97879eb0199360c9e5607",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Right now, question types can define a behavior that is referred to as `check`.  It's used in a number of question types (running the code for `pythoncode`, checking syntax for `expression`, etc).  But this idea isn't very general.  It would be good to let question types have an arbitrary number of possible custom actions.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Question Types Should Be Allowed To Have Multiple Custom Actions"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "25-1561130800346-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

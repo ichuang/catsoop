@@ -1,0 +1,23 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "140-1561130880808-9f4340b83fc9e282a22904b350a94ead",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "People have suggested having an LTS (long-term support) version of CAT-SOOP.  I can see the merit, I think.\r\n\r\nIf we do this, there is also the question of how long each LTS version should live; we should at least have a goal for that.  2-4 years might be reasonable.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Consider an \"LTS\" release"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "141-1561130881505-831e4e8bb58e3f99dfbd362a01a87e12",
+    "labels": [
+      "maybe",
+      "meta"
+    ]
+  }
+]

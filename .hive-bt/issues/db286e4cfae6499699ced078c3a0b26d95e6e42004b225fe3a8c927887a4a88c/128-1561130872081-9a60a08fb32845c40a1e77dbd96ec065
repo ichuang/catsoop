@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "127-1561130871390-d477a4f92259f6c7a6313be9c5f4cd5e",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Right now, the pointer for the remote sandbox points nowhere. We need to set up the remote sandbox.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Set Up New Remote Sandbox"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "128-1561130872081-d1ea1857e5773fa206363a0801131430",
+    "labels": [
+      "infrastructure"
+    ]
+  }
+]

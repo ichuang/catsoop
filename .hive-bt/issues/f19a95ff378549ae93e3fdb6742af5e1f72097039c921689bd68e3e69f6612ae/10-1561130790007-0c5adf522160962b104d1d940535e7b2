@@ -1,0 +1,23 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "9-1561130789334-d32375d93d50609518df75909ef4c722",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "CAT-SOOP 1.0 had a question type where users were asked to enter an expression whose answer was a <i>range</i> of numbers.  For example, <code>[0,3)U(4,7]</code> was a well-formed input representing a range from 0 (inclusive) to 3 (exclusive) and from 4 (exclusive) and 7 (inclusive).\r\n\r\nI've had a couple of requests to bring this back.  CAT-SOOP has changed a lot since then, but I think it's possible that it would be a relatively straightforward port of the code from 1.0.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Numeric Range Question Type"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "10-1561130790007-e3c5fa9c099f6d5d08b2bea07da7e22d",
+    "labels": [
+      "question-type",
+      "enhancement"
+    ]
+  }
+]

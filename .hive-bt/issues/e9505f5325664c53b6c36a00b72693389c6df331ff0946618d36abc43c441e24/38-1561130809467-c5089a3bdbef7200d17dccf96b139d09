@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "37-1561130808780-d26aa40b9500191dbb7749cb69ece895",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "I've gotten the request to allow some submissions (maybe invalid syntax in an <code>expression</code> question or similar) to pass through without counting toward the total number of submissions used.\r\n\r\nThis is actually a non-trivial fix, unfortunately.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Allow Certain Submissions Not to Count Toward Total"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "38-1561130809467-5e054d1845e83cddf5aa1f2534dd189d",
+    "labels": [
+      "maybe"
+    ]
+  }
+]

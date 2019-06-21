@@ -1,0 +1,56 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "82-1561130839976-85142515750f69fdf3ad4f61fff8b960",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Two different users cannot currently simultaneously run separate instances of catsoop on a single machine, because `/tmp/catsoop_locks` is used by both instances.\r\n\r\nThis path should be configurable, or made world writable, or something.\r\n\r\nhttps://hz.mit.edu/git/catsoop/catsoop/src/branch/master/catsoop/cslog.py#L114\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "/tmp/catsoop_locks is unconfigurable and owned by one user"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "I hadn't thought about this (two catsoops on the same machine) before, but yes, you're right.  How about using a subdirectory of `cs_data_root` for the locks instead of something in `/tmp`, so that everything is isolated?\n",
+    "id": "83-1561130840671-df1457abcff3e68fbc9745722c348f9e",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Agreed - that would be clean\n",
+    "id": "84-1561130841347-020e5d1cc431a177aedad420c2dfea39",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "OK, working on that now.  Shouldn't take too long.\n",
+    "id": "85-1561130842041-bd8391cade7cd80437dd07c92b588864",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "This should be done (via 316c229b6f56544706b6e92436ab7e4d6ac6286f), and I put in #36 as well, related to the naming of the directories in `cs_data_root`.\n",
+    "id": "86-1561130842718-35870e7ccde58e511e81ae9eb074b41c",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "87-1561130843426-d13f6bc909754777bb7de2b72e37e6da",
+    "labels": [
+      "enhancement",
+      "discussion"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "88-1561130844118-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

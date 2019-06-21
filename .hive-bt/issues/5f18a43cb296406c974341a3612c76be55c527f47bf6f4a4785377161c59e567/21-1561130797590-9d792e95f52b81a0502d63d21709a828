@@ -1,0 +1,35 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "18-1561130795557-a95fd4b5f2fd70312ffcba267c87e354",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "It would be nice if `pythoncode`checkers had access to more than just the log entries we create.  In particular, it would be good for them to have access to `stdout` and `stderr` as well.\r\n\r\nThis will probably have to be carefully orchestrated, as a lot of courses use `pythoncode` questions.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Allow pythoncode Checkers To See More Than Just Log Output"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Closed via #46\n",
+    "id": "19-1561130796237-500b268b18bccc081b5d98413b617494",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "20-1561130796912-4f8640c023478d069ad0d786fba01350",
+    "labels": [
+      "enhancement",
+      "question-type"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "21-1561130797590-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

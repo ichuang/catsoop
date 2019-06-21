@@ -1,0 +1,35 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "131-1561130874395-8f9fc4b68c003b63ff9c4b6bc613fd75",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Footnotes shouldn't show up on those pages, since the associated content has been replaced with the groups/WHDW interfaces.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Footnotes showing up on WHDW and groups"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "I'm assuming this is fixed via #76.\n",
+    "id": "132-1561130875100-336809094cdec5869796b8e3027c37a8",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "133-1561130875792-7daa7f49b017cbaaf763a97af412d8bb",
+    "labels": [
+      "ui-ux",
+      "bug"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "134-1561130876486-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

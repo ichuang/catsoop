@@ -1,0 +1,42 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "44-1561130813716-b8346bae48df410d6a608fe5706a7bfd",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "The 'last_submit' field in the problemstate log is updated too soon (immediately upon submitting, even if a submission isn't allowed).\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "last_submit is updated too soon"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "The relevant code for this is in `__HANDLERS__/default/default.py`.  Near the top of the `handle_submission` function (around line 1000 or so), we update the log _before_ using the `submit_msg` function to check for an error, instead of after.\n",
+    "id": "45-1561130814384-c3ea88d0a47fefa3b222fd0531ccd04f",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Should be fixed in 7d5bc5ff29aabd0d192cfef9e066c2cdc908d4e4\n",
+    "id": "46-1561130815082-c7c7acfd5e72bbbe5588f1e920f5551b",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "47-1561130815762-38ba0acba7ba8aecb9d50c7f785ebc09",
+    "labels": [
+      "bug",
+      "beginner-friendly"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "48-1561130816456-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

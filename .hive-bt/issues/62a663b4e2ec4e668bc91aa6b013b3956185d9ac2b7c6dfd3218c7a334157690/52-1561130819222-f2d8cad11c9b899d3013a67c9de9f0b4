@@ -1,0 +1,34 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "49-1561130817157-095d04f7e5d2a42cedbf3c27e42a743c",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "A major version change in Python-Markdown included some backwards-incompatible changes. We should update so we're working with the latest version.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Update CAT-SOOP to Use python-markdown version 3"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Resolved via #28\n",
+    "id": "50-1561130817860-9b8c0998c1e33b3c938a41fba6020eaf",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "51-1561130818543-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "52-1561130819222-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "53-1561130819913-b0e6fe5c78da70711dba8261daabcb89",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "It might be worth adding the web site's source to this repository.  This would make it easier to create pull requests that affect both the system and the documentation.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Consider adding the website source to the main repo"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Along these lines, the tooling for auto-generating the API docs should be brought up to date for the new infrastructure and included in the repo, and we should maybe think about whether there is a way to automatically generate docs for the question types (if we add some docstrings, etc to those files).\n",
+    "id": "54-1561130820596-ed534606375b141e6eb29fa30a296b6a",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Website was moved in in e796fdaae3ee6f41c87a768b4f5a83981a1b7f32\n",
+    "id": "55-1561130821285-87b2181b150078b7880fc75385f4bd4a",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "56-1561130821990-ad5ec83fd240cf5b1cf1c95903a3b61d",
+    "labels": [
+      "maybe",
+      "infrastructure",
+      "docs"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "57-1561130822676-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

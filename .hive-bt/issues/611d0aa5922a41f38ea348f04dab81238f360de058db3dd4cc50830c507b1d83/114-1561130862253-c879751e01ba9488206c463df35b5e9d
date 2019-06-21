@@ -1,0 +1,24 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "113-1561130861576-f7dac576a3f1f5a5e70a4ee54faf8c13",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "When a `pythoncode` question using the `'remote'` sandbox can't actually reach the remote sandbox, it currently reports the same error as if a Python expression had been entered that couldn't be evaluated.\r\n\r\nIt would be great to have different error messages for the two cases.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Confusing error message when remote sandbox offline"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "114-1561130862253-ece91a15c85e0f9fb13facdc04765c7b",
+    "labels": [
+      "question-type",
+      "ui-ux",
+      "bug"
+    ]
+  }
+]

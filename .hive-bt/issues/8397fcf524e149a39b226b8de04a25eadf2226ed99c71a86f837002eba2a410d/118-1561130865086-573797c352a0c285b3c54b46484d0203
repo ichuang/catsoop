@@ -1,0 +1,35 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "115-1561130862972-8a462af9781df699c386622b2c03d404",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "It would be good for our checker to be able to handle the case where a piece of code (correctly!) errors.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Allow pythoncode questions to check for exceptions"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Closed via #46\n",
+    "id": "116-1561130863672-500b268b18bccc081b5d98413b617494",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "117-1561130864383-e3c5fa9c099f6d5d08b2bea07da7e22d",
+    "labels": [
+      "question-type",
+      "enhancement"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "118-1561130865086-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

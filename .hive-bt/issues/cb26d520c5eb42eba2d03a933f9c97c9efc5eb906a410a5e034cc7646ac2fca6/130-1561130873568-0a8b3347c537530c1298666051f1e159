@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "129-1561130872854-0ebf8065fc78d47802278f08151693db",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Or, at the very least, they don't behave the way that people might expect.  The directory in which the file is located isn't on the search path and so gets ignored.\r\n\r\nTo be honest, I don't remember how that code works, but it's worth looking into and fixing this, or at least providing a workaround.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Imports from preload or content files are broken"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "130-1561130873568-72a91fac2238b5506aab78379ea5339d",
+    "labels": [
+      "bug"
+    ]
+  }
+]

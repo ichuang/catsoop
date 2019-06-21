@@ -1,0 +1,23 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "28-1561130802443-689b4e65148b9b4fad5725bfe6b792aa",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "I've gotten the request a few times to include integrals and derivatives in the `expression` question type.  Hopefully with the inclusion of `mpmath` this will have gotten easier.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "add support for derivatives/integrals to expression questions"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "29-1561130803106-4f8640c023478d069ad0d786fba01350",
+    "labels": [
+      "enhancement",
+      "question-type"
+    ]
+  }
+]

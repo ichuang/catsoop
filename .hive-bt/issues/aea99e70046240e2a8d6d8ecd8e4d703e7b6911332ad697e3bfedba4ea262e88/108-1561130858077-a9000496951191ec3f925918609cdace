@@ -1,0 +1,36 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "105-1561130856035-faaf16a3eeeaeedb16ff25e631303d5e",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "The intention was to make sure that, when on a screen that it itself bigger than 900px, the `cs_content` div is always at least 900px wide.  It looks like that is being applied everywhere (making it difficult to view CAT-SOOP pages on mobile devices).\r\n\r\nThe appropriate place to look is [this file](https://hz.mit.edu/git/catsoop/catsoop/src/branch/master/catsoop/__STATIC__/themes/base.css).\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "900px min-width enforced on all screen sizes"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Closed via #51\n",
+    "id": "106-1561130856718-6ebf8fc639ae89318748b954240954b6",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "107-1561130857395-a01c0ea43aa81e7ae60bfd7a1ce3029b",
+    "labels": [
+      "bug",
+      "beginner-friendly",
+      "ui-ux"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "108-1561130858077-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

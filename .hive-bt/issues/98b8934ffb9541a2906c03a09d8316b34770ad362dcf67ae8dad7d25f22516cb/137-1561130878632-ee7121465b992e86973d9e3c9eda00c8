@@ -1,0 +1,30 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "135-1561130877239-b4dfee5d382a89dde80bb9eb0fd58be5",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "When the checker is loading a page or trying to find the question that someone submitted to, there are rare cases where an error can occur.  Right now, the UI continues to report that \"your submission is currently being checker\" in that case, which is not true (since the error means we can't even start checking in that case).\r\n\r\nExample: 6.009 staff trying to submit `'q000000'` as a student, but the student doesn't actually have that box because `cs_post_load` removes it from their view.\r\n\r\nServer reports:\r\n```nohighlight\r\nProcess Process-173:\r\nTraceback (most recent call last):\r\n  File \"/usr/lib/python3.5/multiprocessing/process.py\", line 249, in _bootstrap\r\n    self.run()\r\n  File \"/usr/lib/python3.5/multiprocessing/process.py\", line 93, in run\r\n    self._target(*self._args, **self._kwargs)\r\n  File \"checker.py\", line 148, in do_check\r\n    question, args = namemap[name]\r\nKeyError: 'q000000'\r\n```\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "improve UI when an error occurs during page load from checker"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "PR #83 implemented a temporary fix for this, but there is still work to be done here.  Rather than the catch-all that's currently implemented, it would be good to carefully <code>try</code> the different pieces associated with loading a page so we can give a better error message than \"an unexpected error occurred\".\n",
+    "id": "136-1561130877941-7df320c6d653f4e9f0a13ce5477b55e5",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "137-1561130878632-42bc8d7890d6c62f90d3a8726df57a2d",
+    "labels": [
+      "ui-ux",
+      "beginner-friendly"
+    ]
+  }
+]

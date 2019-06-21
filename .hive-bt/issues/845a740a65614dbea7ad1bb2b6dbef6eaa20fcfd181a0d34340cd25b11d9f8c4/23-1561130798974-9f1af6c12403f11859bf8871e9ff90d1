@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "22-1561130798276-ecc573e70bf311fb53d95d92ad61c68a",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "This would be a really nice feature to support, but it would likely require some rethinking about the way things are structured internally.\r\n\r\nRequested via e-mail:\r\n\r\n```nohighlight\r\n> Is there a way to put a comment box at the end of a cat-soop solution?\r\n> For example, something like the following (which is malformed):\r\n>\r\n> <question expression>\r\n> csq_prompt='hello'\r\n> csq_soln=r'''\r\n> Do XYZ then PDQ.\r\n> <question smallbox>\r\n> csq_size = '20'\r\n> csq_prompt='Comments on the solution/confusing points?'\r\n> </question>\r\n> '''\r\n> </question>\r\n```\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "embedding questions within questions/solutions"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "23-1561130798974-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

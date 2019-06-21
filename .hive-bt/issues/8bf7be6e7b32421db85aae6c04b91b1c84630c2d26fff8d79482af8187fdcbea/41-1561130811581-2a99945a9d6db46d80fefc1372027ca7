@@ -1,0 +1,30 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "39-1561130810187-8defea25a399b7e0db8819bc1e4f1504",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "We should add a flag to enable directory listings within `__STATIC__` directories (i.e., navigating to a directory should show a listing of the files contained therein if a particular flag is set).\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Directory Listing for Static Files"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "I think the right entry point for this change is the `main` function in `dispatch.py`.  Right now, things short circuit in the case of requesting a static file.  I think we want to keep that short-circuiting in place but only do that in the case where the URL actually represents a static _file_ on disk.\r\n\r\nThen, farther down the function (after we've run the `preload.py` files), if the resource being requested represents a static _directory_, we can check to see if some option (yet to be defined) has been set, and, if it has, generate a page to list the files in the directory.\r\n\r\nWe'll need to make sure this properly handles not only the base `__STATIC__` directory, but also subdirectories.\n",
+    "id": "40-1561130810890-e9c1c6c56c6b08ea76789dc27871dd03",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "41-1561130811581-5711237ee9fc174ea39e7bf775d64247",
+    "labels": [
+      "enhancement",
+      "beginner-friendly"
+    ]
+  }
+]

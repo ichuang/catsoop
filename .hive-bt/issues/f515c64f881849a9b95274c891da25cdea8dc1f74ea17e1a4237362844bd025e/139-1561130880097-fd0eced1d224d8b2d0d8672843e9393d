@@ -1,0 +1,22 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "138-1561130879413-55db6d78c1cfe54663b170410a6337ff",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "After talking with Ike, I think it would be a good idea for us to extend plugins' capabilities to include scripts that will be run when CAT-SOOP is started, and at regular intervals (like cron).  Not quite sure what the structure looks like yet, but we should definitely do this.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Extensions to Plugins: start-up scripts and scheduled scripts"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "139-1561130880097-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

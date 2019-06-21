@@ -1,0 +1,34 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "60-1561130824776-05e6feb8c84977ae94baaf939f0c8c3f",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "In the case where someone doesn't care about having human-readable/human-editable logs, we should add a flag for using the old binary format instead.  It turns out to be a lot faster, and it should probably be the default in the case where logs are encrypted and/or compressed, since they stop being human-readable in that case anyway.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Add Option to Use Old Binary Log Format"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "I'm thinking the right idea is actually to have things always stored in the binary format, but to provide a way to manually edit.  This might be a script like `catsoop logedit USERNAME PATH LOGNAME`, which translates the given file to its human-readable form, opens `$EDITOR` on that, and then converts the result back into the binary format after editing.  That would be a relatively easy way to get the best of both worlds (the logs can be fast/small, but we can still have an easy way to view/edit them).  Maybe a `catsoop logcat` as well, for viewing (but not editing) logs.\n",
+    "id": "61-1561130825429-c631e14a7cc3713d25d881adb7c368f6",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "62-1561130826103-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "63-1561130826792-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

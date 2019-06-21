@@ -1,0 +1,35 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "109-1561130858784-05ef611438106210d29212d822d5e0a3",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Right now, we're making a claim that I'm not sure we can hold up to, that all of the javascript on every page is licensed under AGPLv3 (see <https://hz.mit.edu/git/catsoop/catsoop/src/branch/master/catsoop/__STATIC__/templates/main.template#L13-L39>).  This means that any Javascript someone writes as part of their course page (that isn't loaded through a separate file) is assumed to be AGPLv3.\n\nFor me, that's fine, but others may not like it.  Hopefully it won't be hard to reorganize things to so that each of the individual pieces of JS that come from CAT-SOOP is explicitly marked as being AGPLv3, rather than marking _everything_ as AGPLv3.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Reorganize LibreJS licensing info"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Closed via #60\n",
+    "id": "110-1561130859476-4e9996cd5147261cb4701dea74853c7b",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "111-1561130860168-982e3b64afac5e71bf980cc1894e647e",
+    "labels": [
+      "meta",
+      "in-progress"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "112-1561130860848-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

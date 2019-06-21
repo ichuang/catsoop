@@ -1,0 +1,31 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "11-1561130790692-79ef6cf490d0248b1211c3e9fe2adf8e",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "The `circuit` question type should be updated to use the newer version of the circuit solver (which, among other things, improves the modeling of op-amps).\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Update Circuit Solver"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Work is underway here, but we're going to test this out in 6.002 before merging in to CAT-SOOP proper.\n",
+    "id": "12-1561130791365-29df2032cab95a91d076e6bb0aec27df",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "13-1561130792050-ad21a1a184d59750e3167ad3974e510c",
+    "labels": [
+      "question-type",
+      "enhancement",
+      "in-progress"
+    ]
+  }
+]

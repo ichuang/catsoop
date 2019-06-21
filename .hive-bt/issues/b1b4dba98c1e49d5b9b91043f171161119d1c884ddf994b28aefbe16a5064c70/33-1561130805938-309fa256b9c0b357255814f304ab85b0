@@ -1,0 +1,23 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "32-1561130805243-7e7ff4ba8718b885aa2d1d32388621e2",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Some subset of Chrome users have recently (fall 2017) begun having trouble logging in to CAT-SOOP, both with the `login` and `openid_connect` authentication types.\r\n\r\nClearing cookies seems to work as a fix, as does working in Incognito mode.\r\n\r\nI've not yet been able to track down a pattern, and I'm not entirely sure this is something that can be fixed from CAT-SOOP's side.  If someone is able to figure something out, help would be appreciated!\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Chrome Login Issues"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "33-1561130805938-4d0e8ced91952ba05970ad19b031f756",
+    "labels": [
+      "bug",
+      "help-wanted"
+    ]
+  }
+]

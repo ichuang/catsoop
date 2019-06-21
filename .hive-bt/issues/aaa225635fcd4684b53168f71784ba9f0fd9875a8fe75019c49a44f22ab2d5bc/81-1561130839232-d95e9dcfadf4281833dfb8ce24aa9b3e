@@ -1,0 +1,34 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "78-1561130837206-9b2014b9e4b447456808e81e7006d5fc",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "CAT-SOOP has traditionally been stylized with a hyphen, but maybe it's easier for everyone if it is always stylized as `catsoop`, including in URLs, repo name, etc.  It's a little weird to have the hyphen in some places (e.g., the default location of a clone of this repo) but not in others (the directory within that clone, the pip package name, etc).\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Get Rid of the Hyphen?"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Resolved via #33.  Closing.\n",
+    "id": "79-1561130837875-6d96ab197030750db3bc258224449f24",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "80-1561130838562-92a41d7740555769d8aed58ba4001842",
+    "labels": [
+      "meta"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "81-1561130839232-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "34-1561130806646-39450909c34ffce69fbcb81e4f07fbb1",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Currently, several courses have gradebooks that are really slow because they need to loop over <i>all</i> of a student's activity to determine their scores.  This is incredibly slow, and if enough students load their gradebook simultaneously, it can effectively accidentally act as a DoS attack.  It would be nice to add a way to allow courses to specify information that should be cached for every problem (or for every user, or....).\r\n\r\nMaybe this is a group of two functions:\r\n\r\n<ul>\r\n<li><code>cs_update_user_page_cache(old_cache, submission)</code>, which updates a per-user-per-page cache (every user has a cache per page).</li>\r\n<li><code>cs_update_user_cache(old_cache, submission)</code>, which updates a per-user cache.</li>\r\n</ul>\r\n\r\nI'll need to think a bit more about the form these functions take (and whether the above are the two types of caches that make sense).  But it's a really nice idea that can prevent some progress/gradebook pages from being a really sticky river late in the semester.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Smart, Customizable Log Caching"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "I think this depends on #25, since per-user-per-course logs can be huge, and the current log format is really slow on big objects.\n",
+    "id": "35-1561130807342-9340eafcfe208021b917916160c8820d",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "36-1561130808058-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
+  }
+]

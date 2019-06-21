@@ -1,0 +1,69 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "69-1561130830929-0550b978b060bf672835121cf9dd1cbc",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Since <tt>config_loc</tt> is written before the directory for <tt>cs_data_root</tt> is created, creating <tt>cs_data_root/courses</tt> fails.\r\n\r\nIf <tt>config_loc</tt> is (intended by the user) to be a directory rather than a file name, presumably CAT-SOOP should just create the directory and then name the config file <tt>config.py</tt>?\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Configuration crash"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Also, the last line<br>\n<tt>Setup is complete.  You can now start CAT-SOOP by running the start_catsoop.py script.</tt><br>\nshould be emended to<br>\n<tt>Setup is complete.  You can now start CAT-SOOP by running `catsoop runserver`.</tt>\n",
+    "id": "70-1561130831636-4347798eab0183ebd2334051748f4c09",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Hmm.  I see what's happening.  I agree that a crash is bad, but I'm not sure I know what makes sense as the right behavior here.  I'm not sure there is a way for us to know that the user intends a directory, versus a file.\r\n\r\nI guess in your example it could be inferred from looking at the two given paths, but is there something we can do to infer that in a general sense?  At the point when we would want to do that check, no directories have been made yet, so I think it's hard.\r\n\r\nDo you have a sense of (or suggestion for) how we might handle this in a general sense?\n",
+    "id": "71-1561130832309-548a9f2aa826ad9c103e7ccdbec62ffc",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Good catch on the value printed from the setup script.  Do you want to do a PR for that (to get used to the infrastructure change), or should I just change it?\n",
+    "id": "72-1561130833011-7aa4423e6b73dc24d7894f6f7d39faa7",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Maybe something along the lines of\n\n1. Create the cat-soop-data directory (<tt>cs_data_root</tt>).\n2. Does <tt>config_loc</tt> already exists as a directory?<br>\n<b>Yes:</b> Write the config to <tt>config_loc/config.py</tt>, after prompting for confirmation.<br>\n<b>No:</b> Write the config to <tt>config_loc</tt> (current behavior).\n",
+    "id": "73-1561130833716-540a0fed6e99c57abc027af87aeaecac",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "I'll do a PR to get used to the infrastructure.\r\n\r\nAlso, I haven't checked yet, but did you decide what to do about <tt>showhide</tt> and other custom tags?\n",
+    "id": "74-1561130834392-06374d05f8d9878b47d7edf565fff723",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "> Maybe something along the lines of ...\r\n\r\nThat sounds fine to me, so long as it all happens after everything has been confirmed.\r\n\r\nI also see a bit more where the confusion is coming from.  Something else we could do (either instead of, or in addition to, these things) would be to change the text to indicate that we're expecting a directory for the data root and a file for the config location.\r\n\r\n> Also, I haven\u2019t checked yet, but did you decide what to do about showhide and other custom tags?\r\n\r\nI haven't decided yet, but that conversation should probably happen in another issue/PR.  I still have your patch from the old bug tracker.  Do you want to make a new issue/PR for that?  If not, I can.\n",
+    "id": "75-1561130835086-88a00dad55cc2fd30e3c194693a03b3b",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "76-1561130835785-d9dccb3a2fdc0ea824323425659482d3",
+    "labels": [
+      "discussion"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "77-1561130836484-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

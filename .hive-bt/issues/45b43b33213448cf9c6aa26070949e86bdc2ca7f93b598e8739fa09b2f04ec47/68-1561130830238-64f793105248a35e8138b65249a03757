@@ -1,0 +1,42 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "64-1561130827504-1bbac66fe393b218f28a2b0b9d3985ad",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Part of CAT-SOOP's specification format is that resources starting with `_` or `.` are not viewable via the web (or, at least, that they are reserved for CAT-SOOP's use).  This is properly handled in the case of a directory that starts with `_` or `.` and contains a `content.md` or other content file, but it is not the case for bare content files.\r\n\r\nFor example, a file called `_hidden.md` inside of `course/somewhere` will be web accessible under `<cs_url_root>/course/somewhere/_hidden`.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Bare content files starting with . or _ are not properly hidden"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "This whole function could use some refactoring, but the relevant portion of code is near the bottom of `content_file_location` in `dispatch.py`.  I think it should just be another check in the case we're loading from a file, to make sure not only that the file in question exists, but also that it does not start with `_` or `.`.\n",
+    "id": "65-1561130828177-95b61947b43b2281ac8fb675931a73e2",
+    "parent": null
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Should be fixed in 3e47be08ce8d3cbb9a5b3ef21c897e9d103c4f2c\n",
+    "id": "66-1561130828866-9f727fbddd93d641a916cd37aed5201d",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "67-1561130829553-38ba0acba7ba8aecb9d50c7f785ebc09",
+    "labels": [
+      "bug",
+      "beginner-friendly"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "68-1561130830238-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

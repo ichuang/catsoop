@@ -1,0 +1,35 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "95-1561130849092-161ba9004bf76f38884318c398922096",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Jason Ku brought this up in a brief conversation.  It is currently possible to find out some information about the inputs used in \"hidden\" test cases in the `pythoncode` question type, by printing that information to `stderr`.  While `stdout` can currently be hidden, `stderr` cannot.  It shouldn't be hard to add a toggle to disable showing `stderr`.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Allow hiding stderr in pythoncode question type"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Closed via #46\n",
+    "id": "96-1561130849775-500b268b18bccc081b5d98413b617494",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "97-1561130850453-e3c5fa9c099f6d5d08b2bea07da7e22d",
+    "labels": [
+      "question-type",
+      "enhancement"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "98-1561130851132-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]

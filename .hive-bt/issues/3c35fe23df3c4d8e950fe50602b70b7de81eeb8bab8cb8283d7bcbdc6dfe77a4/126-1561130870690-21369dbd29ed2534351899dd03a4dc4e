@@ -1,0 +1,34 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "123-1561130868602-c0c9126e36a855720557f9413a6340bd",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Currently, the \"log out\" option when using the `'openid_connect'` authentication mode just invalidates the CAT-SOOP session.  It should also actually send a logout request to OIDC.\n",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "\"Log Out\" in OpenID Connect does not deauthenticate with OIDC"
+    }
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "I'm going to mark this resolved. Unfortunately, as far as I can tell, `oidc.mit.edu` doesn't currently support logging out with a redirect back to CAT-SOOP. I think until that is changed, we can't do this without making the sacrifice of having the user logged out and redirected to the OIDC landing page, rather than back to our site (which I think would be confusing).  If I'm wrong and there is a way around that, feel free to reopen this.\n",
+    "id": "124-1561130869287-0ce8bef225cc1360407b6f2727d867aa",
+    "parent": null
+  },
+  {
+    "action": "add_labels",
+    "id": "125-1561130869989-4580eb1e8c774acf3a84bb1e300830c1",
+    "labels": [
+      "wontfix"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "126-1561130870690-bce8deddd3f729e1cd15e1929e9177f9"
+  }
+]
