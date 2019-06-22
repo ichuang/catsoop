@@ -19,5 +19,17 @@
       "maybe",
       "meta"
     ]
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "We're doing this",
+    "id": "152-1561131701927-b61e7de71d98bf3a568bb23310034883",
+    "parent": null
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "153-1561131701932-bce8deddd3f729e1cd15e1929e9177f9"
   }
 ]
