@@ -712,7 +712,7 @@ def handle_grade(context):
             comments = f.get("%s_grading_comments" % name, "")
             score = float(rawscore)
         except:
-            outdict[name] = {"error_msg": "Invalid score: %s" % rawscore}
+            outdict[name] = {"error_msg": "Invalid score: %s\n%s" % (rawscore, comments)}
             continue
         newentries.append(
             {
