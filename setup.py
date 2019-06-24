@@ -153,6 +153,7 @@ def main():
             license="AGPLv3+",
             description="CAT-SOOP is a tool for automatic collection and assessment of online exercises.",
             long_description=readme,
+            long_description_content_type="text/plain",
             include_package_data=True,
             entry_points={
                 "console_scripts": ["catsoop = catsoop.main:command_line_interface"]
