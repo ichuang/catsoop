@@ -19,5 +19,12 @@
       "maybe",
       "meta"
     ]
+  },
+  {
+    "action": "add_labels",
+    "id": "156-1561415619107-043fe6fb134b48e3c90b95671fab204f",
+    "labels": [
+      "enhancement"
+    ]
   }
 ]
