@@ -9,6 +9,9 @@ ADDED:
   * Added `.catsoop` as a content file extension, parsed using the same parser
     as content files with the `.md` extension.
 
+  * Added rudimentary support for syntax highlighting of `.catsoop` files in
+    Vim.
+
   * Added `cs_ui_config_flags`, including option to automatically view
     explanations when viewing answers, and to highlight the 'view explanation'
     button.
@@ -89,7 +92,7 @@ FIXED:
     be marked as 'running' if they experienced an error during page load or
     when looking up the question to submit.
 
-  * Fixed the lack of decompression of uploaded files when downloaded via the 
+  * Fixed the lack of decompression of uploaded files when downloaded via the
     'Download Most Recent Submission' link.
 
 SECURITY:
