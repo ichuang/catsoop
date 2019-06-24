@@ -1,0 +1,23 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "154-1561415008375-18968ee0954fe3c5587688872cfdff03",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "One of the most frequenct criticisms about CAT-SOOP is that it requires\ninternalizing a large number of seemlingly arbitrary names of configuration\nvariables.\n\nMaybe it's better, sooner rather than later, to reorganize these variables into\nsomething a bit more organized.\n\nWe could, for example, have a global object called _catsoop that contains\nconfiguration variables.  These could be categorized so that, maybe,\n`_catsoop.authentication`, `_catsoop.server`, `_catsoop.whatever` contain\nconfiguration variables for various logically-separate components.\n\nThis will be a disruptive change, so it will be really important to have an\nautomated way of converting to this new format, as well as documentation of all\nof the variables and all of the associated categories.",
+      "labels": [],
+      "priority": 0,
+      "target": null,
+      "title": "Reorganize Configuration Variables"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "155-1561415032336-831e4e8bb58e3f99dfbd362a01a87e12",
+    "labels": [
+      "maybe",
+      "meta"
+    ]
+  }
+]
