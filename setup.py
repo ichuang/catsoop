@@ -24,7 +24,7 @@ import subprocess
 
 from setuptools import setup
 
-from catsoop import __version__ as CS_VERSION
+from catsoop import __version__ as CS_VERSION, __codename__ as CODENAME
 
 logo = (
     "\\            "
@@ -119,7 +119,8 @@ def dirty_version():
     with open(VERSION_FNAME, "r") as f:
         ORIGINAL_VERSION = f.read()
     with open(VERSION_FNAME, "w") as f:
-        f.write('__version__ = "%s"\n' % CS_VERSION)
+        f.write("__version__ = %r\n" % CS_VERSION)
+        f.write("__codename__= %r\n" % CODENAME)
 
 
 def main():

@@ -1,1 +1,2 @@
-__version__ = "2019.09.0"
+__version__ = "2019.9.0"
+__codename__ = "Australian Mist"

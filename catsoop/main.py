@@ -20,6 +20,8 @@ import pkg_resources
 
 # -----------------------------------------------------------------------------
 
+from catsoop import __codename__ as codename
+
 
 def command_line_interface(args=None, arglist=None):
     """
@@ -34,9 +36,17 @@ def command_line_interface(args=None, arglist=None):
             with open(gitfile, "r") as f:
                 try:
                     vcs, hash_, date = f.read().split("|")
-                    version = "%s\n%s revision: %s\n%s" % (version, vcs, hash_, date)
+                    version = '%s ("%s" Development Snapshot)\n%s revision: %s\n%s' % (
+                        version,
+                        codename,
+                        vcs,
+                        hash_,
+                        date,
+                    )
                 except:
                     pass
+        else:
+            version = '%s ("%s")' % (version, codename)
 
     help_text = """
 Example commands:

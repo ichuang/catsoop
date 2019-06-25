@@ -26,7 +26,7 @@ import sys
 import logging
 import traceback
 
-from catsoop import __version__
+from catsoop import __version__, __codename__
 
 LOGGER = logging.getLogger("cs")
 
@@ -47,6 +47,11 @@ _nodoc = {
 cs_version = __version__
 """
 CAT-SOOP's version number
+"""
+
+cs_version_codename = __codename__
+"""
+The codename for this version
 """
 
 cs_fs_root = os.path.dirname(__file__)
