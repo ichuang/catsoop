@@ -1,0 +1,17 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "167-1561429106958-412716476b966df277d4554345e18b5d",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "CAT-SOOP should have an integrated forum / Piazza replacement.  Jeremy Kaplan's\nQnA was very close to getting things right here.  That would be a good place to\nstart when revisiting this.\n\nI think the big win we can get over an external system is context; questions\ncan be associated with pages (or, maybe, with sections or paragraphs or\nquestions) in a direct way, and user accounts don't have Piazza's level of\nindirection.",
+      "labels": [
+        "enhancement"
+      ],
+      "priority": 0,
+      "target": null,
+      "title": "Forum"
+    }
+  }
+]

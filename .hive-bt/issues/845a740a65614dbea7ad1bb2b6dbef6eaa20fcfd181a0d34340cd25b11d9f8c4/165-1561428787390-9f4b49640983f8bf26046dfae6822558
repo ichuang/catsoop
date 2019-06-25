@@ -18,5 +18,24 @@
     "labels": [
       "enhancement"
     ]
+  },
+  {
+    "action": "add_labels",
+    "id": "163-1561428763581-4580eb1e8c774acf3a84bb1e300830c1",
+    "labels": [
+      "wontfix"
+    ]
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "closing this as 'wontfix' because it requires rethinking the whole model",
+    "id": "164-1561428787389-a3a4216edea1b55e93195e811e8d845d",
+    "parent": null
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "165-1561428787390-bce8deddd3f729e1cd15e1929e9177f9"
   }
 ]

@@ -13,5 +13,13 @@
       "target": null,
       "title": "Javascriptless CAT-SOOP"
     }
+  },
+  {
+    "action": "set_parameters",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "168-1561429175725-7d429089d46b621b1796f05736084581",
+    "parameters": {
+      "priority": -1
+    }
   }
 ]

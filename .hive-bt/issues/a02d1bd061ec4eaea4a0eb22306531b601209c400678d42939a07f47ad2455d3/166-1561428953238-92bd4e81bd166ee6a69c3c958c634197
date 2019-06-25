@@ -1,0 +1,18 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "166-1561428953238-92bd4e81bd166ee6a69c3c958c634197",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "It would be good to put together something like\n<http://flask.pocoo.org/snippets/>, where people can easily share/view\ninteresting snippets for adding common functionality to CAT-SOOP.",
+      "labels": [
+        "infrastructure",
+        "meta"
+      ],
+      "priority": 0,
+      "target": null,
+      "title": "Recipe Book"
+    }
+  }
+]

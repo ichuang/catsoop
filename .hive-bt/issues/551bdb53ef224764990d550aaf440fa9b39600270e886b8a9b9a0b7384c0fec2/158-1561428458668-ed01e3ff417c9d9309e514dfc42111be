@@ -25,5 +25,13 @@
     "labels": [
       "beginner-friendly"
     ]
+  },
+  {
+    "action": "set_parameters",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "158-1561428458668-6230b437c3c2f07dc4c7d7f7199faef6",
+    "parameters": {
+      "target": "v2019.9"
+    }
   }
 ]

@@ -26,5 +26,13 @@
     "labels": [
       "enhancement"
     ]
+  },
+  {
+    "action": "set_parameters",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "157-1561428443133-c64d21f370c09cc331cfd86873d52acc",
+    "parameters": {
+      "target": "v2020.2"
+    }
   }
 ]
