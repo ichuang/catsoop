@@ -96,6 +96,8 @@ FIXED:
   * Fixed the lack of decompression of uploaded files when downloaded via the
     'Download Most Recent Submission' link.
 
+  * Fixed an issue that caused the contents of `<ref>` tags to be ignored.
+
 SECURITY:
 
 DOCUMENTATION:
