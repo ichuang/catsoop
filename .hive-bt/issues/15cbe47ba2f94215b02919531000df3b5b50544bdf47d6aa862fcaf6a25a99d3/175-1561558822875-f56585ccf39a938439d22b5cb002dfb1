@@ -1,0 +1,26 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "174-1561558809417-5f1cf108b18183871584e5ef696505f5",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Right now, the checkers for `pythoncode` questions cannot see the files in the\nsandbox.  It would be good to give the checkers access to those files (files\nthat existed before the code ran, and also files that exist after).\n\n(received as a request from 6.0001)",
+      "labels": [
+        "question-type",
+        "enhancement"
+      ],
+      "priority": 0,
+      "target": null,
+      "title": "Allow pythoncode Questions to check contents of files"
+    }
+  },
+  {
+    "action": "set_parameters",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "175-1561558822875-ebf95ef599cbb7feedb3d850bcea32c0",
+    "parameters": {
+      "priority": 1
+    }
+  }
+]

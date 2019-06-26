@@ -1,0 +1,33 @@
+[
+  {
+    "action": "set_parameters",
+    "id": "176-1561558990128-4de65f33e8c75ebf20420e8b9d86eb7f",
+    "parameters": {
+      "assignees": [],
+      "author": "adam j hartz <hz@mit.edu>",
+      "body": "Even for a small number of small joins, appending to a list and then doing a\nstring join on the list can be a lot faster than doing repeated string\nconcatenation.  Since there are a large number of places in the codebase where\nwe do a whole bunch of repeated string concatenations, one \"low hanging fruit\"\nfor optimization would be to replace those concatenations.",
+      "labels": [
+        "maybe",
+        "enhancement",
+        "code"
+      ],
+      "priority": 0,
+      "target": null,
+      "title": "Optimize away string concatenations"
+    }
+  },
+  {
+    "action": "add_labels",
+    "id": "177-1561559001389-ee6e531e294e4d203368b26067e5f62c",
+    "labels": [
+      "beginner-friendly"
+    ]
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "It would also be good to do some tests to see if this actually makes a\ndifference in terms of speed of, say, a page load.",
+    "id": "178-1561559025917-c884a81d041d3255edf3251fb4da6842",
+    "parent": null
+  }
+]
