@@ -12,11 +12,9 @@
   (subscribe at http://mailman.mit.edu/mailman/listinfo/catsoop-users)
 
 
-WHAT IS IT?
-
-CAT-SOOP is a tool for automatic collection and assessment of online exercises,
-originally developed primarily for use in MIT's 6.01 (Introduction to
-Electrical Engineering and Computer Science via Robotics).
+CAT-SOOP is a flexible, programmable learning management system originally
+developed primarily for use in MIT's 6.01 (Introduction to Electrical
+Engineering and Computer Science via Robotics).
 
 CAT-SOOP is free/libre software, available under the terms of the GNU Affero
 General Public License, version 3+.  Please note that the terms of this license
@@ -25,7 +23,7 @@ course material hosted on a CAT-SOOP instance, unless explicitly stated
 otherwise.
 
 
-HOW DO I INSTALL IT?
+INSTALLING
 
 To install, run:
   $ pip3 install catsoop
@@ -50,11 +48,6 @@ To run all the unit tests:
 HACKING
 
 See https://catsoop.org/website/docs/contributing/hacking
-
-
-IS IT ANY GOOD?
-
-Yes.
 
 
 INCLUDED SOFTWARE
