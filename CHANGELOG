@@ -32,6 +32,10 @@ CHANGED:
   * File locks are now stored with a `.lock` extension, to avoid potential
     collisions with directory names.
 
+  * Renamed `loader.do_early_load` to `loader.do_preload` and
+    `loader.do_late_load` to `loader.load_content` to hopefully remove the last
+    of the "early load" and "late load" terminology.
+
   * Changed the name of the `util` module to `user` to better reflect its
     purpose.
 

@@ -273,13 +273,13 @@ def compute_page_stats(context, user, path, keys=None):
     loader.load_global_data(new)
     new["cs_path_info"] = path
     cfile = context["csm_dispatch"].content_file_location(context, new["cs_path_info"])
-    loader.do_early_load(context, path[0], path[1:], new, cfile)
+    loader.do_preload(context, path[0], path[1:], new, cfile)
     new["cs_course"] = path[0]
     new["cs_username"] = user
     new["cs_form"] = {"action": "passthrough"}
     new["cs_user_info"] = {"username": user}
     new["cs_user_info"] = auth.get_user_information(new)
-    loader.do_late_load(context, path[0], path[1:], new, cfile)
+    loader.load_content(context, path[0], path[1:], new, cfile)
     if "cs_post_load" in new:
         new["cs_post_load"](new)
     handle_page(new)

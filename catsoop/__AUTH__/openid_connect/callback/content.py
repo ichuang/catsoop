@@ -46,7 +46,7 @@ if error is None:
         ctx["cs_course"] = cs_session_data["_openid_course"]
         ctx["cs_path_info"] = [ctx["cs_course"]]
         cfile = csm_dispatch.content_file_location(ctx, [ctx["cs_course"]])
-        csm_loader.do_early_load(ctx, ctx["cs_course"], [], ctx, cfile)
+        csm_loader.do_preload(ctx, ctx["cs_course"], [], ctx, cfile)
 
     # if we're here, we know we got back something reasonable.
     # now, need to send POST request

@@ -734,7 +734,7 @@ def main(environment, return_context=False, form_data=None):
         if context["cs_course"] is not None:
             cfile = content_file_location(context, [context["cs_course"]] + path_info)
             LOGGER.info("[dispatch.main] loading content file for course %s" % cfile)
-            x = loader.do_early_load(
+            x = loader.do_preload(
                 context, context["cs_course"], path_info, context, cfile
             )
             if x == "missing":
@@ -807,7 +807,7 @@ def main(environment, return_context=False, form_data=None):
 
             # FINALLY, DO LATE LOAD
             LOGGER.info("[dispatch.main] doing late load with path_info=%s" % path_info)
-            loader.do_late_load(
+            loader.load_content(
                 context, context["cs_course"], path_info, context, cfile
             )
 

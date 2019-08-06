@@ -294,11 +294,11 @@ def spoof_early_load(path):
     ctx["cs_path_info"] = opath
     path = path[1:]
     cfile = ctx["csm_dispatch"].content_file_location(ctx, opath)
-    do_early_load(ctx, ctx["cs_course"], path, ctx, cfile)
+    do_preload(ctx, ctx["cs_course"], path, ctx, cfile)
     return ctx
 
 
-def do_early_load(context, course, path, into, content_file=None):
+def do_preload(context, course, path, into, content_file=None):
     """
     Load data from `preload.py` files in the appropriate directories for this
     request.
@@ -482,7 +482,7 @@ def get_subdirs(context, course, path):
     ]
 
 
-def do_late_load(context, course, path, into, content_file=None):
+def load_content(context, course, path, into, content_file=None):
     """
     Load data from the Python file specified by the content file in the
     appropriate directory for this request.

@@ -103,7 +103,7 @@ def do_check(row):
     log(
         "Loading grader python code course=%s, cfile=%s" % (context["cs_course"], cfile)
     )
-    loader.do_late_load(
+    loader.load_content(
         context, context["cs_course"], context["cs_path_info"], context, cfile
     )
 
