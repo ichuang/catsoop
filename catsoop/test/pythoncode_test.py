@@ -113,6 +113,7 @@ class Test_Pythoncode(CATSOOPTest):
         ret = csq["handle_submission"](form, **info)
         print("ret=", ret)
 
+        assert "Our solution did not produce a value for" not in str(ret)
         assert "FILE_CHECK_IMAGE" in str(ret)
 
     def test_hints1(self):
@@ -128,6 +129,7 @@ class Test_Pythoncode(CATSOOPTest):
         form = {csq_name: test_bad1_sgd_function}
         ret = csq["handle_submission"](form, **info)
 
+        assert "Our solution did not produce a value for" not in str(ret)
         assert "comparison threshold set too" in str(ret)
 
     def test_hints2(self):
@@ -139,4 +141,5 @@ class Test_Pythoncode(CATSOOPTest):
         form = {csq_name: test_good_sgd_function}
         ret = csq["handle_submission"](form, **info)
 
+        assert "Our solution did not produce a value for" not in str(ret)
         assert "comparison threshold set too" not in str(ret)
