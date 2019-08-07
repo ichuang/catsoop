@@ -88,8 +88,9 @@ class Test_Pythoncode(CATSOOPTest):
 
         (csq, info) = context["tutor"].question(context, "pythoncode", **qkw)
         info["csm_loader"] = context["csm_loader"]
-        info["csq_name"] = csq_name
         info["csm_process"] = context["csm_process"]
+        info["csm_util"] = context["csm_util"]
+        info["csq_name"] = csq_name
         info["cs_version"] = context["cs_version"]
         info["cs_upload_management"] = ""
         info["cs_fs_root"] = context["cs_fs_root"]
