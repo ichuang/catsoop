@@ -6,6 +6,11 @@ Work toward next release. Currently under development.
 
 ADDED:
 
+  * Added `cs_local_python_import` function to the context of a page load.
+    This function takes a string containing a filename (with extension,
+    relative to the current page's directory) and returns a Python module
+    object.
+
   * Added `.catsoop` as a content file extension, parsed using the same parser
     as content files with the `.md` extension.
 

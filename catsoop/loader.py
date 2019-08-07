@@ -298,6 +298,19 @@ def spoof_early_load(path):
     return ctx
 
 
+def _make_file_importer(base_dir):
+    def _import_from_file(filename, name=None):
+        filename = os.path.abspath(os.path.join(base_dir, filename))
+        if name is None:
+            name = os.path.basename(filename).rsplit(".", 1)[0].replace(".", "_")
+        spec = importlib.util.spec_from_file_location(name, filename)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    return _import_from_file
+
+
 def do_preload(context, course, path, into, content_file=None):
     """
     Load data from `preload.py` files in the appropriate directories for this
@@ -344,6 +357,7 @@ def do_preload(context, course, path, into, content_file=None):
         path = path[:-1]
     for ix, i in enumerate(path):
         new_name = os.path.join(directory, "preload.py")
+        into["cs_local_python_import"] = _make_file_importer(directory)
         if os.path.isfile(new_name):
             exec(cs_compile(new_name), into)
         breadcrumbs.append(dict(into))
@@ -355,6 +369,7 @@ def do_preload(context, course, path, into, content_file=None):
             return "missing"
         directory = os.path.join(directory, newdir)
     new_name = os.path.join(directory, "preload.py")
+    into["cs_local_python_import"] = _make_file_importer(directory)
     if os.path.isfile(new_name):
         exec(cs_compile(os.path.join(directory, "preload.py")), into)
     breadcrumbs.append(dict(into))
@@ -521,6 +536,7 @@ def load_content(context, course, path, into, content_file=None):
         children = dict([(i, dict(into)) for i in shortnames])
         for d, name in zip(subdirs, shortnames):
             new_name = os.path.join(directory, d, "preload.py")
+            into["cs_local_python_import"] = _make_file_importer(d)
             if os.path.isfile(new_name):
                 exec(cs_compile(new_name), children[name])
             children[name]["directory"] = d
@@ -530,6 +546,7 @@ def load_content(context, course, path, into, content_file=None):
     into["cs_source_format"] = content_file.rsplit(".", 1)[-1]
     with open(content_file) as f:
         into["cs_content"] = f.read()
+    into["cs_local_python_import"] = _make_file_importer(directory)
     if into["cs_source_format"] != "py":
         into["cs_content"] = language.handle_includes(into, into["cs_content"])
         into["cs_content"] = language.handle_python_tags(into, into["cs_content"])
