@@ -107,6 +107,9 @@ FIXED:
 
   * Fixed an issue that caused the contents of `<ref>` tags to be ignored.
 
+  * Fixed several issues with the openid_connect implementation to make it more
+    general.
+
 SECURITY:
 
 DOCUMENTATION:

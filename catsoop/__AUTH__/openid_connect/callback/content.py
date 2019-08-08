@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import json
 import base64
 import urllib.request, urllib.parse, urllib.error
@@ -64,7 +65,9 @@ if error is None:
             "client_secret": secret,
         }
     ).encode()
-    request = urllib.request.Request("%s/token" % ctx["cs_openid_server"], data)
+    request = urllib.request.Request(
+        cs_session_data["_openid_config"]["token_endpoint"]
+    )
     try:
         resp = urllib.request.urlopen(request, data).read()
     except:
@@ -94,17 +97,49 @@ if error is None:
         id_token, sig = resp["id_token"].rsplit(".", 1)
 
         if error is None:
-            # get JWK from the web
-            url = "%s/jwk" % ctx.get("cs_openid_server", "")
+            # get JWKs from the web
+            url = cs_session_data["_openid_config"]["jwks_uri"]
             try:
-                key = json.loads(urllib.request.urlopen(url).read().decode())["keys"][0]
+                keys = json.loads(urllib.request.urlopen(url).read().decode())["keys"]
             except:
                 error = "Server rejected request for JWK"
-            if "alg" not in key:
-                key["alg"] = ctx.get("cs_openid_default_algorithm", "RS256")
-            key = jose.jwk.construct(key)
-            decoded_sig = jose.utils.base64url_decode(sig.encode())
-            if not key.verify(id_token.encode(), decoded_sig):
+            # this is a really gross way to try all key/alg pairs, and to set
+            # the 'error' variable if none worked, but to skip on otherwise.
+            # forgive the gross control flow...see comments below for what's
+            # happening.  main loop loops over all keys.
+            for key in keys:
+                if key.get("use", None) == "enc":
+                    # if this is specified as an encryption key, don't bother.
+                    continue
+
+                # i don't know if there's a nicer way to do this, but for now,
+                # just loop over all possible algorithms since i don't know
+                # which one was used.
+                for alg in cs_session_data["_openid_config"][
+                    "id_token_signing_alg_values_supported"
+                ]:
+                    try:
+                        key = jose.jwk.construct(key, alg)
+                        decoded_sig = jose.utils.base64url_decode(sig.encode())
+                        if key.verify(id_token.encode(), decoded_sig):
+                            # found a working key!  break out of this loop.
+                            break
+                    except:
+                        continue
+                else:
+                    # breaking out of the loop is the signal that we won.  so
+                    # if we _didn't_ get out of the last loop via `break`,
+                    # we'll be here.  in this case, we should move on to the
+                    # next key (continue)
+                    continue
+                # we'll reach this point if we _did_ break out of the inner
+                # loop (i.e., if we found a working key).  in that case, we
+                # want to break out of this loop as well (to avoid the else
+                # clause).
+                break
+            else:
+                # if we're here, we didn't find a valid key/alg pair, so error
+                # out.
                 error = "Invalid signature on JWS."
 
     if error is None:
@@ -143,7 +178,7 @@ if error is None:
 if error is None:
     # get user information from server
     access_tok = resp["access_token"]
-    redir = "%s/userinfo" % ctx.get("cs_openid_server", "")
+    redir = cs_session_data["_openid_config"]["userinfo_endpoint"]
     headers = {"Authorization": "Bearer %s" % access_tok}
     request2 = urllib.request.Request(redir, headers=headers)
     try:
@@ -154,7 +189,10 @@ if error is None:
 if error is None:
     # try to set usert information in session
     def get_username(idtoken, userinfo):
-        return userinfo["preferred_username"]
+        try:
+            return userinfo["preferred_username"]
+        except:
+            return userinfo["email"].split("@")[0]
 
     def get_email(idtoken, userinfo):
         return userinfo["email"]

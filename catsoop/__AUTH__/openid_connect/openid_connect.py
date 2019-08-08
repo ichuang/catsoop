@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import urllib.parse
+import json
+import urllib.parse, urllib.request
 
 
 def get_logged_in_user(context):
@@ -82,13 +83,21 @@ def get_logged_in_user(context):
             "response_type": "code",
         }
         openid_url = context.get("cs_openid_server", None)
+
+        request = urllib.request.Request(
+            "%s/.well-known/openid-configuration" % openid_url
+        )
+        resp = json.loads(urllib.request.urlopen(request).read())
+
         session["_openid_course"] = context["cs_course"]
         session["_openid_path"] = context["cs_path_info"]
         session["_openid_nonce"] = nonce
         session["_openid_state"] = state
+        session["_openid_config"] = resp
 
         qstring = urllib.parse.urlencode(get_data)
-        return {"cs_redirect": "%s/authorize?%s" % (openid_url, qstring)}
+
+        return {"cs_redirect": "%s?%s" % (resp["authorization_endpoint"], qstring)}
     else:
         raise Exception("Unknown action: %r" % action)
 
