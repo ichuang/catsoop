@@ -285,7 +285,7 @@ cs_dummy_username = %r
         print(cs_logo)
         print(
             OKAY("Setup is complete.")
-            + "  You can now start CAT-SOOP by running:\n    catsoop runserver"
+            + "  You can now start CAT-SOOP by running:\n    catsoop start"
         )
     else:
         print(WARNING("Configuration not written.  Exiting."))
@@ -535,7 +535,7 @@ cs_checker_websocket = %r
         print(cs_logo)
         print(
             OKAY("Setup is complete.")
-            + "  You can now start CAT-SOOP by running:\n    catsoop runserver"
+            + "  You can now start CAT-SOOP by running:\n    catsoop start"
         )
         print()
         if should_encrypt and not is_restore:
