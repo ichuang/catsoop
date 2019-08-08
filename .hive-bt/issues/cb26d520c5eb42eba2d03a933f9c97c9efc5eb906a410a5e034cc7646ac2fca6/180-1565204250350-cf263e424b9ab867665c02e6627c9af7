@@ -27,7 +27,7 @@
   {
     "action": "add_comment",
     "author": "adam j hartz <hz@mit.edu>",
-    "body": "tentative fix added ( function)\n",
+    "body": "tentative fix added (`cs_local_python_import` function)\n",
     "id": "180-1565204250350-30d60bd1172934c0b29340d55c3f6068",
     "parent": null
   }
