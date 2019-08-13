@@ -6,6 +6,10 @@ Work toward next release. Currently under development.
 
 ADDED:
 
+  * Checking functions for `pythoncode` questions can now optionally return a
+    tuple (score, message) or a dictionary {'score': score, 'msg': message} to
+    display an additional message in response to a test case.
+
   * Added `cs_local_python_import` function to the context of a page load.
     This function takes a string containing a filename (with extension,
     relative to the current page's directory) and returns a Python module
