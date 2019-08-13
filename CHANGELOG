@@ -49,7 +49,7 @@ CHANGED:
     the start of the fall and spring terms at MIT, respectively).  Each release
     will also now have a codename.
 
-  * Upgraded KaTeX to v0.10.2.
+  * Upgraded KaTeX to v0.11.0.
 
   * Reverted changes to `language` module from 14.0.0.
 
