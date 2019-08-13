@@ -1029,6 +1029,8 @@ def handle_submit(context):
 
     entry_ids = {}
     submit_succeeded = True
+    scores = {}
+    messages = {}
     for name in names:
         sub = context[_n("form")].get(name, "")
         if name.startswith("__"):
@@ -1090,8 +1092,10 @@ def handle_submit(context):
                 score = 0.0
                 msg = exc_message(context)
                 extra = None
-            out["score"] = newstate.setdefault("scores", {})[name] = score
-            out["message"] = newstate["cached_responses"][name] = msg
+            out["score"] = scores[name] = newstate.setdefault("scores", {})[
+                name
+            ] = score
+            out["message"] = messages[name] = newstate["cached_responses"][name] = msg
             out["score_display"] = context["csm_tutor"].make_score_display(
                 context,
                 args,
@@ -1189,7 +1193,9 @@ def handle_submit(context):
             "action": "submit",
             "names": names,
             "submitted": subbed,
-            "checker_ids": entry_ids,
+            "checker_ids": entry_ids or None,
+            "scores": scores or None,
+            "messages": messages or None,
             "due_date": duetime,
         },
     )

@@ -55,8 +55,6 @@ CHANGED:
 
   * Upgraded KaTeX to v0.11.0.
 
-  * Reverted changes to `language` module from 14.0.0.
-
   * Changed the solution display for the `richtext` question type.
 
   * `util.read_user_file` now does not raise an exception if there is an error
@@ -88,6 +86,12 @@ REMOVED:
         `csq_score_message` instead.
 
 FIXED:
+
+  * Reverted changes to `language` module from version 14.x.x.
+
+  * Scores and messages are now logged in problemactions for questions in
+    legacy grading mode (checker IDs are still logged for questions using the
+    asynchronous checker)
 
   * Fixed an issue whereby "set()" could not be accepted as an answer to a
     `pythonic` or `pythonliteral` question.
