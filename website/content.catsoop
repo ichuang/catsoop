@@ -48,9 +48,8 @@ Of course!  CAT-SOOP is [free/libre
 software](https://www.gnu.org/philosophy/free-sw.html), available under the
 terms of the [GNU Affero General Public License, version 3+](BASE/cs_util/license).
 Please note that the terms of this license apply to the CAT-SOOP system itself,
-to any third-party software included with CAT-SOOP, and to any plugins used by
-the system, but not to any course material hosted on a CAT-SOOP instance,
-unless explicitly stated otherwise.
+but not to any course material hosted on a CAT-SOOP instance, unless explicitly
+stated otherwise.
 
 See the [documentation](COURSE/docs) for more information.
 

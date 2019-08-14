@@ -41,6 +41,9 @@ def keep_file(full, base):
     # ignore dotfiles
     if base.startswith("."):
         return False
+    # ignore plugins
+    if "__PLUGINS__" in full:
+        return False
     # ignore config.py in catsoop root
     if full == os.path.join(cs_fs_root, "catsoop", "config.py"):
         return False
@@ -62,39 +65,13 @@ def add_files_to_zip(zipfile, base_dir, zip_base):
                 zipfile.write(fullname, name)
 
 
-if course is not None:
-    plugins_base = os.path.join(cs_data_root, "courses", course, "__PLUGINS__")
-    qtypes_base = os.path.join(cs_data_root, "courses", course, "__QTYPES__")
-    handlers_base = os.path.join(cs_data_root, "courses", course, "__HANDLERS__")
-    authtypes_base = os.path.join(cs_data_root, "courses", course, "_auth")
-
 out_bytes = io.BytesIO()
 
 outfile = ZipFile(out_bytes, "w", ZIP_DEFLATED)
 add_files_to_zip(outfile, cs_fs_root, "catsoop-src/catsoop")
 now = csm_time.from_detailed_timestamp(cs_timestamp)
 now = csm_time.long_timestamp(now).replace("; ", " at ")
-if course is None:
-    outfile.writestr(
-        "catsoop-src/README.catsoop-source", SOURCE_README_NOCOURSE % (cs_url_root, now)
-    )
-else:
-    ctx = csm_loader.spoof_early_load([course])
-    course_name = ctx.get("cs_long_name", course)
-    course_name = (
-        course_name.replace("<br>", " ")
-        .replace("<br/>", " ")
-        .replace("</br>", " ")
-        .replace("<br />", " ")
-    )
-    outfile.writestr(
-        "catsoop-src/README.catsoop-source",
-        SOURCE_README % (cs_url_root, now, course_name, course),
-    )
-    add_files_to_zip(outfile, plugins_base, "catsoop-src/%s/__PLUGINS__" % course)
-    add_files_to_zip(outfile, qtypes_base, "catsoop-src/%s/__QTYPES__" % course)
-    add_files_to_zip(outfile, handlers_base, "catsoop-src/%s/__HANDLERS__" % course)
-    add_files_to_zip(outfile, authtypes_base, "catsoop-src/%s/_auth" % course)
+outfile.writestr("catsoop-src/README.txt", SOURCE_README % (cs_url_root, now))
 outfile.close()
 
 cs_handler = "raw_response"
