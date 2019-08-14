@@ -36,6 +36,13 @@ ADDED:
   * Added `logread`, `logwrite`, and `logedit` commands for working with log
     entries in a human-readable format.
 
+  * Added nicer names for URL fragments of sections and updated the
+    <tableofcontents/> generator to use these when linking to sections.
+
+  * Added permalinks next to section headers (these can be disabled by setting
+    cs_show_section_permalinks=False).
+
+
 CHANGED:
 
   * File locks are now stored with a `.lock` extension, to avoid potential

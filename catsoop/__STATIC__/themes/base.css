@@ -38,6 +38,26 @@
  a, b, del, em, i, ins, q, span, strong, u {
      font-size: 1em;
 }
+
+ a.cs_permalink {
+     margin-left: 10px;
+     font-size: 50%;
+     vertical-align: middle;
+     padding-bottom: 0.5em;
+     text-decoration: none;
+     opacity:0.5;
+     visibility: hidden;
+}
+
+ a.cs_permalink:hover {
+     opacity: 1;
+     text-decoration: none;
+}
+
+ .cs_section_title:hover > a.cs_permalink {
+     visibility: visible;
+}
+
  a {
      color: var(--cs-base-bg-color);
      text-decoration: none;

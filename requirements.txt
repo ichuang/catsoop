@@ -11,3 +11,4 @@ websockets
 lxml
 pylti
 oauthlib
+unidecode

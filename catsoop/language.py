@@ -49,6 +49,7 @@ from markdown.extensions import tables
 from markdown.extensions import fenced_code
 from markdown.extensions import sane_lists
 from bs4 import BeautifulSoup
+from unidecode import unidecode
 
 _nodoc = {
     "BeautifulSoup",
@@ -66,6 +67,20 @@ _nodoc = {
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
 _valid_qname = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
+_unsafe_title = re.compile(r"[^A-Za-z0-9_]")
+
+
+def _safe_title(t, disallowed=None):
+    disallowed = disallowed if disallowed is not None else set()
+    title = otitle = (
+        re.sub(r"_+", "_", _unsafe_title.sub("_", unidecode(t))).lower().rstrip("_")
+    )
+    count = 2
+    while title in disallowed:
+        title = "%s_%d" % (otitle, count)
+        count += 1
+    disallowed.add(title)
+    return title
 
 
 def xml_pre_handle(context):
@@ -660,6 +675,8 @@ def handle_custom_tags(context, text):
     chapter = None
     toc_sections = []
 
+    all_title_links = set()
+
     for i in tree.find_all(re.compile(section)):
         if i.name == "chapter":
             chapter = i.attrs.get("num", "0")
@@ -682,25 +699,41 @@ def handle_custom_tags(context, text):
 
         linknum = num.replace(".", "_")
         linkname = "catsoop_section_%s" % linknum
+        title = i.text
+        linkname_2 = _safe_title(title, all_title_links)
 
         lbl = i.attrs.get("label", None)
         if lbl is not None:
             labels[lbl] = {
                 "type": i.name,
                 "number": num,
-                "title": i.string,
-                "link": "#%s" % linkname,
+                "title": i.decode_contents(),
+                "link": "#%s" % linkname_2,
             }
-        toc_sections.append((num, linkname, i))
+        toc_sections.append((num, linkname_2, i))
         sec = copy.copy(i)
         sec.name = tag
+        sec["class"] = "cs_section_title"
         sec.insert(0, "%s) " % num)
         if lbl is not None:
             sec.attrs["id"] = "catsoop_label_%s" % lbl
         i.replace_with(sec)
+
+        if context.get("cs_show_section_permalinks", True):
+            permalink = tree.new_tag("a")
+            permalink["class"] = "cs_permalink"
+            permalink.attrs["href"] = "#%s" % linkname_2
+            permalink.string = "§"
+            sec.append(permalink)
+
+        # references
         link = tree.new_tag("a")
         link["class"] = "anchor"
         link.attrs["name"] = linkname
+        sec.insert_before(link)
+        link = tree.new_tag("a")
+        link["class"] = "anchor"
+        link.attrs["name"] = linkname_2
         sec.insert_before(link)
 
     # handle refs
