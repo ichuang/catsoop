@@ -660,10 +660,8 @@ def main(environment, return_context=False, form_data=None):
             "_auth",
         }:
             context["cs_home_link"] = "BASE"
-            context["cs_source_qstring"] = ""
         else:
             context["cs_home_link"] = "COURSE"
-            context["cs_source_qstring"] = "?course=%s" % course
         context["cs_top_menu_html"] = ""
 
         # CHECK FOR VALID CONFIGURATION
