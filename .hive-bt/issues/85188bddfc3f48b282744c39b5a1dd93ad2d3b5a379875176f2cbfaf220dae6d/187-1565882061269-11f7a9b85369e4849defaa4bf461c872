@@ -1,0 +1,28 @@
+[
+  {
+    "action": "remove_labels",
+    "id": "184-1565881936019-3e4e769e2aded73a088de5213c81029d",
+    "labels": [
+      "in-progress"
+    ]
+  },
+  {
+    "action": "add_labels",
+    "id": "185-1565881971809-4580eb1e8c774acf3a84bb1e300830c1",
+    "labels": [
+      "wontfix"
+    ]
+  },
+  {
+    "action": "close",
+    "author": "adam j hartz <hz@mit.edu>",
+    "id": "186-1565882023299-bce8deddd3f729e1cd15e1929e9177f9"
+  },
+  {
+    "action": "add_comment",
+    "author": "adam j hartz <hz@mit.edu>",
+    "body": "Closing and removing circuit solver question type, which has not been used by\nanyone for a long time and may now be broken.",
+    "id": "187-1565882061269-114d9b9799d8fa4c956aa9877e101235",
+    "parent": null
+  }
+]

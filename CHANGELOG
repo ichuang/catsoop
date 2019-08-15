@@ -42,7 +42,6 @@ ADDED:
   * Added permalinks next to section headers (these can be disabled by setting
     cs_show_section_permalinks=False).
 
-
 CHANGED:
 
   * File locks are now stored with a `.lock` extension, to avoid potential
@@ -91,6 +90,9 @@ REMOVED:
 
       * `cs_score_message` has been removed as a special variable.  Use
         `csq_score_message` instead.
+
+  * Removed `circuit` question type, which has not been used by anyone for a
+    long time and may no longer work with catsoop updates.
 
 FIXED:
 
