@@ -70,7 +70,7 @@
       <div class="cs_left_menu"></div>
       <div class="cs_content">
         <div class="cs_page_body">
-          <center><h1>{cs_content_header}</h1></center>
+          <center><h1 class="cs_content_header">{cs_content_header}</h1></center>
           {cs_content}
           {cs_footnotes}
         </div>

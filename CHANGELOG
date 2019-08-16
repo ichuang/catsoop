@@ -42,6 +42,8 @@ ADDED:
   * Added permalinks next to section headers (these can be disabled by setting
     cs_show_section_permalinks=False).
 
+  * The `cs_content_header` text now has the CSS class `cs_content_header`.
+
 CHANGED:
 
   * File locks are now stored with a `.lock` extension, to avoid potential
