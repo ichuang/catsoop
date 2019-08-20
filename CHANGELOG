@@ -29,6 +29,10 @@ ADDED:
 
 CHANGED:
 
+  * Plugins should now be stored in cs_data_root/__PLUGINS__ rather than in
+    cs_fs_root/__PLUGINS__.  URLs starting with _plugin now point to the proper
+    location.
+
   * File locks are now stored with a `.lock` extension, to avoid potential
     collisions with directory names.
 

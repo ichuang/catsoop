@@ -106,8 +106,6 @@ def static_file_location(context, path):
         course = context.get("cs_course", "")
         loc = os.path.join(
             context.get("cs_data_root", base_context.cs_data_root),
-            "courses",
-            course,
             "__PLUGINS__",
             path[1],
             "__STATIC__",

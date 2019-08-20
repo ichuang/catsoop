@@ -106,7 +106,7 @@ def plugin_locations(context, course):
     **Returns:** a list of directories from which plugins should be loaded.
     """
     out = [
-        os.path.join(context.get("cs_fs_root", base_context.cs_fs_root), "__PLUGINS__")
+        os.path.join(context.get("cs_data_root", base_context.cs_data_root), "__PLUGINS__")
     ]
     if course is not None:
         out.append(
@@ -257,14 +257,16 @@ def get_course_fs_location(context, course, join=True):
     **Returns:** depends on the value of `join` (see above).
     """
     fs_root = context.get("cs_fs_root", base_context.cs_fs_root)
+    data_root = context.get("cs_data_root", base_context.cs_data_root)
     if course == "_util":
         rtn = [fs_root, "__UTIL__"]
     elif course == "_qtype":
         rtn = [fs_root, "__QTYPES__"]
     elif course == "_auth":
         rtn = [fs_root, "__AUTH__"]
+    elif course == "_plugin":
+        rtn = [data_root, "__PLUGINS__"]
     else:
-        data_root = context.get("cs_data_root", base_context.cs_data_root)
         rtn = [data_root, "courses", course]
     if join:
         return os.path.join(*rtn)
