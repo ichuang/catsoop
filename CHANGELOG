@@ -27,6 +27,10 @@ ADDED:
   * Added `logread`, `logwrite`, and `logedit` commands for working with log
     entries in a human-readable format.
 
+  * Plugins can now start scripts when catsoop is started.  scripts in
+    `cs_data_root/plugins/autostart/` that end with ".py" will be run when
+    `catsoop start` is invoked.
+
 CHANGED:
 
   * Plugins should now be stored in `cs_data_root/plugins` rather than in

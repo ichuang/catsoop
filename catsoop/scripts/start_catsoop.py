@@ -50,6 +50,7 @@ cs_logo = r"""
 
 def main():
     import catsoop.base_context as base_context
+    import catsoop.loader as loader
     from catsoop.process import set_pdeathsig
 
     # Make sure the checker database is set up
@@ -62,6 +63,17 @@ def main():
         (scripts_dir, [sys.executable, "checker.py"], 0.1, "Checker"),
         (scripts_dir, [sys.executable, "reporter.py"], 0.1, "Reporter"),
     ]
+
+    # put plugin autostart scripts into the list
+
+    ctx = loader.generate_context([])
+    for plugin in loader.available_plugins(ctx, course=None):
+        script_dir = os.path.join(plugin, 'autostart')
+        for script in sorted(os.listdir(script_dir)):
+            if not script.endswith('.py'):
+                continue
+            procs.append((script_dir, [sys.executable, script], 0.1,
+                          os.path.join(script_dir, script)))
 
     # set up WSGI options
 
