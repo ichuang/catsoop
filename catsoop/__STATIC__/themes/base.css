@@ -547,10 +547,6 @@
      .cs_navigation {
         text-align: left;
     }
-     .cs_navigation > :first-child::before {
-        content: ">> ";
-        white-space: pre;
-    }
      .cs_nav_separator::before {
         content: "\a";
         white-space: pre;
