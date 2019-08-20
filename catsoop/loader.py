@@ -106,7 +106,7 @@ def plugin_locations(context, course):
     **Returns:** a list of directories from which plugins should be loaded.
     """
     out = [
-        os.path.join(context.get("cs_data_root", base_context.cs_data_root), "__PLUGINS__")
+        os.path.join(context.get("cs_data_root", base_context.cs_data_root), "plugins")
     ]
     if course is not None:
         out.append(
@@ -265,7 +265,7 @@ def get_course_fs_location(context, course, join=True):
     elif course == "_auth":
         rtn = [fs_root, "__AUTH__"]
     elif course == "_plugin":
-        rtn = [data_root, "__PLUGINS__"]
+        rtn = [data_root, "plugins"]
     else:
         rtn = [data_root, "courses", course]
     if join:
@@ -273,7 +273,7 @@ def get_course_fs_location(context, course, join=True):
     return rtn
 
 
-def spoof_early_load(path):
+def generate_context(path):
     """
     Generate a new context, loading the global data and running the
     `preload.py` files for the specified path.
@@ -291,12 +291,11 @@ def spoof_early_load(path):
     """
     ctx = {}
     load_global_data(ctx)
-    opath = path
-    ctx["cs_course"] = path[0]
-    ctx["cs_path_info"] = opath
-    path = path[1:]
-    cfile = ctx["csm_dispatch"].content_file_location(ctx, opath)
-    do_early_load(ctx, ctx["cs_course"], path, ctx, cfile)
+    ctx["cs_path_info"] = path
+    if path:
+        ctx["cs_course"] = path[0]
+        cfile = ctx["csm_dispatch"].content_file_location(ctx, opath)
+        do_early_load(ctx, ctx["cs_course"], path[1:], ctx, cfile)
     return ctx
 
 

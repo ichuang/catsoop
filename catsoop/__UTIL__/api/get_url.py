@@ -25,7 +25,7 @@ try:
     path = [i for i in path.split("/") if i != ""]
     cpath = list(path)
     cpath[0] = "COURSE"
-    ctx = csm_loader.spoof_early_load(path)
+    ctx = csm_loader.generate_context(path)
     out = {"ok": True, "url": csm_dispatch.get_real_url(ctx, "/".join(cpath))}
 except:
     out = {"ok": False}

@@ -48,7 +48,7 @@ except:
     error = "error loading groups JSON" + str(groups)
 
 if error is None:
-    ctx = csm_loader.spoof_early_load(opath)
+    ctx = csm_loader.generate_context(opath)
     error = csm_groups.overwrite_groups(ctx, path, section, groups)
 
 if error is not None:

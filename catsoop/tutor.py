@@ -538,7 +538,7 @@ def available_courses():
         if not os.path.isdir(os.path.join(base, course)):
             continue
         try:
-            data = loader.spoof_early_load([course])
+            data = loader.generate_context([course])
         except:
             out.append((course, None))
             continue

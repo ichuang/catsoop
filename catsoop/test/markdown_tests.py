@@ -42,7 +42,7 @@ class TestMarkdownMath(CATSOOPTest):
         loader.load_global_data(context)
         assert "cs_unit_test_course" in context
         self.cname = context["cs_unit_test_course"]
-        self.ctx = loader.spoof_early_load([self.cname])
+        self.ctx = loader.generate_context([self.cname])
 
     def test_inline_math(self):
         pairs = [

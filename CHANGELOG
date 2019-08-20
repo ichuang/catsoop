@@ -29,9 +29,9 @@ ADDED:
 
 CHANGED:
 
-  * Plugins should now be stored in cs_data_root/__PLUGINS__ rather than in
-    cs_fs_root/__PLUGINS__.  URLs starting with _plugin now point to the proper
-    location.
+  * Plugins should now be stored in `cs_data_root/plugins` rather than in
+    `cs_fs_root/__PLUGINS__`.  URLs starting with _plugin now point to the
+    proper location.
 
   * File locks are now stored with a `.lock` extension, to avoid potential
     collisions with directory names.
@@ -78,7 +78,12 @@ REMOVED:
       * `cs_score_message` has been removed as a special variable.  Use
         `csq_score_message` instead.
 
+      * `loader.spoof_early_load` has been renamed to
+        `loader.generate_context`.
+
 FIXED:
+
+  * `loader.generate_context` no longer breaks when given an empty path.
 
   * Fixed an issue whereby "set()" could not be accepted as an answer to a
     `pythonic` or `pythonliteral` question.

@@ -79,7 +79,7 @@ if course is None:
         "catsoop-src/README.catsoop-source", SOURCE_README_NOCOURSE % (cs_url_root, now)
     )
 else:
-    ctx = csm_loader.spoof_early_load([course])
+    ctx = csm_loader.generate_context([course])
     course_name = ctx.get("cs_long_name", course)
     course_name = (
         course_name.replace("<br>", " ")

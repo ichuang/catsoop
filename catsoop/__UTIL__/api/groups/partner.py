@@ -45,7 +45,7 @@ if error is None:
             error = "Permission Denied"
 
 if error is None:
-    ctx = csm_loader.spoof_early_load(opath)
+    ctx = csm_loader.generate_context(opath)
     gnames = ctx.get("cs_group_names", list(map(str, range(100))))
     groups = csm_groups.list_groups(ctx, path)
     secnum = csm_groups.get_section(ctx, path[0], name1)

@@ -76,7 +76,7 @@ def do_check(row):
     os.setpgrp()  # make this part of its own process group
     set_pdeathsig()()  # but make it die if the parent dies.  will this work?
 
-    context = loader.spoof_early_load(row["path"])
+    context = loader.generate_context(row["path"])
     context["cs_course"] = row["path"][0]
     context["cs_path_info"] = row["path"]
     context["cs_username"] = row["username"]

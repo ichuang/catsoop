@@ -179,7 +179,7 @@ def get_user_information(
     if error is None and course is not None:
         # if we have successfully logged in and a course is specified, we need to
         # look up extra information from the course in question.
-        ctx = context["csm_loader"].spoof_early_load([course])
+        ctx = context["csm_loader"].generate_context([course])
 
         ctx["cs_form"] = {}
         if _as is not None:

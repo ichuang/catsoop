@@ -40,7 +40,7 @@ if error is None:
             error = "Permission Denied"
 
 if error is None:
-    ctx = csm_loader.spoof_early_load(opath)
+    ctx = csm_loader.generate_context(opath)
     error = csm_groups.make_all_groups(ctx, path, section)
 
 if error is not None:

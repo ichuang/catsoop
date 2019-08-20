@@ -40,7 +40,7 @@ if error is None:
         error = "Could not get user information"
 
 if error is None:
-    ctx = csm_loader.spoof_early_load(opath)
+    ctx = csm_loader.generate_context(opath)
     section, group, members = csm_groups.get_group(ctx, path, uinfo["username"])
     if section is None and group is None:
         error = "%s has not been assigned to a group" % uinfo["username"]

@@ -40,7 +40,7 @@ if error is None:
 if error is not None:
     output = {"ok": False, "error": error}
 else:
-    ctx = csm_loader.spoof_early_load(opath)
+    ctx = csm_loader.generate_context(opath)
     groups = csm_groups.list_groups(ctx, path)
     all_students = {
         i: csm_util.read_user_file(globals(), path[0], i, {})
