@@ -241,6 +241,12 @@
      -ms-user-select: none;
      user-select: none;
 }
+
+.dropdown-content > .divider {
+   height:2px;
+   background-color: #dddddd;
+}
+
  header a {
      margin-left: 1em;
      margin-right: 1em;

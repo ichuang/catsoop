@@ -149,6 +149,8 @@ FIXED:
   * Fixed several issues with the openid_connect implementation to make it more
     general.
 
+  * "divider" can once again be used as an element in cs_top_menu drop-downs.
+
 SECURITY:
 
 DOCUMENTATION:
