@@ -68,12 +68,18 @@ def main():
 
     ctx = loader.generate_context([])
     for plugin in loader.available_plugins(ctx, course=None):
-        script_dir = os.path.join(plugin, 'autostart')
+        script_dir = os.path.join(plugin, "autostart")
         for script in sorted(os.listdir(script_dir)):
-            if not script.endswith('.py'):
+            if not script.endswith(".py"):
                 continue
-            procs.append((script_dir, [sys.executable, script], 0.1,
-                          os.path.join(script_dir, script)))
+            procs.append(
+                (
+                    script_dir,
+                    [sys.executable, script],
+                    0.1,
+                    os.path.join(script_dir, script),
+                )
+            )
 
     # set up WSGI options
 
