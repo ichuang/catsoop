@@ -295,7 +295,7 @@ def generate_context(path):
     if path:
         ctx["cs_course"] = path[0]
         cfile = ctx["csm_dispatch"].content_file_location(ctx, path)
-        do_early_load(ctx, ctx["cs_course"], path[1:], ctx, cfile)
+        do_preload(ctx, ctx["cs_course"], path[1:], ctx, cfile)
     return ctx
 
 
