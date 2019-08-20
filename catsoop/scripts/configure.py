@@ -447,8 +447,8 @@ def configure_production():
 
     ncpus = os.cpu_count() or 1
     guess_proc_min = math.ceil(ncpus / 2)
-    guess_proc_max = max(guess_proc_min, math.floor(ncpus * 3/4))
-    guess_nchecks = math.floor(max((ncpus-guess_proc_max)/2, 1))
+    guess_proc_max = max(guess_proc_min, math.floor(ncpus * 3 / 4))
+    guess_nchecks = math.floor(max((ncpus - guess_proc_max) / 2, 1))
 
     def _transform_int(x):
         try:
@@ -457,16 +457,24 @@ def configure_production():
             return x
 
     def _check_int(x):
-        return None if isinstance(x, int) and x > 0 else WARNING("Please enter a positive integer.")
+        return (
+            None
+            if isinstance(x, int) and x > 0
+            else WARNING("Please enter a positive integer.")
+        )
 
     cs_wsgi_server_min_processes = ask(
-        QUESTION("What is the minimum number of processes catsoop should use for the web server?"),
+        QUESTION(
+            "What is the minimum number of processes catsoop should use for the web server?"
+        ),
         transform=_transform_int,
         check_ok=_check_int,
         default=guess_proc_min,
     )
     cs_wsgi_server_max_processes = ask(
-        QUESTION("What is the maximum number of processes catsoop should use for the web server?"),
+        QUESTION(
+            "What is the maximum number of processes catsoop should use for the web server?"
+        ),
         transform=_transform_int,
         check_ok=_check_int,
         default=guess_proc_max,
