@@ -19,6 +19,9 @@ import ast
 import json
 import logging
 import traceback
+
+import collections.abc
+
 from base64 import b64encode
 from urllib.parse import urlencode
 
@@ -314,11 +317,21 @@ def handle_submission(submissions, **info):
         try:
             if info["csq_use_simple_checker"]:
                 # legacy checker
-                percentage = checker(result["result"], result_s["result"])
+                check_result = checker(result["result"], result_s["result"])
             else:
-                percentage = checker(result, result_s)
+                check_result = checker(result, result_s)
         except:
-            percentage = 0.0
+            check_result = 0.0
+
+        if isinstance(check_result, collections.abc.Mapping):
+            percentage = check_result["score"]
+            extra_msg = check_result["msg"]
+        elif isinstance(check_result, collections.abc.Sequence):
+            percentage, extra_msg = check_result
+        else:
+            percentage = check_result
+            extra_msg = ""
+
         imfile = None
         if percentage == 1.0:
             imfile = info["cs_check_image"]
@@ -427,6 +440,9 @@ def handle_submission(submissions, **info):
             e = html_format(result["err"])
             msg += "\n<br/><font color='red'><tt>%s</tt></font></p>" % e
             msg += "\n<br/><center>%s</center>" % (image)
+
+        if extra_msg:
+            msg += "\n<p>%s</p>" % extra_msg
 
         count += 1
 

@@ -178,7 +178,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
     if course is not None:
         if do_preload:
             loader.load_global_data(context)
-            loader.do_early_load(context, course, [], context)
+            loader.do_preload(context, course, [], context)
         fname = os.path.join(  # path to user definition py file in course data
             context["cs_data_root"],
             "courses",

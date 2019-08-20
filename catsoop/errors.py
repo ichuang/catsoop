@@ -165,8 +165,6 @@ def do_error_message(context, msg=None):
     e = ': <font color="red">ERROR</font>'
     new["cs_header"] = new.get("cs_header", "") + e
     new["cs_content_header"] = "An Error Occurred:"
-    new["cs_source_qstring"] = ""
-    new["cs_source_qstring"] = ""
     new["cs_top_menu_html"] = ""
     new["cs_breadcrumbs_html"] = ""
     new["cs_base_font_color"] = "#fff"
@@ -201,7 +199,6 @@ def do_404_message(context):
     e = ': <font color="red">404</font>'
     new["cs_header"] = new.get("cs_header", "") + e
     new["cs_content_header"] = "File/Resource Not Found"
-    new["cs_source_qstring"] = ""
     new["cs_top_menu_html"] = ""
     new["cs_breadcrumbs_html"] = ""
     new["cs_base_font_color"] = "#fff"

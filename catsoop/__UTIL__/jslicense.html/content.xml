@@ -40,6 +40,11 @@ that are loaded by CAT-SOOP, including licensing information.
                   <td><a href="BASE/scripts/katex/katex.js">katex.js</a></td>
               </tr>
               <tr>
+                  <td><a href="BASE/scripts/katex/contrib/render-a11y-string.min.js">render-a11y-string.min.js</a></td>
+                  <td><a href="http://www.jclark.com/xml/copying.txt">Expat</a></td>
+                  <td><a href="BASE/scripts/katex/contrib/render-a11y-string.js">render-a11y-string.js</a></td>
+              </tr>
+              <tr>
                   <td><a href="BASE/scripts/highlight/cs_highlight.pack.min.js">cs_highlight.pack.min.js</a></td>
                   <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
                   <td><a href="BASE/scripts/highlight/cs_highlight.pack.js">cs_highlight.pack.js</a></td>

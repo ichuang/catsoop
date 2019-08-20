@@ -6,6 +6,15 @@ Work toward next release. Currently under development.
 
 ADDED:
 
+  * Checking functions for `pythoncode` questions can now optionally return a
+    tuple (score, message) or a dictionary {'score': score, 'msg': message} to
+    display an additional message in response to a test case.
+
+  * Added `cs_local_python_import` function to the context of a page load.
+    This function takes a string containing a filename (with extension,
+    relative to the current page's directory) and returns a Python module
+    object.
+
   * Added `.catsoop` as a content file extension, parsed using the same parser
     as content files with the `.md` extension.
 
@@ -31,6 +40,14 @@ ADDED:
     `cs_data_root/plugins/autostart/` that end with ".py" will be run when
     `catsoop start` is invoked.
 
+  * Added nicer names for URL fragments of sections and updated the
+    <tableofcontents/> generator to use these when linking to sections.
+
+  * Added permalinks next to section headers (these can be disabled by setting
+    cs_show_section_permalinks=False).
+
+  * The `cs_content_header` text now has the CSS class `cs_content_header`.
+
 CHANGED:
 
   * Plugins should now be stored in `cs_data_root/plugins` rather than in
@@ -40,6 +57,10 @@ CHANGED:
   * File locks are now stored with a `.lock` extension, to avoid potential
     collisions with directory names.
 
+  * Renamed `loader.do_early_load` to `loader.do_preload` and
+    `loader.do_late_load` to `loader.load_content` to hopefully remove the last
+    of the "early load" and "late load" terminology.
+
   * Changed the name of the `util` module to `user` to better reflect its
     purpose.
 
@@ -48,9 +69,7 @@ CHANGED:
     the start of the fall and spring terms at MIT, respectively).  Each release
     will also now have a codename.
 
-  * Upgraded KaTeX to v0.10.2.
-
-  * Reverted changes to `language` module from 14.0.0.
+  * Upgraded KaTeX to v0.11.0.
 
   * Changed the solution display for the `richtext` question type.
 
@@ -85,9 +104,18 @@ REMOVED:
       * `loader.spoof_early_load` has been renamed to
         `loader.generate_context`.
 
+  * Removed `circuit` question type, which has not been used by anyone for a
+    long time and may no longer work with catsoop updates.
+
 FIXED:
 
   * `loader.generate_context` no longer breaks when given an empty path.
+
+  * Reverted changes to `language` module from version 14.x.x.
+
+  * Scores and messages are now logged in problemactions for questions in
+    legacy grading mode (checker IDs are still logged for questions using the
+    asynchronous checker)
 
   * Fixed an issue whereby "set()" could not be accepted as an answer to a
     `pythonic` or `pythonliteral` question.
@@ -110,6 +138,9 @@ FIXED:
     'Download Most Recent Submission' link.
 
   * Fixed an issue that caused the contents of `<ref>` tags to be ignored.
+
+  * Fixed several issues with the openid_connect implementation to make it more
+    general.
 
 SECURITY:
 
