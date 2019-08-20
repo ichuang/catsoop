@@ -209,7 +209,7 @@ def content_file_location(context, path):
     basepath = os.path.join(basepath, *newpath)
 
     for f in language.source_formats:
-        if broke and not course.startswith("_"):
+        if broke and (course == "_util" or not course.startswith("_")):
             fn = os.path.join(basepath, "%s.%s" % (cur, f))
             if os.path.isfile(fn) and not (cur.startswith(".") or cur.startswith("_")):
                 return fn
