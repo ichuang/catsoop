@@ -18,6 +18,7 @@
 
 import os
 import sys
+import math
 import getpass
 import hashlib
 
@@ -348,7 +349,7 @@ def configure_production():
         "encrypt the logs if you are running CAT-SOOP on a "
         "machine where logs are not already encrypted through "
         "some other means.\n" + QUESTION("Should CAT-SOOP encrypt its logs?"),
-        default="Y",
+        default="N",
     )
 
     if should_encrypt:
@@ -420,17 +421,10 @@ def configure_production():
 
     print()
     print("By default, CAT-SOOP logs are not compressed.")
-    if should_encrypt:
-        print(
-            "Compression can save disk space, with the downside that reading and"
-            " writing compressed logs is slower."
-        )
-    else:
-        print(
-            "Compression can save disk space, with the downside that compressed"
-            " logs are not human readable, and that reading and writing"
-            " compressed logs is slower."
-        )
+    print(
+        "Compression can save disk space, with the downside that reading and"
+        " writing compressed logs is slower."
+    )
 
     should_compress = yesno(
         QUESTION("Should CAT-SOOP compress its logs?"),
@@ -451,6 +445,39 @@ def configure_production():
         transform=lambda x: x.rstrip("/"),
     )
 
+    ncpus = os.cpu_count() or 1
+    guess_proc_min = math.ceil(ncpus / 2)
+    guess_proc_max = max(guess_proc_min, math.floor(ncpus * 3/4))
+    guess_nchecks = math.floor(max((ncpus-guess_proc_max)/2, 1))
+
+    def _transform_int(x):
+        try:
+            return int(x)
+        except:
+            return x
+
+    def _check_int(x):
+        return None if isinstance(x, int) and x > 0 else WARNING("Please enter a positive integer.")
+
+    cs_wsgi_server_min_processes = ask(
+        QUESTION("What is the minimum number of processes catsoop should use for the web server?"),
+        transform=_transform_int,
+        check_ok=_check_int,
+        default=guess_proc_min,
+    )
+    cs_wsgi_server_max_processes = ask(
+        QUESTION("What is the maximum number of processes catsoop should use for the web server?"),
+        transform=_transform_int,
+        check_ok=_check_int,
+        default=guess_proc_max,
+    )
+    cs_checker_parallel_checks = ask(
+        QUESTION("How many submissions should be checked in parallel?"),
+        transform=_transform_int,
+        check_ok=_check_int,
+        default=guess_nchecks,
+    )
+
     # write config file
     config_file_content = """cs_data_root = %r
 
@@ -459,12 +486,21 @@ cs_log_encryption = %r
 
 cs_url_root = %r
 cs_checker_websocket = %r
+
+cs_wsgi_server = "uwsgi"
+cs_wsgi_server_min_processes = %d
+cs_wsgi_server_max_processes = %d
+
+cs_checker_parallel_checks = %d
     """ % (
         cs_data_root,
         should_compress,
         should_encrypt,
         cs_url_root,
         cs_checker_websocket,
+        cs_wsgi_server_min_processes,
+        cs_wsgi_server_max_processes,
+        cs_checker_parallel_checks,
     )
 
     while True:

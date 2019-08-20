@@ -80,6 +80,10 @@ CHANGED:
   * Logs are now stored in a binary format in order to improve the efficiency
     of reading/writing log entries.
 
+  * The configuration script for production instances now uses uwsgi by
+    default, and it asks about the number of processes to use for uwsgi and
+    for the checker.
+
 DEPRECATED:
 
 REMOVED:
