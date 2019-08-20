@@ -185,7 +185,6 @@ def content_file_location(context, path):
     course = path[0]
     path = path[1:]
     newpath = []
-    last_dname = None
     broke = False
     cur = ""
     for ix in range(len(path)):
@@ -202,18 +201,15 @@ def content_file_location(context, path):
             if dname is None:
                 if ix != len(path) - 1:
                     return None
-                if last_dname is None:
-                    return None
                 broke = True
                 break
             newpath.append(dname if dname != "" else cur)
-        last_dname = dname
 
     basepath = loader.get_course_fs_location(context, course)
     basepath = os.path.join(basepath, *newpath)
 
     for f in language.source_formats:
-        if broke:
+        if broke and not course.startswith("_"):
             fn = os.path.join(basepath, "%s.%s" % (cur, f))
             if os.path.isfile(fn) and not (cur.startswith(".") or cur.startswith("_")):
                 return fn
