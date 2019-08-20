@@ -48,6 +48,9 @@ ADDED:
 
   * The `cs_content_header` text now has the CSS class `cs_content_header`.
 
+  * Items in the top menu in the default theme now have the CSS class
+    `cs_top_menu_item`.
+
 CHANGED:
 
   * Plugins should now be stored in `cs_data_root/plugins` rather than in
