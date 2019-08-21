@@ -38,4 +38,4 @@ for root, dirs, files in os.walk(results):
             with open(fn2, "wb") as f:
                 o = cslog.compress_encrypt(t)
                 f.write(o)
-        print(root, len(t), len(o))
+        print(root)
