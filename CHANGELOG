@@ -53,6 +53,8 @@ ADDED:
 
 CHANGED:
 
+  * Question names can no longer begin with an underscore (`_`).
+
   * Plugins should now be stored in `cs_data_root/plugins` rather than in
     `cs_fs_root/__PLUGINS__`.  URLs starting with _plugin now point to the
     proper location.

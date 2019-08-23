@@ -66,14 +66,14 @@ _nodoc = {
 
 _malformed_question = "<font color='red'>malformed <tt>question</tt></font>"
 
-_valid_qname = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
+_valid_qname = re.compile(r"^[A-Za-z][_A-Za-z0-9]*$")
 _unsafe_title = re.compile(r"[^A-Za-z0-9_]")
 
 
 def _safe_title(t, disallowed=None):
     disallowed = disallowed if disallowed is not None else set()
-    title = otitle = (
-        re.sub(r"_+", "_", _unsafe_title.sub("_", unidecode(t))).lower().rstrip("_")
+    title = otitle = "_%s" % (
+        re.sub(r"_+", "_", _unsafe_title.sub("_", unidecode(t))).lower().strip("_")
     )
     count = 2
     while title in disallowed:
