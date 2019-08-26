@@ -103,10 +103,9 @@ def static_file_location(context, path):
         rest = path[1:]
     elif path[0] == "_plugin":
         # serving from plugin
-        course = context.get("cs_course", "")
         loc = os.path.join(
             context.get("cs_data_root", base_context.cs_data_root),
-            "__PLUGINS__",
+            "plugins",
             path[1],
             "__STATIC__",
         )
