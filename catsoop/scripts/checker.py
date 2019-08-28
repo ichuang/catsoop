@@ -220,36 +220,46 @@ def do_check(row):
             )
 
             # update LTI tool consumer with new aggregate score
-            if have_lti and lti_handler.have_data:
+            if have_lti and lti_handler.have_data and row["action"] == "submit":
                 aggregate_score = 0
                 cnt = 0
-                for k, v in x[
-                    "scores"
-                ].items():  # e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
-                    aggregate_score += float(v)
-                    cnt += 1
-                if total_possible_npoints == 0:
-                    total_possible_npoints = 1.0
-                    LOGGER.error("[checker] total_possible_npoints=0 ????")
-                aggregate_score_fract = (
-                    aggregate_score * 1.0 / total_possible_npoints
-                )  # LTI wants score in [0, 1.0]
-                log(
-                    "Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)"
-                    % (cnt, aggregate_score, aggregate_score_fract)
-                )
-                log(
-                    "magic=%s sending aggregate_score_fract=%s to LTI tool consumer"
-                    % (row["magic"], aggregate_score_fract)
-                )
                 try:
-                    lti_handler.send_outcome(aggregate_score_fract)
+                    for k, v in x[
+                        "scores"
+                    ].items():  # e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
+                        aggregate_score += float(v)
+                        cnt += 1
+                    if total_possible_npoints == 0:
+                        total_possible_npoints = 1.0
+                        LOGGER.error("[checker] total_possible_npoints=0 ????")
+                    aggregate_score_fract = (
+                        aggregate_score * 1.0 / total_possible_npoints
+                    )  # LTI wants score in [0, 1.0]
+                    log(
+                        "Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)"
+                        % (cnt, aggregate_score, aggregate_score_fract)
+                    )
+                    log(
+                        "magic=%s sending aggregate_score_fract=%s to LTI tool consumer"
+                        % (row["magic"], aggregate_score_fract)
+                    )
+                    score_ok = True
                 except Exception as err:
                     LOGGER.error(
-                        "[checker] failed to send outcome to LTI consumer, err=%s"
-                        % str(err)
+                        "[checker] failed to compute score for problem %s, err=%s"
+                        % (x, err)
                     )
-                    LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
+                    score_ok = False
+
+                if score_ok:
+                    try:
+                        lti_handler.send_outcome(aggregate_score_fract)
+                    except Exception as err:
+                        LOGGER.error(
+                            "[checker] failed to send outcome to LTI consumer, err=%s"
+                            % str(err)
+                        )
+                        LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
 
 
 running = []
