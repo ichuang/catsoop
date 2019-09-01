@@ -277,6 +277,7 @@ def handle_submission(submissions, **info):
         info["csq_name"],
         'style="display:none"' if not info["csq_always_show_tests"] else "",
     )
+    test_results = []
     count = 1
     for test in info["csq_tests"]:
         test["result_as_string"] = test.get(
@@ -331,6 +332,8 @@ def handle_submission(submissions, **info):
         else:
             percentage = check_result
             extra_msg = ""
+
+        test_results.append(percentage)
 
         imfile = None
         if percentage == 1.0:
@@ -452,7 +455,7 @@ def handle_submission(submissions, **info):
     hint_func = info.get("csq_hint")
     if hint_func:
         try:
-            hint = hint_func(score, code, info)
+            hint = hint_func(test_results, code, info)
             msg += hint or ""
             LOGGER.debug("[pythoncode] hint=%s" % hint)
         except Exception as err:
