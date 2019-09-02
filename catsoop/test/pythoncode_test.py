@@ -23,13 +23,13 @@ def gd_test(submission, solution):
     return submission == solution
 
 
-def sgd_hint(score, code, info):
+def sgd_hint(test_results, code, info):
     """
     Hint function: this is run after tests, and can return a string to be added
     to the message shown to the student.  For example, this could check for common
     wrong answers and provide a corresponding hint.
     """
-    if score == 1.0:  # no hints if all correct
+    if all(test_results):  # no hints if all correct
         return ""
     test = info["csq_tests"][2]
     out, err, log = info["sandbox_run_test"](info, code, test)
