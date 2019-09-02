@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-Work toward next release. Currently under development.
+####################
+# Version 2019.9.0 #
+####################
 
 ADDED:
 
@@ -92,8 +90,6 @@ CHANGED:
     default, and it asks about the number of processes to use for uwsgi and
     for the checker.
 
-DEPRECATED:
-
 REMOVED:
 
   * Removed several deprecated features:
@@ -155,10 +151,6 @@ FIXED:
     general.
 
   * "divider" can once again be used as an element in cs_top_menu drop-downs.
-
-SECURITY:
-
-DOCUMENTATION:
 
 
 ##################
