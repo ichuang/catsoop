@@ -719,7 +719,7 @@ def handle_custom_tags(context, text):
             sec.attrs["id"] = "catsoop_label_%s" % lbl
         i.replace_with(sec)
 
-        if context.get("cs_show_section_permalinks", True):
+        if context.get("cs_show_section_permalinks", False):
             permalink = tree.new_tag("a")
             permalink["class"] = "cs_permalink"
             permalink.attrs["href"] = "#%s" % linkname_2

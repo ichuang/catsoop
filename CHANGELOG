@@ -43,8 +43,8 @@ ADDED:
   * Added nicer names for URL fragments of sections and updated the
     <tableofcontents/> generator to use these when linking to sections.
 
-  * Added permalinks next to section headers (these can be disabled by setting
-    cs_show_section_permalinks=False).
+  * Added option to show permalinks next to section headers (enabled by setting
+    cs_show_section_permalinks=True).
 
   * The `cs_content_header` text now has the CSS class `cs_content_header`.
 
