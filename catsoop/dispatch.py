@@ -721,7 +721,7 @@ def main(environment, return_context=False, form_data=None):
                 context, path_info, environment, form_data, main, return_context
             )
 
-        # DO EARLY LOAD FOR THIS REQUEST
+        # DO PRELOAD FOR THIS REQUEST
         if context["cs_course"] is not None:
             cfile = content_file_location(context, [context["cs_course"]] + path_info)
             LOGGER.info("[dispatch.main] loading content file for course %s" % cfile)
@@ -729,14 +729,14 @@ def main(environment, return_context=False, form_data=None):
                 context, context["cs_course"], path_info, context, cfile
             )
             if x == "missing":
-                LOGGER.info("[dispatch.main] early load returned missing")
+                LOGGER.info("[dispatch.main] preload returned missing")
                 return errors.do_404_message(context)
 
             _set_colors(context)
 
             # AUTHENTICATE
             # doesn't happen until now because what we want to do might depend
-            # on what is in the EARLY_LOAD files, unfortunately
+            # on what is in the preload.py files, unfortunately
             if context.get("cs_auth_required", True):
                 user_info = auth.get_logged_in_user(context)
                 LOGGER.info("[dispatch.main] user_info=%s" % user_info)
@@ -790,14 +790,14 @@ def main(environment, return_context=False, form_data=None):
                     )
                     menu.append(menu_entry)
 
-            # MAKE SURE LATE LOAD EXISTS; 404 IF NOT
+            # MAKE SURE CONTENT FILE EXISTS; 404 IF NOT
             if context.get("cs_course", None):
                 result = is_resource(context, [context["cs_course"]] + path_info)
                 if not result:
                     return errors.do_404_message(context)
 
-            # FINALLY, DO LATE LOAD
-            LOGGER.info("[dispatch.main] doing late load with path_info=%s" % path_info)
+            # FINALLY, LOAD CONTENT
+            LOGGER.info("[dispatch.main] loading content with path_info=%s" % path_info)
             loader.load_content(
                 context, context["cs_course"], path_info, context, cfile
             )
