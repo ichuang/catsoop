@@ -46,6 +46,9 @@ ADDED:
   * Added permalinks next to section headers (these can be disabled by setting
     cs_show_section_permalinks=False).
 
+  * The `print` function can now be used to add content to the page when using
+    the Python source format.
+
   * The `cs_content_header` text now has the CSS class `cs_content_header`.
 
   * Items in the top menu in the default theme now have the CSS class

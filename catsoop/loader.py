@@ -498,6 +498,18 @@ def get_subdirs(context, course, path):
     ]
 
 
+_py_custom_print = """
+cs_problem_spec = []
+
+oprint = print
+def newprint(*args, **kwargs):
+    if 'file' in kwargs:
+        oprint(*args, **kwargs)
+    cs_problem_spec.append(' '.join(str(i) for i in args))
+print = newprint
+"""
+
+
 def load_content(context, course, path, into, content_file=None):
     """
     Load data from the Python file specified by the content file in the
@@ -552,7 +564,9 @@ def load_content(context, course, path, into, content_file=None):
         into["cs_content"] = language.handle_includes(into, into["cs_content"])
         into["cs_content"] = language.handle_python_tags(into, into["cs_content"])
     else:
+        exec(_py_custom_print, context)
         exec(context["cs_content"], context)
+        exec("print = oprint", context)
     if "cs_post_load" in into:
         into["cs_post_load"](into)
     run_plugins(context, course, "post_load", into)
