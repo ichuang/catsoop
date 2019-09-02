@@ -17,7 +17,7 @@
 import json
 import urllib.request, urllib.parse, urllib.error
 
-SANDBOX_URL = "https://cat-soop.org/python3_sandbox_14/"
+SANDBOX_URL = "https://catsoop.org/python_sandbox_v2019.9/"
 
 
 def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
