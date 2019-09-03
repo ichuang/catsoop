@@ -20,15 +20,17 @@ import urllib.request, urllib.parse, urllib.error
 SANDBOX_URL = "https://catsoop.org/python_sandbox_v2019.9/"
 
 
-def run_code(context, code, options, count_opcodes=False, opcode_limit=None):
+def run_code(
+    context,
+    code,
+    options,
+    count_opcodes=False,
+    opcode_limit=None,
+    result_as_string=False,
+):
     code = code.replace("\r\n", "\n")
     data = urllib.parse.urlencode(
-        {
-            "code": code,
-            "options": options,
-            "count_opcodes": count_opcodes,
-            "opcode_limit": opcode_limit,
-        }
+        {"code": code, "result_as_string": result_as_string}
     ).encode()
     request = urllib.request.Request(context.get("csq_sandbox_url", SANDBOX_URL), data)
     try:

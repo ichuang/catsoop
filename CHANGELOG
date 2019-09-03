@@ -1,4 +1,18 @@
 ####################
+# Version 2019.9.1 #
+####################
+
+FIXED:
+
+  * Multiple fixes for the 'remote' Python sandbox
+
+CHANGED:
+
+  * The version codename is now displayed when running `catsoop --version`, and
+    in the default footer.
+
+
+####################
 # Version 2019.9.0 #
 ####################
 

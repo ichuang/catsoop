@@ -29,7 +29,8 @@ def command_line_interface(args=None, arglist=None):
     args, arglist are used for unit testing
     """
 
-    version = pkg_resources.require("catsoop")[0].version
+    raw_version = pkg_resources.require("catsoop")[0].version
+    version = '%s ("%s")' % (raw_version, codename)
     if "dev" in version:
         gitfile = os.path.join(os.path.dirname(__file__), "dev.hash")
         if os.path.isfile(gitfile):
@@ -37,7 +38,7 @@ def command_line_interface(args=None, arglist=None):
                 try:
                     vcs, hash_, date = f.read().split("|")
                     version = '%s ("%s" Development Snapshot)\n%s revision: %s\n%s' % (
-                        version,
+                        raw_version,
                         codename,
                         vcs,
                         hash_,
@@ -45,8 +46,6 @@ def command_line_interface(args=None, arglist=None):
                     )
                 except:
                     pass
-        else:
-            version = '%s ("%s")' % (version, codename)
 
     help_text = """
 Example commands:
