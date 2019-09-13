@@ -1,4 +1,15 @@
 ####################
+# Version 2019.9.2 #
+####################
+
+FIXED:
+
+  * Fixed an issue preventing question types with multiple boxes (e.g.,
+    "multiexpression") from pre-populating those boxes with values from the
+    last submission.
+
+
+####################
 # Version 2019.9.1 #
 ####################
 
