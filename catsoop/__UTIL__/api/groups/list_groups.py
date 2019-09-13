@@ -43,8 +43,8 @@ else:
     ctx = csm_loader.generate_context(opath)
     groups = csm_groups.list_groups(ctx, path)
     all_students = {
-        i: csm_util.read_user_file(globals(), path[0], i, {})
-        for i in csm_util.list_all_users(globals(), path[0])
+        i: csm_user.read_user_file(globals(), path[0], i, {})
+        for i in csm_user.list_all_users(globals(), path[0])
     }
     if section is not None:
         groups = groups.get(section, {})
