@@ -1034,6 +1034,7 @@ def handle_submit(context):
     for name in names:
         sub = context[_n("form")].get(name, "")
         if name.startswith("__"):
+            newstate["last_submit"][name] = sub
             name = name[2:].rsplit("_", 1)[0]
         if name in names_done:
             continue
