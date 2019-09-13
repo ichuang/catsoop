@@ -82,7 +82,7 @@
     <div class="cs_footer">
       {cs_footer}
       <pre class="catsooplogo" style="font-size:50%;">{cs_base_logo_text}</pre>
-      Powered by <a target='_blank' href='https://catsoop.org'>CAT-SOOP</a> v{cs_version}.<br/>
+      Powered by <a target='_blank' href='https://catsoop.org'>CAT-SOOP</a> v{cs_version} ({cs_version_codename}).<br/>
       CAT-SOOP is <a href="https://www.gnu.org/philosophy/free-sw.en.html" target="_blank">Free/Libre Software</a>, available under the terms<br/>of the <a href="BASE/_util/license" target="_blank">GNU Affero General Public License, version 3</a>.<br/>
       <a href="BASE/_util/source.zip" download target="_blank">Download Source Code</a><br/>
       <a href="BASE/_util/jslicense.html" rel="jslicense" target="_blank">Javascript License Information</a>
