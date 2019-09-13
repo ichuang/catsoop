@@ -39,7 +39,7 @@ if error is None:
             error = "Permission Denied"
 
 if error is None:
-    output = {"ok": True, "result": csm_util.list_all_users(globals(), course)}
+    output = {"ok": True, "result": csm_user.list_all_users(globals(), course)}
 else:
     output = {"ok": False, "error": error}
 

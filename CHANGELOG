@@ -1,4 +1,14 @@
 ####################
+# Version 2019.9.3 #
+####################
+
+FIXED:
+
+  * Fixed several lingering references to the 'util' module, which has been
+    renamed to 'user'.
+
+
+####################
 # Version 2019.9.2 #
 ####################
 

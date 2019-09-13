@@ -2128,11 +2128,11 @@ def _get_scores(context):
         )
     )
 
-    util = context["csm_util"]
+    user = context["csm_user"]
 
-    usernames = util.list_all_users(context, context["cs_course"])
+    usernames = user.list_all_users(context, context["cs_course"])
     users = [
-        util.read_user_file(context, context["cs_course"], username, {})
+        user.read_user_file(context, context["cs_course"], username, {})
         for username in usernames
     ]
     no_section = context.get("cs_whdw_no_section", False)
