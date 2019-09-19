@@ -45,6 +45,7 @@ CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "_logs", "_checker")
 RUNNING = os.path.join(CHECKER_DB_LOC, "running")
 QUEUED = os.path.join(CHECKER_DB_LOC, "queued")
 RESULTS = os.path.join(CHECKER_DB_LOC, "results")
+STAGING = os.path.join(CHECKER_DB_LOC, "staging")
 
 REAL_TIMEOUT = base_context.cs_checker_global_timeout
 
@@ -188,11 +189,11 @@ def do_check(row):
         row["extra_data"] = extra
 
         # make temporary file to write results to
-        _, temploc = tempfile.mkstemp()
+        magic = row["magic"]
+        temploc = os.path.join(STAGING, "results.%s" % magic)
         with open(temploc, "wb") as f:
             f.write(context["csm_cslog"].prep(row))
         # move that file to results, close the handle to it.
-        magic = row["magic"]
         newloc = os.path.join(RESULTS, magic[0], magic[1], magic)
         os.makedirs(os.path.dirname(newloc), exist_ok=True)
         shutil.move(temploc, newloc)

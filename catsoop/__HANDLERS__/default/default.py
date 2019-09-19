@@ -24,7 +24,6 @@ import shutil
 import string
 import hashlib
 import binascii
-import tempfile
 import traceback
 import collections
 
@@ -60,7 +59,7 @@ def new_entry(context, qname, action):
         obj["lti_data"] = session.get("lti_data")
 
     # safely save queue entry in database file (stage then mv)
-    loc = os.path.join(tempfile.gettempdir(), "staging", id_)
+    loc = os.path.join(context["cs_data_root"], "_logs", "_checker", "staging", id_)
     os.makedirs(os.path.dirname(loc), exist_ok=True)
     with open(loc, "wb") as f:
         f.write(context["csm_cslog"].prep(obj))

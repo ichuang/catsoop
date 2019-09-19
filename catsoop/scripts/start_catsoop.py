@@ -56,7 +56,7 @@ def main():
     # Make sure the checker database is set up
     checker_db_loc = os.path.join(base_context.cs_data_root, "_logs", "_checker")
 
-    for subdir in ("queued", "running", "results"):
+    for subdir in ("queued", "running", "results", "staging"):
         os.makedirs(os.path.join(checker_db_loc, subdir), exist_ok=True)
 
     procs = [
