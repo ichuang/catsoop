@@ -324,8 +324,14 @@ while True:
         if waiting:
             # grab the first thing off the queue, move it to the "running" dir
             first = waiting[0]
-            with open(os.path.join(QUEUED, first), "rb") as f:
-                row = cslog.unprep(f.read())
+            qfn = os.path.join(QUEUED, first)
+            with open(qfn, "rb") as f:
+                try:
+                    row = cslog.unprep(f.read())
+                except Exception as err:
+                    LOGGER.error("[checker] failed to read queue log file %s, error=%s, traceback=%s" % 
+                                 (qfn, err, traceback.format_exc()))
+                    continue
             _, magic = first.split("_")
             row["magic"] = magic
             shutil.move(os.path.join(QUEUED, first), os.path.join(RUNNING, magic))
