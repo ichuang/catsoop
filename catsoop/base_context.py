@@ -421,8 +421,8 @@ cs_all_thirdparty = ["data_uri"]
 
 for i in cs_all_pieces:
     if i != "base_context":
-        exec("from . import %s" % i)
         try:
+            exec("from . import %s" % i)
             exec("csm_%s = %s" % (i, i))
         except Exception as err:
             LOGGER.error("[base_context] failed in import assignment of csm_%s to %s" % (i, i))
