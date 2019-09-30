@@ -445,7 +445,8 @@ for i in cs_all_pieces:
                 except Exception as err:
                     LOGGER.error("[base_context] STILL failed in import assignment of csm_%s to %s" % (i, i))
                     raise
-            raise
+            else:
+                raise
 
 for i in cs_all_thirdparty:
     exec("from .thirdparty import %s" % i)
