@@ -419,8 +419,6 @@ cs_all_pieces = [
 
 cs_all_thirdparty = ["data_uri"]
 
-LOGGER.error("[base_context] cwd=%s" % os.getcwd())
-
 for i in cs_all_pieces:
     if i != "base_context":
         try:
@@ -431,6 +429,10 @@ for i in cs_all_pieces:
             LOGGER.error("[base_context] cs_all_pieces=%s" % cs_all_pieces)
             LOGGER.error("[base_context] cwd=%s" % os.getcwd())
             LOGGER.error("[base_context] sys.path=%s" % str(sys.path))
+            LOGGER.error("[base_context] __package__=%s" % __package__)
+            LOGGER.error("[base_context] __name__=%s" % __name__)
+            LOGGER.error("[base_context] __file__=%s" % __file__)
+            LOGGER.error("[base_context] cs_all_pieces=%s" % cs_all_pieces)
             LOGGER.error("traceback=%s" % traceback.format_exc())
             if os.getcwd().endswith("/scripts"):
                 os.chdir(os.path.dirname(os.getcwd()))
