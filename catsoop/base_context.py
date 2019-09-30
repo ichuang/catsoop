@@ -419,6 +419,8 @@ cs_all_pieces = [
 
 cs_all_thirdparty = ["data_uri"]
 
+LOGGER.error("[base_context] cwd=%s" % os.getcwd())
+
 for i in cs_all_pieces:
     if i != "base_context":
         try:
@@ -429,6 +431,15 @@ for i in cs_all_pieces:
             LOGGER.error("[base_context] cs_all_pieces=%s" % cs_all_pieces)
             LOGGER.error("[base_context] cwd=%s" % os.getcwd())
             LOGGER.error("traceback=%s" % traceback.format_exc())
+            if os.getcwd().endswith("/scripts"):
+                os.chdir(os.path.dirname(os.getcwd()))
+                LOGGER.error("[base_context] changed cwd=%s" % os.getcwd())
+                try:
+                    exec("from . import %s" % i)
+                    exec("csm_%s = %s" % (i, i))
+                except Exception as err:
+                    LOGGER.error("[base_context] STILL failed in import assignment of csm_%s to %s" % (i, i))
+                    raise
             raise
 
 for i in cs_all_thirdparty:
