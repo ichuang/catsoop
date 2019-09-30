@@ -436,7 +436,9 @@ for i in cs_all_pieces:
             LOGGER.error("traceback=%s" % traceback.format_exc())
             if os.getcwd().endswith("/scripts"):
                 os.chdir(os.path.dirname(os.getcwd()))
+                __package__ = "catsoop"
                 LOGGER.error("[base_context] changed cwd=%s" % os.getcwd())
+                LOGGER.error("[base_context] changed __package__=%s" % __package__)
                 try:
                     exec("from . import %s" % i)
                     exec("csm_%s = %s" % (i, i))
