@@ -427,6 +427,7 @@ for i in cs_all_pieces:
         except Exception as err:
             LOGGER.error("[base_context] failed in import assignment of csm_%s to %s" % (i, i))
             LOGGER.error("[base_context] cs_all_pieces=%s" % cs_all_pieces)
+            LOGGER.error("[base_context] cwd=%s" % os.getcwd())
             LOGGER.error("traceback=%s" % traceback.format_exc())
             raise
 
