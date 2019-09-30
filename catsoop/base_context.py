@@ -428,6 +428,7 @@ for i in cs_all_pieces:
             LOGGER.error("[base_context] failed in import assignment of csm_%s to %s" % (i, i))
             LOGGER.error("[base_context] cs_all_pieces=%s" % cs_all_pieces)
             LOGGER.error("[base_context] cwd=%s" % os.getcwd())
+            LOGGER.error("[base_context] sys.path=%s" % str(sys.path))
             LOGGER.error("traceback=%s" % traceback.format_exc())
             raise
 
