@@ -41,6 +41,7 @@ from collections import OrderedDict
 
 from . import tutor
 from . import dispatch
+from . import debug_log
 from . import markdown_math
 from .errors import html_format, clear_info
 
@@ -50,6 +51,8 @@ from markdown.extensions import fenced_code
 from markdown.extensions import sane_lists
 from bs4 import BeautifulSoup
 from unidecode import unidecode
+
+LOGGER = debug_log.LOGGER
 
 _nodoc = {
     "BeautifulSoup",
@@ -740,7 +743,12 @@ def handle_custom_tags(context, text):
 
     for i in tree.find_all("ref"):
         if "label" not in i.attrs:
-            lbl = list(i.attrs.keys())[0]
+            lbl_keys = list(i.attrs.keys())
+            if lbl_keys:
+                lbl = [0]
+            else:
+                LOGGER.error("[catsoop.language] bad ref %s, no label!" % i)
+                continue
         else:
             lbl = i.attrs["label"]
 
