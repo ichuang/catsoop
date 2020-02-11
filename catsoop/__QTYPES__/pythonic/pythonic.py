@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import ast
+import json
 import logging
 import traceback
 import collections.abc
@@ -58,7 +59,19 @@ INVALID_SUBMISSION_MSG = (
 
 
 def handle_submission(submissions, **info):
-    sub = submissions[info["csq_name"]].strip()
+    if 'csq_rows' in info:			# multi-row input via textarea
+        sub = submissions[info["csq_name"]].strip()
+        sub = {'0': sub}
+        sub = json.dumps(sub)
+    elif not 'csq_prompts' in info:		# no prompts specified: use single input submission
+        sub = submissions[info["csq_name"]].strip()
+    else:
+        sub = {}				# multiple submission boxes: gather in dict and jsonify for python checker
+        for ix in range(len(info['csq_prompts'])):
+            qbox_name = "__%s_%04d" % (info["csq_name"], ix)
+            sub[ix] = submissions[qbox_name].strip()
+        sub = json.dumps(sub)
+
     LOGGER.error("[qtypes.pythonic] submission: %r" % sub)
 
     inp = info["csq_input_check"](sub)
@@ -92,9 +105,9 @@ def handle_submission(submissions, **info):
         if info["csq_mode"] != "raw":
             sub = eval(sub, info)
     except Exception as err:
+        LOGGER.error("[qtypes.pythonic] traceback: %s" % traceback.format_exc())
         LOGGER.error("[qtypes.pythonic] invalid submission: %r" % sub)
         LOGGER.error("[qtypes.pythonic] invalid submission exception=%s" % str(err))
-        LOGGER.error("[qtypes.pythonic] traceback: %s" % traceback.format_exc())
         msg = ""
         mfunc = info["csq_msg_function"]
         try:
@@ -152,8 +165,72 @@ def handle_submission(submissions, **info):
 
 
 def answer_display(**info):
-    if info["csq_mode"] == "raw":
-        out = "<p>Solution: <tt>%r</tt><p>" % (info["csq_soln"],)
-    else:
-        out = "<p>Solution: <tt>%s</tt><p>" % (info["csq_soln"],)
+    fmt = "%s"
+    if info["csq_mode"] == "raw" and not info.get("csq_output_mode") == "formatted":
+        fmt = "%r"
+
+    if not 'csq_solns' in info:	# default single answer display
+        out = ("<p>Solution: <tt>{}</tt><p>".format(fmt)) % (info["csq_soln"],)
+    else:		# use table with multiple respones if csq_solns specified and is list
+        solns = info["csq_solns"]
+        prompts = info['csq_prompts']
+        if not isinstance(solns, list) and  isinstance(prompts, list) and len(solns)==len(prompts):
+            msg = "[qtypes.pythonic] csq_solns expected to be a list, but got instead: %r" % solns
+            LOGGER.error(msg)
+            raise Exception(msg)
+        out = '<table border="0">'
+        for (ix, (prompt, soln)) in enumerate(zip(prompts, solns)):
+            out += '<tr><td align="right">'
+            out += csm_language.source_transform_string(info, prompt)
+            out += "</td><td>"
+            out += ("<tt>{}</tt>".format(fmt)) % soln
+            out += "</td></tr>"
+        out += "</table>"
     return out
+
+
+def js_files(info):
+    if 'csq_rows' in info:
+        return ["BASE/scripts/ace/ace.js"]
+    else:
+        return []
+
+def render_html(submissions, **info):
+    submissions = submissions or {}
+
+    if 'csq_rows' in info:			# if csq_nrows is present then display a textarea instead of a one line box
+        info['csq_interface'] = 'ace'
+        return tutor.question("pythoncode")[0]["render_html"](submissions, **info)
+
+    if not 'csq_prompts' in info:		# no prompts specified: use default single-input-box aka smallbox
+        out = '<input type="text"'
+        if info.get("csq_size", None) is not None:
+            out += ' size="%s"' % info["csq_size"]
+        out += ' value="%s"' % escape(submissions.get(info["csq_name"], ""))
+        out += ' name="%s"' % info["csq_name"]
+        out += ' id="%s"' % info["csq_name"]
+        return out + " />"
+        
+    # allow for multiple input boxes, each with its own prompt, as specified by csq_prompts
+    prompts = info["csq_prompts"]
+    if not isinstance(prompts, list):
+        msg = "[qtypes.pythonic] csq_prompts expected to be a list, but got instead: %r" % prompts
+        LOGGER.error(msg)
+        raise Exception(msg)
+        
+    out = '<table border="0">'
+    for (ix, prompt) in enumerate(prompts):
+        qbox_name = "__%s_%04d" % (info["csq_name"], ix)
+        out += '<tr><td align="right">'
+        out += csm_language.source_transform_string(info, prompt)
+        out += "</td><td>"
+        out += '<input type="text"'
+        if info.get("csq_size", None) is not None:
+            out += ' size="%s"' % info["csq_size"]
+
+        out += ' value="%s"' % escape(submissions.get(qbox_name, ""))
+        out += ' name="%s"' % qbox_name
+        out += ' id="%s"' % qbox_name
+        out += " /></td></tr>"
+    return out + "</table>"
+
