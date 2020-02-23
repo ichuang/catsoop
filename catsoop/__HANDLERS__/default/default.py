@@ -416,20 +416,22 @@ def handle_view(context):
             page += render_question(elt, context, lastsubmit)
 
             # handle javascript if necessary
+            # js_files should return a list
+            # if the list element is a string then it's treated as a filename to be loaded
+            # if the list element is {'code': codestr} then codestr is treated as js code to be run
             if "js_files" in elt[0]:
                 a = elt[0].get("defaults", {})
                 a.update(elt[1])
                 js_loads.extend(elt[0]["js_files"](a))
 
     if js_loads:
-        context["cs_scripts"] += (
-            "\n\n    <!--JS for questions-->\n    "
-            + "\n    ".join(
-                '<script type="text/javascript" src="%s"></script>'
-                % context["csm_dispatch"].get_real_url(context, i)
-                for i in js_loads
-            )
-        )
+        extra_script = "\n\n    <!--JS for questions-->\n"
+        for jsl in js_loads:
+            if isinstance(jsl, dict):
+                extra_script += jsl.get("code", "") + "\n"
+            else:
+                extra_script += '   <script type="text/javascript" src="%s"></script>\n' % context["csm_dispatch"].get_real_url(context, jsl)
+        context["cs_scripts"] += extra_script
 
     page += default_javascript(context)
     page += default_timer(context)
