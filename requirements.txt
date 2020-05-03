@@ -12,3 +12,4 @@ lxml
 pylti
 oauthlib
 unidecode
+pymongo
