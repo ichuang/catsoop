@@ -47,6 +47,7 @@ def validate_ticket(ticket):
             % val_url
         )
         LOGGER.error("[auth.cas.validate] err=%s" % str(err))
+        return None
 
     ret = ret.decode("utf8")
     LOGGER.debug("[auth.cas.validate] cas server returned %s" % ret)
