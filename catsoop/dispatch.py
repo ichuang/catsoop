@@ -38,6 +38,7 @@ from . import session
 from . import language
 from . import debug_log
 from . import base_context
+from . import broadcast
 
 _nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form", "LOGGER", "md5"}
 
@@ -602,6 +603,7 @@ def main(environment, return_context=False, form_data=None):
     context["cs_env"] = environment
     context["cs_now"] = time.now()
     force_error = False
+
     try:
         # DETERMINE WHAT PAGE WE ARE LOADING
         path_info = environment.get("PATH_INFO", "/")
@@ -616,6 +618,14 @@ def main(environment, return_context=False, form_data=None):
                 context, static_file_location(context, path_info[1:]), environment
             )
 
+        # special for broadcast message
+        if len(path_info) and path_info[0]=="msg":
+            return broadcast.return_content()
+
+        # special for /static
+        if len(path_info) and path_info[0]=="static":
+            return broadcast.return_static(path_info)
+
         # LOAD FORM DATA
         if "wsgi.input" in environment:
             # need to read post variables from wsgi.input
@@ -627,7 +637,7 @@ def main(environment, return_context=False, form_data=None):
         else:
             fields = cgi.FieldStorage()
         form_data = form_data or dict_from_cgi_form(fields)
-        LOGGER.error("[dispatch] form_data=%s" % str(form_data)[:400])
+        LOGGER.info("[dispatch] form_data=%s" % str(form_data)[:400])
 
         # INITIALIZE CONTEXT
         context["cs_additional_headers"] = {}
@@ -720,6 +730,8 @@ def main(environment, return_context=False, form_data=None):
             return lti.serve_lti(
                 context, path_info, environment, form_data, main, return_context
             )
+
+        # return ("200", "OK"), {}, "hello world"
 
         # DO PRELOAD FOR THIS REQUEST
         if context["cs_course"] is not None:
@@ -846,6 +858,7 @@ def main(environment, return_context=False, form_data=None):
             % context.get("cs_handler")
         )
         res = tutor.handle_page(context)
+        # res = ("200", "OK"), {}, "hello world"
 
         if res is not None:
             # if we're here, the handler wants to give a specific HTTP response

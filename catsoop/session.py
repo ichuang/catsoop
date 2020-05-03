@@ -53,6 +53,15 @@ The directory where sessions will be stored.
 """
 
 
+USE_CLOUD_DB = os.environ.get("USE_CLOUD_DB")
+
+if USE_CLOUD_DB:
+    try:
+        the_db = base_context.cs_db_connection
+    except Exception as err:
+        from google.cloud import firestore
+        the_db = firestore.Client()
+
 def new_session_id():
     """
     Returns a new session ID
@@ -77,16 +86,7 @@ def get_session_id(environ):
     session ID, and `new` is a Boolean that takes value `True` if the session
     ID is new (just now generated), and `False` if the session ID is not new.
     """
-    # clear out dead sessions first
-    make_session_dir()
-    now = time.time()
-    for i in os.listdir(SESSION_DIR):
-        fullname = os.path.join(SESSION_DIR, i)
-        try:
-            if os.stat(fullname).st_mtime < now - EXPIRE:
-                os.unlink(fullname)
-        except:
-            pass
+    cslog.clear_old_log_files(SESSION_DIR, EXPIRE)    # clear out dead sessions first
     if "HTTP_COOKIE" in environ:
         try:
             cookies = environ["HTTP_COOKIE"]
@@ -115,13 +115,6 @@ def get_session_id(environ):
         return new_session_id(), True
 
 
-def make_session_dir():
-    """
-    Create the session directory if it does not exist.
-    """
-    os.makedirs(SESSION_DIR, exist_ok=True)
-
-
 def get_session_data(context, sid):
     """
     Returns the session data associated with a given session ID
@@ -133,15 +126,8 @@ def get_session_data(context, sid):
 
     **Returns:** a dictionary mapping session variables to their values
     """
-    make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
-    with cslog.log_lock(["_sessions", sid]):
-        try:
-            with open(fname, "rb") as f:
-                out = cslog.unprep(f.read())
-        except:
-            out = {}  # default to returning empty session
-    return out
+    return cslog.read_log_file(fname)
 
 
 def set_session_data(context, sid, data):
@@ -156,8 +142,5 @@ def set_session_data(context, sid, data):
 
     **Returns:** `None`
     """
-    make_session_dir()
     fname = os.path.join(SESSION_DIR, sid)
-    with cslog.log_lock(["_sessions", sid]):
-        with open(fname, "wb") as f:
-            f.write(cslog.prep(data))
+    cslog.write_log_file(fname, data)
