@@ -52,16 +52,6 @@ SESSION_DIR = os.path.join(base_context.cs_data_root, "_sessions")
 The directory where sessions will be stored.
 """
 
-
-USE_CLOUD_DB = os.environ.get("USE_CLOUD_DB")
-
-if USE_CLOUD_DB:
-    try:
-        the_db = base_context.cs_db_connection
-    except Exception as err:
-        from google.cloud import firestore
-        the_db = firestore.Client()
-
 def new_session_id():
     """
     Returns a new session ID
