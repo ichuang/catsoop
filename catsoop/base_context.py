@@ -410,7 +410,7 @@ cs_all_pieces = [
     "loader",
     "mail",
     "process",
-    "queue",
+    "csqueue",
     "session",
     "time",
     "thirdparty",

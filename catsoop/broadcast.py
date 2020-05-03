@@ -1,6 +1,6 @@
 import os
 import json
-from google.cloud import firestore
+from catsoop import cslog
 
 if 0:
     cs_handler = 'raw_response'
@@ -8,12 +8,8 @@ if 0:
     response = json.dumps(get_msg())
 
 def get_msg():
-    db = firestore.Client()
-    ref = db.collection("broadcast").document("msg")
-    doc = ref.get()
-    if doc.exists:
-        return doc.to_dict()
-    return {}
+    msg = cslog.read_log_file("broadcast_msg")
+    return msg
 
 def return_content():
     content = json.dumps(get_msg())

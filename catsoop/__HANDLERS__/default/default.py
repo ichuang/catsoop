@@ -65,7 +65,7 @@ def new_entry(context, qname, action):
         obj["lti_data"] = session.get("lti_data")
 
     # safely save queue entry in database file (stage then mv)
-    id_ = context['csm_queue'].enqueue(context, obj)
+    id_ = context['csm_csqueue'].enqueue(context, obj)
     return id_
 
 
@@ -130,7 +130,7 @@ def handle_get_state(context):
             ll[i] = list(ll[i])
     ll["scores"] = {}
     for k, v in ll.get("last_submit_id", {}).items():
-        row = context['csm_queue'].get_results(v)
+        row = context['csm_csqueue'].get_results(v)
         if row is None:
             ll["scores"][k] = 0.0
         else:
@@ -1603,7 +1603,7 @@ def render_question(elt, context, lastsubmit, wrap=True):
     message = context[_n("last_log")].get("cached_responses", {}).get(name, "")
     magic = context[_n("last_log")].get("checker_ids", {}).get(name, None)
     if magic is not None:
-        result = context['csm_queue'].get_results(magic)
+        result = context['csm_csqueue'].get_results(magic)
         if result:
             message = (
                 '\n<script type="text/javascript">'
@@ -1941,7 +1941,7 @@ def pre_handle(context):
                         .replace('"', "")
                         .replace('"', "")
                     )
-                    dirname = context['csm_queue'].store_file_upload(context, name, data, value[0])
+                    dirname = context['csm_csqueue'].store_file_upload(context, name, data, value[0])
                     value[1] = dirname
         elif context["cs_upload_management"] == "db":
             pass

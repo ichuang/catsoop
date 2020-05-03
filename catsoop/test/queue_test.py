@@ -12,8 +12,8 @@ import logging
 import catsoop
 
 from catsoop import cslog
-from catsoop import queue
 from catsoop import grader
+from catsoop import csqueue
 from catsoop import dispatch
 
 import catsoop.loader as loader
@@ -59,7 +59,7 @@ class Test_Queue(CATSOOPTest):
         '''
         print("-----------------------------------------------------------------------------")
         print("Starting test_question_submit test")
-        queue.clear_all_queues(self.context)
+        csqueue.clear_all_queues(self.context)
         dispatch.auth.get_logged_in_user = self.get_logged_in_user
         api_token = '123'
         the_path = "/%s/questions" % self.cname
@@ -88,7 +88,7 @@ class Test_Queue(CATSOOPTest):
         assert 'message' in qret
 
         # get queued entry and run checker on it
-        job = queue.get_oldest_from_queue(self.context)
+        job = csqueue.get_oldest_from_queue(self.context)
         print("job=%s" % job)
         assert 'path' in job
         assert 'username' in job
@@ -101,7 +101,7 @@ class Test_Queue(CATSOOPTest):
         grader.do_check(job)
 
         # check for result
-        result = queue.get_results(id_)
+        result = csqueue.get_results(id_)
         print("result=%s" % json.dumps(result, indent=4))
         assert result 
 
@@ -129,7 +129,7 @@ class Test_Queue(CATSOOPTest):
         '''
         print("-----------------------------------------------------------------------------")
         print("Starting watch_queue test")
-        queue.clear_all_queues(self.context)
+        csqueue.clear_all_queues(self.context)
         dispatch.auth.get_logged_in_user = self.get_logged_in_user
         api_token = '123'
         the_path = "/%s/questions" % self.cname
@@ -158,7 +158,7 @@ class Test_Queue(CATSOOPTest):
         assert 'message' in qret
 
         # get queued entry and run checker on it
-        job = queue.get_oldest_from_queue(self.context, move_to_running=False)
+        job = csqueue.get_oldest_from_queue(self.context, move_to_running=False)
         print("job=%s" % job)
         assert 'path' in job
         assert 'username' in job
@@ -169,20 +169,20 @@ class Test_Queue(CATSOOPTest):
         id_ = job['magic']
         print("Job-id=%s" % id_)
 
-        queue.update_current_job_status()
-        status = queue.get_current_job_status(id_)
+        csqueue.update_current_job_status()
+        status = csqueue.get_current_job_status(id_)
         print("status=", status)
         assert status==1
 
         grader.watch_queue_and_run(max_finished=1)
 
-        queue.update_current_job_status()
-        status = queue.get_current_job_status(id_)
+        csqueue.update_current_job_status()
+        status = csqueue.get_current_job_status(id_)
         print("status=", status)
         assert status=="results"
 
         # check for result
-        result = queue.get_results(id_)
+        result = csqueue.get_results(id_)
         print("result=%s" % json.dumps(result, indent=4))
         assert result 
 

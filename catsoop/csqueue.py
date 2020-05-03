@@ -79,7 +79,7 @@ class CatsoopQueueWithFilesystem:
     
         return row
     
-    def get_results(self, context, id_):
+    def get_results(self, id_):
         '''
         Get results from job execution, if available
         '''
@@ -170,6 +170,8 @@ class CatsoopQueueWithFilesystem:
         Clear waiting queue and all running (used for unit testing, to start from a standard state)
         '''
         for qdir in [self.running, self.queued]:
+            if not os.path.exists(qdir):
+                continue
             for f in os.listdir(qdir):
                 os.unlink(os.path.join(qdir, f))
     

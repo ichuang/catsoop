@@ -19,8 +19,8 @@ from datetime import datetime
 from . import lti
 from . import auth
 from . import cslog
-from . import queue
 from . import loader
+from . import csqueue
 from . import language
 from . import dispatch
 from . import debug_log
@@ -30,10 +30,6 @@ from .process import set_pdeathsig
 LOGGER = debug_log.LOGGER
 LOGGER.setLevel(1)
     
-CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "_logs", "_checker")
-RUNNING = os.path.join(CHECKER_DB_LOC, "running")
-QUEUED = os.path.join(CHECKER_DB_LOC, "queued")
-
 REAL_TIMEOUT = base_context.cs_checker_global_timeout
 
 DEBUG = True
@@ -109,7 +105,7 @@ def save_grader_results(result_queue, context, name, row):
         return
 
     log("[grader.save_grader_results] saving result for name=%s, row=%s" % (name, row))
-    queue.save_results(context, row['magic'], row)
+    csqueue.save_results(context, row['magic'], row)
     try:
         os.close(_)
     except:
@@ -282,7 +278,7 @@ def watch_queue_and_run(max_finished=None):
     # if anything is in the "running" dir when we start, that's an error.  turn
     # those back to queued to force them to run again (put them at the front of the
     # queue).
-    queue.move_running_back_to_queued(context)
+    csqueue.move_running_back_to_queued(context)
     
     # and now actually start running
     if DEBUG:
@@ -316,7 +312,7 @@ def watch_queue_and_run(max_finished=None):
                         )
                     magic = row["magic"]
                     log("    Process %s died with exitcode %s, response=%s" % (p, p.exitcode, row['response']))
-                    queue.save_results(context, magic, row)
+                    csqueue.save_results(context, magic, row)
                 dead.add(i)
                 nfinished += 1
 
@@ -345,7 +341,7 @@ def watch_queue_and_run(max_finished=None):
 
         if base_context.cs_checker_parallel_checks - len(running) > 0:
             # otherwise, add an entry to running.
-            row = queue.get_oldest_from_queue(context, move_to_running=True)
+            row = csqueue.get_oldest_from_queue(context, move_to_running=True)
             if row:
                 # start a worker for it
                 log("Starting checker with row=%s" % row)

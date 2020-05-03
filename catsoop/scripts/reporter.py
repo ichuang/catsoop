@@ -29,7 +29,7 @@ CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if CATSOOP_LOC not in sys.path:
     sys.path.append(CATSOOP_LOC)
 
-from catsoop import queue
+from catsoop import csqueue
 import catsoop.base_context as base_context
 import websockets
 
@@ -75,7 +75,7 @@ async def reporter(websocket, path):
                 break
 
         # get our current status
-        status = queue.get_current_job_status(magic)
+        status = csqueue.get_current_job_status(magic)
 
         # if our status hasn't changed, or if we don't know yet, don't send
         # anything; just keep waiting.
@@ -87,11 +87,11 @@ async def reporter(websocket, path):
         if isinstance(status, int):
             msg = {"type": "inqueue", "position": status}
         elif status == "running":
-            start = queue.get_running_job_start_time(magic)
+            start = csqueue.get_running_job_start_time(magic)
             msg = {"type": "running", "started": start, "now": time.time()}
         elif status == "results":
             try:
-                m = queue.get_results(magic)
+                m = csqueue.get_results(magic)
             except Exception as err:
                 LOGGER.error("[catsoop.reporter]: failed to get results for job=%s, err=%s" % (magic, err))
                 return
@@ -112,7 +112,7 @@ async def reporter(websocket, path):
 
 
 def updater():
-    queue.update_current_job_status()
+    csqueue.update_current_job_status()
     loop.call_later(0.3, updater)
 
 
