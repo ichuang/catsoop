@@ -8,7 +8,7 @@ if 0:
     response = json.dumps(get_msg())
 
 def get_msg():
-    msg = cslog.read_log_file("broadcast_msg")
+    msg = cslog.read_log_file("/tmp/broadcast_msg")
     return msg
 
 def return_content():
