@@ -290,7 +290,10 @@ class CatsoopLogsWithFilesystem:
         '''
         dname = os.path.dirname(fn)
         sid = os.path.basename(fn)
-        os.makedirs(dname, exist_ok=True)
+        try:
+            os.makedirs(dname, exist_ok=True)
+        except Exception as err:
+            LOGGER.error("[cslog.read_log_file] could not makedirs dname=%s, err=%s" % (dname, err))
         lockname = os.path.basename(dname)
         with log_lock([lockname, sid]):
             try:
