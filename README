@@ -57,3 +57,10 @@ for the original programs is available in the LICENSE.included_software file.
 The CAT-SOOP distribution also includes several pieces of third-party software.
 Licensing information for these programs is included in this distribution, in
 the LICENSE.bundled_software file.
+
+-----------------------------------------------------------------------------
+
+To use with MongoDB:
+
+export USE_CLOUD_DB=mongodb
+export MONGODB=mongodb://<host>:<portnum>
