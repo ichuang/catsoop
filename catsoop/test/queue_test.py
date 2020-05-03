@@ -60,6 +60,7 @@ class Test_Queue(CATSOOPTest):
         print("-----------------------------------------------------------------------------")
         print("Starting test_question_submit test")
         csqueue.clear_all_queues(self.context)
+        old_gliu = dispatch.auth.get_logged_in_user
         dispatch.auth.get_logged_in_user = self.get_logged_in_user
         api_token = '123'
         the_path = "/%s/questions" % self.cname
@@ -118,6 +119,7 @@ class Test_Queue(CATSOOPTest):
         assert "timestamp" in data
         assert "last_submit_time" in data
         assert data['checker_ids'][qid]==id_
+        dispatch.auth.get_logged_in_user = old_gliu
 
     def test_question_submit_and_watch_queue(self):
         '''
@@ -130,6 +132,7 @@ class Test_Queue(CATSOOPTest):
         print("-----------------------------------------------------------------------------")
         print("Starting watch_queue test")
         csqueue.clear_all_queues(self.context)
+        old_gliu = dispatch.auth.get_logged_in_user
         dispatch.auth.get_logged_in_user = self.get_logged_in_user
         api_token = '123'
         the_path = "/%s/questions" % self.cname
@@ -199,3 +202,4 @@ class Test_Queue(CATSOOPTest):
         assert "timestamp" in data
         assert "last_submit_time" in data
         assert data['checker_ids'][qid]==id_
+        dispatch.auth.get_logged_in_user = old_gliu

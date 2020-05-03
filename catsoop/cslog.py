@@ -55,7 +55,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from .fernet import RawFernet
 
 LOGGER = debug_log.LOGGER
-#LOGGER.setLevel(1)
+# LOGGER.setLevel(1)
 
 _nodoc = {
     "passthrough",
@@ -325,6 +325,7 @@ class CatsoopLogsWithFilesystem:
             try:
                 if os.stat(fullname).st_mtime < now - expire:
                     os.unlink(fullname)
+                    LOGGER.debug("[cslog.clear_old_log_files] deleting %s" % fullname)
             except:
                 pass
 

@@ -21,7 +21,9 @@ Requires config to be setup, including cs_unit_test_course
 
 import unittest
 
+from catsoop import cslog
 from catsoop import loader
+from catsoop import session
 from catsoop import dispatch
 
 from ..test import CATSOOPTest
@@ -35,6 +37,7 @@ class Test_Basic(CATSOOPTest):
     """
 
     def setUp(self):
+        cslog.clear_old_log_files(session.SESSION_DIR, 0)
         CATSOOPTest.setUp(self)
         context = {}
         loader.load_global_data(context)
@@ -52,6 +55,7 @@ class Test_Basic(CATSOOPTest):
         env = {"PATH_INFO": "/%s/structure" % self.cname}
         context = dispatch.main(env, return_context=True)
         cui = context["cs_user_info"]
+        print("cs_user_info=%s" % context['cs_user_info'])
         assert cui["role"] == "Guest"
 
 

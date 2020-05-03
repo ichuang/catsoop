@@ -570,7 +570,7 @@ def get_client_ipaddr(environment):
     try:
         return environment["HTTP_X_FORWARDED_FOR"].split(",")[-1].strip()
     except KeyError:
-        return environment["REMOTE_ADDR"]
+        return environment.get("REMOTE_ADDR")
 
 
 def main(environment, return_context=False, form_data=None):
