@@ -32,8 +32,10 @@ from . import lti
 from . import auth
 from . import time
 from . import tutor
+from . import cslog
 from . import loader
 from . import errors
+from . import csqueue
 from . import session
 from . import language
 from . import debug_log
@@ -603,6 +605,8 @@ def main(environment, return_context=False, form_data=None):
     context["cs_env"] = environment
     context["cs_now"] = time.now()
     force_error = False
+    cslog.initialize()			# initialize here to ensure thread-safe behavior
+    csqueue.initialize()		# (each uWSGI thread makes its own dispatch.main call)
 
     try:
         # DETERMINE WHAT PAGE WE ARE LOADING
