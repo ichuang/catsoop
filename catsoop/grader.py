@@ -98,13 +98,13 @@ def save_grader_results(result_queue, context, name, row):
     Save results from the completion of a do_check process, for a specific question name
     '''
     if result_queue is not None:		# if result_queue then stuff results there; don't do the db update here (let the master process do it instead)
-        log("[grader.save_grader_results] queueing results for name=%s, row=%s" % (name, row))
+        log("[grader.save_grader_results] queueing results for name=%s, row=%s" % (name, str(row)[:50]))
         the_context = {'cs_data_root': context['cs_data_root']}		# used by filesystem queue
         result_queue.put((the_context, name, row))
         time.sleep(5)
         return
 
-    log("[grader.save_grader_results] saving result for name=%s, row=%s" % (name, row))
+    log("[grader.save_grader_results] saving result for name=%s, row=%s" % (name, str(row)[:50]))
     csqueue.save_results(context, row['magic'], row)
     try:
         os.close(_)
@@ -208,7 +208,7 @@ def do_check(row, result_queue=None):
         question, args = namemap[name]
         if row["action"] == "submit":
             if DEBUG:
-                log("submit name=%s, row=%s" % (name, row))
+                log("submit name=%s, row=%s" % (name, str(row)[:50]))
             try:
                 handler = question["handle_submission"]
                 if DEBUG:
@@ -307,9 +307,9 @@ def watch_queue_and_run(max_finished=None):
                         )
                     else:  # a python error or similar
                         row["response"] = (
-                            "<font color='red'><b>An unknown error occurred when "
+                            "<font color='red'><b>An unknown error (exit=%s) occurred when "
                             "processing your submission</b></font>"
-                        )
+                        ) % p.exitcode
                     magic = row["magic"]
                     log("    Process %s died with exitcode %s, response=%s" % (p, p.exitcode, row['response']))
                     csqueue.save_results(context, magic, row)
@@ -344,7 +344,7 @@ def watch_queue_and_run(max_finished=None):
             row = csqueue.get_oldest_from_queue(context, move_to_running=True)
             if row:
                 # start a worker for it
-                log("Starting checker with row=%s" % row)
+                log("Starting checker with row=%s" % str(row)[:50])
                 nstarted += 1
                 p = multiprocessing.Process(target=do_check, args=(row, result_queue))
                 p.start()
