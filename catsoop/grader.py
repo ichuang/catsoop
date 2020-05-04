@@ -28,7 +28,7 @@ from . import base_context
 from .process import set_pdeathsig
 
 LOGGER = debug_log.LOGGER
-LOGGER.setLevel(1)
+# LOGGER.setLevel(1)
     
 REAL_TIMEOUT = base_context.cs_checker_global_timeout
 
