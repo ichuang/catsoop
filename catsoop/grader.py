@@ -105,6 +105,8 @@ def save_grader_results(result_queue, context, name, row):
         return
 
     log("[grader.save_grader_results] saving result for name=%s, row=%s" % (name, str(row)[:50]))
+    # csqueue.initialize()			# http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
+    # cslog.initialize()
     csqueue.save_results(context, row['magic'], row)
     try:
         os.close(_)
@@ -122,7 +124,6 @@ def save_grader_results(result_queue, context, name, row):
         return x
 
     log("[grader.save_grader_results] updating problemstate log")
-    cslog.init_db()
     cslog.modify_most_recent(*logpath, default={},
                              transform_func=transform_func,
                              method="overwrite")
@@ -136,6 +137,9 @@ def do_check(row, result_queue=None):
 
     This is run by multiprocessing, so it should be a plain function
     """
+    cslog.initialize()		# http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
+    csqueue.initialize()	# http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
+
     os.setpgrp()  # make this part of its own process group
     set_pdeathsig()()  # but make it die if the parent dies.  will this work?
 
@@ -279,7 +283,9 @@ def watch_queue_and_run(max_finished=None):
     # those back to queued to force them to run again (put them at the front of the
     # queue).
     csqueue.move_running_back_to_queued(context)
-    
+    csqueue.update_current_job_status()
+    log("Current number of jobs in queue waiting for execution = %s" % csqueue.current_queue_length())
+
     # and now actually start running
     if DEBUG:
         log("starting main loop")
@@ -311,7 +317,7 @@ def watch_queue_and_run(max_finished=None):
                             "processing your submission</b></font>"
                         ) % p.exitcode
                     magic = row["magic"]
-                    log("    Process %s died with exitcode %s, response=%s" % (p, p.exitcode, row['response']))
+                    LOGGER.error("    Process %s died with exitcode %s, response=%s" % (p, p.exitcode, row['response']))
                     csqueue.save_results(context, magic, row)
                 dead.add(i)
                 nfinished += 1

@@ -185,6 +185,13 @@ class CatsoopQueueWithFilesystem:
         crun = self.CURRENT["running"]
         if crun:
             LOGGER.debug("[catsoop.queue] updater queued=%s" % crun)
+
+    def current_queue_length(self):
+        '''
+        Return number of jobs currently waiting in the queue.
+        Assumes self.CURRENT is up to date
+        '''
+        return len(self.CURRENT['queued'])
         
     def get_running_job_start_time(self, jobid):
         '''
@@ -233,7 +240,8 @@ class CatsoopQueueWithFirestore:
     COLLECTION = "QUEUE"
     FILE_COLLECTION = "FILE_UPLOADS"
 
-    def __init__(self):
+    def __init__(self, firestore):
+        self.firestore = firestore
         self.init_db()
         return
 
@@ -417,7 +425,7 @@ class CatsoopQueueWithFirestore:
         '''
         Initializae database connection
         '''
-        self.db = firestore.Client()		# document database
+        self.db = self.firestore.Client()		# document database
 
 #-----------------------------------------------------------------------------
 
@@ -432,7 +440,8 @@ class CatsoopQueueWithMongoDB:
     COLLECTION = "QUEUE"
     FILE_COLLECTION = "FILE_UPLOADS"
 
-    def __init__(self):
+    def __init__(self, pymongo):
+        self.pymongo = pymongo
         self.CURRENT = {"queued": [], "running": set()}
         self.init_db()
         return
@@ -567,6 +576,12 @@ class CatsoopQueueWithMongoDB:
         self.CURRENT["queued"] = queued
         self.CURRENT["running"] = running
 
+    def current_queue_length(self):
+        '''
+        Return number of jobs currently waiting in the queue.
+        Assumes self.CURRENT is up to date
+        '''
+        return len(self.CURRENT['queued'])
         
     def get_running_job_start_time(self, jobid):
         '''
@@ -651,7 +666,7 @@ class CatsoopQueueWithMongoDB:
         Initializae database connection
         '''
         mongourl = os.environ.get("MONGODB", None)
-        self.client = pymongo.MongoClient(mongourl)
+        self.client = self.pymongo.MongoClient(mongourl)
         self.db = self.client.catsoop
 
 #-----------------------------------------------------------------------------
@@ -659,22 +674,25 @@ class CatsoopQueueWithMongoDB:
 procs = ['enqueue', 'get_oldest_from_queue', 'get_results', 'save_results',
          'move_running_back_to_queued', 'store_file_upload', 'get_file_upload',
          'get_current_job_status', 'get_running_job_start_time',
-         'update_current_job_status',
+         'update_current_job_status', "current_queue_length",
          'clear_all_queues', 'init_db',
 ]
 
-USE_CLOUD_DB = os.environ.get("USE_CLOUD_DB")
-if USE_CLOUD_DB=="mongodb":
-    import pymongo
-    QUEUE = CatsoopQueueWithMongoDB()
-
-elif USE_CLOUD_DB:
-    from google.cloud import firestore
-    QUEUE = CatsoopQueueWithFirestore()
-
-else:
-    QUEUE = CatsoopQueueWithFilesystem()
-
-for pname in procs:
-    exec("%s = QUEUE.%s" % (pname, pname))
+def initialize():
+    global QUEUE
+    USE_CLOUD_DB = os.environ.get("USE_CLOUD_DB")
+    if USE_CLOUD_DB=="mongodb":
+        import pymongo
+        QUEUE = CatsoopQueueWithMongoDB(pymongo)
+    
+    elif USE_CLOUD_DB:
+        from google.cloud import firestore
+        QUEUE = CatsoopQueueWithFirestore(firestore)
+    
+    else:
+        QUEUE = CatsoopQueueWithFilesystem()
+    
+    for pname in procs:
+        exec("%s = QUEUE.%s" % (pname, pname), globals(), globals())
         
+initialize()

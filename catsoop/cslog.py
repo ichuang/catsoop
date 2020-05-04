@@ -424,7 +424,8 @@ class CatsoopLogsWithFirestore:
     '''
     COLLECTION = "LOGS"
 
-    def __init__(self):
+    def __init__(self, firestore):
+        self.firestore = firestore
         self.init_db()
         return
 
@@ -528,7 +529,7 @@ class CatsoopLogsWithFirestore:
         '''
         Initializae database connection
         '''
-        self.db = firestore.Client()		# document database
+        self.db = self.firestore.Client()		# document database
 
     def modify_most_recent(self,
         db_name,
@@ -558,7 +559,8 @@ class CatsoopLogsWithMongoDB:
     '''
     COLLECTION = "LOGS"
 
-    def __init__(self):
+    def __init__(self, pymongo):
+        self.pymongo = pymongo
         self.init_db()
         return
 
@@ -674,7 +676,7 @@ class CatsoopLogsWithMongoDB:
         Initializae database connection
         '''
         mongourl = os.environ.get("MONGODB", None)
-        self.client = pymongo.MongoClient(mongourl)
+        self.client = self.pymongo.MongoClient(mongourl)
         self.db = self.client.catsoop
 
     def modify_most_recent(self,
@@ -727,17 +729,21 @@ class CatsoopLogsWithMongoDB:
 procs = ["_modify_log", "_read_log", "most_recent", "modify_most_recent", "init_db",
          "read_log_file", "write_log_file", "clear_old_log_files"]
 
-USE_CLOUD_DB = os.environ.get("USE_CLOUD_DB")
-if USE_CLOUD_DB=="mongodb":
-    import pymongo
-    LOGS = CatsoopLogsWithMongoDB()
+def initialize():
+    global LOGS
+    USE_CLOUD_DB = os.environ.get("USE_CLOUD_DB")
+    if USE_CLOUD_DB=="mongodb":
+        import pymongo
+        LOGS = CatsoopLogsWithMongoDB(pymongo)
+        
+    elif USE_CLOUD_DB:
+        from google.cloud import firestore
+        LOGS = CatsoopLogsWithFirestore(firestore)
     
-elif USE_CLOUD_DB:
-    from google.cloud import firestore
-    LOGS = CatsoopLogsWithFirestore()
+    else:
+        LOGS = CatsoopLogsWithFilesystem()
+    
+    for pname in procs:
+        exec("%s = LOGS.%s" % (pname, pname), globals(), globals())
 
-else:
-    LOGS = CatsoopLogsWithFilesystem()
-
-for pname in procs:
-    exec("%s = LOGS.%s" % (pname, pname))
+initialize()

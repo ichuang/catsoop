@@ -57,6 +57,8 @@ class Test_Queue(CATSOOPTest):
         and the graing of that problem via the queue.
         The checker is explicitly called after submission.
         '''
+        print("")
+        print("")
         print("-----------------------------------------------------------------------------")
         print("Starting test_question_submit test")
         csqueue.clear_all_queues(self.context)
@@ -129,6 +131,8 @@ class Test_Queue(CATSOOPTest):
         The checker is called by the same queue watching procedure
         which normally runs in the non-stop checker process.
         '''
+        print("")
+        print("")
         print("-----------------------------------------------------------------------------")
         print("Starting watch_queue test")
         csqueue.clear_all_queues(self.context)
@@ -156,7 +160,7 @@ class Test_Queue(CATSOOPTest):
             raise
 
         qret = ret[qid]
-        # print("qret=%s" % qret)
+        print("qret=%s" % str(qret)[:100])
         assert "error_msg " not in qret
         assert 'message' in qret
 
@@ -177,6 +181,7 @@ class Test_Queue(CATSOOPTest):
         print("status=", status)
         assert status==1
 
+        print("running watch_queue_and_run")
         grader.watch_queue_and_run(max_finished=1)
 
         csqueue.update_current_job_status()
