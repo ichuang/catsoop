@@ -91,6 +91,7 @@ async def reporter(websocket, path):
             start = csqueue.get_running_job_start_time(magic)
             msg = {"type": "running", "started": start, "now": time.time()}
         elif status == "results":
+            # LOGGER.debug("[catsoop.reporter] getting results for jobid=%s" % magic)
             try:
                 m = csqueue.get_results(magic)
             except Exception as err:

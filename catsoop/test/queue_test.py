@@ -61,7 +61,7 @@ class Test_Queue(CATSOOPTest):
         print("")
         print("-----------------------------------------------------------------------------")
         print("Starting test_question_submit test")
-        csqueue.clear_all_queues(self.context)
+        # csqueue.clear_all_queues(self.context)
         old_gliu = dispatch.auth.get_logged_in_user
         dispatch.auth.get_logged_in_user = self.get_logged_in_user
         api_token = '123'
@@ -135,7 +135,7 @@ class Test_Queue(CATSOOPTest):
         print("")
         print("-----------------------------------------------------------------------------")
         print("Starting watch_queue test")
-        csqueue.clear_all_queues(self.context)
+        # csqueue.clear_all_queues(self.context)
         old_gliu = dispatch.auth.get_logged_in_user
         dispatch.auth.get_logged_in_user = self.get_logged_in_user
         api_token = '123'
