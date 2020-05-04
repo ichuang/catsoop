@@ -97,17 +97,18 @@ def save_grader_results(result_queue, context, name, row):
     '''
     Save results from the completion of a do_check process, for a specific question name
     '''
+    jobid = row['magic']
     if result_queue is not None:		# if result_queue then stuff results there; don't do the db update here (let the master process do it instead)
-        log("[grader.save_grader_results] queueing results for name=%s, row=%s" % (name, str(row)[:50]))
+        log("[grader.save_grader_results] queueing results for jobid=%s, name=%s, row=%s" % (jobid, name, str(row)[:50]))
         the_context = {'cs_data_root': context['cs_data_root']}		# used by filesystem queue
         result_queue.put((the_context, name, row))
         time.sleep(5)
         return
 
-    log("[grader.save_grader_results] saving result for name=%s, row=%s" % (name, str(row)[:50]))
+    log("[grader.save_grader_results] saving result for jobid=%s, name=%s, row=%s" % (jobid, name, str(row)[:50]))
     # csqueue.initialize()			# http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
     # cslog.initialize()
-    csqueue.save_results(context, row['magic'], row)
+    csqueue.save_results(context, jobid, row)
     try:
         os.close(_)
     except:
@@ -143,7 +144,8 @@ def do_check(row, result_queue=None):
     os.setpgrp()  # make this part of its own process group
     set_pdeathsig()()  # but make it die if the parent dies.  will this work?
 
-    log("[grader.do_check] started on job_id=%s, result_queue=%s" % (row['magic'], result_queue))
+    jobid = row['magic']
+    log("[grader.do_check] started on job_id=%s, result_queue=%s" % (jobid, result_queue))
 
     context = loader.generate_context(row["path"])
     context["cs_course"] = row["path"][0]
@@ -169,7 +171,7 @@ def do_check(row, result_queue=None):
             ] = True  # so that course preload.py knows
 
     cfile = dispatch.content_file_location(context, row["path"])
-    log("Loading grader python code course=%s, cfile=%s" % (context["cs_course"], cfile) )
+    log("[%s] Loading grader python code course=%s, cfile=%s" % (jobid, context["cs_course"], cfile) )
     loader.load_content(
         context, context["cs_course"], context["cs_path_info"], context, cfile
     )
@@ -188,16 +190,17 @@ def do_check(row, result_queue=None):
             if DEBUG:
                 question = elt[0]["handle_submission"]
                 dn = m.get("csq_display_name")
-                log("Map: %s (%s) -> %s" % (m["csq_name"], dn, question))
-                log(
-                    "%s csq_npoints=%s, total_points=%s"
-                    % (dn, csq_npoints, elt[0]["total_points"]())
-                )
+                if (DEBUG > 10):
+                    log("Map: %s (%s) -> %s" % (m["csq_name"], dn, question))
+                    log(
+                        "%s csq_npoints=%s, total_points=%s"
+                        % (dn, csq_npoints, elt[0]["total_points"]())
+                    )
             cnt += 1
     if DEBUG:
         log(
-            "Loaded %d procedures into question namemap (total_possible_npoints=%s)"
-            % (cnt, total_possible_npoints)
+            "[%s] Loaded %d procedures into question namemap (total_possible_npoints=%s)"
+            % (jobid, cnt, total_possible_npoints)
         )
 
     # now, depending on the action we want, take the appropriate steps
@@ -212,10 +215,10 @@ def do_check(row, result_queue=None):
         question, args = namemap[name]
         if row["action"] == "submit":
             if DEBUG:
-                log("submit name=%s, row=%s" % (name, str(row)[:50]))
+                log("[%s] submit name=%s, row=%s" % (jobid, name, str(row)[:50]))
             try:
                 handler = question["handle_submission"]
-                if DEBUG:
+                if DEBUG > 10:
                     log("handler=%s" % handler)
                 resp = handler(row["form"], **args)
                 score = resp["score"]
@@ -224,13 +227,13 @@ def do_check(row, result_queue=None):
             except Exception as err:
                 resp = {}
                 score = 0.0
-                log("Failed to handle submission, err=%s" % str(err))
+                log("[%s] Failed to handle submission, err=%s" % (jobid, str(err)))
                 log("Traceback=%s" % traceback.format_exc())
                 msg = exc_message(context)
                 extra = None
 
             if DEBUG:
-                log("submit resp=%s, msg=%s" % (str(resp)[:50], str(msg)[:50]))
+                log("[%s] submit resp=%s, msg=%s" % (jobid, str(resp)[:50], str(msg)[:50]))
 
             score_box = context["csm_tutor"].make_score_display(
                 context, args, name, score, True
@@ -247,7 +250,7 @@ def do_check(row, result_queue=None):
             extra = None
 
             if DEBUG:
-                log("check name=%s, msg=%s" % (name, msg))
+                log("[%s] check name=%s, msg=%s" % (jobid, name, msg))
 
         row["score"] = score
         row["score_box"] = score_box
@@ -255,7 +258,7 @@ def do_check(row, result_queue=None):
         row["extra_data"] = extra
 
         # save results and remove job from running
-        log("[grader.do_check] saving results for name=%s" % name)
+        log("[grader.do_check] jobid=%s: saving results for name=%s" % (jobid, name))
         save_grader_results(result_queue, context, name, row)        
 
     # update LTI tool consumer with new aggregate score (after for loop over names)
@@ -350,11 +353,13 @@ def watch_queue_and_run(max_finished=None):
             row = csqueue.get_oldest_from_queue(context, move_to_running=True)
             if row:
                 # start a worker for it
-                log("Starting checker with row=%s" % str(row)[:50])
+                log("=====> Current number of jobs in queue waiting for execution = %s" % csqueue.current_queue_length())
+                jobid = row["magic"]
+                log("Starting checker on jobid=%s, with row=%s" % (jobid, str(row)[:50]))
                 nstarted += 1
                 p = multiprocessing.Process(target=do_check, args=(row, result_queue))
                 p.start()
-                running.append((row["magic"], row, p))
+                running.append((jobid, row, p))
                 p._started = time.time()
                 p._entry = row
                 log("Process pid = %s" % p.pid)
