@@ -589,7 +589,12 @@ class CatsoopQueueWithMongoDB:
         Return number of jobs currently waiting in the queue.
         Assumes self.CURRENT is up to date
         '''
-        return len(self.CURRENT['queued'])
+        if 0:
+            nqueued = len(self.CURRENT['queued'])
+        else:
+            col = self.db[self.COLLECTION]
+            nqueued = col.count({'status': 'waiting'})
+        return nqueued
         
     def get_running_job_start_time(self, jobid):
         '''

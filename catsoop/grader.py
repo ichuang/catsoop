@@ -287,7 +287,7 @@ def watch_queue_and_run(max_finished=None):
     # queue).
     csqueue.move_running_back_to_queued(context)
     csqueue.update_current_job_status()
-    log("Current number of jobs in queue waiting for execution = %s" % csqueue.current_queue_length())
+    log("=====> Current number of jobs in queue waiting for execution = %s" % csqueue.current_queue_length())
 
     # and now actually start running
     if DEBUG:
