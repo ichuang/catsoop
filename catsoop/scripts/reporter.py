@@ -50,6 +50,7 @@ def log(msg):
 
 
 async def reporter(websocket, path):
+    csqueue.initialize()
     DEBUG = True
     if DEBUG:
         LOGGER.error("Waiting for websocket recv")
@@ -75,7 +76,6 @@ async def reporter(websocket, path):
                 break
 
         # get our current status
-        csqueue.initialize()
         status = csqueue.get_current_job_status(magic)
 
         # if our status hasn't changed, or if we don't know yet, don't send
