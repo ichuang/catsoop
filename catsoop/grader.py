@@ -226,7 +226,7 @@ def do_check(row, result_queue=None):
                 extra = None
 
             if DEBUG:
-                log("submit resp=%s, msg=%s" % (resp, msg))
+                log("submit resp=%s, msg=%s" % (str(resp)[:50], str(msg)[:50]))
 
             score_box = context["csm_tutor"].make_score_display(
                 context, args, name, score, True
