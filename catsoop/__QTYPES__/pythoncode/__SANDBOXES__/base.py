@@ -155,6 +155,9 @@ def sandbox_run_test(context, code, test):
     safe = safety_check(code, options["BADIMPORT"], options["BADVAR"])
     if isinstance(safe, tuple):
         return ("", ("On line %d: " % safe[0]) + safe[1], "")
+    if 'code' in context:
+        LOGGER.error("[pythoncode.sandbox.base] oops!  context has 'code' in it?  context['code']=%s" % str(context['code'])[:100])
+        context.pop('code')
     results = sandbox_run_code(
         context,
         prep_code(code, test, **context),
