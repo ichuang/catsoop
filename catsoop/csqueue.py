@@ -593,7 +593,7 @@ class CatsoopQueueWithMongoDB:
             nqueued = len(self.CURRENT['queued'])
         else:
             col = self.db[self.COLLECTION]
-            nqueued = int(col.estimated_document_count({'status': 'waiting'}))
+            nqueued = int(col.count_documents({'status': 'waiting'}))
         return nqueued
         
     def get_running_job_start_time(self, jobid):
