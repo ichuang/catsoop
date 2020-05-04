@@ -15,10 +15,17 @@ LOGGER = debug_log.LOGGER
 #LOGGER.setLevel(1)
 
 #-----------------------------------------------------------------------------
+# global information about current jobs
+# put it here so it is common among threads
+
+CURRENT = {"queued": [], "running": set()}
+
+#-----------------------------------------------------------------------------
 
 class CatsoopQueueWithFilesystem:
     def __init__(self):
-        self.CURRENT = {"queued": [], "running": set()}
+        global CURRENT
+        self.CURRENT = CURRENT
         self.cs_data_root = base_context.cs_data_root
         self.checker_db_loc = os.path.join(self.cs_data_root, "_logs", "_checker")
         self.staging = os.path.join(self.checker_db_loc, "staging")
@@ -441,8 +448,9 @@ class CatsoopQueueWithMongoDB:
     FILE_COLLECTION = "FILE_UPLOADS"
 
     def __init__(self, pymongo):
+        global CURRENT
         self.pymongo = pymongo
-        self.CURRENT = {"queued": [], "running": set()}
+        self.CURRENT = CURRENT
         self.init_db()
         return
 

@@ -75,6 +75,7 @@ async def reporter(websocket, path):
                 break
 
         # get our current status
+        csqueue.initialize()
         status = csqueue.get_current_job_status(magic)
 
         # if our status hasn't changed, or if we don't know yet, don't send
@@ -112,6 +113,7 @@ async def reporter(websocket, path):
 
 
 def updater():
+    csqueue.initialize()
     csqueue.update_current_job_status()
     loop.call_later(0.3, updater)
 
