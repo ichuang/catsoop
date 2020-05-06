@@ -263,6 +263,7 @@ def do_check(row, result_queue=None):
 
     # update LTI tool consumer with new aggregate score (after for loop over names)
     if have_lti and lti_handler.have_data and row["action"] == "submit":
+        logpath = (row["username"], row["path"], "problemstate")
         x = context["csm_cslog"].most_recent(*logpath)
         update_lti(row, x)
 
