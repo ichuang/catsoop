@@ -68,12 +68,12 @@ def update_lti(lti_handler, row, problemstate, total_possible_npoints):
             aggregate_score * 1.0 / total_possible_npoints
         )  # LTI wants score in [0, 1.0]
         log(
-            "Computed aggregate score from %d questions, aggregate_score=%s (fraction=%s)"
-            % (cnt, aggregate_score, aggregate_score_fract)
+            "Computed aggregate score from %d questions, total_possible=%s, aggregate_score=%s (fraction=%s)"
+            % (cnt, total_possible_npoints, aggregate_score, aggregate_score_fract)
         )
         log(
-            "magic=%s sending aggregate_score_fract=%s to LTI tool consumer"
-            % (row["magic"], aggregate_score_fract)
+            "magic=%s sending aggregate_score_fract=%s to LTI tool consumer, scores=%s"
+            % (row["magic"], aggregate_score_fract, problemstate['scores'])
         )
         score_ok = True
     except Exception as err:
