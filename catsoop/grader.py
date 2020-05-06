@@ -58,18 +58,27 @@ def update_lti(lti_handler, row, problemstate, total_possible_npoints, npoints_b
     aggregate_score = 0
     cnt = 0
     try:
+        empirical_total_possible = 0
         for k, v in problemstate["scores"].items():  # e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
-            aggregate_score += float(v) * npoints_by_name.get(k)
+            v = float(v)
+            nbyn = npoints_by_name.get(str(k), 1.0)
+            if v and (not nbyn):
+                nbyn = 1
+            aggregate_score += v * nbyn
+            if (DEBUG > 10):
+                log("    Adding to aggregate_score: k=%s, v=%s, nbyn=%s" % (k, v, nbyn))
             cnt += 1
-        if total_possible_npoints == 0:
-            total_possible_npoints = 1.0
-            LOGGER.error("[checker] total_possible_npoints=0 ????")
+            empirical_total_possible += nbyn
+
+        if total_possible_npoints == 0 or total_possible_npoints < empirical_total_possible:
+            total_possible_npoints = empirical_total_possible
+            LOGGER.error("[checker] total_possible_npoints=0 ???? changed to empirical_total_possible=%s" % empirical_total_possible)
         aggregate_score_fract = (
             aggregate_score * 1.0 / total_possible_npoints
         )  # LTI wants score in [0, 1.0]
         log(
-            "Computed aggregate score from %d questions, total_possible=%s, aggregate_score=%s (fraction=%s)"
-            % (cnt, total_possible_npoints, aggregate_score, aggregate_score_fract)
+            "Computed aggregate score from %d questions, total_possible=%s, nbyname=%s, aggregate_score=%s (fraction=%s)"
+            % (cnt, total_possible_npoints, npoints_by_name, aggregate_score, aggregate_score_fract)
         )
         log(
             "magic=%s sending aggregate_score_fract=%s to LTI tool consumer, scores=%s"
@@ -185,7 +194,7 @@ def do_check(row, result_queue=None):
             m = elt[1]
             namemap[m["csq_name"]] = elt
             csq_npoints = m.get("csq_npoints", 0)
-            npoints_by_name[m['csq_name']] = float(csq_npoints)
+            npoints_by_name[str(m['csq_name'])] = float(csq_npoints)
             total_possible_npoints += (
                 csq_npoints
             )  # used to compute total aggregate score pct

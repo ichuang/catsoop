@@ -54,7 +54,7 @@ class Test_Queue(CATSOOPTest):
     def test_question_submit(self):
         '''
         Test submission to an asynchronousely graded problem,
-        and the graing of that problem via the queue.
+        and the grading of that problem via the queue.
         The checker is explicitly called after submission.
         '''
         print("")
@@ -126,7 +126,7 @@ class Test_Queue(CATSOOPTest):
     def test_question_submit_and_watch_queue(self):
         '''
         Test submission to an asynchronousely graded problem,
-        and the graing of that problem via the queue.
+        and the grading of that problem via the queue.
 
         The checker is called by the same queue watching procedure
         which normally runs in the non-stop checker process.
@@ -208,3 +208,61 @@ class Test_Queue(CATSOOPTest):
         assert "last_submit_time" in data
         assert data['checker_ids'][qid]==id_
         dispatch.auth.get_logged_in_user = old_gliu
+
+    def test_question_submit_and_lti_grade(self):
+        '''
+        Test submission to an asynchronousely graded problem,
+        and the submission of the grade to LTI
+        '''
+        print("")
+        print("")
+        print("-----------------------------------------------------------------------------")
+        print("Starting LTI grade submission test")
+        old_gliu = dispatch.auth.get_logged_in_user
+        dispatch.auth.get_logged_in_user = self.get_logged_in_user
+
+        class lti_handler:
+            def __init__(self, parent):
+                self.parent = parent
+                self.have_data = True
+                self.lti_data = "foo"
+            def send_outcome(self, aggregate_score_fract):
+                print("LTI.send_outcome: set aggregate_score_fract=%s" % aggregate_score_fract)
+                self.parent.aggregate_score_fract = aggregate_score_fract
+
+        self.context['cs_lti_config'] = {'foo': 1}
+        def lti4cs_response(context, lti_data):
+            return lti_handler(self)
+        gll = grader.lti.lti4cs_response
+        grader.lti.lti4cs_response = lti4cs_response
+
+        api_token = '123'
+        the_path = "/%s/questions" % self.cname
+        qid = "q000005"
+        form_data = {'action': 'submit',
+                     'names': json.dumps([qid]),
+                     'api_token': api_token,
+                     'data': json.dumps({"q000005":"[0.11, 0.2, 0.3, 0.4, 0.5]"}),
+        }
+        env = {"PATH_INFO": the_path,
+               'REMOTE_ADDR': 'dummy_ip',
+        }
+
+        status, retinfo, msg = dispatch.main(env, form_data=form_data)
+
+        job = csqueue.get_oldest_from_queue(self.context)
+        job['lti_data'] = {'lis_outcome_service_url': 'dummy_url'}
+        id_ = job['magic']
+        print("Job-id=%s" % id_)
+        grader.do_check(job)
+
+        # check for result
+        result = csqueue.get_results(id_)
+        print("result=%s" % json.dumps(result, indent=4))
+        assert result 
+
+        assert self.aggregate_score_fract > 0
+        grader.lti.lti4cs_response = gll
+        self.context.pop("cs_lti_config")
+        dispatch.auth.get_logged_in_user = old_gliu
+        
