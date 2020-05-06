@@ -51,7 +51,7 @@ def exc_message(context):
     return ('<p><font color="red"><b>CAT-SOOP ERROR:</b><pre>%s</pre></font>') % exc
 
 
-def update_lti(lti_handler, row, problemstate, total_possible_npoints):
+def update_lti(lti_handler, row, problemstate, total_possible_npoints, npoints_by_name):
     '''
     update LTI tool consumer with new aggregate score
     '''
@@ -59,7 +59,7 @@ def update_lti(lti_handler, row, problemstate, total_possible_npoints):
     cnt = 0
     try:
         for k, v in problemstate["scores"].items():  # e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
-            aggregate_score += float(v)
+            aggregate_score += float(v) * npoints_by_name.get(k)
             cnt += 1
         if total_possible_npoints == 0:
             total_possible_npoints = 1.0
@@ -179,11 +179,13 @@ def do_check(row, result_queue=None):
     namemap = collections.OrderedDict()
     cnt = 0
     total_possible_npoints = 0
+    npoints_by_name = {}
     for elt in context["cs_problem_spec"]:
         if isinstance(elt, tuple):  # each elt is (problem_context, problem_kwargs)
             m = elt[1]
             namemap[m["csq_name"]] = elt
             csq_npoints = m.get("csq_npoints", 0)
+            npoints_by_name[m['csq_name']] = float(csq_npoints)
             total_possible_npoints += (
                 csq_npoints
             )  # used to compute total aggregate score pct
@@ -265,7 +267,7 @@ def do_check(row, result_queue=None):
     if have_lti and lti_handler.have_data and row["action"] == "submit":
         logpath = (row["username"], row["path"], "problemstate")
         x = context["csm_cslog"].most_recent(*logpath)
-        update_lti(lti_handler, row, x, total_possible_npoints)
+        update_lti(lti_handler, row, x, total_possible_npoints, npoints_by_name)
 
 
 def watch_queue_and_run(max_finished=None):
