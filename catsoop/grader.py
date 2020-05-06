@@ -58,7 +58,7 @@ def update_lti(row, problemstate, total_possible_npoints):
     aggregate_score = 0
     cnt = 0
     try:
-        for k, v in x["scores"].items():  # e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
+        for k, v in problemstate["scores"].items():  # e.g. 'scores': {'q000000': 1.0, 'q000001': True, 'q000002': 1.0}
             aggregate_score += float(v)
             cnt += 1
         if total_possible_npoints == 0:
@@ -78,8 +78,8 @@ def update_lti(row, problemstate, total_possible_npoints):
         score_ok = True
     except Exception as err:
         LOGGER.error(
-            "[checker] failed to compute score for problem %s, err=%s"
-            % (row, err)
+            "[checker] failed to compute score for problem %s, err=%s, traceback=%s"
+            % (str(row)[:100], err, traceback.format_exc())
         )
         score_ok = False
 
@@ -88,10 +88,10 @@ def update_lti(row, problemstate, total_possible_npoints):
             lti_handler.send_outcome(aggregate_score_fract)
         except Exception as err:
             LOGGER.error(
-                "[checker] failed to send outcome to LTI consumer, err=%s"
-                % str(err)
+                "[checker] failed to send outcome to LTI consumer, problem=%s, err=%s, traceback=%s"
+                % (str(row)[:100], str(err), traceback.format_exc())
             )
-            LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
+            # LOGGER.error("[checker] traceback=%s" % traceback.format_exc())
 
 def save_grader_results(result_queue, context, name, row):
     '''
