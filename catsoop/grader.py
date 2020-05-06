@@ -51,7 +51,7 @@ def exc_message(context):
     return ('<p><font color="red"><b>CAT-SOOP ERROR:</b><pre>%s</pre></font>') % exc
 
 
-def update_lti(row, problemstate):
+def update_lti(row, problemstate, total_possible_npoints):
     '''
     update LTI tool consumer with new aggregate score
     '''
@@ -79,7 +79,7 @@ def update_lti(row, problemstate):
     except Exception as err:
         LOGGER.error(
             "[checker] failed to compute score for problem %s, err=%s"
-            % (x, err)
+            % (row, err)
         )
         score_ok = False
 
@@ -265,7 +265,7 @@ def do_check(row, result_queue=None):
     if have_lti and lti_handler.have_data and row["action"] == "submit":
         logpath = (row["username"], row["path"], "problemstate")
         x = context["csm_cslog"].most_recent(*logpath)
-        update_lti(row, x)
+        update_lti(row, x, total_possible_npoints)
 
 
 def watch_queue_and_run(max_finished=None):
