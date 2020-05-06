@@ -261,7 +261,7 @@ class Test_Queue(CATSOOPTest):
         print("result=%s" % json.dumps(result, indent=4))
         assert result 
 
-        assert self.aggregate_score_fract > 0
+        assert self.aggregate_score_fract == 0
         grader.lti.lti4cs_response = gll
         self.context.pop("cs_lti_config")
         dispatch.auth.get_logged_in_user = old_gliu
