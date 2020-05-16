@@ -310,7 +310,7 @@ def watch_queue_and_run(max_finished=None):
         dead = set()
         if DEBUG and not (len(running) == nrunning):  # output debug message when nrunning changes
             nrunning = len(running)
-            log("have %d running (%s)" % (nrunning, running))
+            log("have %d running (%s)" % (nrunning, [ str(x)[:100] for x in running ]))
 
         for i in range(len(running)):
             id_, row, p = running[i]
