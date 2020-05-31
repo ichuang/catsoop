@@ -31,6 +31,7 @@ import re
 import ast
 import sys
 import copy
+import codecs
 import random
 import string
 import hashlib
@@ -576,7 +577,7 @@ def handle_includes(context, text):
                 continue
             if not os.path.isfile(fname):
                 continue
-            with open(fname) as f:
+            with codecs.open(fname, encoding="utf8") as f:
                 replacements.append(f.read())
         return "\n\n".join(replacements)
 

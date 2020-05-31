@@ -106,7 +106,7 @@ class lti4cs(pylti.common.LTIBase):
         Save LTI data locally (e.g. so that the checker can send grades back to the LTI tool consumer)
         """
         logging = context["csm_cslog"]
-        uname = context["cs_user_info"]["username"]
+        uname = context.get("cs_user_info", {}).get("username", "None")
         db_name = "_lti_data"
         logging.overwrite_log(db_name, [], uname, self.lti_data)
         lfn = logging.get_log_filename(db_name, [], uname)

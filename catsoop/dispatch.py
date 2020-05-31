@@ -32,12 +32,15 @@ from . import lti
 from . import auth
 from . import time
 from . import tutor
+from . import cslog
 from . import loader
 from . import errors
+from . import csqueue
 from . import session
 from . import language
 from . import debug_log
 from . import base_context
+from . import broadcast
 
 _nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form", "LOGGER", "md5"}
 
@@ -569,7 +572,7 @@ def get_client_ipaddr(environment):
     try:
         return environment["HTTP_X_FORWARDED_FOR"].split(",")[-1].strip()
     except KeyError:
-        return environment["REMOTE_ADDR"]
+        return environment.get("REMOTE_ADDR")
 
 
 def main(environment, return_context=False, form_data=None):
@@ -602,6 +605,9 @@ def main(environment, return_context=False, form_data=None):
     context["cs_env"] = environment
     context["cs_now"] = time.now()
     force_error = False
+    cslog.initialize()			# initialize here to ensure thread-safe behavior
+    csqueue.initialize()		# (each uWSGI thread makes its own dispatch.main call)
+
     try:
         # DETERMINE WHAT PAGE WE ARE LOADING
         path_info = environment.get("PATH_INFO", "/")
@@ -615,6 +621,14 @@ def main(environment, return_context=False, form_data=None):
             return serve_static_file(
                 context, static_file_location(context, path_info[1:]), environment
             )
+
+        # special for broadcast message
+        if len(path_info) and path_info[0]=="msg":
+            return broadcast.return_content()
+
+        # special for /static
+        if len(path_info) and path_info[0]=="static":
+            return broadcast.return_static(path_info)
 
         # LOAD FORM DATA
         if "wsgi.input" in environment:
@@ -720,6 +734,8 @@ def main(environment, return_context=False, form_data=None):
             return lti.serve_lti(
                 context, path_info, environment, form_data, main, return_context
             )
+
+        # return ("200", "OK"), {}, "hello world"
 
         # DO PRELOAD FOR THIS REQUEST
         if context["cs_course"] is not None:
@@ -846,6 +862,7 @@ def main(environment, return_context=False, form_data=None):
             % context.get("cs_handler")
         )
         res = tutor.handle_page(context)
+        # res = ("200", "OK"), {}, "hello world"
 
         if res is not None:
             # if we're here, the handler wants to give a specific HTTP response

@@ -27,6 +27,13 @@ import binascii
 import traceback
 import collections
 
+from catsoop import debug_log
+
+_nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form", "LOGGER", "md5"}
+
+LOGGER = debug_log.LOGGER
+# LOGGER.setLevel(1)
+
 from bs4 import BeautifulSoup
 
 _prefix = "cs_defaulthandler_"
@@ -43,7 +50,6 @@ def new_entry(context, qname, action):
 
     Returns uuid for the new queue entry.
     """
-    id_ = str(uuid.uuid4())
     obj = {
         "path": context["cs_path_info"],
         "username": context.get("cs_username", "None"),
@@ -59,18 +65,7 @@ def new_entry(context, qname, action):
         obj["lti_data"] = session.get("lti_data")
 
     # safely save queue entry in database file (stage then mv)
-    loc = os.path.join(context["cs_data_root"], "_logs", "_checker", "staging", id_)
-    os.makedirs(os.path.dirname(loc), exist_ok=True)
-    with open(loc, "wb") as f:
-        f.write(context["csm_cslog"].prep(obj))
-    newloc = os.path.join(
-        context["cs_data_root"],
-        "_logs",
-        "_checker",
-        "queued",
-        "%s_%s" % (time.time(), id_),
-    )
-    shutil.move(loc, newloc)
+    id_ = context['csm_csqueue'].enqueue(context, obj)
     return id_
 
 
@@ -118,6 +113,7 @@ def handle(context):
     }
 
     action = context[_n("action")]
+    # LOGGER.info("[catsoop.default] action=%s" % action)
     return mode_handlers.get(action, _unknown_handler(action))(context)
 
 
@@ -134,22 +130,7 @@ def handle_get_state(context):
             ll[i] = list(ll[i])
     ll["scores"] = {}
     for k, v in ll.get("last_submit_id", {}).items():
-        try:
-            with open(
-                os.path.join(
-                    context["cs_data_root"],
-                    "_logs",
-                    "_checker",
-                    "results",
-                    v[0],
-                    v[1],
-                    v,
-                ),
-                "rb",
-            ) as f:
-                row = context["csm_cslog"].unprep(f.read())
-        except:
-            row = None
+        row = context['csm_csqueue'].get_results(v)
         if row is None:
             ll["scores"][k] = 0.0
         else:
@@ -1622,18 +1603,8 @@ def render_question(elt, context, lastsubmit, wrap=True):
     message = context[_n("last_log")].get("cached_responses", {}).get(name, "")
     magic = context[_n("last_log")].get("checker_ids", {}).get(name, None)
     if magic is not None:
-        checker_loc = os.path.join(
-            context["cs_data_root"],
-            "_logs",
-            "_checker",
-            "results",
-            magic[0],
-            magic[1],
-            magic,
-        )
-        if os.path.isfile(checker_loc):
-            with open(checker_loc, "rb") as f:
-                result = context["csm_cslog"].unprep(f.read())
+        result = context['csm_csqueue'].get_results(magic)
+        if result:
             message = (
                 '\n<script type="text/javascript">'
                 "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
@@ -1942,6 +1913,7 @@ def pre_handle(context):
 
     # what is the user trying to do?
     context[_n("action")] = context["cs_form"].get("action", "view").lower()
+    # LOGGER.info("[catsoop.default.pre_handle] action=%s, cs_form=%s" % (context[_n("action")], context['cs_form']))
     if context[_n("action")] in (
         "view",
         "activate",
@@ -1962,22 +1934,6 @@ def pre_handle(context):
                     continue
                 if isinstance(value, list):
                     data = csm_thirdparty.data_uri.DataURI(value[1]).data
-                    if context["csm_cslog"].ENCRYPT_KEY is not None:
-                        seed = (
-                            context["cs_path_info"][0]
-                            if context["cs_path_info"]
-                            else context["cs_path_info"]
-                        )
-                        _path = [
-                            context["csm_cslog"]._e(i, repr(seed))
-                            for i in context["cs_path_info"]
-                        ]
-                    else:
-                        _path = context["cs_path_info"]
-                    dir_ = os.path.join(
-                        context["cs_data_root"], "_logs", "_uploads", *_path
-                    )
-                    os.makedirs(dir_, exist_ok=True)
                     value[0] = (
                         value[0]
                         .replace("<", "")
@@ -1985,24 +1941,7 @@ def pre_handle(context):
                         .replace('"', "")
                         .replace('"', "")
                     )
-                    hstring = hashlib.sha256(data).hexdigest()
-                    info = {
-                        "filename": value[0],
-                        "username": context["cs_username"],
-                        "time": context["csm_time"].detailed_timestamp(
-                            context["cs_now"]
-                        ),
-                        "question": name,
-                        "hash": hstring,
-                    }
-
-                    disk_fname = "_csfile.%s%s" % (uuid.uuid4().hex, hstring)
-                    dirname = os.path.join(dir_, disk_fname)
-                    os.makedirs(dirname, exist_ok=True)
-                    with open(os.path.join(dirname, "content"), "wb") as f:
-                        f.write(context["csm_cslog"].compress_encrypt(data))
-                    with open(os.path.join(dirname, "info"), "wb") as f:
-                        f.write(context["csm_cslog"].prep(info))
+                    dirname = context['csm_csqueue'].store_file_upload(context, name, data, value[0])
                     value[1] = dirname
         elif context["cs_upload_management"] == "db":
             pass

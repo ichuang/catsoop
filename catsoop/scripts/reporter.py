@@ -29,18 +29,11 @@ CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if CATSOOP_LOC not in sys.path:
     sys.path.append(CATSOOP_LOC)
 
-from catsoop.cslog import unprep
+from catsoop import csqueue
 import catsoop.base_context as base_context
 import websockets
 
 DEBUG = True
-
-CHECKER_DB_LOC = os.path.join(base_context.cs_data_root, "_logs", "_checker")
-RUNNING = os.path.join(CHECKER_DB_LOC, "running")
-QUEUED = os.path.join(CHECKER_DB_LOC, "queued")
-RESULTS = os.path.join(CHECKER_DB_LOC, "results")
-
-CURRENT = {"queued": [], "running": set()}
 
 PORTNUM = base_context.cs_checker_server_port
 logging.basicConfig(format="%(asctime)s - %(message)s")
@@ -56,20 +49,8 @@ def log(msg):
     LOGGER.info(omsg)
 
 
-def get_status(magic):
-    try:
-        s = CURRENT["queued"].index(magic) + 1
-    except:
-        if magic in CURRENT["running"]:
-            s = "running"
-        elif os.path.isfile(os.path.join(RESULTS, magic[0], magic[1], magic)):
-            s = "results"
-        else:
-            return
-    return s
-
-
 async def reporter(websocket, path):
+    csqueue.initialize()
     DEBUG = True
     if DEBUG:
         LOGGER.error("Waiting for websocket recv")
@@ -95,14 +76,7 @@ async def reporter(websocket, path):
                 break
 
         # get our current status
-        status = None
-        try:
-            status = CURRENT["queued"].index(magic) + 1
-        except:
-            if magic in CURRENT["running"]:
-                status = "running"
-            elif os.path.isfile(os.path.join(RESULTS, magic[0], magic[1], magic)):
-                status = "results"
+        status = csqueue.get_current_job_status(magic)
 
         # if our status hasn't changed, or if we don't know yet, don't send
         # anything; just keep waiting.
@@ -114,16 +88,14 @@ async def reporter(websocket, path):
         if isinstance(status, int):
             msg = {"type": "inqueue", "position": status}
         elif status == "running":
-            try:
-                start = os.stat(os.path.join(RUNNING, magic)).st_ctime
-            except:
-                start = time.time()
+            start = csqueue.get_running_job_start_time(magic)
             msg = {"type": "running", "started": start, "now": time.time()}
         elif status == "results":
+            # LOGGER.debug("[catsoop.reporter] getting results for jobid=%s" % magic)
             try:
-                with open(os.path.join(RESULTS, magic[0], magic[1], magic), "rb") as f:
-                    m = unprep(f.read())
-            except:
+                m = csqueue.get_results(magic)
+            except Exception as err:
+                LOGGER.error("[catsoop.reporter]: failed to get results for job=%s, err=%s" % (magic, err))
                 return
             sb = m.get("score_box", "?")
             r = m.get("response", "?")
@@ -142,11 +114,8 @@ async def reporter(websocket, path):
 
 
 def updater():
-    CURRENT["queued"] = [i.split("_")[1] for i in sorted(os.listdir(QUEUED))]
-    CURRENT["running"] = {i.name for i in os.scandir(RUNNING)}
-    crun = CURRENT["running"]
-    if DEBUG and crun:
-        log("updater queued=%s" % crun)
+    csqueue.initialize()
+    csqueue.update_current_job_status()
     loop.call_later(0.3, updater)
 
 

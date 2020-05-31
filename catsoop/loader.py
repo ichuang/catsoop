@@ -24,6 +24,7 @@ code in content files, and evaluation of plugins.
 import os
 import re
 import sys
+import codecs
 import shutil
 import random
 import importlib
@@ -557,7 +558,7 @@ def load_content(context, course, path, into, content_file=None):
     else:
         into["cs_children"] = {}
     into["cs_source_format"] = content_file.rsplit(".", 1)[-1]
-    with open(content_file) as f:
+    with codecs.open(content_file, encoding="utf8") as f:
         into["cs_content"] = f.read()
     into["cs_local_python_import"] = _make_file_importer(directory)
     if into["cs_source_format"] != "py":
