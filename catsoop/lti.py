@@ -323,12 +323,19 @@ def serve_lti(context, path_info, environment, params, dispatch_main, return_con
     LOGGER.info("[lti] lti_action=%s, path_info=%s" % (lti_action, path_info))
 
     session_data = context["cs_session_data"]
+    force_load_lti_data = True
     if "is_lti_user" in session_data:  # needed to handle form POSTS to _lti/course/...
         lti_ok = True  # already authenticated
         l4c = None
-    else:
+        force_load_lti_data = False			# no need to load LTI data again, if it wasn't provided in session_data
+        if params.get("oauth_signature_method", None) and params.get("lti_message_type", None):
+            # re-generate lti data, because it may have changed, e.g. due to LTI user visiting from new LTI consumer page
+            force_load_lti_data = True
+
+    if force_load_lti_data:
         l4c = lti4cs(context, session_data, {}, {})  # not yet authenticated; check now
         lti_ok = l4c.verify_request(params, environment)
+
     if not lti_ok:
         msg = "LTI verification failed"
     elif l4c is not None:
