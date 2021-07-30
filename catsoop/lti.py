@@ -343,16 +343,22 @@ def serve_lti(context, path_info, environment, params, dispatch_main, return_con
         lup = context["cs_lti_config"].get("lti_username_prefix", "lti_")
 
         default_user_id_field = "user_id"	# used by OpenEdX
-        if 'canvas' in lti_data.get("tool_consumer_info_product_family_code"):
+        is_canvas = 'canvas' in lti_data.get("tool_consumer_info_product_family_code")
+        if is_canvas:
             default_user_id_field = "custom_canvas_user_login_id"	# used by Canvas LMS
         lti_user_id_field = context["cs_lti_config"].get("lti_user_id_field", default_user_id_field)	# allow config to override LTI field to use for uname
 
-        lti_uname = lti_data[lti_user_id_field]
-        if not context["cs_lti_config"].get("force_username_from_id"):
+        if 0:
+            LOGGER.error("[lti] lti_data=%s" % str(lti_data))		# for deep LTI debugging
+        lti_uname = lti_data.get(lti_user_id_field, lti_data.get("lti_user_id_field", "unknown"))
+        if context["cs_lti_config"].get("force_username_from_sourcedid"):
             lti_uname = lti_data.get(
                 "lis_person_sourcedid", lti_uname
             )  # prefer username to user_id
         uname = "%s%s" % (lup, lti_uname)
+        if is_canvas:
+            if ('@' in uname) and (not context["cs_lti_config"].get("ok_to_have_at_sign_in_username")):
+                uname = uname.split('@')[0]
         email = lti_data.get("lis_person_contact_email_primary", "%s@unknown" % uname)
         name = lti_data.get("lis_person_name_full", uname)
         lti_data["cs_user_info"] = {
