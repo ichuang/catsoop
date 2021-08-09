@@ -614,7 +614,7 @@ def main(environment, return_context=False, form_data=None):
         context["cs_original_path"] = path_info[1:]
         path_info = [i for i in path_info.split("/") if i != ""]
         if path_info and not path_info[0] == "_static":
-            LOGGER.info("[dispatch.main] path_info=%s" % path_info)
+            LOGGER.info("[dispatch.main] path_info=%s" % str(path_info)[:200])
 
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
         if len(path_info) > 0 and path_info[0] == "_static":
@@ -709,7 +709,7 @@ def main(environment, return_context=False, form_data=None):
             url_root = urllib.parse.urlparse(context["cs_url_root"])
             domain = url_root.netloc.rsplit(":", 1)[0]
             path = url_root.path or "/"
-            hdr["Set-Cookie"] = "sid=%s; Domain=%s; Path=%s" % (
+            hdr["Set-Cookie"] = "sid=%s; Domain=%s; Path=%s; SameSite=None; Secure" % (		# allow non same-site cookie setting (e.g. server at .mit.edu. LTI tool user at foo.com)
                 context["cs_sid"],
                 domain,
                 path,

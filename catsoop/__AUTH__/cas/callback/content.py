@@ -17,6 +17,7 @@
 Store ticket, validate ticket, and then return user info if all ok
 """
 
+import time
 import urllib.parse
 import urllib.request
 
@@ -37,16 +38,26 @@ def validate_ticket(ticket):
         + "&ticket="
         + urllib.parse.quote(ticket)
     )
-    try:
-        ret = urllib.request.urlopen(val_url).read()
-    except Exception as err:
-        errors.append("CAS server rejected token request.")
-        errors.append(str(err))
-        LOGGER.error(
-            "[auth.cas.validate] failed to sent validation request to cas server val_url=%s"
-            % val_url
-        )
-        LOGGER.error("[auth.cas.validate] err=%s" % str(err))
+    nretries = 10
+    ret = None
+    for k in range(nretries):
+        try:
+            ret = urllib.request.urlopen(val_url).read()
+            if k > 0:
+                LOGGER.error("[auth.cas.validate] Succeeded on try number k=%s" % k)
+            break
+        except Exception as err:
+            errors.append("CAS server rejected token request on try number %s" % k)
+            errors.append(str(err))
+            LOGGER.error(
+                "[auth.cas.validate] failed to sent validation request to cas server val_url=%s"
+                % val_url
+            )
+            LOGGER.error("[auth.cas.validate] FAILED ON TRY %s: err=%s" % (k, str(err)))
+        time.sleep(0.1 * (k+1))
+
+    if ret is None:
+        LOGGER.error("[auth.cas.validate] GIVING UP after %s retries" % k)
         return None
 
     ret = ret.decode("utf8")
