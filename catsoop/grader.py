@@ -27,6 +27,15 @@ from . import debug_log
 from . import base_context
 from .process import set_pdeathsig
 
+try:
+    # under macOS, need to use fork for multiprocessing
+    import platform
+    if platform.system().startswith("Darwin"):
+        # multiprocessing.freeze_support()
+        multiprocessing.set_start_method('fork')
+except RuntimeError:
+    pass
+
 LOGGER = debug_log.LOGGER
 # LOGGER.setLevel(1)
     
