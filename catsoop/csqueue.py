@@ -7,6 +7,7 @@ import time
 import uuid
 import shutil
 import hashlib
+import traceback
 from . import cslog
 from . import debug_log
 from . import base_context
@@ -466,7 +467,18 @@ class CatsoopQueueWithMongoDB:
                 'time': time.time(),
                 'status': 'waiting',
         }
-        ref = col.replace_one({"_id": id_}, data, upsert=True)
+        try:		# mongo cannot serialize set data ; convert set to list, if exists
+            cui = data['job']['lti_data']['cs_user_info']
+            cui['permissions'] = list(cui['permissions'])
+        except Exception as err:
+            pass
+            
+        try:
+            ref = col.replace_one({"_id": id_}, data, upsert=True)
+        except Exception as err:
+            LOGGER.error("[csqueue] failed to enqueue job, error=%s, data=%s, traceback=%s" % 
+                         (err, repr(data), traceback.format_exc()))
+            raise
         return id_
         
     def get_oldest_from_queue(self, context, move_to_running=True):
