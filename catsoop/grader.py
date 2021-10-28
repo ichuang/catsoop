@@ -175,12 +175,13 @@ def do_check(row, result_queue=None):
     have_lti = ("cs_lti_config" in context) and ("lti_data" in row)
     if have_lti:
         push_scores_to_lti_consumer = context.get("cs_lti_config", {}).get("push_scores_to_lti_consumer", False)	# flag for whether or not to send scores to LTI consumer
+        lti_verbose_debug = context.get("cs_lti_config", {}).get("verbose_debug", False)
         lti_data = row["lti_data"]
         lti_handler = lti.lti4cs_response(
             context, lti_data
         )  # LTI response handler, from row['lti_data']
         log("lti_handler.have_data=%s" % lti_handler.have_data)
-        if lti_handler.have_data:
+        if lti_handler.have_data and lti_verbose_debug:
             log("lti_data=%s" % lti_handler.lti_data)
             if not "cs_session_data" in context:
                 context["cs_session_data"] = {}
