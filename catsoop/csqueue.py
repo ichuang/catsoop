@@ -470,6 +470,10 @@ class CatsoopQueueWithMongoDB:
         try:		# mongo cannot serialize set data ; convert set to list, if exists
             cui = data['job']['lti_data']['cs_user_info']
             cui['permissions'] = list(cui['permissions'])
+            if 'real_user' in cui:
+                rui = cui['real_user']
+                rui['permissions'] = list(rui['permissions'])
+                rui['p'] = list(rui['p'])
         except Exception as err:
             pass
             
