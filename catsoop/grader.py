@@ -174,12 +174,14 @@ def do_check(row, result_queue=None):
 
     have_lti = ("cs_lti_config" in context) and ("lti_data" in row)
     if have_lti:
+        push_scores_to_lti_consumer = context.get("cs_lti_config", {}).get("push_scores_to_lti_consumer", False)	# flag for whether or not to send scores to LTI consumer
+        lti_verbose_debug = context.get("cs_lti_config", {}).get("verbose_debug", False)
         lti_data = row["lti_data"]
         lti_handler = lti.lti4cs_response(
             context, lti_data
         )  # LTI response handler, from row['lti_data']
         log("lti_handler.have_data=%s" % lti_handler.have_data)
-        if lti_handler.have_data:
+        if lti_handler.have_data and lti_verbose_debug:
             log("lti_data=%s" % lti_handler.lti_data)
             if not "cs_session_data" in context:
                 context["cs_session_data"] = {}
@@ -281,7 +283,8 @@ def do_check(row, result_queue=None):
         save_grader_results(result_queue, context, name, row)        
 
     # update LTI tool consumer with new aggregate score (after for loop over names)
-    if have_lti and lti_handler.have_data and row["action"] == "submit":
+    # do this only if "push_scores_to_lti_consumer" is True in the cs_lti_config dict
+    if have_lti and lti_handler.have_data and push_scores_to_lti_consumer and row["action"] == "submit":
         logpath = (row["username"], row["path"], "problemstate")
         x = context["csm_cslog"].most_recent(*logpath)
         update_lti(lti_handler, row, x, total_possible_npoints, npoints_by_name)
