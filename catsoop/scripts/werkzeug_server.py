@@ -20,12 +20,17 @@ import sys
 from catsoop.wsgi import application
 from cheroot import wsgi
 
-PORT_NUMBER = int(sys.argv[1])
-
 CATSOOP_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-print("[wsgi_server] CATSOOP_LOC=%s" % CATSOOP_LOC)
+print("[werkzeug_server] CATSOOP_LOC=%s" % CATSOOP_LOC)
 
-addr = "0.0.0.0", PORT_NUMBER
-# addr = "127.0.0.1", PORT_NUMBER
-server = wsgi.Server(addr, application)
-server.start()
+from werkzeug.serving import run_simple
+from catsoop.wsgi import application
+from werkzeug.serving import make_ssl_devcert
+
+host = sys.argv[2]
+port = int(sys.argv[1])
+
+kfn = '/tmp/catsoop_ssl_key'
+make_ssl_devcert(kfn, host=host)
+
+run_simple(host, port, application, use_reloader=False, ssl_context=(f'{kfn}.crt', f'{kfn}.key'))
