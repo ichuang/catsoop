@@ -100,6 +100,17 @@ def main():
                     "WSGI Server at Port %d" % port,
                 )
             )
+    elif base_context.cs_wsgi_server == "werkzeug":
+        print("[start_catsoop] Using werkzeug for web service")
+        host = base_context.cs_url_root.split("//")[-1].split(":")[0]
+        port = base_context.cs_wsgi_server_port
+        print(f"[start_catsoop] host={host}, port={port}")
+        procs.append((scripts_dir, 
+                      [sys.executable, "werkzeug_server.py", str(port), str(host)],
+                      0.1,
+                      "WSGI Server at Port %d" % port,
+                      ))
+
     elif base_context.cs_wsgi_server == "uwsgi":
         print("[start_catsoop] Using uwsgi for web service")
         if (

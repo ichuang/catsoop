@@ -343,7 +343,7 @@ def serve_lti(context, path_info, environment, params, dispatch_main, return_con
         lup = context["cs_lti_config"].get("lti_username_prefix", "lti_")
 
         default_user_id_field = "user_id"	# used by OpenEdX
-        is_canvas = 'canvas' in lti_data.get("tool_consumer_info_product_family_code")
+        is_canvas = 'canvas' in lti_data.get("tool_consumer_info_product_family_code", "")
         if is_canvas:
             default_user_id_field = "custom_canvas_user_login_id"	# used by Canvas LMS
         lti_user_id_field = context["cs_lti_config"].get("lti_user_id_field", default_user_id_field)	# allow config to override LTI field to use for uname
