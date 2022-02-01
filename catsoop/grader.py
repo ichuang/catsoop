@@ -115,6 +115,9 @@ def save_grader_results(result_queue, context, name, row):
     Save results from the completion of a do_check process, for a specific question name
     '''
     jobid = row['magic']
+    if "lti_data" in row:			# don't save lti_data in results (it was just needed for pushing scores to LTI consumer)
+        row.pop("lti_data")
+    row['job_complete'] = time.time()		# record job completion time
     if result_queue is not None:		# if result_queue then stuff results there; don't do the db update here (let the master process do it instead)
         log("[grader.save_grader_results] queueing results for jobid=%s, name=%s, row=%s" % (jobid, name, str(row)[:50]))
         the_context = {'cs_data_root': context['cs_data_root']}		# used by filesystem queue
@@ -379,6 +382,7 @@ def watch_queue_and_run(max_finished=None):
                 log("=====> Current number of jobs in queue waiting for execution = %s" % csqueue.current_queue_length())
                 jobid = row["magic"]
                 log("Starting checker on jobid=%s, with row=%s" % (jobid, str(row)[:50]))
+                row['job_started'] = time.time()		# record grader job computation start time
                 nstarted += 1
                 p = multiprocessing.Process(target=do_check, args=(row, result_queue))
                 p.start()
