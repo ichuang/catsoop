@@ -115,14 +115,17 @@ def save_grader_results(result_queue, context, name, row):
     Save results from the completion of a do_check process, for a specific question name
     '''
     jobid = row['magic']
+    if "lti_data" in row:			# don't save lti_data in results (it was just needed for pushing scores to LTI consumer)
+        row.pop("lti_data")
+    row['job_complete'] = time.time()		# record job completion time
     if result_queue is not None:		# if result_queue then stuff results there; don't do the db update here (let the master process do it instead)
-        log("[grader.save_grader_results] queueing results for jobid=%s, name=%s, row=%s" % (jobid, name, str(row)[:50]))
+        log("[grader.save_grader_results] queueing results for jobid=%s, name=%s, user=%s, path=%s" % (jobid, name, row.get('username'), row.get('path')))
         the_context = {'cs_data_root': context['cs_data_root']}		# used by filesystem queue
         result_queue.put((the_context, name, row))
         time.sleep(5)
         return
 
-    log("[grader.save_grader_results] saving result for jobid=%s, name=%s, row=%s" % (jobid, name, str(row)[:50]))
+    log("[grader.save_grader_results] saving result for jobid=%s, name=%s, user=%s, path=%s" % (jobid, name, row.get('username'), row.get('path')))
     # csqueue.initialize()			# http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
     # cslog.initialize()
     csqueue.save_results(context, jobid, row)
@@ -174,12 +177,14 @@ def do_check(row, result_queue=None):
 
     have_lti = ("cs_lti_config" in context) and ("lti_data" in row)
     if have_lti:
+        push_scores_to_lti_consumer = context.get("cs_lti_config", {}).get("push_scores_to_lti_consumer", False)	# flag for whether or not to send scores to LTI consumer
+        lti_verbose_debug = context.get("cs_lti_config", {}).get("verbose_debug", False)
         lti_data = row["lti_data"]
         lti_handler = lti.lti4cs_response(
             context, lti_data
         )  # LTI response handler, from row['lti_data']
         log("lti_handler.have_data=%s" % lti_handler.have_data)
-        if lti_handler.have_data:
+        if lti_handler.have_data and lti_verbose_debug:
             log("lti_data=%s" % lti_handler.lti_data)
             if not "cs_session_data" in context:
                 context["cs_session_data"] = {}
@@ -281,7 +286,8 @@ def do_check(row, result_queue=None):
         save_grader_results(result_queue, context, name, row)        
 
     # update LTI tool consumer with new aggregate score (after for loop over names)
-    if have_lti and lti_handler.have_data and row["action"] == "submit":
+    # do this only if "push_scores_to_lti_consumer" is True in the cs_lti_config dict
+    if have_lti and lti_handler.have_data and push_scores_to_lti_consumer and row["action"] == "submit":
         logpath = (row["username"], row["path"], "problemstate")
         x = context["csm_cslog"].most_recent(*logpath)
         update_lti(lti_handler, row, x, total_possible_npoints, npoints_by_name)
@@ -375,7 +381,8 @@ def watch_queue_and_run(max_finished=None):
                 # start a worker for it
                 log("=====> Current number of jobs in queue waiting for execution = %s" % csqueue.current_queue_length())
                 jobid = row["magic"]
-                log("Starting checker on jobid=%s, with row=%s" % (jobid, str(row)[:50]))
+                log("Starting checker on jobid=%s, user=%s, path=%s, names=%s" % (jobid, row.get('username'), row.get('path'), str(row.get('names'))[:50]))
+                row['job_started'] = time.time()		# record grader job computation start time
                 nstarted += 1
                 p = multiprocessing.Process(target=do_check, args=(row, result_queue))
                 p.start()

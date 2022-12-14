@@ -715,7 +715,7 @@ class CatsoopLogsWithMongoDB:
         new_val = transform_func(old_val)
 
         if method == "update" and docid:
-            dfilter = {'_id': doc['_id']}
+            dfilter = {'_id': docid}
             ref = self.db[dname].update_one(dfilter, update_op)
             LOGGER.debug("[catsoop.cslog.modify_most_recent] updated %s with %s" % (dfilter, update_op))
         else:
