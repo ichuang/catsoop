@@ -41,17 +41,49 @@ VERSION_FNAME = os.path.join(os.path.dirname(__file__), "catsoop", "__init__.py"
 ORIGINAL_VERSION = None
 
 
+def get_version_and_distance(hash_command, current_sha, tags):
+    ordered_hashes = {
+        hash_: ix
+        for ix, hash_ in enumerate(
+            reversed(subprocess.check_output(hash_command).decode("ascii").splitlines())
+        )
+    }
+    current_rev = ordered_hashes[current_sha]
+    most_recent_version = "v0.0.0"
+    N = 99999999
+    for t, h in tags.items():
+        if t != "tip" and h in ordered_hashes:
+            distance = current_rev - ordered_hashes[h]
+            if 0 <= distance < N:
+                N = distance
+                most_recent_version = t
+        if N == 0:
+            break
+    return most_recent_version, N
+
+
 def dev_number_git():
     try:
-        last_version = subprocess.check_output(
-            ["git", "describe", "--tags", "--match", "v*"]
-        ).decode("ascii")
+        branch = (
+            subprocess.check_output(["git", "branch", "--show-current"])
+            .decode("ascii")
+            .strip()
+        )
+        assert branch
+    except:
+        print("failed to find git branch", file=sys.stderr)
+        return
+    try:
+        raw_tags = subprocess.check_output(["git", "tag"]).decode("ascii").splitlines()
+        tags = {}
     except Exception:
-        print("failed to find git tags", file=sys.stderr)
+        print("failed to read git tags", file=sys.stderr)
         return
-    if len(last_version.strip().split("-")) != 3:
-        # if this is just a tag name, that tells us we're at that tag
-        return
+    for t in raw_tags:
+        t = t.strip()
+        tags[t] = (
+            subprocess.check_output(["git", "rev-parse", t]).decode("ascii").strip()
+        )
     try:
         sha = (
             subprocess.check_output(["git", "rev-parse", "HEAD"])
@@ -59,6 +91,17 @@ def dev_number_git():
             .strip()
         )
     except:
+        return None
+    _cmd = ["git", "log", branch, "--format=%H"]
+    most_recent_version, N = get_version_and_distance(_cmd, sha, tags)
+    try:
+        _cmd = ["git", "show", "-s", "--format=%cD", sha]
+        _date = subprocess.check_output(_cmd)
+        _date = _date.decode("ascii")
+        _date = "".join(_date.split(" ", 1)[1:]).strip()
+    except:
+        _date = ""
+        print("failed to get git commit date", file=sys.stderr)
         return
     try:
         dirty = len(
@@ -69,23 +112,16 @@ def dev_number_git():
         )
     except:
         return
-    try:
-        N = int(
-            subprocess.check_output(["git", "rev-list", "--count", "HEAD"]).decode(
-                "ascii"
-            )
-        )
-    except:
-        return
-    try:
-        _cmd = ["git", "show", "-s", "--format=%cD", sha]
-        _date = subprocess.check_output(_cmd)
-        _date = _date.decode("ascii")
-        _date = "".join(_date.split(" ", 1)[1:])
-    except:
-        _date = ""
-        print("failed to get git commit date", file=sys.stderr)
-    return ("Git", sha, N, _date, dirty)
+    return {
+        "vcs": "Git",
+        "shortvcs": "git",
+        "branch": None if branch == "main" else branch,
+        "version": most_recent_version,
+        "hash": sha,
+        "distance": N,
+        "date": _date,
+        "changes": dirty,
+    }
 
 
 def dev_number_hg():
@@ -115,28 +151,7 @@ def dev_number_hg():
     except:
         sha = tags["tip"][1]
     _cmd = ["hg", "log", "-b", branch, "--template", "{node}\n"]
-    ordered_hashes = {
-        hash_: ix
-        for ix, hash_ in enumerate(
-            reversed(subprocess.check_output(_cmd).decode("ascii").splitlines())
-        )
-    }
-    current_rev = ordered_hashes[sha]
-    most_recent_version = "v0.0.0"
-    N = 99999999
-    for t, h in tags.items():
-        if t != "tip" and h in ordered_hashes:
-            distance = current_rev - ordered_hashes[h]
-            if 0 <= distance < N:
-                N = distance
-                most_recent_version = t
-        if N == 0:
-            break
-    tag_revs = {
-        t: ordered_hashes[h]
-        for t, h in tags.items()
-        if t != "tip" and h in ordered_hashes
-    }
+    most_recent_version, N = get_version_and_distance(_cmd, sha, tags)
     try:
         _cmd = ["hg", "log", "-r", "tip"]
         _info = subprocess.check_output(_cmd).decode("ascii")
