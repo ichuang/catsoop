@@ -12,3 +12,5 @@ pylti
 oauthlib
 unidecode
 ldap3
+black
+pytest

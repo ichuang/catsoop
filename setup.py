@@ -265,7 +265,7 @@ def main():
                 "console_scripts": ["catsoop = catsoop.__main__:command_line_interface"]
             },
             install_requires=requirements,
-            extras_require={"server": ["uwsgi"], "test": ["pytest"]},
+            extras_require={"server": ["uwsgi"]},
             package_dir={"catsoop": "catsoop"},
             package_data={"catsoop": ["scripts/*"]},
             classifiers=[
