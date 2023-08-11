@@ -155,7 +155,7 @@ def handle_submission(submissions, **info):
     # okay... here we go...
     # first grab the safe interpreter to use during checking
     # and the location of the sandbox
-    sandbox_interpreter = info["csq_python_interpreter"]
+    sandbox_interpreter = info["csq_python_sandbox_interpreter"]
     id_ = uuid.uuid4().hex
     this_sandbox_location = os.path.join(
         info.get("csq_sandbox_dir", "/tmp/sandbox"), "009checks", id_

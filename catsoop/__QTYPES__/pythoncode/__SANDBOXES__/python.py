@@ -90,7 +90,7 @@ def run_code(
         fileobj.write(code.replace("\r\n", "\n"))
 
     interp = context.get(
-        "csq_python_interpreter", context.get("cs_python_interpreter", "python3")
+        "csq_python_sandbox_interpreter", context.get("cs_python_interpreter", "python3")
     )
 
     try:
@@ -105,7 +105,7 @@ def run_code(
         )
     except Exception as err:
         raise Exception(
-            "[cs.qtypes.pythoncode.python] Failed to execute subprocess interp=%s (need to set csq_python_interpreter?), err=%s"
+            "[cs.qtypes.pythoncode.python] Failed to execute subprocess interp=%s (need to set csq_python_sandbox_interpreter?), err=%s"
             % (interp, err)
         )
 

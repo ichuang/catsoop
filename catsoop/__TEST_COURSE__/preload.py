@@ -103,16 +103,16 @@ def cs_course_handle_custom_tags(text):
 # PYTHON SANDBOX
 
 csq_python3 = True
-csq_python_sandbox = "python"
+csq_python_sandbox_type = "python"
 # something like the following can be used to use a sandboxed python
 # interpreter on the production copy:
 #
 # if 'catsoop.csail.mit.edu' in cs_url_root:
 #    # on the server, use the properly sandboxed python
-#    csq_python_interpreter = '/home/ubuntu/py3_sandbox/bin/python3'
+#    csq_python_sandbox_interpreter = '/home/ubuntu/py3_sandbox/bin/python3'
 # else:
 #    # locally, this probably doesn't exist.  so use system python.
-#    csq_python_interpreter = '/usr/bin/python3'
+#    csq_python_sandbox_interpreter = '/usr/bin/python3'
 
 
 # PERMISSIONS

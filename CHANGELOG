@@ -44,6 +44,11 @@ CHANGED:
   * Moved the default 'remote' Python sandbox and improved the error message
     when the sandbox is offline.
 
+  * Changed the following special variable names to make their purpose clearer:
+        - csq_python_sandbox => csq_python_sandbox_type
+        - csq_python_interpreter => csq_python_sandbox_interpreter
+
+
 DEPRECATED:
 
 REMOVED:

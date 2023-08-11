@@ -78,7 +78,7 @@ class Test_Pythoncode(CATSOOPTest):
         loader.load_global_data(context)
         assert "cs_unit_test_course" in context
         self.cname = context["cs_unit_test_course"]
-        context["csq_python_interpreter"] = "/usr/local/bin/python"
+        context["csq_python_sandbox_interpreter"] = "/usr/local/bin/python"
         self.context = context
 
         (csq, info) = context["tutor"].question(context, "pythoncode", **qkw)
@@ -92,8 +92,8 @@ class Test_Pythoncode(CATSOOPTest):
         info["cs_cross_image"] = "FILE_CROSS_IMAGE"
         info["cs_check_image"] = "FILE_CHECK_IMAGE"
         info["cs_python_interpreter"] = sys.executable
-        info["csq_python_interpreter"] = sys.executable
-        info["csq_python_sandbox"] = "python"
+        info["csq_python_sandbox_interpreter"] = sys.executable
+        info["csq_python_sandbox_type"] = "python"
         self.csq = csq
         self.info = info
 

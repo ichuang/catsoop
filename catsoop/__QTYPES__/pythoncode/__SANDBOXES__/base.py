@@ -61,7 +61,7 @@ def sandbox_run_code(
     opcode_limit=None,
     result_as_string=False,
 ):
-    s = context.get("csq_python_sandbox", "remote")
+    s = context.get("csq_python_sandbox_type", "remote")
     sandbox_file = os.path.join(
         context["cs_fs_root"], "__QTYPES__", "pythoncode", "__SANDBOXES__", "%s.py" % s
     )
