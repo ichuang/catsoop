@@ -3,13 +3,18 @@ import re
 import sys
 
 section = r"((?:chapter)|(?:(?:sub){0,2}section))\*?"
-section_star = r"<(?P<tag>%s)>(?P<body>.*?)</(?P=tag)>" % section
+section_star = r"<(?P<tag>%s)(?P<extras>[^>]*)>(?P<body>.*?)</(?P=tag)>" % section
 section_star = re.compile(section_star, re.MULTILINE | re.DOTALL | re.IGNORECASE)
 
 
 def _replacer(m):
     d = m.groupdict()
-    return "<catsoop-%s>%s</catsoop-%s>" % (d["tag"], d["body"], d["tag"])
+    return "<catsoop-%s%s>%s</catsoop-%s>" % (
+        d["tag"],
+        d["extras"],
+        d["body"],
+        d["tag"],
+    )
 
 
 for root, dirs, files in os.walk(sys.argv[1]):
