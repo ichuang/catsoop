@@ -57,7 +57,7 @@ def get_logged_in_user(context):
                 else:
                     lbox = LOGIN_BOX % (
                         _get_base_url(context),
-                        context["cs_openid_server"],
+                        context["csm_base_context"].cs_openid_server,
                     )
                 context["cs_content"] = "%s\n\n%s" % (lbox, context["cs_content"])
 
@@ -68,12 +68,14 @@ def get_logged_in_user(context):
             context["cs_content_header"] = "Please Log In"
             context["cs_content"] = LOGIN_PAGE % (
                 _get_base_url(context),
-                context["cs_openid_server"],
+                context["csm_base_context"].cs_openid_server,
             )
             return {"cs_render_now": True}
     elif action == "login":
         redir_url = "%s/_auth/openid_connect/callback" % context["cs_url_root"]
-        scope = context.get("cs_openid_scope", "openid profile email")
+        scope = getattr(
+            context["csm_base_context"], "cs_openid_scope", "openid profile email"
+        )
         state = generate_token()
         nonce = generate_token()
         verifier = secrets.token_urlsafe(96).encode("ascii")
@@ -85,12 +87,14 @@ def get_logged_in_user(context):
             "state": state,
             "nonce": nonce,
             "scope": scope,
-            "client_id": context.get("cs_openid_client_id", None),
+            "client_id": getattr(
+                context["csm_base_context"], "cs_openid_client_id", None
+            ),
             "response_type": "code",
             "code_challenge_method": "S256",
             "code_challenge": challenge.decode("ascii"),
         }
-        openid_url = context.get("cs_openid_server", None)
+        openid_url = getattr(context["csm_base_context"], "cs_openid_server", None)
 
         request = urllib.request.Request(
             "%s/.well-known/openid-configuration" % openid_url

@@ -52,8 +52,8 @@ if error is None:
     # if we're here, we know we got back something reasonable.
     # now, need to send POST request
 
-    id = ctx.get("cs_openid_client_id", "")
-    secret = ctx.get("cs_openid_client_secret", "")
+    id = getattr(ctx["csm_base_context"], "cs_openid_client_id", "")
+    secret = getattr(ctx["csm_base_context"], "cs_openid_client_secret", "")
 
     redir_url = "%s/_auth/openid_connect/callback" % ctx["cs_url_root"]
     data = urllib.parse.urlencode(
@@ -83,7 +83,9 @@ if error is None:
     if error is None:
         # make sure we have been given authorization to access the proper
         # information
-        desired_scope = ctx.get("cs_openid_scope", "openid profile email")
+        desired_scope = getattr(
+            ctx["csm_base_context"], "cs_openid_scope", "openid profile email"
+        )
         desired_scope = desired_scope.split()
         scope_error = (
             "You must provide CAT-SOOP access " "to the following scopes: %r"
@@ -163,7 +165,7 @@ if error is None:
         if error is None:
             now = time.time.time()
             if body["iss"].rstrip("/") != cs_session_data["_openid_config"].get(
-                "issuer", ctx.get("cs_openid_server", None)
+                "issuer", getattr(ctx["csm_base_context"], "cs_openid_server", None)
             ):
                 error = "Invalid ID Token issuer."
             elif body["nonce"] != stored_nonce:
@@ -175,7 +177,10 @@ if error is None:
                 error = "ID Token is from the future. %r" % ((body["iat"], now),)
             elif now > body["exp"] + 60:
                 error = "ID Token has expired."
-            elif ctx.get("cs_openid_client_id", None) not in body["aud"]:
+            elif (
+                getattr(ctx["csm_base_context"], "cs_openid_client_id", None)
+                not in body["aud"]
+            ):
                 error = "ID Token is not intended for CAT-SOOP."
 
 if error is None:
@@ -201,8 +206,10 @@ if error is None:
         return userinfo["email"]
 
     try:
-        get_username = ctx.get("cs_openid_username_generator", get_username)
-        get_email = ctx.get("cs_openid_email_generator", get_email)
+        get_username = getattr(
+            ctx["csm_base_url"], "cs_openid_username_generator", get_username
+        )
+        get_email = getattr(ctx["csm_base_url"], "cs_openid_email_generator", get_email)
         openid_info = {
             "username": get_username(body, resp),
             "email": get_email(body, resp),
