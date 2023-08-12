@@ -18,9 +18,9 @@
 def get_logged_in_user(context):
     if context.get("cs_form", {}).get("loginaction", None) == "logout":
         return {}
-    uname = context["cs_dummy_username"]
+    uname = context["csm_base_context"].cs_dummy_username
     return {
         "username": uname,
-        "name": context.get("cs_dummy_name", uname),
-        "email": context.get("cs_dummy_email", uname),
+        "name": getattr(context["csm_base_context"], "cs_dummy_name", uname),
+        "email": getattr(context["csm_base_context"], "cs_dummy_email", uname),
     }
