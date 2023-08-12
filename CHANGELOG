@@ -54,7 +54,9 @@ DEPRECATED:
 REMOVED:
 
   * Due to build issues on some platforms, catsoop no longer depends on uwsgi
-    unless [server] is specified when installing
+    unless [server] is specified when installing.
+
+  * Removed the "cert" login type.
 
 FIXED:
 
