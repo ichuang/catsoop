@@ -90,7 +90,8 @@ def run_code(
         fileobj.write(code.replace("\r\n", "\n"))
 
     interp = context.get(
-        "csq_python_sandbox_interpreter", context.get("cs_python_interpreter", "python3")
+        "csq_python_sandbox_interpreter",
+        context.get("cs_python_interpreter", "python3"),
     )
 
     try:
