@@ -87,7 +87,7 @@ def login(context):
 
     if username and password:
         # Retrieves the "cs_ldap3" configuration.
-        ldap3_config = context["cs_ldap3"]
+        ldap3_config = context["csm_base_context"].cs_ldap3
 
         try:
             server = ldap3.Server(**ldap3_config["server"])

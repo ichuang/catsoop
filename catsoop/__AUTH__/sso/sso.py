@@ -82,7 +82,9 @@ def get_logged_in_user(context):
         # some information when we get back here
         session["_sso_path"] = context["cs_path_info"]
         session["_sso_nonce"] = nonce
-        session["_sso_expire"] = context.get("cs_sso_timeout", 600) + time.time()
+        session["_sso_expire"] = (
+            getattr(context["csm_base_context"], "cs_sso_timeout", 600) + time.time()
+        )
 
         data = {
             "nonce": nonce,
@@ -90,10 +92,10 @@ def get_logged_in_user(context):
         }
         payload = base64.urlsafe_b64encode(urllib.parse.urlencode(data).encode("utf-8"))
         sig = hmac.new(
-            context["cs_sso_shared_secret"], payload, hashlib.sha256
+            context["csm_base_context"].cs_sso_shared_secret, payload, hashlib.sha256
         ).hexdigest()
         redirect_location = "%s?%s" % (
-            context["cs_sso_location"],
+            context["csm_base_context"].cs_sso_location,
             urllib.parse.urlencode({"sso": payload.decode("utf-8"), "sig": sig}),
         )
         return {"cs_redirect": redirect_location}

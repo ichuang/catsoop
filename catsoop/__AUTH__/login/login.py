@@ -36,7 +36,9 @@ def get_logged_in_user(context):
     session = context["cs_session_data"]
     action = form.get("loginaction", "")
 
-    hash_iterations = context.get("cs_password_hash_iterations", 500000)
+    hash_iterations = getattr(
+        context["csm_base_context"], "cs_password_hash_iterations", 500000
+    )
     url = _get_base_url(context)
 
     # if the user is trying to log out, do that.
@@ -793,7 +795,7 @@ def generate_login_form(context):
         base = _get_base_url(context)
         loc = base + "?loginaction=forgot_password"
         out += ("\nForgot your password?  " 'Click <a href="%s">here</a>.<br/>') % loc
-    if context.get("cs_allow_registration", True):
+    if getattr(context["csm_base_context"], "cs_allow_registration", True):
         loc = _get_base_url(context)
         loc += "?loginaction=register"
         link = '<a href="%s">create one</a>' % loc
@@ -952,7 +954,9 @@ def _validate_email(context, e):
         return _eml_too_long_msg
     elif not RE_VALID_EMAIL.match(e):
         return _eml_invalid_msg
-    return _run_validators(context.get("cs_extra_email_validators", []), e)
+    return _run_validators(
+        getattr(context["csm_base_context"], "cs_extra_email_validators", []), e
+    )
 
 
 # USERNAME VALIDATION
@@ -997,7 +1001,9 @@ def _validate_username(context, u):
             return _uname_wrong_start_msg
         else:
             return _uname_invalid_msg
-    return _run_validators(context.get("cs_extra_username_validators", []), u)
+    return _run_validators(
+        getattr(context["csm_base_context"], "cs_extra_username_validators", []), u
+    )
 
 
 REGISTRATION_FORM_CHECKER = """<script type="text/javascript">
