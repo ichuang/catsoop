@@ -118,12 +118,13 @@
     <script type="text/javascript">
     // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
     catsoop.syntax_highlighting = function (elt) {{
-        elt.querySelectorAll('pre > code').forEach((block) => {{
+        elt.querySelectorAll('pre > code.hljs').forEach((block) => {{
             hljs.highlightBlock(block);
             var wrap = document.createElement("section");
             wrap.setAttribute("aria-label", "Code block");
             block.parentNode.replaceWith(wrap);
             wrap.append(block.parentNode);
+            block.classList.remove('hljs');
         }});
         elt.querySelectorAll('code.highlight-lines').forEach(function(b){{
             hljs.lineNumbersBlock(b);
@@ -131,6 +132,7 @@
                 b.parentElement.style = "padding-left: 0px !important;"
                 b.classList.add('hljs');
             }}
+            b.classList.remove('highlight-lines');
         }});
     }}
     window.addEventListener('DOMContentLoaded', function(){{
