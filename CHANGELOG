@@ -99,9 +99,8 @@ FIXED:
 
 SECURITY:
 
-  * The "openid_connect" authentication type would previously pull
-    authentication information from a context that could be altered by
-    individual courses.
+  * Several authentication types have been fixed to pull authentication
+    information from a context that cannot be altered by individual courses.
 
 ACCESSIBILITY:
 
