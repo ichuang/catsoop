@@ -923,7 +923,7 @@ def handle_custom_tags(context, text):
 
     # handle refs
 
-    for i in tree.find_all("ref"):
+    for i in tree.find_all(re.compile("catsoop-ref(?:erence)?")):
         if "label" not in i.attrs:
             lbl = list(i.attrs.keys())[0]
         else:

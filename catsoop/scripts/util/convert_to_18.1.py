@@ -2,7 +2,7 @@ import os
 import re
 import sys
 
-section = r"((?:chapter)|(?:(?:sub){0,2}section))\*?"
+section = r"((?:chapter)|(?:(?:sub){0,2}section)|ref)\*?"
 section_star = r"<(?P<tag>%s)(?P<extras>[^>]*)>(?P<body>.*?)</(?P=tag)>" % section
 section_star = re.compile(section_star, re.MULTILINE | re.DOTALL | re.IGNORECASE)
 

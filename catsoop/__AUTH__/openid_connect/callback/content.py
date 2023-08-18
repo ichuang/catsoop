@@ -209,7 +209,9 @@ if error is None:
         get_username = getattr(
             ctx["csm_base_context"], "cs_openid_username_generator", get_username
         )
-        get_email = getattr(ctx["csm_base_context"], "cs_openid_email_generator", get_email)
+        get_email = getattr(
+            ctx["csm_base_context"], "cs_openid_email_generator", get_email
+        )
         openid_info = {
             "username": get_username(body, resp),
             "email": get_email(body, resp),
