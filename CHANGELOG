@@ -6,6 +6,9 @@
 
 ADDED:
 
+  * If cs_sole_course is set to a course's name, the root URL will now refer to
+    that course directly (with no redirect)
+
   * Added additional arguments to the callback function for ajaxrequest in the
     default handler
 

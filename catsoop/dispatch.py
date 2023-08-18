@@ -301,6 +301,7 @@ def is_resource(context, path):
 
 
 def _real_url_helper(context, url):
+    sole_course = getattr(base_context, "cs_sole_course", None)
     u = [context.get("cs_url_root", base_context.cs_url_root), "_static"]
     u2 = u[:1]
     end = url.split("/")[1:]
@@ -310,6 +311,7 @@ def _real_url_helper(context, url):
     elif url.startswith("COURSE"):
         new = [str(context["cs_course"])]
         floc = content_file_location(context, new + end)
+        new = new if sole_course is None else []
         if floc is not None and os.path.isfile(floc):
             pre = u2 + new
         else:
@@ -321,6 +323,8 @@ def _real_url_helper(context, url):
         if test_file.rsplit(".", 1)[0] != "content":
             new = new[:-1]
         floc = content_file_location(context, new + end)
+        if sole_course:
+            new = new[1:]
         if floc is not None and os.path.isfile(floc):
             pre = u2 + new
         else:
@@ -489,7 +493,10 @@ def _breadcrumbs_html(context):
     to_skip = context.get("cs_breadcrumbs_skip_paths", [])
     link = "BASE"
     for ix, elt in enumerate(context["cs_loader_states"]):
-        link = link + "/" + context["cs_path_info"][ix]
+        if ix == 0 and getattr(base_context, "cs_sole_course", None) is not None:
+            link = "COURSE"
+        else:
+            link = link + "/" + context["cs_path_info"][ix]
         if "/".join(context["cs_path_info"][1 : ix + 1]) in to_skip:
             continue
         if context.get("cs_breadcrumbs_skip", False):
@@ -659,8 +666,16 @@ def main(environment, return_context=False, form_data=None):
         context["cs_original_path"] = path_info[1:]
         path_info = [i for i in path_info.split("/") if i != ""]
 
+        sole_course = getattr(base_context, "cs_sole_course", None)
+
         # RETURN STATIC FILE RESPONSE RIGHT AWAY
         if len(path_info) > 0 and path_info[0] == "_static":
+            if (
+                sole_course is not None
+                and len(path_info) > 1
+                and not path_info[1].startswith("_")
+            ):
+                path_info.insert(1, sole_course)
             return serve_static_file(
                 context, static_file_location(context, path_info[1:]), environment
             )
@@ -686,6 +701,12 @@ def main(environment, return_context=False, form_data=None):
 
         # LOAD GLOBAL DATA
         e = loader.load_global_data(context)
+        if (
+            sole_course is not None
+            and (not path_info)
+            or (not path_info[0].startswith("_"))
+        ):
+            path_info.insert(0, sole_course)
         if len(path_info) > 0:
             context["cs_short_name"] = path_info[-1]
             context["cs_course"] = path_info[0]
