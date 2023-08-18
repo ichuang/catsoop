@@ -205,7 +205,9 @@ def handle_new_seed(context):
 
 
 def handle_activate(context):
-    submitted_pass = context[_n("form")].get("activation_password", "")
+    submitted_pass = context[_n("form")].get(
+        "activation_password", {"type": "raw", "data": ""}
+    )["data"]
     if submitted_pass == context[_n("activation_password")]:
         newstate = dict(context[_n("last_log")])
         newstate["activated"] = True
@@ -833,7 +835,7 @@ def handle_save(context):
     outdict = {}  # dictionary containing the responses for each question
     saved_names = []
     for name in names:
-        sub = context[_n("form")].get(name, "")
+        sub = context[_n("form")].get(name, {"type": "raw", "data": ""})
         out = {}
         if name.startswith("__"):
             newstate["last_check"][name] = sub
@@ -895,7 +897,10 @@ def handle_save(context):
 
         # log submission in problemactions
         duetime = context["csm_time"].detailed_timestamp(due)
-        subbed = {n: context[_n("form")].get(n, "") for n in saved_names}
+        subbed = {
+            n: context[_n("form")].get(n, {"type": "raw", "data": ""})
+            for n in saved_names
+        }
         log_action(
             context,
             {
@@ -1013,7 +1018,10 @@ def handle_revert(context):
 
         # log submission in problemactions
         duetime = context["csm_time"].detailed_timestamp(due)
-        subbed = {n: context[_n("form")].get(n, "") for n in saved_names}
+        subbed = {
+            n: context[_n("form")].get(n, {"type": "raw", "data": ""})
+            for n in saved_names
+        }
 
         log_action(
             context,
@@ -1069,7 +1077,7 @@ def handle_check(context):
         if name in names_done:
             continue
         out = {}
-        sub = context[_n("form")].get(name, "")
+        sub = context[_n("form")].get(name, {"type": "raw", "data": ""})
         error = check_msg(context, context[_n("perms")], name)
         if error is not None:
             out["error_msg"] = error
@@ -1152,7 +1160,7 @@ def handle_check(context):
 
     # log submission in problemactions
     duetime = context["csm_time"].detailed_timestamp(due)
-    subbed = {n: context[_n("form")].get(n, "") for n in names}
+    subbed = {n: context[_n("form")].get(n, {"type": "raw", "data": ""}) for n in names}
     log_action(
         context,
         {
@@ -1208,7 +1216,7 @@ def handle_submit(context):
     scores = {}
     messages = {}
     for name in names:
-        sub = context[_n("form")].get(name, "")
+        sub = context[_n("form")].get(name, {"type": "raw", "data": ""})
         if name.startswith("__"):
             newstate["last_submit"][name] = sub
             name = name[2:].rsplit("_", 1)[0]
@@ -1400,7 +1408,7 @@ def handle_submit(context):
 
     # log submission in problemactions
     duetime = context["csm_time"].detailed_timestamp(due)
-    subbed = {n: context[_n("form")].get(n, "") for n in names}
+    subbed = {n: context[_n("form")].get(n, {"type": "raw", "data": ""}) for n in names}
     log_action(
         context,
         {

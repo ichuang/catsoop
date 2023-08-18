@@ -97,6 +97,9 @@ FIXED:
   * Fixed a regression that caused the 'timeout' option in pythoncode test
     cases to be ignored
 
+  * Fixed several issues with submission data not being handled properly
+    (potentially breaking pages after 'save' or 'view answer')
+
 SECURITY:
 
   * Several authentication types have been fixed to pull authentication
