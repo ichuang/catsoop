@@ -1,8 +1,6 @@
-########################
-# Current Developments #
-########################
-
-(Work toward next release. Currently under development.)
+##################
+# Version 18.1.0 #
+##################
 
 ADDED:
 
@@ -53,9 +51,6 @@ CHANGED:
   * Changed the following special variable names to make their purpose clearer:
         - csq_python_sandbox => csq_python_sandbox_type
         - csq_python_interpreter => csq_python_sandbox_interpreter
-
-
-DEPRECATED:
 
 REMOVED:
 
@@ -137,8 +132,6 @@ ACCESSIBILITY:
 
   * Improved accessibility of modal dialogs from the cs_modal javascript
     function
-
-DOCUMENTATION:
 
 VENDORED SOFTWARE:
 
