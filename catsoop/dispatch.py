@@ -701,10 +701,8 @@ def main(environment, return_context=False, form_data=None):
 
         # LOAD GLOBAL DATA
         e = loader.load_global_data(context)
-        if (
-            sole_course is not None
-            and (not path_info)
-            or (not path_info[0].startswith("_"))
+        if sole_course is not None and (
+            (not path_info) or (not path_info[0].startswith("_"))
         ):
             path_info.insert(0, sole_course)
         if len(path_info) > 0:
