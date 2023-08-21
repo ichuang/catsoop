@@ -31,8 +31,8 @@ for root, dirs, files in os.walk(sys.argv[1]):
             continue
         print(list(section_star.finditer(text)))
         text = re.sub(section_star, _replacer, text)
-        text = text.replace("csq_python_sandbox", "csq_python_sandbox_type").replace(
-            "csq_python_interpreter", "csq_python_sandbox_interpreter"
-        )
+        text = re.sub(
+            "csq_python_sandbox(?!_type|_interpreter)", "csq_python_sandbox", text
+        ).replace("csq_python_interpreter", "csq_python_sandbox_interpreter")
         with open(fullname, "w") as f:
             f.write(text)
