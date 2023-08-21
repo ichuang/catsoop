@@ -105,19 +105,18 @@ def handle(context):
         "content_only": handle_content_only,
         "raw_html": handle_raw_html,
         "copy": handle_copy,
-        "copy_seed": handle_copy_seed,
         "activate": handle_activate,
         "lock": handle_lock,
         "unlock": handle_unlock,
         "grade": handle_grade,
         "passthrough": lambda c: "",
-        "new_seed": handle_new_seed,
         "list_questions": handle_list_questions,
         "get_state": handle_get_state,
         "manage_groups": manage_groups,
         "render_single_question": handle_single_question,
         "stats": handle_stats,
         "whdw": handle_whdw,
+        "new_seed": handle_new_seed,
     }
 
     path_info = context["cs_path_info"]
@@ -171,40 +170,23 @@ def handle_single_question(context):
     return ("200", "OK"), {"Content-type": "text/html"}, o
 
 
-def handle_copy_seed(context):
-    if context[_n("impersonating")]:
-        impersonated = context[_n("uname")]
-        uname = context[_n("real_uname")]
-        path = context["cs_path_info"]
-        logname = "random_seed"
-        stored = context["csm_cslog"].most_recent(impersonated, path, logname, None)
-        context["csm_cslog"].update_log(uname, path, logname, stored)
-    return handle_save(context)
-
-
-def _new_random_seed(n=100):
-    try:
-        return os.urandom(n)
-    except:
-        return "".join(random.choice(string.ascii_letters) for i in range(n))
-
-
 def handle_new_seed(context):
-    uname = context[_n("uname")]
-    context["csm_cslog"].update_log(
-        uname,
-        context["cs_path_info"],
-        "random_seed",
-        _new_random_seed(),
-    )
+    if "submit_all" in context[_n("perms")]:
+        new_seed = context["cs_form"].get("new_seed", "").strip()
+        if new_seed:
+            new_seed = bytes.fromhex(new_seed)
+        else:
+            new_seed = context["csm_tutor"]._get_random_seed(context, force_new=True)
 
-    # Rerender the questions
-    names = context[_n("question_names")]
-    outdict = {}
-    for name in names:
-        outdict[name] = {"rerender": "Please refresh the page"}
+        uname = context[_n("uname")]
+        context["csm_cslog"].update_log(
+            uname,
+            context["cs_path_info"],
+            "random_seed",
+            new_seed,
+        )
 
-    return make_return_json(context, outdict)
+    return ("200", "OK"), {"Refresh": "0"}, ""
 
 
 def handle_activate(context):
@@ -436,11 +418,44 @@ def handle_view(context):
     if extra_headers:
         context["cs_scripts"] += "\n".join(extra_headers)
 
+    if context.get("cs_random_inited", False):
+        if "submit_all" in context[_n("perms")]:
+            seed = context["cs_random_seed"].hex()
+            imp = context[_n("impersonating")]
+            if imp:
+                buttonimp = " for %s" % context[_n("uname")]
+                copybutton = '<input type="submit" class="btn btn-catsoop" value="Copy to My Account" />'
+            else:
+                copybutton = ""
+                buttonimp = ""
+            page += RANDOM_SEED_VIEW % (seed, seed, copybutton, buttonimp)
+
     page += default_javascript(context)
     page += default_timer(context)
     if _get(context, "cs_log_page_views", False, bool):
         log_action(context, {})
     return page
+
+
+RANDOM_SEED_VIEW = """
+<div class="question">
+<center><b>STAFF: RANDOM SEED MANAGEMENT</b></center>
+<br/>
+<b>Current Random Seed:</b> <code>%s</code>
+<form style="display: inline;" method="POST" action="?">
+<input type="hidden" value="new_seed" name="action" />
+<input type="hidden" value="%s" name="new_seed" />
+%s
+</form>
+<br/>&nbsp;<br/>
+<b>New Random Seed:</b>
+<form method="POST" style="display: inline;">
+<input type="hidden" value="new_seed" name="action" />
+<input type="text" value="" name="new_seed" size="35" />
+<input type="submit" class="btn btn-catsoop" value="Set Seed%s" /> (blank for random)
+</form>
+</div>
+"""
 
 
 def get_manual_grading_entry(context, name):
@@ -2059,16 +2074,8 @@ def make_buttons(context, name):
     q, args = context[_n("name_map")][name]
     nsubmits, _ = nsubmits_left(context, name)
 
-    buttons = {"copy_seed": None, "copy": None, "new_seed": None}
-    buttons["new_seed"] = (
-        "New Random Seed"
-        if "submit_all" in p and context.get("cs_random_inited", False)
-        else None
-    )
+    buttons = {}
     abuttons = {
-        "copy_seed": (
-            "Copy Random Seed" if context.get("cs_random_inited", False) else None
-        ),
         "copy": "Copy to My Account",
         "lock": None,
         "unlock": None,
@@ -2101,7 +2108,6 @@ def make_buttons(context, name):
         aout = '<div><b><font color="red">Admin Buttons:</font></b><br/>'
         for k in (
             "copy",
-            "copy_seed",
             "check",
             "revert",
             "save",
@@ -2165,7 +2171,6 @@ def make_buttons(context, name):
         "viewanswer",
         "viewexplanation",
         "clearanswer",
-        "new_seed",
     ):
         x = {"b": buttons[k], "k": k, "n": name, "s": ""}
         heb = context.get("cs_ui_config_flags", {}).get("highlight_explanation_button")

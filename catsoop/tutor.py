@@ -571,11 +571,11 @@ def handle_page(context):
     context["cs_content"] = result
 
 
-def _new_random_seed(n=100):
+def _new_random_seed(n=15):
     return secrets.token_bytes(n)
 
 
-def _get_random_seed(context, n=100, force_new=False):
+def _get_random_seed(context, n=15, force_new=False):
     uname = context["cs_username"]
     if force_new:
         stored = None

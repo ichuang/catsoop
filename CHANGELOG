@@ -8,6 +8,10 @@ ADDED:
 
 CHANGED:
 
+  * Changed size of per-user random seeds
+
+  * Redesigned interface for staff for adjusting per-user random seeds
+
 DEPRECATED:
 
 REMOVED:
