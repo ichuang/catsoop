@@ -1,10 +1,6 @@
-########################
-# Current Developments #
-########################
-
-(Work toward next release. Currently under development.)
-
-ADDED:
+##################
+# Version 19.0.1 #
+##################
 
 CHANGED:
 
@@ -12,17 +8,9 @@ CHANGED:
 
   * Redesigned interface for staff for adjusting per-user random seeds
 
-DEPRECATED:
-
-REMOVED:
-
 FIXED:
 
   * Fixed crash due to form values being specified multiple times
-
-SECURITY:
-
-DOCUMENTATION:
 
 
 ##################
