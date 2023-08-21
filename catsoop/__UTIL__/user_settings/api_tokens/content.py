@@ -26,3 +26,21 @@ else:
     print(
         '<p>You currently have no API tokens in the system.  You can <a href="CURRENT/new-token">generate a new token</a>.</p>'
     )
+
+print(
+    """
+
+<a href="CURRENT/..">Back to Settings Menu</a><br/>
+<a id="nonSettings"></a>
+
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
+var last_non_settings = sessionStorage.getItem('last-non-settings');
+if (last_non_settings !== null){
+    var link = document.getElementById("nonSettings");
+    link.href = last_non_settings;
+    link.innerText = 'Exit Settings Menu';
+}
+// @license-end
+</script>"""
+)

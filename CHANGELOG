@@ -29,6 +29,9 @@ ADDED:
   * Updates to the question info cache can now be avoided by setting
     cs_update_questions_cache = False
 
+  * Added links to leave user settings pages, back to the most recent
+    non-settings page viewed
+
 CHANGED:
 
   * Suppressed some warnings coming from BeautifulSoup.

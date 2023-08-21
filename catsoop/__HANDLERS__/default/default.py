@@ -120,6 +120,9 @@ def handle(context):
         "whdw": handle_whdw,
     }
 
+    path_info = context["cs_path_info"]
+    if path_info[0] != "_util" or path_info[1] != "user_settings" and LAST_NON_SETTINGS:
+        context["cs_scripts"] += LAST_NON_SETTINGS
     action = context[_n("action")]
     return mode_handlers.get(action, _unknown_handler(action))(context)
 
@@ -2754,6 +2757,16 @@ ws_%(name)s.onmessage = function(event){
 
 ws_%(name)s.onerror = function(event){
 }
+// @license-end
+</script>
+"""
+
+LAST_NON_SETTINGS = """
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
+document.addEventListener("DOMContentLoaded", function(){
+    sessionStorage.setItem("last-non-settings", catsoop.this_path);
+});
 // @license-end
 </script>
 """
