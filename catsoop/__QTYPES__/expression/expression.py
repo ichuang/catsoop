@@ -437,13 +437,16 @@ def handle_submission(submissions, **info):
                     solns = [solns]
                 solns = [parser.parse(i) for i in solns]
 
+                _all_sol_names = set()
+                for soln in solns:
+                    _all_sol_names |= set(_get_all_names(soln))
                 result = False
                 for soln in solns:
                     for attempt in range(info["csq_num_trials"]):
                         _sub_names = _get_all_names(sub)
                         _sol_names = _get_all_names(soln)
                         if info["csq_error_on_unknown_variable"]:
-                            _unique_names = set(_sub_names).difference(_sol_names)
+                            _unique_names = set(_sub_names).difference(_all_sol_names)
                             if len(_unique_names) > 0:
                                 _s = "s" if len(_unique_names) > 1 else ""
                                 _v = ", ".join(

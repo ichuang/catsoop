@@ -106,6 +106,9 @@ FIXED:
   * Fixed several issues with submission data not being handled properly
     (potentially breaking pages after 'save' or 'view answer')
 
+  * Fixed misleading error message in "expression" questions with
+    csq_error_on_unknown_variable set to True and multiple solutions specified
+
 SECURITY:
 
   * Several authentication types have been fixed to pull authentication
