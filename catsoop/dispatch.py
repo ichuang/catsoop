@@ -372,6 +372,15 @@ def get_real_url(context, url):
     return urllib.parse.urlunparse(u)
 
 
+def _decode_form_value(res):
+    if isinstance(res, list):
+        return _decode_form_value(res[-1])
+    elif res.file:
+        return res.file.read()
+    else:
+        return res.value
+
+
 def dict_from_cgi_form(cgi_form):
     """
     Convert CGI FieldStorage into a dictionary
@@ -380,10 +389,7 @@ def dict_from_cgi_form(cgi_form):
     for key in cgi_form:
         res = cgi_form[key]
         try:
-            if res.file:
-                o[key] = res.file.read()
-            else:
-                o[key] = res.value
+            o[key] = _decode_form_value(res)
         except:
             o[key] = res
     return o

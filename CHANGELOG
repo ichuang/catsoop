@@ -14,6 +14,8 @@ REMOVED:
 
 FIXED:
 
+  * Fixed crash due to form values being specified multiple times
+
 SECURITY:
 
 DOCUMENTATION:
