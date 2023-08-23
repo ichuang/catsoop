@@ -18,8 +18,9 @@ def _replacer(m):
 
 
 for root, dirs, files in os.walk(sys.argv[1]):
-    if "__STATIC__" in dirs:
-        dirs.remove("__STATIC__")
+    for skip in (".git", ".hg", "__STATIC__"):
+        if skip in dirs:
+            dirs.remove(skip)
     for f in files:
         if not any(f.endswith(i) for i in (".catsoop", ".py", ".md", ".xml")):
             continue
