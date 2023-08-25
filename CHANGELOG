@@ -1,19 +1,11 @@
-########################
-# Current Developments #
-########################
-
-(Work toward next release. Currently under development.)
-
-ADDED:
+##################
+# Version 19.0.2 #
+##################
 
 CHANGED:
 
 * The "fileupload" question type no longer alerts when an empty file is
   specified; instead, the submission is simply treated as empty.
-
-DEPRECATED:
-
-REMOVED:
 
 FIXED:
 
@@ -21,14 +13,6 @@ FIXED:
 
 * Fixed issues with handling of questions with csq_indiv=False in the
   submission callback
-
-SECURITY:
-
-ACCESSIBILITY:
-
-DOCUMENTATION:
-
-VENDORED SOFTWARE:
 
 
 ##################
