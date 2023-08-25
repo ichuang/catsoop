@@ -1390,7 +1390,7 @@ def handle_submit(context):
                     context, args.get("csq_prompt", "")
                 )
                 prompt = f'<div id="catsoop_preamble_{name}">{preamble}</div>\n<div id="catsoop_prompt_{name}" style="display: inline;">{prompt}</div>'
-                rerender = f'{prompt}\n{question["render_html"](newstate["last_check"], **args)}'
+                rerender = f'{prompt}\n{question["render_html"](newstate["last_submit"], **args)}'
             out["rerender"] = str(rerender)
 
         outdict[name] = out
