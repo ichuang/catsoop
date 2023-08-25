@@ -73,9 +73,6 @@ catsoop.load_one_form_element = function (elt, name, into, action) {
           resolve();
         };
         fr.readAsDataURL(file);
-      } else if (action === "submit") {
-        alert("Please select a file to upload");
-        reject();
       } else {
         into[name] = "";
         resolve();

@@ -8,11 +8,16 @@ ADDED:
 
 CHANGED:
 
+* The "fileupload" question type no longer alerts when an empty file is
+  specified; instead, the submission is simply treated as empty.
+
 DEPRECATED:
 
 REMOVED:
 
 FIXED:
+
+* Fixed a bug with questions that are re-rendered after submission.
 
 SECURITY:
 
