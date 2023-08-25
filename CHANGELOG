@@ -19,6 +19,9 @@ FIXED:
 
 * Fixed a bug with questions that are re-rendered after submission.
 
+* Fixed issues with handling of questions with csq_indiv=False in the
+  submission callback
+
 SECURITY:
 
 ACCESSIBILITY:
