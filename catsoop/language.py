@@ -1107,7 +1107,7 @@ def handle_custom_tags(context, text):
                         )
                     )
 
-    return str(tree)
+    return str(tree).replace("</br>", "")
 
 
 def handle_math_tags(tree):

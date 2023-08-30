@@ -1865,7 +1865,7 @@ def render_question(elt, context, wrap=True):
             % (q["qtype"], name)
         )
 
-    out += '\n<div id="%s_rendered_question">\n' % name
+    out += '\n<div id="%s_rendered_question">\n\n' % name
     preamble = args.get("csq_preamble", "")
     if preamble:
         pramble = context["csm_language"].source_transform_string(context, preamble)

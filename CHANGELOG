@@ -1,4 +1,12 @@
 ##################
+# Version 19.0.3 #
+##################
+
+FIXED:
+
+* Added a workaround for BeautifulSoup parsing <br/> tags strangely
+
+##################
 # Version 19.0.2 #
 ##################
 
