@@ -1,10 +1,20 @@
 ##################
+# Version 19.0.4 #
+##################
+
+FIXED:
+
+* Fixed a regression that caused footnotes not to be displayed
+
+
+##################
 # Version 19.0.3 #
 ##################
 
 FIXED:
 
 * Added a workaround for BeautifulSoup parsing <br/> tags strangely
+
 
 ##################
 # Version 19.0.2 #

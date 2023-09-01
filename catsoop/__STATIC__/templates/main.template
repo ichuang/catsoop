@@ -175,7 +175,7 @@
         <div class="cs_page_body" role="main">
           <center><h1 class="cs_content_header">{cs_content_header}</h1></center>
           {cs_content}
-          {cs_footnotes}
+          <div id="cs_footnotes" style="display:none;"></div>
         </div>
       </div>
       <div class="cs_right_menu"></div>

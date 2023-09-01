@@ -986,17 +986,21 @@ def handle_custom_tags(context, text):
     if len(footnotes) == 0:
         fnote = ""
     else:
-        fnote = '<br/>&nbsp;<hr/><b name="cs_footnotes">Footnotes</b>'
-        for ix, f in enumerate(footnotes):
-            ix = ix + 1
-            fnote += (
-                '<p><a class="anchor" name="catsoop_footnote_%d"></a><sup style="padding-right:0.25em;color:var(--cs-base-bg-color);">%d</sup>'
-                '%s <a href="#catsoop_footnote_ref_%d">'
-                '<span class="noprint">(click to return to text)</span>'
-                "</a></p>"
-            ) % (ix, ix, f, ix)
-    if not context.get("cs_footnotes", ""):
-        context["cs_footnotes"] = fnote
+        if (
+            footnote_div := tree.find(id="cs_footnotes")
+        ) is not None and not footnote_div.encode_contents().strip():
+            fnote = '<br/>&nbsp;<hr/><b name="cs_footnotes">Footnotes</b>'
+            for ix, f in enumerate(footnotes):
+                ix = ix + 1
+                fnote += (
+                    '<p><a class="anchor" name="catsoop_footnote_%d"></a><sup style="padding-right:0.25em;color:var(--cs-base-bg-color);">%d</sup>'
+                    '%s <a href="#catsoop_footnote_ref_%d">'
+                    '<span class="noprint">(click to return to text)</span>'
+                    "</a></p>"
+                ) % (ix, ix, f, ix)
+            footnote_div.append(BeautifulSoup(fnote, "html.parser"))
+            if "style" in footnote_div.attrs:
+                del footnote_div.attrs["style"]
 
     # custom URL handling in img, a, script, link
 
