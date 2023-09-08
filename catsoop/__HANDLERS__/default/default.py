@@ -190,9 +190,7 @@ def handle_new_seed(context):
 
 
 def handle_activate(context):
-    submitted_pass = context[_n("form")].get(
-        "activation_password", {"type": "raw", "data": ""}
-    )["data"]
+    submitted_pass = context[_n("form")].get("activation_password", "")
     if submitted_pass == context[_n("activation_password")]:
         newstate = dict(context[_n("last_log")])
         newstate["activated"] = True
