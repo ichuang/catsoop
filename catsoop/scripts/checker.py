@@ -212,6 +212,7 @@ if __name__ == "__main__":
                         )
                     magic = row["magic"]
                     newloc = os.path.join(RESULTS, magic[0], magic[1], magic)
+                    os.makedirs(os.path.dirname(newloc), exist_ok=True)
                     with open(newloc, "wb") as f:
                         f.write(cslog.prep(row))
                     # then remove from running
