@@ -116,6 +116,10 @@ def answer_display(**info):
         data = csm_thirdparty.data_uri.DataURI.make(
             info.get("cs_content_type", "text/plain"), None, True, info["csq_soln"]
         )
+    elif info["csq_soln_type"] == "markdown":
+        return "<b>Solution:</b><br/>&nbsp;<br/>%s" % info["csm_language"]._md(
+            info["csq_soln"]
+        )
     else:
         data = csm_thirdparty.data_uri.DataURI.from_file(info["csq_soln"])
         ext = mimetypes.guess_extension(data.mimetype) or ".txt"
