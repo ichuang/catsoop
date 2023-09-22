@@ -123,5 +123,5 @@ def answer_display(**info):
     else:
         data = csm_thirdparty.data_uri.DataURI.from_file(info["csq_soln"])
         ext = mimetypes.guess_extension(data.mimetype) or ".txt"
-        name = name.rsplit(".", 1) + ext
+        name = name.rsplit(".", 1)[0] + ext
     return ('<a href="%s" ' 'download="%s">Download Solution</a>') % (data, name)
