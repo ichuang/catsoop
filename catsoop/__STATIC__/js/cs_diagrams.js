@@ -1289,7 +1289,13 @@ function diagramToSVG(diagramString, alignmentHint) {
         svg += ' style="margin:0 auto 0 auto;"';
     }
 
-    svg += '><g transform="translate(' + Vec2(1, 1) + ')">\n';
+    svg += '>'
+    svg += '\n<style>\n'
+    for (var i=0; i < catsoop.diagram_stylesheet_rules.length; i++){
+        svg += '\n' + catsoop.diagram_stylesheet_rules[i] + '\n';
+    }
+    svg += '\n</style>\n'
+    svg += '<g transform="translate(' + Vec2(1, 1) + ')">\n';
 
     if (DEBUG_SHOW_GRID) {
         svg += '<g style="opacity:0.1">\n';
@@ -1348,7 +1354,9 @@ function diagramToSVG(diagramString, alignmentHint) {
     svg = svg.rp(new RegExp(HIDE_O, 'g'), 'o');
 
 
-    return svg;
+    var svgimg = '<img class="catsoop-darkmode-invert" style="margin-left:auto;margin-right:auto;display:block;" src="data:image/svg+xml;base64,' + btoa(svg) + '" />'
+
+    return svgimg;
 }
 
 
@@ -1388,9 +1396,6 @@ catsoop.render_all_diagrams = function (elt) {
                 b.outerHTML = diagramToSVG(catsoop.diagram_sources[b.querySelector('code.cs-diagram-id').innerText], b.attributes.diagramalign.value);
             }
         );
-        for (var i=0; i < catsoop.diagram_stylesheet_rules.length; i++){
-            document.styleSheets[0].insertRule(catsoop.diagram_stylesheet_rules[i]);
-        }
     }
 }
 
