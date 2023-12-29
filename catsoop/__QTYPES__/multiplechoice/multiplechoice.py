@@ -19,6 +19,9 @@ import collections.abc
 
 
 def default_checkbox_checker(submission, solution):
+    if sum(solution) < len(solution) / 2:
+        solution = [not i for i in solution]
+        submission = [not i for i in submission]
     credit_per_correct = 1 / sum(solution)
     correct = (
         sum(i == j == True for i, j in zip(submission, solution)) * credit_per_correct
