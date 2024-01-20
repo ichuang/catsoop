@@ -6,6 +6,9 @@
 
 ADDED:
 
+* Added the option to specify solutions to "fileupload" questions
+  with Markdown code instead of files
+
 CHANGED:
 
 DEPRECATED:
@@ -21,7 +24,20 @@ FIXED:
   impersonating a student
 
 * Replaced code that used the "imp" module, which has been removed from Python
-  3.12.
+  3.12
+
+* Updated handling of diagrams so that they respect darkmode
+  settings
+
+* Fixed a broken implementation of solutions in "fileupload"
+  questions
+
+* Fixed a rare crash with asynchronous checkers not always making
+  sure the appropriate directories exist before attempting to write
+  log files
+
+* Fixed an issue with password-locked pages that prevented them from
+  ever being accessed.
 
 SECURITY:
 
