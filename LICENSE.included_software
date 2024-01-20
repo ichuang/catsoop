@@ -39,6 +39,16 @@ For more information, please refer to <http://unlicense.org/>
 ########
 
 
+CAT-SOOP contains a slightly-modified copy of cgi.py from the Python standard
+library (removed in Python 3.13).  Information about its authorship can be
+found in the file itself, and the original file is licensed under the terms
+described at the following link:
+  https://docs.python.org/3/license.html#psf-license-agreement-for-python-release
+
+
+########
+
+
 CAT-SOOP contains a slightly-modified version of highlight.js, a Javascript
 library for syntax highlighting (https://highlightjs.org/).  In particular,
 syntax highlighting of Python code was modified to include more built-in names.

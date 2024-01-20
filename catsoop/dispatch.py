@@ -18,7 +18,6 @@ Methods for handling requests, or for routing them to the proper handlers
 """
 
 import os
-import cgi
 import string
 import hashlib
 import colorsys
@@ -39,6 +38,8 @@ from . import errors
 from . import session
 from . import language
 from . import base_context
+
+from .thirdparty import cgi
 
 _nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form", "md5"}
 

@@ -47,6 +47,10 @@ DOCUMENTATION:
 
 VENDORED SOFTWARE:
 
+* A version of cgi.py from the Python standard library is now included in the
+  distribution, since that module will be removed from the standard library in
+  3.13 and we depend on it for parsing form data.
+
 
 ##################
 # Version 19.0.4 #
