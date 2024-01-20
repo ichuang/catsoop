@@ -18,13 +18,13 @@
 
 import os
 import sys
-import imp
 import time
 import atexit
 import signal
 import getpass
 import hashlib
 import sqlite3
+import importlib
 import subprocess
 
 from datetime import datetime
@@ -53,7 +53,7 @@ def _log(*args, **kwargs):
 def main(options=[]):
     import catsoop.base_context as base_context
 
-    imp.reload(base_context)
+    importlib.reload(base_context)
     import catsoop.loader as loader
     from catsoop.process import set_pdeathsig
 

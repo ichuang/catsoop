@@ -16,7 +16,6 @@
 
 import os
 import ast
-import imp
 import math
 import cmath
 import random
@@ -381,7 +380,13 @@ def total_points(**info):
 
 
 def _get_syntax_module(context):
+    # i really didn't want to add these things to sys.modules, but ply depends
+    # on them being there (otherwise we get an error when actually doing the
+    # parsing)
     syntax = context["csq_syntax"]
+    module_name = f"_catsoop_expression_syntax_{syntax}"
+    if module_name in sys.modules:
+        return sys.modules[module_name]
     fname = os.path.join(
         context["cs_fs_root"],
         "__QTYPES__",
@@ -389,7 +394,9 @@ def _get_syntax_module(context):
         "__SYNTAX__",
         "%s.py" % syntax,
     )
-    return imp.load_source(syntax, fname)
+    out = context["csm_loader"]._make_module(fname, module_name)
+    sys.modules[module_name] = out
+    return out
 
 
 def _implicit_multiplication(context):

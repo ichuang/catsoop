@@ -1,3 +1,37 @@
+########################
+# Current Developments #
+########################
+
+(Work toward next release. Currently under development.)
+
+ADDED:
+
+CHANGED:
+
+DEPRECATED:
+
+REMOVED:
+
+FIXED:
+
+* Fixed a crash when a "checkbox"-style multiplechoice question had no True
+  answers
+
+* Fixed a UI issue whereby darkmode preferences were inherited when
+  impersonating a student
+
+* Replaced code that used the "imp" module, which has been removed from Python
+  3.12.
+
+SECURITY:
+
+ACCESSIBILITY:
+
+DOCUMENTATION:
+
+VENDORED SOFTWARE:
+
+
 ##################
 # Version 19.0.4 #
 ##################
@@ -23,11 +57,11 @@ FIXED:
 CHANGED:
 
 * The "fileupload" question type no longer alerts when an empty file is
-  specified; instead, the submission is simply treated as empty.
+  specified; instead, the submission is simply treated as empty
 
 FIXED:
 
-* Fixed a bug with questions that are re-rendered after submission.
+* Fixed a bug with questions that are re-rendered after submission
 
 * Fixed issues with handling of questions with csq_indiv=False in the
   submission callback
