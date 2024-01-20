@@ -433,8 +433,12 @@ def display_page(context):
     )
 
     # handle dark mode
+    user_info = context.get("cs_user_info", {})
     dark_mode_settings = cslog.most_recent(
-        str(context.get("cs_username", "None")), ["_user_settings"], "dark_mode", None
+        str(user_info.get("real_user", user_info).get("username", "None")),
+        ["_user_settings"],
+        "dark_mode",
+        None,
     )
     context["cs_rendered_dark_mode_settings"] = (
         "null" if dark_mode_settings is None else repr(dark_mode_settings)
