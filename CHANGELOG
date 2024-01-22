@@ -1,19 +1,11 @@
-########################
-# Current Developments #
-########################
-
-(Work toward next release. Currently under development.)
+##################
+# Version 19.0.5 #
+##################
 
 ADDED:
 
 * Added the option to specify solutions to "fileupload" questions
   with Markdown code instead of files
-
-CHANGED:
-
-DEPRECATED:
-
-REMOVED:
 
 FIXED:
 
@@ -38,12 +30,6 @@ FIXED:
 
 * Fixed an issue with password-locked pages that prevented them from
   ever being accessed.
-
-SECURITY:
-
-ACCESSIBILITY:
-
-DOCUMENTATION:
 
 VENDORED SOFTWARE:
 
