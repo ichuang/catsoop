@@ -84,5 +84,5 @@ def render_html(last_log, **info):
 
 
 def answer_display(**info):
-    out = "Solution: %s" % (info["csq_soln"])
+    out = "<b>Solution:</b> %s" % (info["csq_soln"])
     return out

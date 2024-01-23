@@ -552,7 +552,7 @@ def answer_display(**info):
     if isinstance(info["csq_soln"], str):
         a = tree2tex(info, funcs, parser.parse(info["csq_soln"]))[0]
         out = (
-            "<p>Solution: <tt>%s</tt><br>"
+            "<p><b>Solution:</b> <tt>%s</tt><br>"
             '<div id="%s_soln"><displaymath>%s</displaymath></div>'
             "<p>"
         ) % (info["csq_soln"], info["csq_name"], a)
@@ -565,7 +565,8 @@ def answer_display(**info):
             out += '<hr width="80%" />'
             a = tree2tex(info, funcs, parser.parse(i))[0]
             out += (
-                "<p>Solution %s: <tt>%s</tt><br>" "<displaymath>%s</displaymath></p>"
+                "<p><b>Solution %s:</b> <tt>%s</tt><br>"
+                "<displaymath>%s</displaymath></p>"
             ) % (count, i, a)
             count += 1
         out += "</div>"

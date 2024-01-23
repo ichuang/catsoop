@@ -189,7 +189,7 @@ def render_html(last_log, **info):
 
 def answer_display(**info):
     if info["csq_mode"] == "raw":
-        out = "<p>Solution: <tt>%r</tt><p>" % (info["csq_soln"],)
+        out = "<p><b>Solution:</b> <tt>%r</tt><p>" % (info["csq_soln"],)
     else:
-        out = "<p>Solution: <tt>%s</tt><p>" % (info["csq_soln"],)
+        out = "<p><b>Solution:</b> <tt>%s</tt><p>" % (info["csq_soln"],)
     return out
