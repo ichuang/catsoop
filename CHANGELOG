@@ -1,18 +1,10 @@
-########################
-# Current Developments #
-########################
-
-(Work toward next release. Currently under development.)
-
-ADDED:
+##################
+# Version 19.0.6 #
+##################
 
 CHANGED:
 
 * Updated several question types to bold the word "Solution" in answer displays
-
-DEPRECATED:
-
-REMOVED:
 
 FIXED:
 
@@ -20,14 +12,6 @@ FIXED:
 
 * Fixed an issue with incorrect alignment of "multiplechoice" questions'
   answers in browsers other than Firefox
-
-SECURITY:
-
-ACCESSIBILITY:
-
-DOCUMENTATION:
-
-VENDORED SOFTWARE:
 
 
 ##################
