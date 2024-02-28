@@ -897,7 +897,7 @@ def handle_save(context):
         if "score_displays" not in newstate:
             newstate["score_displays"] = {}
         if "check_cached_responses" not in newstate:
-            newstate["cached_responses"] = {}
+            newstate["check_cached_responses"] = {}
         newstate["score_displays"][name] = out["score_display"]
         newstate["check_cached_responses"][name] = out["message"]
 
