@@ -8,13 +8,18 @@ ADDED:
 
 CHANGED:
 
-* Updated several question types to bold the word "Solution" in answer displays.
+* Updated several question types to bold the word "Solution" in answer displays
 
 DEPRECATED:
 
 REMOVED:
 
 FIXED:
+
+* Fixed an issue with broken save buttons
+
+* Fixed an issue with incorrect alignment of "multiplechoice" questions'
+  answers in browsers other than Firefox
 
 SECURITY:
 
