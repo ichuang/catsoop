@@ -30,6 +30,7 @@ _resource_mapper = {
     "CPUTIME": (resource.RLIMIT_CPU, lambda x: (x, x + 1)),
     "MEMORY": (resource.RLIMIT_AS, lambda x: (x, x)),
     "FILESIZE": (resource.RLIMIT_FSIZE, lambda x: (x, x)),
+    "NPROC": (resource.RLIMIT_NPROC, lambda x: (x, x)),
 }
 
 
