@@ -27,6 +27,8 @@ import binascii
 import traceback
 import collections
 
+collections.Callable = collections.abc.Callable	# hacky fix for python 3.11
+
 from catsoop import debug_log
 
 _nodoc = {"CSFormatter", "formatdate", "dict_from_cgi_form", "LOGGER", "md5"}
