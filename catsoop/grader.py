@@ -115,14 +115,17 @@ def save_grader_results(result_queue, context, name, row):
     Save results from the completion of a do_check process, for a specific question name
     '''
     jobid = row['magic']
+    if "lti_data" in row:			# don't save lti_data in results (it was just needed for pushing scores to LTI consumer)
+        row.pop("lti_data")
+    row['job_complete'] = time.time()		# record job completion time
     if result_queue is not None:		# if result_queue then stuff results there; don't do the db update here (let the master process do it instead)
-        log("[grader.save_grader_results] queueing results for jobid=%s, name=%s, row=%s" % (jobid, name, str(row)[:50]))
+        log("[grader.save_grader_results] queueing results for jobid=%s, name=%s, user=%s, path=%s" % (jobid, name, row.get('username'), row.get('path')))
         the_context = {'cs_data_root': context['cs_data_root']}		# used by filesystem queue
         result_queue.put((the_context, name, row))
         time.sleep(5)
         return
 
-    log("[grader.save_grader_results] saving result for jobid=%s, name=%s, row=%s" % (jobid, name, str(row)[:50]))
+    log("[grader.save_grader_results] saving result for jobid=%s, name=%s, user=%s, path=%s" % (jobid, name, row.get('username'), row.get('path')))
     # csqueue.initialize()			# http://api.mongodb.org/python/current/faq.html#is-pymongo-fork-safe
     # cslog.initialize()
     csqueue.save_results(context, jobid, row)
@@ -378,7 +381,8 @@ def watch_queue_and_run(max_finished=None):
                 # start a worker for it
                 log("=====> Current number of jobs in queue waiting for execution = %s" % csqueue.current_queue_length())
                 jobid = row["magic"]
-                log("Starting checker on jobid=%s, with row=%s" % (jobid, str(row)[:50]))
+                log("Starting checker on jobid=%s, user=%s, path=%s, names=%s" % (jobid, row.get('username'), row.get('path'), str(row.get('names'))[:50]))
+                row['job_started'] = time.time()		# record grader job computation start time
                 nstarted += 1
                 p = multiprocessing.Process(target=do_check, args=(row, result_queue))
                 p.start()

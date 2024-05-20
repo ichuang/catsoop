@@ -17,6 +17,7 @@
 Store ticket, validate ticket, and then return user info if all ok
 """
 
+import ssl
 import time
 import urllib.parse
 import urllib.request
@@ -40,9 +41,15 @@ def validate_ticket(ticket):
     )
     nretries = 10
     ret = None
+
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    ctx.set_ciphers('ALL:!aNULL:!eNULL')
+
     for k in range(nretries):
         try:
-            ret = urllib.request.urlopen(val_url).read()
+            ret = urllib.request.urlopen(val_url, context=ctx).read()
             if k > 0:
                 LOGGER.error("[auth.cas.validate] Succeeded on try number k=%s" % k)
             break
@@ -50,7 +57,7 @@ def validate_ticket(ticket):
             errors.append("CAS server rejected token request on try number %s" % k)
             errors.append(str(err))
             LOGGER.error(
-                "[auth.cas.validate] failed to sent validation request to cas server val_url=%s"
+                "[auth.cas.validate] failed to send validation request to cas server val_url=%s"
                 % val_url
             )
             LOGGER.error("[auth.cas.validate] FAILED ON TRY %s: err=%s" % (k, str(err)))
