@@ -59,6 +59,7 @@ Example commands:
     logread        : show the content of a given log
     logwrite       : overwrite the content of a given log
     logedit        : edit the content of a given log in a text editor
+    nginx-static   : generate an nginx config snippet for serving static files
 
 """
     cmd_help = """A variety of commands are available, each with different arguments:
@@ -69,6 +70,7 @@ configure      : generate CAT-SOOP configuration file using an interactive wizar
 logread        : show the content of a given log
 logwrite       : overwrite the content of a given log
 logedit        : edit the content of a given log in a text editor
+nginx-static   : generate an nginx config snippet for serving static files
 
 """
 
@@ -152,6 +154,11 @@ logedit        : edit the content of a given log in a text editor
         from .scripts import log_scripts
 
         log_scripts.log_edit(args.args)
+
+    elif args.command == "nginx-static":
+        from .scripts import nginx_static
+
+        nginx_static.main(sys.argv[1:])
 
     else:
         print("Unknown command %s" % args.command)
