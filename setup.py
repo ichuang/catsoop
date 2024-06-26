@@ -229,8 +229,8 @@ def dirty_version():
 
 
 def main():
-    if sys.version_info[:2] < (3, 8):
-        sys.exit("catsoop currently requires Python 3.8+")
+    if sys.version_info[:2] < (3, 11):
+        sys.exit("catsoop currently requires Python 3.11+")
 
     if "--name" not in sys.argv:
         print(logo)
