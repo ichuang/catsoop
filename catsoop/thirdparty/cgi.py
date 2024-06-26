@@ -290,7 +290,6 @@ def parse_header(line):
 
 
 class MiniFieldStorage:
-
     """Like FieldStorage, for use when no file uploads are possible."""
 
     # Dummy attributes
@@ -315,7 +314,6 @@ class MiniFieldStorage:
 
 
 class FieldStorage:
-
     """Store a sequence of fields, reading multipart/form-data.
 
     This class provides naming, typing, files stored on disk, and

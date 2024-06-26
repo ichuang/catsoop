@@ -542,9 +542,11 @@ def render_html_upload(last_log, **info):
         "init": str(init_code),
         "safeinit": html.escape(init_code or ""),
         "b64init": b64encode(make_initial_display(info).encode()).decode(),
-        "dl": (' download="%s"' % info["csq_skeleton_name"])
-        if "csq_skeleton_name" in info
-        else "download",
+        "dl": (
+            (' download="%s"' % info["csq_skeleton_name"])
+            if "csq_skeleton_name" in info
+            else "download"
+        ),
     }
     out = ""
     if info.get("csq_show_skeleton", True):

@@ -54,12 +54,14 @@ def render_html(last_log, **info):
         "init": str(init),
         "safeinit": (init or "").replace("<", "&lt;"),
         "b64init": base64.b64encode(make_initial_display(info).encode()).decode(),
-        "dl": (' download="%s"' % info["csq_skeleton_name"])
-        if "csq_skeleton_name" in info
-        else "download",
-        "dl2": (' download="%s"' % fname)
-        if "csq_skeleton_name" in info
-        else "download",
+        "dl": (
+            (' download="%s"' % info["csq_skeleton_name"])
+            if "csq_skeleton_name" in info
+            else "download"
+        ),
+        "dl2": (
+            (' download="%s"' % fname) if "csq_skeleton_name" in info else "download"
+        ),
     }
     out = ""
     if last_log.get(name, None) is not None:

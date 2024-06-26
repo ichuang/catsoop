@@ -1835,9 +1835,11 @@ def get_last_action_data(context, question_name):
             "last_submit" if last_action == "submit" else "last_check", {}
         )
         last_cached_responses = last_problem_state.get(
-            "submit_cached_responses"
-            if last_action == "submit"
-            else "check_cached_responses",
+            (
+                "submit_cached_responses"
+                if last_action == "submit"
+                else "check_cached_responses"
+            ),
             {},
         )
 
@@ -1889,9 +1891,9 @@ def render_question(elt, context, wrap=True):
             args,
             name,
             None,
-            last_log=context[_n("last_log")]
-            if last_action in {"submit", "revert"}
-            else {},
+            last_log=(
+                context[_n("last_log")] if last_action in {"submit", "revert"} else {}
+            ),
         )
         + "</span>"
     )

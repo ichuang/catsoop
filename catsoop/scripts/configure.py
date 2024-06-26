@@ -83,9 +83,9 @@ def yesno(question, default="Y"):
         question,
         default,
         lambda x: x.lower(),
-        lambda x: None
-        if x in {"y", "n", "yes", "no"}
-        else WARNING("Please answer Yes or No"),
+        lambda x: (
+            None if x in {"y", "n", "yes", "no"} else WARNING("Please answer Yes or No")
+        ),
     )
     if res.startswith("y"):
         return True
