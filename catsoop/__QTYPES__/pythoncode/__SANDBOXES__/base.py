@@ -126,6 +126,7 @@ DEFAULT_OPTIONS = {
     "BADVAR": [],
     "FILES": [],
     "STDIN": "",
+    "NPROC": 0,
 }
 
 
