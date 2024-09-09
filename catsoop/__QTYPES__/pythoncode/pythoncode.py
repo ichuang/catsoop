@@ -339,10 +339,13 @@ def handle_submission(submissions, **info):
         test_results.append(percentage)
 
         imfile = None
+        imalt = None
         if percentage == 1.0:
             imfile = info["cs_check_image"]
+            imalt = "Correct"
         elif percentage == 0.0:
             imfile = info["cs_cross_image"]
+            imalt = "Incorrect"
 
         score += percentage * test["npoints"]
 
@@ -358,8 +361,10 @@ def handle_submission(submissions, **info):
         got_solution_result = "result" in result_s
         if imfile is None:
             image = ""
-        else:
+        elif imalt is None:
             image = "<img src='%s' />" % imfile
+        else:
+            image = "<img src='%s' alt='%s' />" % (imfile, imalt)
 
         # report timing and/or opcode count
         if test["show_timing"] == True:
@@ -464,9 +469,9 @@ def handle_submission(submissions, **info):
             pass
     if info["csq_show_check"]:
         if overall == 1.0:
-            checkimg = '<img src="%s" />' % info["cs_check_image"]
+            checkimg = '<img src="%s" alt="Correct" />' % info["cs_check_image"]
         elif overall == 0.0:
-            checkimg = '<img src="%s" />' % info["cs_cross_image"]
+            checkimg = '<img src="%s" alt="Incorrect" />' % info["cs_cross_image"]
         else:
             checkimg = ""
     else:
