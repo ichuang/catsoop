@@ -23,6 +23,9 @@ FIXED:
 
 SECURITY:
 
+* Fixed issue that allowed access to list_users api endpoint in some cases when
+  it should not have been allowed
+
 ACCESSIBILITY:
 
 * Improved alt text for check/cross images indicating correctness

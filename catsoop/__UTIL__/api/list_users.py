@@ -37,6 +37,8 @@ if error is None:
         uinfo = output["user_info"]
         if "admin" not in uinfo["permissions"]:
             error = "Permission Denied"
+    else:
+        error = "invalid api token"
 
 if error is None:
     output = {"ok": True, "result": csm_user.list_all_users(globals(), course)}
