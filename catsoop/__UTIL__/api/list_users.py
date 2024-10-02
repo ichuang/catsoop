@@ -38,10 +38,13 @@ if error is None:
         if "admin" not in uinfo["permissions"]:
             error = "Permission Denied"
     else:
-        error = "invalid api token"
+        error = "Invalid API Token"
 
 if error is None:
-    output = {"ok": True, "result": csm_user.list_all_users(globals(), course)}
+    try:
+        output = {"ok": True, "result": csm_user.list_all_users(globals(), course)}
+    except FileNotFoundError:
+        output = {"ok": False, "error": "Invalid Course"}
 else:
     output = {"ok": False, "error": error}
 
