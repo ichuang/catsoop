@@ -42,14 +42,18 @@ def validate_ticket(ticket):
     nretries = 10
     ret = None
 
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    ctx.set_ciphers('ALL:!aNULL:!eNULL')
+    if 0:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        ctx.set_ciphers('ALL:!aNULL:!eNULL')
 
     for k in range(nretries):
         try:
-            ret = urllib.request.urlopen(val_url, context=ctx).read()
+            if 0:
+                ret = urllib.request.urlopen(val_url, context=ctx).read()
+            else:
+                ret = urllib.request.urlopen(val_url).read()
             if k > 0:
                 LOGGER.error("[auth.cas.validate] Succeeded on try number k=%s" % k)
             break
