@@ -91,8 +91,17 @@ def validate_ticket(ticket):
 
     fillin(".//{http://www.yale.edu/tp/cas}user", "username")
     fillin(".//{http://www.yale.edu/tp/cas}email", "email")
+    fillin(".//{http://www.yale.edu/tp/cas}mail", "email")
     fillin(".//{http://www.yale.edu/tp/cas}givenName", "firstname")
     fillin(".//{http://www.yale.edu/tp/cas}sn", "lastname")
+    if not ('username' in cas_info):
+        if 'email' in cas_info:
+            cas_info['username'] = cas_info['email'].split("@")[0]
+            LOGGER.debug("[auth.cas] missing user in XML, using %s from email %s" % (cas_info['username'],
+                                                                                     cas_info['email']))
+        else:
+            LOGGER.error("[auth_cas] missing user in XML!  cas_info=%s" % str(cas_info))
+
     cas_info["cas_ticket"] = ticket
     if cas_info.get("firstname"):
         cas_info["name"] = " ".join([cas_info[x] for x in ["firstname", "lastname"]])
