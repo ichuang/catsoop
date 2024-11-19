@@ -74,6 +74,11 @@ def validate_ticket(ticket):
         LOGGER.error("[auth.cas.validate] GIVING UP after %s retries" % k)
         return None
 
+    if USE_REQUESTS and ret.status_code > 299:
+        LOGGER.error("[auth.cas.validate] error response code=%s, err=%s" % (ret.status_code, ret.reason))
+        LOGGER.error("[auth.cas.validate] error ret=%s" % str(ret))
+        ret.raise_for_status()
+
     if USE_REQUESTS:
         ret = ret.content.decode("utf8")
     else:
