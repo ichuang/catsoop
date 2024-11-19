@@ -109,8 +109,12 @@ def validate_ticket(ticket):
             cas_info['username'] = cas_info['email'].split("@")[0]
             LOGGER.debug("[auth.cas] missing user in XML, using %s from email %s" % (cas_info['username'],
                                                                                      cas_info['email']))
+            LOGGER.error("[auth_cas] xml=%s" % str(xml))
+            LOGGER.error("[auth_cas] ret=%s" % str(ret))
         else:
             LOGGER.error("[auth_cas] missing user in XML!  cas_info=%s" % str(cas_info))
+            LOGGER.error("[auth_cas] xml=%s" % str(xml))
+            LOGGER.error("[auth_cas] ret=%s" % str(ret))
 
     cas_info["cas_ticket"] = ticket
     if cas_info.get("firstname"):
@@ -151,6 +155,5 @@ except Exception as err:
     LOGGER.error("[auth.cas.validate] failed to update cs_session_data with cas_info, err=%s" % str(err))
     LOGGER.error("[auth.cas.validate] cas_info=%s" % str(cas_info))
     LOGGER.error("[auth.cas.validate] cs_session_data=%s" % str(cs_session_data))
-    LOGGER.error("xml=%s" % xml)
 LOGGER.info("[auth.cas.validate] redirecting to %s" % redirect_location)
 cs_handler = "redirect"
