@@ -145,6 +145,12 @@ if not cas_info:
 # we made it! set session data and redirect to original page
 
 csm_session.set_session_data(globals(), cs_sid, cs_session_data)
-csm_cslog.overwrite_log("_extra_info", [], cs_session_data["username"], cas_info)
+try:
+    csm_cslog.overwrite_log("_extra_info", [], cs_session_data["username"], cas_info)
+except Exception as err:
+    LOGGER.error("[auth.cas.validate] failed to update cs_session_data with cas_info, err=%s" % str(err))
+    LOGGER.error("[auth.cas.validate] cas_info=%s" % str(cas_info))
+    LOGGER.error("[auth.cas.validate] cs_session_data=%s" % str(cs_session_data))
+    LOGGER.error("xml=%s" % xml)
 LOGGER.info("[auth.cas.validate] redirecting to %s" % redirect_location)
 cs_handler = "redirect"
