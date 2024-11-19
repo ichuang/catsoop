@@ -21,13 +21,14 @@ import ssl
 import time
 import urllib.parse
 import urllib.request
+import requests
 
 from lxml import etree
 from catsoop import debug_log
 
 LOGGER = debug_log.LOGGER
 errors = []
-
+USE_REQUESTS = True
 
 def validate_ticket(ticket):
     redir_url = "%s/_auth/cas/callback" % cs_url_root
@@ -52,6 +53,8 @@ def validate_ticket(ticket):
         try:
             if 0:
                 ret = urllib.request.urlopen(val_url, context=ctx).read()
+            elif USE_REQUESTS:
+                ret = requests.get(val_url)
             else:
                 ret = urllib.request.urlopen(val_url).read()
             if k > 0:
@@ -71,7 +74,10 @@ def validate_ticket(ticket):
         LOGGER.error("[auth.cas.validate] GIVING UP after %s retries" % k)
         return None
 
-    ret = ret.decode("utf8")
+    if USE_REQUESTS:
+        ret = ret.content.decode("utf8")
+    else:
+        ret = ret.decode("utf8")
     LOGGER.debug("[auth.cas.validate] cas server returned %s" % ret)
     if "cas:serviceResponse" not in ret:
         return None
