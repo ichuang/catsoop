@@ -52,6 +52,7 @@ def validate_ticket(ticket):
                 + urllib.parse.quote(redir_url)
                 + "&ticket="
                 + urllib.parse.quote(ticket)
+                + "&action=validate"
             )
             LOGGER.error("[auth.cas_validate] using proxy %s" % cs_cas_proxy)
     except:

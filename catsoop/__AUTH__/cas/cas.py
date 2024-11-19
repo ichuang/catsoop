@@ -53,6 +53,19 @@ def get_logged_in_user(context):
             + urllib.parse.quote(ticket)
         )
         try:
+            if cs_cas_proxy:
+                logout_url = (
+                    cs_cas_proxy
+                    + "?service="
+                    + urllib.parse.quote(redir_url)
+                    + "&ticket="
+                    + urllib.parse.quote(ticket)
+                    + "&action=logout"
+                )
+                LOGGER.error("[auth.cas.logout] using proxy %s" % cs_cas_proxy)
+        except:
+            pass
+        try:
             ret = urllib.request.urlopen(logout_url).read()
             LOGGER.info("[auth.cas] CAS server logout returnd ret=%s" % ret)
         except Exception as err:
