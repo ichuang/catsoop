@@ -43,6 +43,20 @@ def validate_ticket(ticket):
     nretries = 10
     ret = None
 
+    # if using proxy, then use that for the validation URL
+    try:
+        if cs_cas_proxy:
+            val_url = (
+                cs_cas_proxy
+                + "?service="
+                + urllib.parse.quote(redir_url)
+                + "&ticket="
+                + urllib.parse.quote(ticket)
+            )
+            LOGGER.error("[auth.cas_validate] using proxy %s" % cs_cas_proxy)
+    except:
+        pass
+
     if 0:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
