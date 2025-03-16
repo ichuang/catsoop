@@ -435,12 +435,7 @@ def display_page(context):
 
     # handle dark mode
     user_info = context.get("cs_user_info", {})
-    dark_mode_settings = cslog.most_recent(
-        str(user_info.get("real_user", user_info).get("username", "None")),
-        ["_user_settings"],
-        "dark_mode",
-        None,
-    )
+    dark_mode_settings = context.get("cs_dark_mode_settings", None)
     context["cs_rendered_dark_mode_settings"] = (
         "null" if dark_mode_settings is None else repr(dark_mode_settings)
     )
@@ -455,8 +450,9 @@ def display_page(context):
         if context["cs_dark_mode_invert_videos"]
         else "video.catsoop-darkmode-invert"
     )
-    context["cs_dark_mode_javascript"] = (
-        """
+    context[
+        "cs_dark_mode_javascript"
+    ] = """
     document.addEventListener("DOMContentLoaded", function(event) {
         if (DarkReader.isEnabled()) {
             var invertfilter = 'invert(100%%) hue-rotate(180deg)' +
@@ -468,11 +464,9 @@ def display_page(context):
             inverter.innerText = '%s, %s {filter: ' + invertfilter + ';}\\n\\n'
             document.head.appendChild(inverter);
         }
-    });"""
-        % (
-            imgselector,
-            videoselector,
-        )
+    });""" % (
+        imgselector,
+        videoselector,
     )
 
     out = (
@@ -863,6 +857,18 @@ def main(environment, return_context=False, form_data=None):
                 result = is_resource(context, [context["cs_course"]] + path_info)
                 if not result:
                     return errors.do_404_message(context)
+
+            # LOAD DARK MODE SETTINGS
+            context["cs_dark_mode_settings"] = cslog.most_recent(
+                str(
+                    context["cs_user_info"]
+                    .get("real_user", context["cs_user_info"])
+                    .get("username", "None")
+                ),
+                ["_user_settings"],
+                "dark_mode",
+                None,
+            )
 
             # FINALLY, LOAD CONTENT
             loader.load_content(
