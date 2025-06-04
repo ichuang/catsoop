@@ -1,0 +1,25 @@
+Source: catsoop
+Section: unknown
+Priority: optional
+Maintainer: adam j hartz <hz@mit.edu>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ python3 (>= 3.11),
+Standards-Version: 4.6.2
+Homepage: https://catsoop.org
+Vcs-Browser: https://catsoop.org/hg/catsoop
+Vcs-Hg: https://catsoop.org/hg/catsoop
+
+Package: catsoop
+Architecture: all
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ ${python3:Depends},
+Description: CAT-SOOP is a tool for automatic collection and assessment of online exercises.
+ CAT-SOOP is a flexible, programmable learning management system originally
+ developed primarily for use in MIT's 6.01 (Introduction to Electrical
+ Engineering and Computer Science via Robotics).
+ See https://catsoop.org for more information.

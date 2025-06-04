@@ -1,0 +1,23 @@
+catsoop for Debian
+-----------------
+
+\
+/    /\__/\
+\__=(  o_O )=
+(__________)
+ |_ |_ |_ |_
+
+
+CAT-SOOP is a flexible, programmable learning management system originally
+developed primarily for use in MIT's 6.01 (Introduction to Electrical
+Engineering and Computer Science via Robotics).
+
+CAT-SOOP is Free/Libre Software, available under the terms of the GNU Affero
+General Public License, version 3+. Please note that the terms of this license
+apply to the CAT-SOOP system itself, but not to any course material hosted on a
+CAT-SOOP instance, unless explicitly stated otherwise.
+
+Web Site: https://catsoop.org
+
+ -- adam j hartz <hz@mit.edu>  Wed, 04 Jun 2025 07:31:19 -0400
+
