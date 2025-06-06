@@ -18,6 +18,8 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  ${python3:Depends},
+ uwsgi,
+ uwsgi-plugin-python3,
 Description: CAT-SOOP is a tool for automatic collection and assessment of online exercises.
  CAT-SOOP is a flexible, programmable learning management system originally
  developed primarily for use in MIT's 6.01 (Introduction to Electrical

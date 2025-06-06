@@ -144,6 +144,8 @@ def main(options=[]):
 
             uwsgi_opts = (
                 [
+                    "--plugin",
+                    "python3,http",
                     "--http",
                     ":%s" % base_context.cs_wsgi_server_port,
                     "-b",
@@ -154,6 +156,7 @@ def main(options=[]):
                     "wsgi.py",
                     "--touch-reload",
                     "wsgi.py",
+                    "--plugins-list",
                 ]
                 + (
                     []
