@@ -10,4 +10,7 @@ uninstall:
 test:
 	pytest catsoop/test
 
+deb:
+	dpkg-buildpackage -us -uc -b
+
 .PHONY: install develop test uninstall

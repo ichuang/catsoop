@@ -12,6 +12,13 @@ __pycache__/
 catsoop/config.py
 .encryption_*
 
+# Debian package files
+debian/catsoop
+debian/.debhelper
+debian/catsoop.substvars
+debian/files
+.pybuild
+
 # NOHUP
 nohup.out
 
