@@ -22,7 +22,8 @@ import re
 import uuid
 import urllib
 import traceback
-import pylti.common
+
+from .thirdparty import pylti as pylti
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -35,7 +36,7 @@ from . import session
 _nodoc = {"Client", "ElementMaker", "etree"}
 
 
-class lti4cs(pylti.common.LTIBase):
+class lti4cs(pylti.LTIBase):
     """
     LTI object representation for CAT-SOOP: validation and data receipt
     """
@@ -44,7 +45,7 @@ class lti4cs(pylti.common.LTIBase):
         self.session = session
         self.lti_data = {}
         self.config = context.get("cs_lti_config", {})
-        pylti.common.LTIBase.__init__(self, lti_args, lti_kwargs)
+        pylti.LTIBase.__init__(self, lti_args, lti_kwargs)
 
         self.consumers = self.config["consumers"]
         self.lti_session_key = self.config["session_key"]
@@ -61,7 +62,7 @@ class lti4cs(pylti.common.LTIBase):
                 environment["REQUEST_URI"][1:],
             )
             method = environment["REQUEST_METHOD"]
-            pylti.common.verify_request_common(
+            pylti.verify_request_common(
                 self.consumers, url, method, environment, params
             )
             extra_fields = [self.config.get("lti_user_id_field")] + [
@@ -69,7 +70,7 @@ class lti4cs(pylti.common.LTIBase):
                 "tool_consumer_.*",
                 "custom_canvas_.*",
             ]
-            for prop in pylti.common.LTI_PROPERTY_LIST + extra_fields:
+            for prop in pylti.LTI_PROPERTY_LIST + extra_fields:
                 if prop is None:
                     continue
                 if params.get(prop, None):
@@ -137,7 +138,7 @@ class lti4cs_response(object):
         result_sourcedid = self.lti_data.get("lis_result_sourcedid", None)
         consumer_key = self.lti_data.get("oauth_consumer_key")
         xml_body = self.generate_result_xml(result_sourcedid, data)
-        success = pylti.common.post_message(self.consumers, consumer_key, url, xml_body)
+        success = pylti.post_message(self.consumers, consumer_key, url, xml_body)
 
     def generate_result_xml(self, result_sourcedid, score):
         """

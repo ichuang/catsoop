@@ -8,10 +8,12 @@ ply
 pynacl
 websockets<=12
 lxml
-pylti
+oauth2
 oauthlib
 unidecode
 ldap3
 black
 pytest
 setuptools
+six
+httplib2

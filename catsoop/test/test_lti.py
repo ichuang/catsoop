@@ -19,7 +19,6 @@ Unit tests for CAT-SOOP
 Requires config to be setup, including cs_unit_test_course
 """
 
-import cgi
 import unittest
 
 from .. import loader
@@ -27,6 +26,7 @@ from .. import dispatch
 from .. import lti
 
 from ..test import CATSOOPTest
+from ..thirdparty import cgi
 
 # -----------------------------------------------------------------------------
 
