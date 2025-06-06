@@ -311,7 +311,7 @@ def serve_lti(context, path_info, environment, params, dispatch_main, return_con
         lti_ok = l4c.verify_request(params, environment)
 
     if not lti_ok:
-        msg = "LTI verification failed"
+        msg = b"LTI verification failed"
     elif l4c is not None:
         lti_data = session_data["lti_data"]
         lup = context["cs_lti_config"].get("lti_username_prefix", "lti_")
@@ -376,7 +376,7 @@ def serve_lti(context, path_info, environment, params, dispatch_main, return_con
                 environment, return_context=return_context, form_data=params
             )
 
-        msg = "Hello LTI"
+        msg = b"Hello LTI"
 
     if return_context:
         return context

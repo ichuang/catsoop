@@ -8,7 +8,6 @@ ply
 pynacl
 websockets<=12
 lxml
-oauth2
 oauthlib
 unidecode
 ldap3

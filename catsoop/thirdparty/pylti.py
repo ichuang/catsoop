@@ -7,10 +7,10 @@ from __future__ import absolute_import
 
 import logging
 import json
-import oauth2
 from xml.etree import ElementTree as etree
 
-from oauth2 import STRING_TYPES
+from ..thirdparty import oauth2
+
 from six.moves.urllib.parse import urlparse, urlencode
 
 log = logging.getLogger("pylti.common")  # pylint: disable=invalid-name
@@ -392,7 +392,7 @@ class SignatureMethod_HMAC_SHA1_Unicode(oauth2.SignatureMethod_HMAC_SHA1):
         the given consumer and token signing the given request.
         """
         built = self.sign(request, consumer, token)
-        if isinstance(signature, STRING_TYPES):
+        if isinstance(signature, str):
             signature = signature.encode("utf8")
         return built == signature
 
@@ -411,7 +411,7 @@ class SignatureMethod_PLAINTEXT_Unicode(oauth2.SignatureMethod_PLAINTEXT):
         the given consumer and token signing the given request.
         """
         built = self.sign(request, consumer, token)
-        if isinstance(signature, STRING_TYPES):
+        if isinstance(signature, str):
             signature = signature.encode("utf8")
         return built == signature
 
@@ -434,7 +434,7 @@ class Request_Fix_Duplicate(oauth2.Request):
                 continue
             # 1.0a/9.1.1 states that kvp must be sorted by key, then by value,
             # so we unpack sequence values into multiple items for sorting.
-            if isinstance(value, STRING_TYPES):
+            if isinstance(value, oauth2.STRING_TYPES):
                 items.append((oauth2.to_utf8_if_string(key), oauth2.to_utf8(value)))
             else:
                 try:

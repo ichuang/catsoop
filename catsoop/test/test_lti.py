@@ -73,7 +73,7 @@ class Test_LTI(CATSOOPTest):
         env = {"PATH_INFO": "/_lti/%s/structure" % self.cname}
         status, retinfo, msg = dispatch.main(env)
         assert status[0] == "200"
-        assert "LTI verification failed" in msg
+        assert b"LTI verification failed" in msg
 
     def test_lti_auth2(self):
         """
@@ -102,7 +102,7 @@ class Test_LTI(CATSOOPTest):
         }
         status, retinfo, msg = dispatch.main(env)
         assert status[0] == "200"
-        assert "Hello LTI" in msg
+        assert b"Hello LTI" in msg
 
         context = dispatch.main(env, return_context=True)
         cui = context["cs_user_info"]
