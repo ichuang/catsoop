@@ -24,31 +24,31 @@ import hashlib
 
 
 def style(txt, sty):
-    return sty + txt + "\x1B[0m"
+    return sty + txt + "\x1b[0m"
 
 
 def OKAY(txt):
-    return style(txt, "\x1B[1;32m")  # bold green
+    return style(txt, "\x1b[1;32m")  # bold green
 
 
 def WARNING(txt):
-    return style(txt, "\x1B[1;31m")  # bold red
+    return style(txt, "\x1b[1;31m")  # bold red
 
 
 def ERROR(txt):
-    return style(txt, "\x1B[1;31m")  # bold red
+    return style(txt, "\x1b[1;31m")  # bold red
 
 
 def DIR(txt):
-    return style(txt, "\x1B[1;33m")  # bold yellow
+    return style(txt, "\x1b[1;33m")  # bold yellow
 
 
 def FILE(txt):
-    return style(txt, "\x1B[1;35m")  # bold magenta
+    return style(txt, "\x1b[1;35m")  # bold magenta
 
 
 def QUESTION(txt):
-    return style(txt, "\x1B[1;36m")  # bold cyan
+    return style(txt, "\x1b[1;36m")  # bold cyan
 
 
 def ask(prompt, default="", transform=lambda x: x, check_ok=lambda x: None):
