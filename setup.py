@@ -252,6 +252,7 @@ def main():
                 "catsoop",
                 "catsoop.test",
                 "catsoop.thirdparty",
+                "catsoop.thirdparty.oauth2",
                 "catsoop.scripts",
             ],
             scripts=[],
