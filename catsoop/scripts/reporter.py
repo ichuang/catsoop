@@ -31,7 +31,7 @@ if CATSOOP_LOC not in sys.path:
 
 from catsoop.cslog import unprep
 import catsoop.base_context as base_context
-import websockets
+import websockets.asyncio.server as websockets
 
 DEBUG = True
 
@@ -59,7 +59,7 @@ def get_status(magic):
     return s
 
 
-async def reporter(websocket, path):
+async def reporter(websocket):
     magic_json = await websocket.recv()
     magic = json.loads(magic_json)["magic"]
 
@@ -131,9 +131,14 @@ def updater():
     EVENT_LOOP.call_later(0.3, updater)
 
 
-EVENT_LOOP = asyncio.new_event_loop()
-asyncio.set_event_loop(EVENT_LOOP)
-start_server = websockets.serve(reporter, "0.0.0.0", PORTNUM)
-EVENT_LOOP.run_until_complete(start_server)
-EVENT_LOOP.call_soon(updater)
-EVENT_LOOP.run_forever()
+async def main():
+    EVENT_LOOP.call_soon(updater)
+    async with websockets.serve(reporter, "0.0.0.0", PORTNUM) as server:
+        await server.serve_forever()
+
+
+if __name__ == "__main__":
+    EVENT_LOOP = asyncio.new_event_loop()
+    asyncio.set_event_loop(EVENT_LOOP)
+    EVENT_LOOP.run_until_complete(main())
+    EVENT_LOOP.run_forever()

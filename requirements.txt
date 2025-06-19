@@ -6,7 +6,7 @@ mistletoe
 mpmath
 ply
 pynacl
-websockets<=12
+websockets
 lxml
 oauthlib
 unidecode
