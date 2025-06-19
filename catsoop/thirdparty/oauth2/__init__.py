@@ -625,7 +625,6 @@ class Request(dict):
         http_url=None,
         parameters=None,
     ):
-
         if not parameters:
             parameters = {}
 
@@ -673,7 +672,6 @@ class Client(httplib2.Http):
     """OAuthClient is a worker to attempt to execute a request."""
 
     def __init__(self, consumer, token=None, **kwargs):
-
         if consumer is not None and not isinstance(consumer, Consumer):
             raise ValueError("Invalid consumer.")
 
@@ -916,7 +914,6 @@ class SignatureMethod_HMAC_SHA1(SignatureMethod):
 
 
 class SignatureMethod_PLAINTEXT(SignatureMethod):
-
     name = "PLAINTEXT"
 
     def signing_base(self, request, consumer, token):

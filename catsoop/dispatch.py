@@ -450,8 +450,9 @@ def display_page(context):
         if context["cs_dark_mode_invert_videos"]
         else "video.catsoop-darkmode-invert"
     )
-    context["cs_dark_mode_javascript"] = (
-        """
+    context[
+        "cs_dark_mode_javascript"
+    ] = """
     document.addEventListener("DOMContentLoaded", function(event) {
         if (DarkReader.isEnabled()) {
             var invertfilter = 'invert(100%%) hue-rotate(180deg)' +
@@ -463,11 +464,9 @@ def display_page(context):
             inverter.innerText = '%s, %s {filter: ' + invertfilter + ';}\\n\\n'
             document.head.appendChild(inverter);
         }
-    });"""
-        % (
-            imgselector,
-            videoselector,
-        )
+    });""" % (
+        imgselector,
+        videoselector,
     )
 
     out = (
