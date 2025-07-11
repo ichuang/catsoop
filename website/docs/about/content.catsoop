@@ -1,0 +1,78 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+<tableofcontents/>
+
+<catsoop-section>About CAT-SOOP</catsoop-section>
+
+CAT-SOOP is a flexible, programmable learning management system based on the
+Python programming language.
+
+CAT-SOOP was designed primarily with flexibility, extensibility, and
+programmability in mind.  That is to say, it should be possible to use and
+adapt CAT-SOOP to subjects with dramatically different structure, technical
+content, and pedagogy; and while the intention is to "bake in" lots of common
+pieces, effectively any behavior within catsoop can be overridden.  While
+CAT-SOOP's core functionality is the collection and assessment of online
+exercises, it has been extended to support a variety of different features
+including, among others:
+
+* content presentation (via text, video, interactive simulations, etc)
+* grade reports and analytics (including fine-grained control over grading, due dates, extensions, and lateness penalties)
+* queueing system for managing requests for help in an in-class lab environment or office hours
+* real-time analytics for synchronous lab assignments
+* timed quizzes
+* a variety of subject-specific question types
+* group exercises (with randomly-assigned or self-selected groups)
+* finely-grained control over release/due dates (by section, or for individuals)
+* an interface for online grading of paper exams
+
+<catsoop-subsection>History</catsoop-subsection>
+
+CAT-SOOP is a descendent of a system called "the tutor," written by
+Tom&aacute;s Lozano-P&eacute;rez in the early-to-mid 1990's.  The tutor was
+widely used at MIT and other universities.  In 2011, CAT-SOOP and another
+system (Ike Chuang's `tutor2`, which I understand eventually grew into [Open
+edX](https://open.edx.org)) were both developed in parallel as potential
+replacements for the tutor in MIT's 6.01 (_Introduction to Electrical
+Engineering and Computer Science via Robotics_).  Despite having been designed
+with 6.01 in mind, CAT-SOOP was actually first used in the fall 2011 offering
+of 6.003 (_Signals and Systems_), while `tutor2` was used in 6.01.  CAT-SOOP
+_was_ eventually used in 6.01, though, starting in the spring 2013 semester;
+and it began to see use in other subjects in later semesters.
+
+While the internal structure of CAT-SOOP has changed a lot since then
+(including multiple rewrites from the ground up), development is still fairly
+active (particularly in the time between MIT's semesters).
+
+<catsoop-section>Courses Using CAT-SOOP</catsoop-section>
+
+The following are some of the courses I know of that use (or have used)
+CAT-SOOP as their main LMS:
+
+* MIT 6.100A/6.100L: _Introduction to Computer Science Programming in Python_
+* MIT 6.100B: _Introduction to Computational Thinking and Data Science_
+* MIT 6.101: _Fundamentals of Programming_
+* MIT 6.121: _Introduction to Algorithms_
+* MIT 6.145: _A Brief Introduction to Programming in Python_
+* MIT 6.190: _Introduction to Low-level Programming in C and Assembly_
+* MIT 6.191: _Computation Structures_
+* MIT 6.900: _Engineering for Impact_
+* MIT 6.901: _Interconnected Embedded Systems_
+* MIT 6.908: _Introduction to EECS via Robotics_
+* MIT 6.200: _Circuits and Electronics_
+* MIT 6.205: _Digital Systems Laboratory I_
+* MIT 6.300: _Signal Processing_
+* MIT 6.310: _Dynamical System Modeling and Control Design_
+* MIT 6.340: _Introduction to EECS via Communications Networks_
+* MIT 6.390: _Introduction to Machine Learning_
+* MIT 6.A01: _Mens et Manus_ First-year Seminar
+* MIT 6.S092: _Crash course in Algorithms_ (IAP)
+* MIT 6.S965: _Digital Systems Laboratory II_
+* MIT 6.S966: _Symmetry and its Application to Machine Learning_
+* Olin College MTH 2132/SCI 2032: _Bayesian Inference and Reasoning_
+* Olin College ENGR2340: _Dynamics_
+* Olin College SCI2050: _The Art of Approximation in Science and Engineering_
+
+If you use CAT-SOOP in your class, please let me know via e-mail to <hz@mit.edu>!

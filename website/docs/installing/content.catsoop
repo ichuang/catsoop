@@ -1,0 +1,115 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+This page is designed to help you get an instance of CAT-SOOP up and running.
+If you are setting things up on a local copy, following the instructions on
+this page should be enough.  If you are setting up a public-facing instance on
+a server you control, you should follow these instructions, and then continue
+by following the link at the bottom of this page for more information about
+server configuration.
+
+As a general rule, catsoop is only ever really "officially" tested using Debian
+GNU/Linux, but others have tested these instructions on Mac OSX and on Windows
+(both WSL and Cygwin).
+
+<tableofcontents/>
+
+<catsoop-section>Install Necessary Software</catsoop-section>
+
+CAT-SOOP depends on Python (version 3.11+, with pip and venv).
+
+You will need Python version 3.11+ on your system to run CAT-SOOP.  I'm sure
+that almost all distributions have Python 3.11+ in their package managers,
+though it may be necessary to download the source from [the official Python
+site](https://www.python.org/).
+
+On Debian Bookworm, you will need the `python3`, `python3-pip`, and
+`python3-venv` packages (or a version of Python 3.11+ installed in some other
+way).
+
+<catsoop-section>Download CAT-SOOP</catsoop-section>
+
+There are several ways you can install CAT-SOOP.
+
+<catsoop-subsection>Installation via pip</catsoop-subsection>
+
+The easiest is pip, with a command like the following (for the most recent
+version):
+
+```
+$ pip3 install catsoop
+```
+
+!!! WARNING: Virtual Environments
+    We recommend installing catsoop in a virtual environment.  If you want
+    to install it to your system Python instead, you may need to run the above
+    commands as root or use `sudo`.
+
+<catsoop-subsection>Manual Installation</catsoop-subsection>
+
+Alternatively, you can clone the repository with Git:
+
+```
+$ git clone https://catsoop.org/git/catsoop/catsoop
+```
+
+After you have a local copy, you can then run:
+
+```
+$ make install
+```
+
+from the source directory.  You can also run the unit tests by running:
+
+```
+$ make test
+```
+
+
+<catsoop-section>Configure CAT-SOOP</catsoop-section>
+
+To configure CAT-SOOP, run the following command:
+
+```
+catsoop configure
+```
+
+and answer the questions it poses.
+
+!!! note: Note
+    If you are running a public-facing CAT-SOOP instance, you are **strongly
+    encouraged** to enable encryption if the directory in which you are storing
+    the logs is not already encrypted in some way (e.g., via `luks` or
+    `gocryptfs` or `cryfs`, etc).
+
+<catsoop-section>Add Courses</catsoop-section>
+
+The default location for CAT-SOOP courses is in
+`~/.local/share/catsoop/courses/`.  You should move (or symlink) your courses
+to that location.
+
+If you're not sure what to put there, a decent place to start is with the
+"sample course", which you can put in the appropriate place with a command like
+the following, using Git:
+
+```
+$ git clone  https://catsoop.org/git/catsoop/sample_course ~/.local/share/catsoop/courses/sample_course
+```
+
+<catsoop-section>Start CAT-SOOP</catsoop-section>
+
+To start the server, you should run:
+
+```
+$ catsoop start
+```
+
+This will start the server listening on port 7667.  You should then be able to
+directy your browser to `http://localhost:7667` to see the CAT-SOOP instance.
+
+
+<catsoop-section>Additional Configuration for Public-Facing Servers</catsoop-section>
+
+If you are setting up a public-facing CAT-SOOP instance, see [this page about
+additional server configuration](CURRENT/server_configuration) as well.

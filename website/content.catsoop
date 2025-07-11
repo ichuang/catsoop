@@ -1,0 +1,50 @@
+
+<center>
+<img src="CURRENT/cat_soup_sketch.png" width=200 />
+</center>
+
+<center>
+<a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
+<a class="btn btn-catsoop" href="https://catsoop.org/git/catsoop">Code</a>
+<a class="btn btn-catsoop" href="https://catsoop.org/git/catsoop/catsoop/issues">Bug Tracker</a>
+</center>
+
+
+## WHAT IS IT?
+
+CAT-SOOP is a flexible, programmable learning management system based on the
+Python programming language, originally developed primarily for use in
+MIT's 6.01 (_Introduction to Electrical Engineering and Computer Science via
+Robotics_).  Although <b>C</b>AT-SOOP was originally designed as an
+<b>A</b>utomatic <b>T</b>utor for <b>S</b>ix-<b>O</b>h-<b>O</b>ne
+<b>P</b>roblems, it has since been used in several other courses at MIT, and a
+few elsewhere.  Read more about CAT-SOOP at [this page](COURSE/docs/about).
+
+**Information:**
+
+* Web Site:
+    * <https://catsoop.org>
+
+* Mailing Lists:
+    * `catsoop-users@mit.edu`, low-volume list for announcements and discussion (subscribe [here](http://mailman.mit.edu/mailman/listinfo/catsoop-users))
+    * `catsoop-dev@mit.edu` for development-related discussion (subscribe [here](http://mailman.mit.edu/mailman/listinfo/catsoop-dev))
+
+* Git Repository:
+    * <https://catsoop.org/git/catsoop/catsoop>
+
+## CAN I USE IT FOR MY COURSE?
+
+Yes!  CAT-SOOP is [Free/Libre
+Software](https://www.fsf.org/about/what-is-free-software), available under the
+terms of the [GNU Affero General Public License, version
+3+](BASE/_util/license).  Please note that the terms of this license apply to
+the CAT-SOOP system itself, but not to any course material hosted on a CAT-SOOP
+instance, unless explicitly stated otherwise.
+
+Although the [documentation](COURSE/docs) is quite sparse, I am working on it!
+In the meantime, please feel free to ask questions via the mailing lists.
+
+
+## IS IT ANY GOOD?
+
+Yes.

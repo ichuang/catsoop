@@ -1,0 +1,119 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+This page describes configuration of authentication for a course.
+
+<tableofcontents/>
+
+<catsoop-section>Specifying authentication method</catsoop-section>
+
+The authentication method can be specified in the global "config.py" file or
+specifically in the "preload.py" file of each subject. This can be done by
+specifying the variable `cs_auth_type`. The variable should take the value of
+a string indicating which authentication type should be used. The following
+list of authentication types are implemented in CAT-SOOP:
+
+* `cert` -
+* `cas` -
+* `dummy` - All users are automatically logged in with the username specified
+            in the variable `cs_dummy_username`.
+* `ldap3` - Supports login using LDAP version 3.
+* `login` - Standalone login with usernames and passwords stored in CAT-SOOP.
+            Contains pages for registration of new users, login, forgot
+            password, etc.
+* `openid_connect` - Login using the OpenID Connect protocol.
+
+**Note:** Login sessions are shared across courses, so a user logged into a
+specific course will also be logged into all other courses in the CAT-SOOP
+instance.
+
+<catsoop-section>LDAP 3</catsoop-section>
+
+The LDAP authentication works in a three step process. First a connection is
+created to given server. Then, a search for users using the given filter and
+the login username is performed. Finally, the users returned in the search are
+iterated over and an attempt is made to login to each of the given users with
+the password from the login. If a login is successful, then the rest of the
+users from the search are skipped. This approach is required in LDAP setups
+where a username may be used more than once. An example of this is a setup
+where students and employees are kept in separate directories. Then, if both
+students and employees should be able log in, both directories have to be used
+when searching with LDAP. If a person may be both a student and an employee at
+the same time, e.g. a TA, then the username may exist in both directories while
+the user information is only stored in one of these directories. As such, all
+results have to be checked for a successful login and that they contain the
+information required by CAT-SOOP (username, fullname, email).
+
+The LDAP authentication requires additional configuration to work properly. The
+configuration is performed through a variable defined in either the global
+"config.py" file or in the "preload.py" file of the given course. The variable,
+`cs_ldap3`, should be a dictionary containing two items.
+
+* `server` - The information required to connect to the given server.
+* `search` - Information about how to search for a user.
+
+The `server` part of the configuration specifies how to connect to the LDAP
+server. It should be a dictionary and will be directly unpacked as named
+parameters in the `__init__` method of the `Server` class in the `ldap3`
+package. There are four possible arguments, of which all but the `host`
+parameter can be omitted.
+
+* `host` - The address of the LDAP server, e.g. `"ldap.example.com"`
+* `port` - The port of the LDAP service. If omitted, the default LDAP port.
+* `use_ssl` - Boolean indicating if SSL should be used for the connection. If
+              omitted, set to `False`.
+* `get_info` - The information to retrieve from the LDAP server, e.g. `"ALL"`
+               for all available information. If omitted, set to `"ALL"`.
+
+The `search` part of the configuration specifies how the search should be
+performed and how the data about the user is stored on the LDAP server. It
+should be a dictionary and consist of three values:
+
+* `base` - The base for the search (directory, domain, etc.), e.g.
+           `"dc=example,dc=com"`.
+* `filter` - The filter to use when searching. There should be a single set of
+             empty curly brackets (`{}`) in the string. These will be replaced
+             by the username entered in the login form. For example the filter
+             could be `"(uid={})"`, which would result in `"(uid=test)"` if a
+             login attempt was made with the username `test`.
+* `attributes` - This dictionary tells CAT-SOOP how to retrieve the full name
+                 and email of the given user after a successful login. It
+                 should contain two items `name` and `email`, which should be
+                 the name of the attributes in the user object retrieved from
+                 the LDAP server that contains, respectively, the full name and
+                 email of the user.
+
+If the users need some specific information about how to log in, e.g. what to
+use as their username (email, following a specific format, etc.), the variable
+`cs_ldap3_login_message` can be defined in "config.py" or the "preload.py" file
+of a given subject. This variable should be a string containing the message
+for the students. The message will be displayed above the username field in the
+login form and can be either standard text or HTML.
+
+Below is an example configuration against a server running at
+ldap.example.com:1234. Here, the search is performed against the field `uid` in
+the domain `example.com`. The attribute containing the full name of a user is
+`cn` and the attribute containing the email of the user is `mail`.
+
+```python
+cs_ldap3 = {
+    "server": {
+        "host": "ldap.example.com",
+        "use_ssl": True,
+        "port": 1234,
+        "get_info": "ALL",
+    },
+    "search": {
+        "filter": "(uid={})",
+        "base": "dc=example,dc=com",
+        "attributes": {
+            "name": "cn",
+            "email": "mail",
+        },
+    },
+}
+
+cs_ldap3_login_message = "<i>Use the university supplied username/password</i>"
+```
+

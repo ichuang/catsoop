@@ -1,0 +1,29 @@
+<python>
+cs_content_header = "CAT-SOOP Documentation"
+</python>
+
+
+!!! error: A Word of Warning
+    These docs are extremely sparse right now, and unfortunately, I have
+    trouble finding the time to sit down and write documentation.
+
+    If you have questions about using the software that aren't answered here,
+    please e-mail them to the `catsoop-users@mit.edu` mailing list; I'm happy to answer
+    questions, and I'll also try to work the result into the docs.
+
+    Better yet, if you have used CAT-SOOP and are interested in contributing
+    documentation, please see <a href="CURRENT/contributing">the section on
+    contributing documentation</a> for more information.
+
+    Thanks,<br/>
+    -Adam
+
+## Contents
+
+<python>
+for i in sorted(cs_children, key=lambda i: cs_children[i].get('cs_order', 1000)):
+    if i == 'api':
+        print("* [API Documentation](CURRENT/api?p=catsoop)")
+    else:
+        print("* [%s](CURRENT/%s)" % (cs_children[i].get('cs_long_name', i), i))
+</python>

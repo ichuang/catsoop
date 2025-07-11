@@ -1,0 +1,61 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+It's always exciting to receive contributions that help improve CAT-SOOP, so
+thank you!
+
+It's also worth mentioning that contributing to CAT-SOOP does not necessarily
+mean writing code; there are lots of other ways to help out, too.  The easiest
+and best way to contribute to CAT-SOOP is to use it, to [report any issues you
+find](https://catsoop.org/git/catsoop/catsoop/issues), and to tell your
+friends/colleagues about it if you think they'd like it!
+
+But please see below for some guidelines about contributing more directly to
+CAT-SOOP, and please don't hesitate to reach out if you have questions.
+
+In general, we use the two mailing lists, `catsoop-users@mit.edu` and
+`catsoop-dev@mit.edu` to develop conversations around ideas and to help to turn
+those ideas into actions.  Everyone is welcome to contribute to that process.
+
+### Do you have a question about using CAT-SOOP?
+
+We're happy to help!  The best way to get help is to send a message to
+`catsoop-users@mit.edu`.
+
+### Did you find a bug, or do you have a feature request?
+
+With the exception of security issues (see below), there are two main ways to
+submit bug reports or feature requests: using the [issue
+tracker](https://catsoop.org/git/catsoop/catsoop/issues/) directly, or sending
+a message to `catsoop-dev@mit.edu`.  When reporting a bug, please be as
+descriptive as you can, and please try to include an example that demonstrates
+the issue if possible.  Among other things, it is helpful to know what version
+of catsoop you're running, what you were trying to do, and the precise nature
+of the failure mode (including error messages, if any).
+
+!!! error: Responsible Disclosure of Security Issues
+    In order to help minimize the effect of security issues, **if you have
+    found a security vulnerability, we ask that you please do not post about it
+    publicly until we have had a reasonable amount of time to fix the issue.**
+    Instead, please send e-mail directly to Adam at `hz@mit.edu`,
+    optionally encrypting your message with [his public
+    key](https://hz.mit.edu/hz_pubkey.asc).
+
+### Are you interested in contributing code?
+
+If you are interested in contributing _code_ to catsoop (to fix a bug or
+implement a new feature, for example), a good place to start is to suggest your
+change via the `catsoop-dev@mit.edu` mailing list, and to read through the [hacker's
+guide](CURRENT/hacking) for information on the process for contributing code,
+as well as information about coding style, tests, etc.
+
+#### Do you want to contribute to the documentation?
+
+Contributions to documentation are especially appreciated!
+
+If you are comfortable doing so, the best way to submit documentation changes
+is by the same process used for code, as described in the [hacker's
+guide](CURRENT/hacking).  But documentation changes in any format are more than
+welcome!  Feel free just to mail your changes/suggestions (in any format) to
+the `catsoop-dev@catsoop.mit.edu`).

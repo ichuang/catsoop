@@ -1,0 +1,19 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+@{todo}
+
+Through writing Python code in preload/content files, it is theoretically
+possible to make CAT-SOOP pages do anything.  Beyond this, CAT-SOOP provides
+methods to easily customize particular aspects of CAT-SOOP through implementing
+custom question types, custom handlers, and plugins.  This page provides a
+brief overview of each of these means of customization.
+
+<tableofcontents/>
+
+<catsoop-section>Custom Question Types</catsoop-section>
+
+<catsoop-section>Custom Page Handlers</catsoop-section>
+
+<catsoop-section>Plugin Infrastructure</catsoop-section>
