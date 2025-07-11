@@ -62,7 +62,7 @@ def get_version_and_distance(hash_command, current_sha, tags):
     return most_recent_version, N
 
 
-def dev_number_git():
+def dev_number():
     try:
         branch = (
             subprocess.check_output(["git", "branch", "--show-current"])
@@ -124,73 +124,6 @@ def dev_number_git():
     }
 
 
-def dev_number_hg():
-    # get the current branch
-    try:
-        branch = subprocess.check_output(["hg", "branch"]).decode("ascii").strip()
-        print(f"hg branch: {branch!r}")
-    except:
-        print("failed to find hg branch", file=sys.stderr)
-        return
-    try:
-        tags = subprocess.check_output(
-            ["hg", "tags", "--template", "{tags}:{node}\n"]
-        ).decode("ascii")
-        tags = dict(i.strip().split(":") for i in tags.splitlines())
-    except Exception:
-        print("failed to find hg tags", file=sys.stderr)
-        return
-    try:
-        sha = (
-            subprocess.check_output(["hg", "--debug", "id"])
-            .decode("ascii")
-            .strip()
-            .split()[0]
-            .rstrip("+")
-        )
-    except:
-        sha = tags["tip"][1]
-    _cmd = ["hg", "log", "-b", branch, "--template", "{node}\n"]
-    most_recent_version, N = get_version_and_distance(_cmd, sha, tags)
-    try:
-        _cmd = ["hg", "log", "-r", "tip"]
-        _info = subprocess.check_output(_cmd).decode("ascii")
-        _info = dict(i.strip().split(" ", 1) for i in _info.strip().splitlines())
-        _date = _info["date:"].strip()
-    except Exception:
-        _date = ""
-        print("failed to get hg commit date", file=sys.stderr)
-    try:
-        dirty = len(
-            subprocess.check_output(["hg", "status"])
-            .decode("ascii")
-            .strip()
-            .splitlines()
-        )
-    except:
-        return
-    return {
-        "vcs": "Mercurial",
-        "shortvcs": "hg",
-        "branch": None if branch == "default" else branch,
-        "version": most_recent_version,
-        "hash": sha,
-        "distance": N,
-        "date": _date,
-        "changes": dirty,
-    }
-
-
-_vcs_shortname = {
-    "Mercurial": "hg",
-    "Git": "git",
-}
-
-
-def dev_number():
-    return dev_number_hg() or dev_number_git()
-
-
 def dirty_version():
     """
     If install/sdist is run from a git directory, add a devN suffix to reported
@@ -238,7 +171,7 @@ def main():
     with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "r") as f:
         requirements = f.read().split("\n")
 
-    with open(os.path.join(os.path.dirname(__file__), "README"), "r") as f:
+    with open(os.path.join(os.path.dirname(__file__), "README.md"), "r") as f:
         readme = f.read()
 
     try:
@@ -248,6 +181,8 @@ def main():
             version=CS_VERSION.lstrip("v"),
             author="CAT-SOOP Contributors",
             author_email="catsoop-dev@mit.edu",
+            maintainer="adam j hartz",
+            maintainer_email="hz@mit.edu",
             packages=[
                 "catsoop",
                 "catsoop.test",
@@ -260,7 +195,7 @@ def main():
             license="AGPLv3+",
             description="CAT-SOOP is a tool for automatic collection and assessment of online exercises.",
             long_description=readme,
-            long_description_content_type="text/plain",
+            long_description_content_type="text/markdown",
             include_package_data=True,
             entry_points={
                 "console_scripts": ["catsoop = catsoop.__main__:command_line_interface"]
