@@ -82,7 +82,9 @@ def dev_number():
     for t in raw_tags:
         t = t.strip()
         tags[t] = (
-            subprocess.check_output(["git", "rev-parse", t]).decode("ascii").strip()
+            subprocess.check_output(["git", "rev-parse", "%s^{}" % t])
+            .decode("ascii")
+            .strip()
         )
     try:
         sha = (
