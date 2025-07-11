@@ -35,13 +35,18 @@ def command_line_interface(args=None, arglist=None):
         if os.path.isfile(gitfile):
             with open(gitfile, "r") as f:
                 try:
-                    vcs, hash_, date = f.read().split("|")
+                    vcs, hash_, date, local = f.read().strip().split("|")
                     version = "%s\n%s revision: %s\n%s" % (
                         version,
                         vcs,
                         hash_,
                         date,
                     )
+                    if local != "0":
+                        version += "\n+ %s local change%s" % (
+                            local,
+                            "" if local == "1" else "s",
+                        )
                 except:
                     pass
 

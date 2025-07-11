@@ -1,2 +1,2 @@
-__version__ = "2023.9.0"
-__codename__ = "Korat"
+__version__ = "0.0.0"
+__codename__ = "Highlander"

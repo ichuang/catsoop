@@ -41,19 +41,10 @@ VERSION_FNAME = os.path.join(os.path.dirname(__file__), "catsoop", "__init__.py"
 ORIGINAL_VERSION = None
 
 
-def dev_number():
+def dev_number_git():
     try:
         last_version = subprocess.check_output(
-            [
-                "git",
-                "describe",
-                "--tags",
-                "--match",
-                "v*",
-                subprocess.check_output(["git", "branch", "--show-current"])
-                .decode("ascii")
-                .strip(),
-            ]
+            ["git", "describe", "--tags", "--match", "v*"]
         ).decode("ascii")
     except Exception:
         print("failed to find git tags", file=sys.stderr)
@@ -61,8 +52,6 @@ def dev_number():
     if len(last_version.strip().split("-")) != 3:
         # if this is just a tag name, that tells us we're at that tag
         return
-    else:
-        N = int(last_version.strip().split("-")[1])
     try:
         sha = (
             subprocess.check_output(["git", "rev-parse", "HEAD"])
@@ -81,6 +70,14 @@ def dev_number():
     except:
         return
     try:
+        N = int(
+            subprocess.check_output(["git", "rev-list", "--count", "HEAD"]).decode(
+                "ascii"
+            )
+        )
+    except:
+        return
+    try:
         _cmd = ["git", "show", "-s", "--format=%cD", sha]
         _date = subprocess.check_output(_cmd)
         _date = _date.decode("ascii")
@@ -89,6 +86,94 @@ def dev_number():
         _date = ""
         print("failed to get git commit date", file=sys.stderr)
     return ("Git", sha, N, _date, dirty)
+
+
+def dev_number_hg():
+    # get the current branch
+    try:
+        branch = subprocess.check_output(["hg", "branch"]).decode("ascii").strip()
+        print(f"hg branch: {branch!r}")
+    except:
+        print("failed to find hg branch", file=sys.stderr)
+        return
+    try:
+        tags = subprocess.check_output(
+            ["hg", "tags", "--template", "{tags}:{node}\n"]
+        ).decode("ascii")
+        tags = dict(i.strip().split(":") for i in tags.splitlines())
+    except Exception:
+        print("failed to find hg tags", file=sys.stderr)
+        return
+    try:
+        sha = (
+            subprocess.check_output(["hg", "--debug", "id"])
+            .decode("ascii")
+            .strip()
+            .split()[0]
+            .rstrip("+")
+        )
+    except:
+        sha = tags["tip"][1]
+    _cmd = ["hg", "log", "-b", branch, "--template", "{node}\n"]
+    ordered_hashes = {
+        hash_: ix
+        for ix, hash_ in enumerate(
+            reversed(subprocess.check_output(_cmd).decode("ascii").splitlines())
+        )
+    }
+    current_rev = ordered_hashes[sha]
+    most_recent_version = "v0.0.0"
+    N = 99999999
+    for t, h in tags.items():
+        if t != "tip" and h in ordered_hashes:
+            distance = current_rev - ordered_hashes[h]
+            if 0 <= distance < N:
+                N = distance
+                most_recent_version = t
+        if N == 0:
+            break
+    tag_revs = {
+        t: ordered_hashes[h]
+        for t, h in tags.items()
+        if t != "tip" and h in ordered_hashes
+    }
+    try:
+        _cmd = ["hg", "log", "-r", "tip"]
+        _info = subprocess.check_output(_cmd).decode("ascii")
+        _info = dict(i.strip().split(" ", 1) for i in _info.strip().splitlines())
+        _date = _info["date:"].strip()
+    except Exception:
+        _date = ""
+        print("failed to get hg commit date", file=sys.stderr)
+    try:
+        dirty = len(
+            subprocess.check_output(["hg", "status"])
+            .decode("ascii")
+            .strip()
+            .splitlines()
+        )
+    except:
+        return
+    return {
+        "vcs": "Mercurial",
+        "shortvcs": "hg",
+        "branch": None if branch == "default" else branch,
+        "version": most_recent_version,
+        "hash": sha,
+        "distance": N,
+        "date": _date,
+        "changes": dirty,
+    }
+
+
+_vcs_shortname = {
+    "Mercurial": "hg",
+    "Git": "git",
+}
+
+
+def dev_number():
+    return dev_number_hg() or dev_number_git()
 
 
 def dirty_version():
@@ -100,37 +185,52 @@ def dirty_version():
     global CS_VERSION, ORIGINAL_VERSION
 
     dev_num = dev_number()
-    if not dev_num:
-        return
-    vcs, sha, N, _date, dirty = dev_num
-
-    # if we get to this point, we are not at a particular tag.  we'll modify
-    # the __version__ from catsoop/__init__.py to include a .devN suffix.
-    CS_VERSION = "%s.dev%s%s" % (CS_VERSION, N, "+%s" % dirty if dirty else "")
-    with open(os.path.join(os.path.dirname(__file__), "catsoop", "dev.hash"), "w") as f:
-        f.write("{}|{}|{}".format(vcs, sha, _date))
+    if dev_num:
+        CS_VERSION = dev_num["version"]
+        if dev_num["distance"] != 0:
+            CS_VERSION = f"%s+%s.%s.%s%s" % (
+                CS_VERSION,
+                dev_num["shortvcs"],
+                dev_num["distance"],
+                dev_num["hash"][:8],
+                (".l%s" % dev_num["changes"]) if dev_num["changes"] else "",
+            )
+            with open(
+                os.path.join(os.path.dirname(__file__), "catsoop", "dev.hash"), "w"
+            ) as f:
+                f.write(
+                    "{}|{}|{}|{}".format(
+                        dev_num["vcs"],
+                        dev_num["hash"],
+                        dev_num["date"],
+                        dev_num["changes"],
+                    )
+                )
     with open(VERSION_FNAME, "r") as f:
         ORIGINAL_VERSION = f.read()
     with open(VERSION_FNAME, "w") as f:
-        f.write("__version__ = %r\n" % CS_VERSION)
+        f.write("__version__ = %r\n" % CS_VERSION.lstrip("v"))
         f.write("__codename__= %r\n" % CODENAME)
 
 
 def main():
+    if sys.version_info[:2] < (3, 8):
+        sys.exit("catsoop currently requires Python 3.8+")
+
     if "--name" not in sys.argv:
         print(logo)
 
     with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "r") as f:
         requirements = f.read().split("\n")
 
-    with open(os.path.join(os.path.dirname(__file__), "README.md"), "r") as f:
+    with open(os.path.join(os.path.dirname(__file__), "README"), "r") as f:
         readme = f.read()
 
     try:
         dirty_version()
         setup(
             name="catsoop",
-            version=CS_VERSION,
+            version=CS_VERSION.lstrip("v"),
             author="CAT-SOOP Contributors",
             author_email="catsoop-dev@mit.edu",
             packages=[
@@ -144,16 +244,15 @@ def main():
             license="AGPLv3+",
             description="CAT-SOOP is a tool for automatic collection and assessment of online exercises.",
             long_description=readme,
-            long_description_content_type="text/markdown",
+            long_description_content_type="text/plain",
             include_package_data=True,
             entry_points={
                 "console_scripts": ["catsoop = catsoop.__main__:command_line_interface"]
             },
             install_requires=requirements,
-            extras_require={"server": ["uwsgi"], "dev": ["black", "pytest"]},
+            extras_require={"server": ["uwsgi"], "test": ["pytest"]},
             package_dir={"catsoop": "catsoop"},
             package_data={"catsoop": ["scripts/*"]},
-            python_require=">=3.8",
             classifiers=[
                 "Development Status :: 4 - Beta",
                 "Intended Audience :: Education",
