@@ -6,9 +6,23 @@ _(Work toward next release. Currently under development.)_
 
 * Added a way to change the `NPROC` rlimit in `csq_sandbox_options`
 
+* Information about the current user's dark mode settings are now available
+  via `cs_dark_mode_settings`.
+
 **CHANGED**
 
+* Improved error messages in the `list_users` API endpoint
+
+**DEPRECATED**
+
+**REMOVED**
+
 * Stopped officially supporting Python 3.8, 3.9, and 3.10
+
+**FIXED**
+
+* Updated `reporter.py` script to work with up-to-date
+  [`websockets`](https://websockets.readthedocs.io/en/stable/)
 
 **SECURITY**
 
@@ -19,6 +33,13 @@ _(Work toward next release. Currently under development.)_
 
 * Improved alt text for check/cross images indicating correctness
 
+**DOCUMENTATION**
+
+**VENDORED SOFTWARE**
+
+* [PyLTI](https://github.com/mitodl/pylti) and
+  [oauth2](https://github.com/joestump/python-oauth2) are now included in the
+  distribution
 
 # Version 19.0.6
 
