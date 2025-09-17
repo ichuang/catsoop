@@ -201,6 +201,7 @@ def _get_user_information(context, into, course, username, do_preload=False):
         into["role"] = None
         del into["permissions"]
         into = get_user_information(context)
+        into["permissions"] = set(into["permissions"]) & set(old["p"])
     cslog = context["csm_cslog"]
     if "username" in into:
         logininfo = cslog.most_recent(
