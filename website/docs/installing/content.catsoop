@@ -51,7 +51,7 @@ $ pip3 install catsoop
 Alternatively, you can clone the repository with Git:
 
 ```
-$ git clone https://catsoop.org/git/catsoop/catsoop
+$ git clone https://codeberg.org/catsoop/catsoop
 ```
 
 After you have a local copy, you can then run:
@@ -94,7 +94,7 @@ If you're not sure what to put there, a decent place to start is with the
 the following, using Git:
 
 ```
-$ git clone  https://catsoop.org/git/catsoop/sample_course ~/.local/share/catsoop/courses/sample_course
+$ git clone  https://codeberg.org/catsoop/sample_course ~/.local/share/catsoop/courses/sample_course
 ```
 
 <catsoop-section>Start CAT-SOOP</catsoop-section>

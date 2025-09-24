@@ -5,8 +5,8 @@
 
 <center>
 <a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
-<a class="btn btn-catsoop" href="https://catsoop.org/git/catsoop">Code</a>
-<a class="btn btn-catsoop" href="https://catsoop.org/git/catsoop/catsoop/issues">Bug Tracker</a>
+<a class="btn btn-catsoop" href="https://codeberg.org/catsoop">Code</a>
+<a class="btn btn-catsoop" href="https://codeberg.org/catsoop/catsoop/issues">Bug Tracker</a>
 </center>
 
 
@@ -30,7 +30,7 @@ few elsewhere.  Read more about CAT-SOOP at [this page](COURSE/docs/about).
     * `catsoop-dev@mit.edu` for development-related discussion (subscribe [here](http://mailman.mit.edu/mailman/listinfo/catsoop-dev))
 
 * Git Repository:
-    * <https://catsoop.org/git/catsoop/catsoop>
+    * <https://codeberg.org/catsoop/catsoop>
 
 ## CAN I USE IT FOR MY COURSE?
 

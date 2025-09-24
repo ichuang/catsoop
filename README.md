@@ -46,11 +46,11 @@ See <https://catsoop.org/website/docs/contributing/hacking>
 
 CAT-SOOP incorporates pieces of third-party software.  Licensing information
 for the original programs is available in the
-[`LICENSE.included_software`](https://catsoop.org/git/catsoop/catsoop/src/branch/main/LICENSE.included_software)
+[`LICENSE.included_software`](https://codeberg.org/catsoop/catsoop/src/branch/main/LICENSE.included_software)
 file.
 
 The CAT-SOOP distribution also includes several pieces of third-party software.
 Licensing information for these programs is included in this distribution, in
 the
-[`LICENSE.bundled_software`](https://catsoop.org/git/catsoop/catsoop/src/branch/main/LICENSE.bundled_software)
+[`LICENSE.bundled_software`](https://codeberg.org/catsoop/catsoop/src/branch/main/LICENSE.bundled_software)
 file.
