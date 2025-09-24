@@ -31,7 +31,7 @@ fork of the repository, which will look something like:
 
 
 ```nohighlight
-git clone git@catsoop.org:YOUR_USERNAME/catsoop
+git clone git@codeberg.org:YOUR_USERNAME/catsoop
 ```
 
 <catsoop-subsection>Installing CAT-SOOP for Development</catsoop-subsection>
@@ -84,7 +84,7 @@ clone the sample course if you do not already have another course to work with,
 using the following command:
 
 ```nohighlight
-git clone https://catsoop.org/catsoop/sample_course ~/.local/share/catsoop/courses/sample_course
+git clone https://codeberg.org/catsoop/sample_course ~/.local/share/catsoop/courses/sample_course
 ```
 
 (or you could similarly fork the `sample_course` repository if you want to make
