@@ -67,7 +67,7 @@ def read_user_file(context, course, user, default={}):
 
     * `context`: the context associated with this request
     * `course`: the name of the course, as a string
-    * `user: the name of a user, as a string
+    * `user`: the name of a user, as a string
 
     **Optional Parameters:**
 
