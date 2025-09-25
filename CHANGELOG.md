@@ -24,6 +24,9 @@ _(Work toward next release. Currently under development.)_
 * Updated `reporter.py` script to work with up-to-date
   [`websockets`](https://websockets.readthedocs.io/en/stable/)
 
+* Fixed visual jitter from varying character widths in the countdown timer when
+  `cs_auto_lock = True` is set
+
 **SECURITY**
 
 * Fixed issue that allowed access to `list_users` API endpoint in some cases

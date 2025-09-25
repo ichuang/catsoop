@@ -31,6 +31,10 @@ document.body.append(timerelt);
 document.addEventListener("DOMContentLoaded", function (event) {
   var timerelt = document.getElementById("timer");
   catsoop.timer_remaining = catsoop.timer_due - catsoop.timer_now;
+  catsoop.timer_format_num = function(n) {
+    return ("0" + n).slice(-2);
+  }
+
   catsoop.lti_iframe_handler = function () {
     // for LTI
     var irr = function (x) {
@@ -85,14 +89,14 @@ document.addEventListener("DOMContentLoaded", function (event) {
         catsoop.timer_remaining -
         catsoop.timer_hours * 3600 -
         catsoop.timer_minutes * 60;
-      timerelt.innerText =
-        "Time Remaining: " +
-        catsoop.timer_hours +
-        " hours, " +
-        catsoop.timer_minutes +
-        " minutes, " +
-        catsoop.timer_seconds +
-        " seconds";
+      timerelt.innerHTML =
+        "Time Remaining: <span class='catsoop-timer-hours'>" +
+        catsoop.timer_format_num(catsoop.timer_hours) +
+        " hours</span><span class='catsoop-timer-minutes'>, " +
+        catsoop.timer_format_num(catsoop.timer_minutes) +
+        " minutes</span><span class='catsoop-timer-seconds'>, " +
+        catsoop.timer_format_num(catsoop.timer_seconds) +
+        " seconds</span>";
     }
   };
   catsoop.timer_counter = setInterval(catsoop.timer, 1000);

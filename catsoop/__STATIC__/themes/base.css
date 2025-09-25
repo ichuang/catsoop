@@ -123,6 +123,9 @@ pre {
 pre code {
   padding: 0px;
 }
+.catsoop-timer-hours, .catsoop-timer-minutes, .catsoop-timer-seconds {
+  font-variant-numeric: tabular-nums;
+}
 .catsooplogo {
   text-align: center;
   overflow: hidden;
