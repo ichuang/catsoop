@@ -141,7 +141,7 @@ def make_score_display(
         g = min(200, colorthing)
         s = score * 100
         return (
-            '<span style="color:rgb(%d,%d,0);font-weight:bolder;">' "%.02f%%</span>"
+            '<span style="color:rgb(%d,%d,0);font-weight:bolder;">%.02f%%</span>'
         ) % (r, g, s)
 
 

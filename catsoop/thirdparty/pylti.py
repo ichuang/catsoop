@@ -317,7 +317,7 @@ def verify_request_common(consumers, url, method, headers, params):
     )
     if not oauth_request:
         log.info("Received non oauth request on oauth protected page")
-        raise LTIException("This page requires a valid oauth session " "or request")
+        raise LTIException("This page requires a valid oauth session or request")
     try:
         # pylint: disable=protected-access
         oauth_consumer_key = oauth_request.get_parameter("oauth_consumer_key")
@@ -346,7 +346,7 @@ def generate_request_xml(message_identifier_id, operation, lis_result_sourcedid,
     """
     root = etree.Element(
         "imsx_POXEnvelopeRequest",
-        xmlns="http://www.imsglobal.org/services/" "ltiv1p1/xsd/imsoms_v1p0",
+        xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0",
     )
 
     header = etree.SubElement(root, "imsx_POXHeader")

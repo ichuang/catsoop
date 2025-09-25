@@ -75,7 +75,7 @@ def render_html(last_log, **info):
     out = '<input type="text"'
     if info.get("csq_size", None) is not None:
         out += ' size="%s"' % info["csq_size"]
-    aria_label = info.get("csq_aria_label", f'catsoop_prompt_{info["csq_name"]}')
+    aria_label = info.get("csq_aria_label", f"catsoop_prompt_{info['csq_name']}")
     out += ' aria-labelledby="%s"' % aria_label
     out += ' value="%s"' % escape(last_log.get(info["csq_name"], {"data": ""})["data"])
     out += ' name="%s"' % info["csq_name"]

@@ -46,7 +46,7 @@ if os.path.isfile(_enc_salt_file):
 def _dots(x, start=""):
     l = len(x)
     for ix, i in enumerate(x):
-        print(f"{start} {ix}/{l} ({ix/l*100:.02f}%)", flush=True)
+        print(f"{start} {ix}/{l} ({ix / l * 100:.02f}%)", flush=True)
         yield i
     print()
 
@@ -71,7 +71,7 @@ if os.path.isdir(uploads_dir):
         print(
             "Upload:",
             f"{u[:8]}... -> {upload_id_map[u][:8]}...",
-            f"{ix}/{len(uploads)} ({ix/len(uploads)*100:.02f}%)",
+            f"{ix}/{len(uploads)} ({ix / len(uploads) * 100:.02f}%)",
         )
 
 
@@ -189,4 +189,6 @@ if os.path.isdir(checker_dir):
         os.makedirs(newloc, exist_ok=True)
         with open(os.path.join(newloc, magic), "wb") as f:
             f.write(cslog.prep(result))
-        print("Checker:", magic, f"{ix}/{len(results)} ({ix/len(results)*100:.02f}%)")
+        print(
+            "Checker:", magic, f"{ix}/{len(results)} ({ix / len(results) * 100:.02f}%)"
+        )

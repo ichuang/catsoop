@@ -116,9 +116,7 @@ def render_html(last_log, **info):
         return _renderers[r](last_log, **info)
     else:
         return (
-            "<font color='red'>"
-            "Invalid <tt>multiplechoice</tt> renderer: %s"
-            "</font>"
+            "<font color='red'>Invalid <tt>multiplechoice</tt> renderer: %s</font>"
         ) % r
 
 
@@ -126,7 +124,7 @@ def render_html_dropdown(last_log, **info):
     if last_log is None:
         last_log = {}
     ll = last_log.get(info["csq_name"], {"data": "-1"})["data"]
-    aria_label = info.get("csq_aria_label", f'catsoop_prompt_{info["csq_name"]}')
+    aria_label = info.get("csq_aria_label", f"catsoop_prompt_{info['csq_name']}")
     out = '\n<select id="%s" name="%s" aria-labelledby="%s">' % (
         info["csq_name"],
         info["csq_name"],
@@ -144,7 +142,7 @@ def render_html_dropdown(last_log, **info):
 def render_html_checkbox(last_log, **info):
     if last_log is None:
         last_log = {}
-    aria_label = info.get("csq_aria_label", f'catsoop_prompt_{info["csq_name"]}')
+    aria_label = info.get("csq_aria_label", f"catsoop_prompt_{info['csq_name']}")
     out = "<fieldset aria-labelledby='%s'>" % aria_label
     name = info["csq_name"]
     last = last_log.get(info["csq_name"], None)
@@ -209,7 +207,7 @@ def render_html_checkbox(last_log, **info):
 def render_html_radio(last_log, **info):
     if last_log is None:
         last_log = {}
-    aria_label = info.get("csq_aria_label", f'catsoop_prompt_{info["csq_name"]}')
+    aria_label = info.get("csq_aria_label", f"catsoop_prompt_{info['csq_name']}")
     out = "<div role='radiogroup' aria-labelledby='%s'>" % aria_label
     name = info["csq_name"]
     last = last_log.get(info["csq_name"], {"data": None})["data"]

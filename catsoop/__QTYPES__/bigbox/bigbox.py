@@ -46,7 +46,7 @@ def render_html(last_log, **info):
         rows,
         cols,
     )
-    aria_label = info.get("csq_aria_label", f'catsoop_prompt_{info["csq_name"]}')
+    aria_label = info.get("csq_aria_label", f"catsoop_prompt_{info['csq_name']}")
     out += ' aria-labelledby="%s"' % aria_label
     out += ' name="%s"' % info["csq_name"]
     out += ' id="%s"' % info["csq_name"]

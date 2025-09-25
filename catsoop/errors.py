@@ -162,7 +162,7 @@ def do_error_message(context, msg=None):
             m,
         )
     new["cs_original_path"] = ""
-    new["cs_content"] = ("<pre>ERROR:\n" "%s</pre>") % (m)
+    new["cs_content"] = ("<pre>ERROR:\n%s</pre>") % (m)
     e = ': <font color="red">ERROR</font>'
     new["cs_header"] = new.get("cs_header", "") + e
     new["cs_content_header"] = "An Error Occurred:"
@@ -194,7 +194,7 @@ def do_404_message(context):
     if "cs_handler" in new:
         del new["cs_handler"]
     new["cs_content"] = (
-        "<pre>CAT-SOOP could not find the specified file or resource:\n" "%r</pre>"
+        "<pre>CAT-SOOP could not find the specified file or resource:\n%r</pre>"
     ) % (html.escape(new["cs_original_path"]))
     new["cs_original_path"] = ""
     e = ': <font color="red">404</font>'
@@ -209,11 +209,7 @@ def do_404_message(context):
 
 
 error_404_logo = (
-    "\\   ???????? "
-    "\n/    /\\__/\\  "
-    "\n\\__=(  @_@ )="
-    "\n(__________) "
-    "\n |_ |_ |_ |_ "
+    "\\   ???????? \n/    /\\__/\\  \n\\__=(  @_@ )=\n(__________) \n |_ |_ |_ |_ "
 )
 """This alternate logo replaces the CAT-SOOP logo on when a 404 (File Not
 Found) error is encountered."""

@@ -429,7 +429,7 @@ def handle_submission(submissions, **info):
         except:
             return {
                 "score": False,
-                "msg": '<font color="red">Error: ' "could not parse input.</font>",
+                "msg": '<font color="red">Error: could not parse input.</font>',
             }
         _m = None
         if sub is None:
@@ -557,7 +557,7 @@ def answer_display(**info):
             "<p>"
         ) % (info["csq_soln"], info["csq_name"], a)
     else:
-        out = ('<p><div id="%s_soln">' "<b>Multiple Possible Solutions:</b>") % info[
+        out = ('<p><div id="%s_soln"><b>Multiple Possible Solutions:</b>') % info[
             "csq_name"
         ]
         count = 1

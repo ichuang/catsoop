@@ -450,8 +450,7 @@ def display_page(context):
         if context["cs_dark_mode_invert_videos"]
         else "video.catsoop-darkmode-invert"
     )
-    context["cs_dark_mode_javascript"] = (
-        """
+    context["cs_dark_mode_javascript"] = """
     document.addEventListener("DOMContentLoaded", function(event) {
         if (DarkReader.isEnabled()) {
             var invertfilter = 'invert(100%%) hue-rotate(180deg)' +
@@ -463,11 +462,9 @@ def display_page(context):
             inverter.innerText = '%s, %s {filter: ' + invertfilter + ';}\\n\\n'
             document.head.appendChild(inverter);
         }
-    });"""
-        % (
-            imgselector,
-            videoselector,
-        )
+    });""" % (
+        imgselector,
+        videoselector,
     )
 
     out = (
@@ -739,10 +736,7 @@ def main(environment, return_context=False, form_data=None):
                 e,
             )
         if len(context["_cs_config_errors"]) > 0:
-            m = (
-                "The following errors occurred while "
-                "loading global configuration:\n\n"
-            )
+            m = "The following errors occurred while loading global configuration:\n\n"
             m += "\n".join(context["_cs_config_errors"])
             out = errors.do_error_message(context, m)
             force_error = True

@@ -312,7 +312,7 @@ class Token(object):
         try:
             secret = params["oauth_token_secret"][0]
         except Exception:
-            raise ValueError("'oauth_token_secret' not found in " "OAuth request.")
+            raise ValueError("'oauth_token_secret' not found in OAuth request.")
 
         token = Token(key, secret)
         try:
@@ -560,7 +560,7 @@ class Request(dict):
                     parameters.update(header_params)
                 except:
                     raise Error(
-                        "Unable to parse OAuth parameters from " "Authorization header."
+                        "Unable to parse OAuth parameters from Authorization header."
                     )
 
         # GET or POST query string.
@@ -831,9 +831,7 @@ class Server(object):
         if not valid:
             key, base = signature_method.signing_base(request, consumer, token)
 
-            raise Error(
-                "Invalid signature. Expected signature base " "string: %s" % base
-            )
+            raise Error("Invalid signature. Expected signature base string: %s" % base)
 
     def _check_timestamp(self, timestamp):
         """Verify that timestamp is recentish."""

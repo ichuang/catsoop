@@ -88,7 +88,7 @@ if error is None:
         )
         desired_scope = desired_scope.split()
         scope_error = (
-            "You must provide CAT-SOOP access " "to the following scopes: %r"
+            "You must provide CAT-SOOP access to the following scopes: %r"
         ) % desired_scope
         if "id_token" not in resp or any(
             i not in resp.get("scope", "").split() for i in desired_scope
@@ -170,8 +170,7 @@ if error is None:
                 error = "Invalid ID Token issuer."
             elif body["nonce"] != stored_nonce:
                 error = (
-                    "Suspected tampering!"
-                    "Nonce from server does not match local nonce."
+                    "Suspected tampering!Nonce from server does not match local nonce."
                 )
             elif body["iat"] > now + 60:
                 error = "ID Token is from the future. %r" % ((body["iat"], now),)

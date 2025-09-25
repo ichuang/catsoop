@@ -213,9 +213,9 @@ def handle_check(submissions, **info):
     if not timeout:
         msg += "<p><b>"
         if complete:
-            msg += '<font color="darkgreen">' "Your code ran to completion." "</font>"
+            msg += '<font color="darkgreen">Your code ran to completion.</font>'
         else:
-            msg += '<font color="red">' "Your code did not run to completion." "</font>"
+            msg += '<font color="red">Your code did not run to completion.</font>'
         msg += "</b></p>"
     if out != "":
         msg += "\n<p><b>Your code produced the following output:</b>"
@@ -251,7 +251,7 @@ def handle_submission(submissions, **info):
 
     inp = info["csq_input_check"](code)
     if inp is not None:
-        msg = ('<div class="response">' '<font color="red">%s</font>' "</div>") % inp
+        msg = ('<div class="response"><font color="red">%s</font></div>') % inp
         return {"score": 0, "msg": msg}
 
     bak = info["csq_tests"]
@@ -270,9 +270,9 @@ def handle_submission(submissions, **info):
         '\n<br/><details%s><summary class="btn btn-catsoop">Show/Hide Detailed Results</summary>'
         % (" open" if info["csq_always_show_tests"] else "")
     )
-    msg += (
-        '<div class="response" id="%s_result_showhide">' "<h2>Test Results:</h2>"
-    ) % (info["csq_name"],)
+    msg += ('<div class="response" id="%s_result_showhide"><h2>Test Results:</h2>') % (
+        info["csq_name"],
+    )
     test_results = []
     count = 1
     for test in info["csq_tests"]:
@@ -478,7 +478,7 @@ def handle_submission(submissions, **info):
         checkimg = ""
     msg = (
         (
-            ("\n<br/>&nbsp;Your score on your most recent " "submission was: %01.02f%%")
+            ("\n<br/>&nbsp;Your score on your most recent submission was: %01.02f%%")
             % (overall * 100)
         )
         + checkimg
@@ -543,7 +543,7 @@ def render_html_upload(last_log, **info):
         init_code = None
     params = {
         "name": name,
-        "aria_label": info.get("csq_aria_label", f'catsoop_prompt_{info["csq_name"]}'),
+        "aria_label": info.get("csq_aria_label", f"catsoop_prompt_{info['csq_name']}"),
         "init": str(init_code),
         "safeinit": html.escape(init_code or ""),
         "b64init": b64encode(make_initial_display(info).encode()).decode(),
@@ -575,7 +575,7 @@ def render_html_upload(last_log, **info):
     if link is not None:
         out += "<br/>"
         out += (
-            '<a href="%s" ' 'download="%s">Download Most ' "Recent Submission</a><br/>"
+            '<a href="%s" download="%s">Download Most Recent Submission</a><br/>'
         ) % (
             link,
             html.escape(init["name"]),
@@ -637,7 +637,7 @@ def render_html(last_log, **info):
     if renderer in RENDERERS:
         return RENDERERS[renderer](last_log or {}, **info)
     return (
-        "<font color='red'>" "Invalid <tt>pythoncode</tt> interface: %s" "</font>"
+        "<font color='red'>Invalid <tt>pythoncode</tt> interface: %s</font>"
     ) % renderer
 
 

@@ -446,7 +446,7 @@ class FieldStorage:
         else:
             if not (isinstance(headers, (Mapping, Message))):
                 raise TypeError(
-                    "headers must be mapping or an instance of " "email.message.Message"
+                    "headers must be mapping or an instance of email.message.Message"
                 )
         self.headers = headers
         if fp is None:

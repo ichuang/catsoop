@@ -48,7 +48,7 @@ def handle_submission(submissions, **info):
 
 def render_html(last_log, **info):
     name = info["csq_name"]
-    aria_label = info.get("csq_aria_label", f'catsoop_prompt_{info["csq_name"]}')
+    aria_label = info.get("csq_aria_label", f"catsoop_prompt_{info['csq_name']}")
     out = (
         """<input type="file" style="display: none" id=%s name="%s" aria-labelledby="%s"/>"""
         % (
@@ -100,9 +100,7 @@ def render_html(last_log, **info):
         if link is not None:
             out += "<br/>"
             out += (
-                '<a href="%s" '
-                'download="%s">Download Most '
-                "Recent Submission</a><br/>"
+                '<a href="%s" download="%s">Download Most Recent Submission</a><br/>'
             ) % (
                 link,
                 html.escape(ll["name"]),
@@ -124,4 +122,4 @@ def answer_display(**info):
         data = csm_thirdparty.data_uri.DataURI.from_file(info["csq_soln"])
         ext = mimetypes.guess_extension(data.mimetype) or ".txt"
         name = name.rsplit(".", 1)[0] + ext
-    return ('<a href="%s" ' 'download="%s">Download Solution</a>') % (data, name)
+    return ('<a href="%s" download="%s">Download Solution</a>') % (data, name)

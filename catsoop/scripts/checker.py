@@ -87,9 +87,9 @@ def do_check(row):
         if lti_handler.have_data:
             if not "cs_session_data" in context:
                 context["cs_session_data"] = {}
-            context["cs_session_data"][
-                "is_lti_user"
-            ] = True  # so that course preload.py knows
+            context["cs_session_data"]["is_lti_user"] = (
+                True  # so that course preload.py knows
+            )
 
     cfile = dispatch.content_file_location(context, row["path"])
     loader.load_content(

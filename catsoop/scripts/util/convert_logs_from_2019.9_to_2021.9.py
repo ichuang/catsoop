@@ -46,7 +46,7 @@ if os.path.isfile(_enc_salt_file):
 def _dots(x, start=""):
     l = len(x)
     for ix, i in enumerate(x):
-        print(f"{start} {ix}/{l} ({ix/l*100:.02f}%)", flush=True)
+        print(f"{start} {ix}/{l} ({ix / l * 100:.02f}%)", flush=True)
         yield i
     print()
 

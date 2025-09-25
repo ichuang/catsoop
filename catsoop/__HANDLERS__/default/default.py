@@ -235,7 +235,7 @@ def handle_activation_form(context):
     if "admin" in context[_n("perms")]:
         pwd = context[_n("activation_password")]
         out += (
-            "\n<p><u>Staff:</u> password is " '<tt><font color="blue">%s</font></tt>'
+            '\n<p><u>Staff:</u> password is <tt><font color="blue">%s</font></tt>'
         ) % pwd
     out += "</form>"
 
@@ -270,7 +270,7 @@ def handle_raw_html(context):
         reltime = context["csm_time"].long_timestamp(context[_n("rel")])
         reltime = reltime.replace(";", " at")
         return (
-            "This page is not yet available.  " "It will become available on %s."
+            "This page is not yet available.  It will become available on %s."
         ) % reltime
 
     page = ""
@@ -325,7 +325,7 @@ def handle_content_only(context):
         reltime = context["csm_time"].long_timestamp(context[_n("rel")])
         reltime = reltime.replace(";", " at")
         return (
-            "This page is not yet available.  " "It will become available on %s."
+            "This page is not yet available.  It will become available on %s."
         ) % reltime
 
     page = ""
@@ -380,7 +380,7 @@ def handle_view(context):
         reltime = context["csm_time"].long_timestamp(context[_n("rel")])
         reltime = reltime.replace(";", " at")
         return (
-            "This page is not yet available.  " "It will become available on %s."
+            "This page is not yet available.  It will become available on %s."
         ) % reltime
 
     page = ""
@@ -884,7 +884,7 @@ def handle_save(context):
                     context, args.get("csq_prompt", "")
                 )
                 prompt = f'<div id="catsoop_preamble_{name}" style="display: inline;">{preamble}</div>\n<div id="catsoop_prompt_{name}" style="display: inline;">{prompt}</div>'
-                rerender = f'{prompt}\n{question["render_html"](newstate["last_check"], **args)}'
+                rerender = f"{prompt}\n{question['render_html'](newstate['last_check'], **args)}"
             out["rerender"] = str(rerender)
 
         msg = f'<div id="{name}_check_message"><b><font color="red">This response has not yet been submitted.</font></b></div>'
@@ -992,7 +992,7 @@ def handle_revert(context):
                     context, args.get("csq_prompt", "")
                 )
                 prompt = f'<div id="catsoop_preamble_{name}">{preamble}</div>\n<div id="catsoop_prompt_{name}" style="display: inline;">{prompt}</div>'
-                rerender = f'{prompt}\n{question["render_html"](newstate["last_check"], **args)}'
+                rerender = f"{prompt}\n{question['render_html'](newstate['last_check'], **args)}"
             out["rerender"] = str(rerender)
 
         # cache responses
@@ -1126,7 +1126,7 @@ def handle_check(context):
                         context, args.get("csq_prompt", "")
                     )
                     prompt = f'<div id="catsoop_preamble_{name}">{preamble}</div>\n<div id="catsoop_prompt_{name}" style="display: inline;">{prompt}</div>'
-                    rerender = f'{prompt}\n{question["render_html"](newstate["last_check"], **args)}'
+                    rerender = f"{prompt}\n{question['render_html'](newstate['last_check'], **args)}"
                 out["rerender"] = str(rerender)
 
             out["score_display"] = ""
@@ -1388,7 +1388,7 @@ def handle_submit(context):
                     context, args.get("csq_prompt", "")
                 )
                 prompt = f'<div id="catsoop_preamble_{name}">{preamble}</div>\n<div id="catsoop_prompt_{name}" style="display: inline;">{prompt}</div>'
-                rerender = f'{prompt}\n{question["render_html"](newstate["last_submit"], **args)}'
+                rerender = f"{prompt}\n{question['render_html'](newstate['last_submit'], **args)}"
             out["rerender"] = str(rerender)
 
         outdict[name] = out
@@ -1460,7 +1460,7 @@ def manage_groups(context):
         all_sections = {default_section: "Default Section"}
     if section is None:
         section = default_section
-    hdr = "Group Assignments for %s, Section " '<span id="cs_groups_section">%s</span>'
+    hdr = 'Group Assignments for %s, Section <span id="cs_groups_section">%s</span>'
     hdr %= (context["cs_original_path"], section)
     context["cs_content_header"] = hdr
 
@@ -1533,15 +1533,11 @@ def clearanswer_msg(context, perms, name):
     _, qargs = namemap[name]
     error = None
     if "submit" not in perms and "submit_all" not in perms:
-        error = (
-            "You are not allowed undo your viewing of " "the answer to this question."
-        )
+        error = "You are not allowed undo your viewing of the answer to this question."
     elif name not in ansviewed:
         error = "You have not viewed the answer for this question."
     elif name not in namemap:
-        error = (
-            "No question with name %s.  " "Please refresh before submitting."
-        ) % name
+        error = ("No question with name %s.  Please refresh before submitting.") % name
     elif "submit_all" not in perms:
         if timing == -1 and not i:
             error = "This question is not yet available."
@@ -1567,9 +1563,7 @@ def viewexp_msg(context, perms, name):
     elif name in expviewed:
         error = "You have already viewed the explanation for this question."
     elif name not in namemap:
-        error = (
-            "No question with name %s.  " "Please refresh before submitting."
-        ) % name
+        error = ("No question with name %s.  Please refresh before submitting.") % name
     elif ("submit_all" not in perms) and timing == -1:
         error = "This question is not yet available."
     elif not _get(qargs, "csq_allow_viewexplanation", True, bool):
@@ -1596,9 +1590,7 @@ def viewanswer_msg(context, perms, name):
     elif name in ansviewed:
         error = "You have already viewed the answer for this question."
     elif name not in namemap:
-        error = (
-            "No question with name %s.  " "Please refresh before submitting."
-        ) % name
+        error = ("No question with name %s.  Please refresh before submitting.") % name
     elif "submit_all" not in perms:
         if timing == -1 and not i:
             error = "This question is not yet available."
@@ -1619,9 +1611,7 @@ def save_msg(context, perms, name):
     elif "submit" not in perms and "submit_all" not in perms:
         error = "You are not allowed to check answers to this question."
     elif name not in namemap:
-        error = (
-            "No question with name %s.  " "Please refresh before submitting."
-        ) % name
+        error = ("No question with name %s.  Please refresh before submitting.") % name
     elif "submit_all" not in perms:
         if timing == -1 and not i:
             error = "This question is not yet available."
@@ -1637,9 +1627,7 @@ def save_msg(context, perms, name):
                 "You are not allowed to save to this question after viewing the answer."
             )
         elif timing == 1 and _get(context, "cs_auto_lock", False, bool):
-            error = (
-                "You are not allowed to save after the " "deadline for this question."
-            )
+            error = "You are not allowed to save after the deadline for this question."
         elif not _get(qargs, "csq_allow_save", True, bool):
             error = "Saving is not allowed for this question."
     return error
@@ -1667,9 +1655,7 @@ def check_msg(context, perms, name, is_revert=False):
     elif "submit" not in perms and "submit_all" not in perms:
         error = "You are not allowed to check answers to this question."
     elif name not in namemap:
-        error = (
-            "No question with name %s.  " "Please refresh before submitting."
-        ) % name
+        error = ("No question with name %s.  Please refresh before submitting.") % name
     elif namemap[name][0].get("handle_check", None) is None:
         error = "This question type does not support checking."
     elif "submit_all" not in perms:
@@ -1683,9 +1669,7 @@ def check_msg(context, perms, name, is_revert=False):
         ):
             error = "You are not allowed to check answers to this question after viewing the answer."
         elif timing == 1 and _get(context, "cs_auto_lock", False, bool):
-            error = (
-                "You are not allowed to check after the " "deadline for this problem."
-            )
+            error = "You are not allowed to check after the deadline for this problem."
         elif not _get(qargs, "csq_allow_check", True, bool):
             error = "Checking is not allowed for this question."
     return error
@@ -1719,9 +1703,7 @@ def submit_msg(context, perms, name):
     elif "submit" not in perms and "submit_all" not in perms:
         error = "You are not allowed to submit answers to this question."
     elif name not in namemap:
-        error = (
-            "No question with name %s.  " "Please refresh before submitting."
-        ) % name
+        error = ("No question with name %s.  Please refresh before submitting.") % name
     elif "submit_all" not in perms:
         # don't allow if...
         if timing == -1 and not i:
@@ -1729,9 +1711,7 @@ def submit_msg(context, perms, name):
             error = "This question is not yet open for submissions."
         elif _get(context, "cs_auto_lock", False, bool) and timing == 1:
             # ...the problem auto locks and it is after the due date
-            error = (
-                "Submissions are not allowed after the " "deadline for this question"
-            )
+            error = "Submissions are not allowed after the deadline for this question"
         elif name in context[_n("locked")]:
             error = "You are not allowed to submit to this question."
         elif (
@@ -1762,8 +1742,7 @@ def submit_msg(context, perms, name):
             nleft, _ = nsubmits_left(context, name)
             if nleft <= 0:
                 error = (
-                    "You have used all of your allowed "
-                    "submissions for this question."
+                    "You have used all of your allowed submissions for this question."
                 )
     return error  # None otherwise
 
@@ -2309,9 +2288,9 @@ def default_javascript(context):
             for (name, (q, args)) in list(namemap.items())
             if _get(args, skipper, False, bool)
         ]
-    context[
-        "cs_scripts"
-    ] += '<script type="text/javascript" src="_handler/default/cs_ajax.js"></script>'
+    context["cs_scripts"] += (
+        '<script type="text/javascript" src="_handler/default/cs_ajax.js"></script>'
+    )
     out = """
 <script type="text/javascript">
 // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3
@@ -2367,9 +2346,7 @@ def default_timer(context):
         out += '\n<script type="text/javascript">'
         out += "\n// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3"
         out += (
-            "\ncatsoop.timer_now = %d;"
-            "\ncatsoop.timer_due = %d;"
-            "\ncatsoop.time_url = %r;"
+            "\ncatsoop.timer_now = %d;\ncatsoop.timer_due = %d;\ncatsoop.time_url = %r;"
         ) % (
             context["csm_time"].unix(context[_n("now")]),
             context["csm_time"].unix(context[_n("due")]),
@@ -2387,9 +2364,7 @@ def default_timer(context):
 def exc_message(context):
     exc = traceback.format_exc()
     exc = context["csm_errors"].clear_info(context, exc)
-    return (
-        '<p><font color="red">' "<b>CAT-SOOP ERROR:</b>" "<pre>%s</pre></font>"
-    ) % exc
+    return ('<p><font color="red"><b>CAT-SOOP ERROR:</b><pre>%s</pre></font>') % exc
 
 
 def _get_scores(context):

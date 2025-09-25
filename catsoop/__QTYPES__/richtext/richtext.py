@@ -28,9 +28,7 @@ def markdownify(context, text):
 
 def richtext_format(context, text, msg="Preview:"):
     out = "</br>%s<br/>" % msg
-    out += (
-        '<div style="background-color: #eeeeee;' 'padding:10px; border-radius:10px;">'
-    )
+    out += '<div style="background-color: #eeeeee;padding:10px; border-radius:10px;">'
     out += markdownify(context, text)
     out = out.replace("<script", "&lt;script")
     out = out.replace("</script", "&lt;script")

@@ -141,7 +141,7 @@ def get_logged_in_user(context):
             logging.update_log("_logininfo", [], u, login_info)
             context["cs_content_header"] = "Account Confirmation Succeeded"
             context["cs_content"] = (
-                'Please <a href="%s">click here</a>' " to log in."
+                'Please <a href="%s">click here</a> to log in.'
             ) % url
             clear_session_vars(context, "login_message", "last_form")
             retval.update(login_info)
@@ -175,7 +175,7 @@ def get_logged_in_user(context):
             # can't send e-mail; show error message
             context["cs_content_header"] = "Password Reset: Error"
             context["cs_content"] = (
-                "This feature is not available " "on this CAT-SOOP instance."
+                "This feature is not available on this CAT-SOOP instance."
             )
             context["cs_handler"] = "passthrough"
             return {"cs_render_now": True}
@@ -207,7 +207,7 @@ def get_logged_in_user(context):
                     context,
                     email,
                     "CAT-SOOP: Confirm Password Reset",
-                    *passwd_confirm_emails(context, uname, token)
+                    *passwd_confirm_emails(context, uname, token),
                 )
                 # show confirmation message
                 context["cs_content_header"] = "Password Reset: Confirm"
@@ -222,7 +222,7 @@ def get_logged_in_user(context):
         # show the form.
         context["cs_content_header"] = "Forgot Password"
         context["cs_content"] = (
-            "Please enter your information below to " "reset your password."
+            "Please enter your information below to reset your password."
         )
         context["cs_content"] += generate_forgot_password_form(context)
         context["cs_handler"] = "passthrough"
@@ -234,7 +234,7 @@ def get_logged_in_user(context):
             # can't send e-mail; show error message
             context["cs_content_header"] = "Password Reset: Error"
             context["cs_content"] = (
-                "This feature is not available " "on this CAT-SOOP instance."
+                "This feature is not available on this CAT-SOOP instance."
             )
             context["cs_handler"] = "passthrough"
             return {"cs_render_now": True}
@@ -255,8 +255,7 @@ def get_logged_in_user(context):
                 # the form again
                 errs = "\n".join("<li>%s</li>" % i for i in errors)
                 lmsg = (
-                    '<font color="red">Your password was not reset:\n'
-                    "<ul>%s</ul></font>"
+                    '<font color="red">Your password was not reset:\n<ul>%s</ul></font>'
                 ) % errs
                 session["login_message"] = lmsg
             else:
@@ -333,7 +332,7 @@ def get_logged_in_user(context):
             info["cs_reload"] = True
             return info
         elif valid_uname:
-            lmsg = '<font color="red">' "Incorrect username or password." "</font>"
+            lmsg = '<font color="red">Incorrect username or password.</font>'
             session.update({"login_message": lmsg, "last_form": form})
 
     # a user is asking to re-send the confirmation message
@@ -362,7 +361,7 @@ def get_logged_in_user(context):
                 context,
                 login_info["email"],
                 "CAT-SOOP: Confirm E-mail Address",
-                *reg_confirm_emails(context, uname, token)
+                *reg_confirm_emails(context, uname, token),
             )
             context["cs_content_header"] = "Confirmation E-mail Sent"
             context["cs_content"] = (
@@ -460,7 +459,7 @@ def get_logged_in_user(context):
                         context,
                         email,
                         "CAT-SOOP: Confirm E-mail Address",
-                        *reg_confirm_emails(context, uname, token)
+                        *reg_confirm_emails(context, uname, token),
                     )
                     confirmed = False
                 else:
@@ -682,11 +681,7 @@ def generate_password_reset_form(context):
         '\n<td><span id="pwd_check"></span></td>'
         "\n</tr>"
     )
-    out += (
-        "\n<tr>"
-        '\n<td style="text-align:right;"></td>'
-        '\n<td style="text-align:right;">'
-    )
+    out += '\n<tr>\n<td style="text-align:right;"></td>\n<td style="text-align:right;">'
     out += _submit_button(
         ["passwd", "passwd2"], "uname", [], "pwdform", "Change Password"
     )
@@ -735,11 +730,7 @@ def generate_password_change_form(context):
         '\n<td><span id="pwd_check"></span></td>'
         "\n</tr>"
     )
-    out += (
-        "\n<tr>"
-        '\n<td style="text-align:right;"></td>'
-        '\n<td style="text-align:right;">'
-    )
+    out += '\n<tr>\n<td style="text-align:right;"></td>\n<td style="text-align:right;">'
     out += _submit_button(
         ["passwd", "passwd2", "oldpasswd"], "uname", [], "pwdform", "Change Password"
     )
@@ -789,12 +780,12 @@ def generate_login_form(context):
     out += _submit_button(
         ["login_passwd"], "login_uname", ["login_uname"], "loginform", "Log In"
     )
-    out += "<td>\n</tr>" "\n</table>"
+    out += "<td>\n</tr>\n</table>"
     out += "<p>"
     if context["csm_mail"].can_send_email(context):
         base = _get_base_url(context)
         loc = base + "?loginaction=forgot_password"
-        out += ("\nForgot your password?  " 'Click <a href="%s">here</a>.<br/>') % loc
+        out += ('\nForgot your password?  Click <a href="%s">here</a>.<br/>') % loc
     if getattr(context["csm_base_context"], "cs_allow_registration", True):
         loc = _get_base_url(context)
         loc += "?loginaction=register"
@@ -881,11 +872,7 @@ def generate_registration_form(context):
         "\n</td>"
         "\n</tr>"
     ) % last_name
-    out += (
-        "\n<tr>"
-        '\n<td style="text-align:right;"></td>'
-        '\n<td style="text-align:right;">'
-    )
+    out += '\n<tr>\n<td style="text-align:right;"></td>\n<td style="text-align:right;">'
     out += _submit_button(
         ["passwd", "passwd2"],
         "uname",
@@ -893,7 +880,7 @@ def generate_registration_form(context):
         "regform",
         "Register",
     )
-    out += "\n</td>" "\n</tr>"
+    out += "\n</td>\n</tr>"
     out += REGISTRATION_FORM_CHECKER
     return out + "</table></form>"
 
@@ -916,9 +903,7 @@ function _validate_password(p){
     }
     return null;
 }
-""" % (
-    _pwd_too_short_msg
-)
+""" % (_pwd_too_short_msg)
 
 
 # EMAIL VALIDATION

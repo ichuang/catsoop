@@ -101,7 +101,7 @@ def _find_log(args):
         base = os.path.join(os.path.realpath(base_context.cs_data_root), "_logs/")
         if not (filename.startswith(base) and filename.endswith(".log")):
             print(
-                ("The given file is not a valid log file for this " "installation."),
+                ("The given file is not a valid log file for this installation."),
                 file=sys.stderr,
             )
             sys.exit(1)

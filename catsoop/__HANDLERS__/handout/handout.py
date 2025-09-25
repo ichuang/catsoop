@@ -44,7 +44,7 @@ def handle(context):
     elif "view" in perms and current < rel:
         reltime = context["csm_time"].short_timestamp(rel)
         m = (
-            "This handout is not yet available.  " "It will become available at: %s"
+            "This handout is not yet available.  It will become available at: %s"
         ) % reltime
         status = HTTPStatus.NOT_FOUND
 
