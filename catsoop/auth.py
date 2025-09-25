@@ -174,17 +174,6 @@ def _get_user_information(context, into, course, username, do_preload=False):
         plist = context.get("cs_permissions", {})
         defaults = context.get("cs_default_permissions", {"view"})
         into["permissions"] = set(plist.get(into["role"], defaults))
-        spoofed_role = context.get("cs_form", {}).get("as_role", None)
-        if spoofed_role is not None and "impersonate" in into["permissions"]:
-            into["role"] = spoofed_role
-            orig_p = into["permissions"]
-            spoofed_p = plist.get(spoofed_role, defaults)
-            new_p = set(spoofed_p).intersection(set(orig_p))
-            for i in ("submit_all", "view_all"):
-                lesser = i.split("_")[0]
-                if i in orig_p and i not in new_p and lesser in spoofed_p:
-                    new_p.add(lesser)
-            into["permissions"] = new_p
 
     # impersonation
     if ("as" in context.get("cs_form", {})) and ("real_user" not in into):
@@ -201,6 +190,31 @@ def _get_user_information(context, into, course, username, do_preload=False):
         into["role"] = None
         del into["permissions"]
         into = get_user_information(context)
+
+        check_impersonate = context.get(
+            "cs_impersonation_allowed", lambda old, new: True
+        )
+        if not check_impersonate(old, into):
+            # this impersonation is not allowed; reset everything
+            into = old
+            context["cs_username"] = into["username"]
+            del into["p"]
+            del into["preserve_permissions"]
+
+    # handle spoofed permissions
+    spoofed_role = context.get("cs_form", {}).get("as_role", None)
+    if spoofed_role is not None and "impersonate" in into["permissions"]:
+        orig_p = into["permissions"]
+        spoofed_p = plist.get(spoofed_role, defaults)
+        new_p = set(spoofed_p).intersection(set(orig_p))
+        for i in ("submit_all", "view_all"):
+            lesser = i.split("_")[0]
+            if i in orig_p and i not in new_p and lesser in spoofed_p:
+                new_p.add(lesser)
+        into["permissions"] = new_p
+        if new_p != orig_p:
+            into["role"] = spoofed_role
+
     cslog = context["csm_cslog"]
     if "username" in into:
         logininfo = cslog.most_recent(
