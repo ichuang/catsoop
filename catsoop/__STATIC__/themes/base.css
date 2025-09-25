@@ -96,7 +96,12 @@ kbd,
 pre,
 samp,
 tt {
-  font-family: Menlo, Consolas, Courier, Courier New, monospace;
+  font-family:
+    Menlo,
+    Consolas,
+    Courier,
+    Courier New,
+    monospace;
   font-size: 0.95em;
 }
 blockquote {
@@ -123,7 +128,9 @@ pre {
 pre code {
   padding: 0px;
 }
-.catsoop-timer-hours, .catsoop-timer-minutes, .catsoop-timer-seconds {
+.catsoop-timer-hours,
+.catsoop-timer-minutes,
+.catsoop-timer-seconds {
   font-variant-numeric: tabular-nums;
 }
 .catsooplogo {

@@ -25,7 +25,7 @@ function _encode_form(d) {
   var encoded_form_pairs = [];
   for (var name in d) {
     encoded_form_pairs.push(
-      encodeURIComponent(name) + "=" + encodeURIComponent(d[name])
+      encodeURIComponent(name) + "=" + encodeURIComponent(d[name]),
     );
   }
   return encoded_form_pairs.join("&").replace(/%20/g, "+");
@@ -109,7 +109,7 @@ catsoop.update_group_list = function () {
                 return function () {
                   catsoop.groups_remove(name, group);
                 };
-              })(members[j], grp)
+              })(members[j], grp),
             );
             a.classList = "remove";
             a.title = grp + " " + members[j];
@@ -152,7 +152,7 @@ catsoop.update_group_list = function () {
   request.open(
     "POST",
     catsoop.url_root + "/_util/api/groups/list_groups",
-    true
+    true,
   );
   request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
   request.send(form);
@@ -171,7 +171,7 @@ catsoop.groups_partner_all = function () {
   request.open(
     "POST",
     catsoop.url_root + "/_util/api/groups/make_all_groups",
-    true
+    true,
   );
   request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
   request.send(form);
@@ -183,7 +183,7 @@ catsoop.groups_confirm_and_partner_all = function () {
     .modal(
       "Are you sure?",
       "Really repartner all students?  This will delete all pre-existing groups and randomly assign everyone a new partner.",
-      false
+      false,
     )
     .then(function (x) {
       catsoop.groups_partner_all(name);
@@ -206,7 +206,7 @@ catsoop.groups_add = function () {
   request.open(
     "POST",
     catsoop.url_root + "/_util/api/groups/add_to_group",
-    true
+    true,
   );
   request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
   request.send(form);
@@ -226,7 +226,7 @@ catsoop.groups_remove = function (name, grp) {
   request.open(
     "POST",
     catsoop.url_root + "/_util/api/groups/remove_from_group",
-    true
+    true,
   );
   request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
   request.send(form);

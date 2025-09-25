@@ -31,9 +31,9 @@ document.body.append(timerelt);
 document.addEventListener("DOMContentLoaded", function (event) {
   var timerelt = document.getElementById("timer");
   catsoop.timer_remaining = catsoop.timer_due - catsoop.timer_now;
-  catsoop.timer_format_num = function(n) {
+  catsoop.timer_format_num = function (n) {
     return ("0" + n).slice(-2);
-  }
+  };
 
   catsoop.lti_iframe_handler = function () {
     // for LTI
@@ -71,19 +71,22 @@ document.addEventListener("DOMContentLoaded", function (event) {
       catsoop.ajaxrequest(catsoop.all_questions, "lock");
     } else {
       if (catsoop.timer_remaining % 20 == 0) {
-        setTimeout(function () {
-          var request = new XMLHttpRequest();
-          request.onload = function () {
-            catsoop.timer_remaining =
-              catsoop.timer_due - parseInt(request.response);
-          };
-          request.open("GET", catsoop.time_url, true);
-          request.send();
-        }, Math.floor(Math.random() * 2000 + 1000));
+        setTimeout(
+          function () {
+            var request = new XMLHttpRequest();
+            request.onload = function () {
+              catsoop.timer_remaining =
+                catsoop.timer_due - parseInt(request.response);
+            };
+            request.open("GET", catsoop.time_url, true);
+            request.send();
+          },
+          Math.floor(Math.random() * 2000 + 1000),
+        );
       }
       catsoop.timer_hours = Math.floor(catsoop.timer_remaining / 3600);
       catsoop.timer_minutes = Math.floor(
-        (catsoop.timer_remaining - catsoop.timer_hours * 3600) / 60
+        (catsoop.timer_remaining - catsoop.timer_hours * 3600) / 60,
       );
       catsoop.timer_seconds =
         catsoop.timer_remaining -
