@@ -1,9 +1,15 @@
 
 <center>
-<img src="CURRENT/cat_soup_sketch.png" width=200 />
+<pre class="catsooplogo" style="font-size: 2em; font-weight: bold;">
+\            
+/    /\__/\  
+\__=(  o_O )=
+(__________) 
+ |_ |_ |_ |_ 
+</pre>
 </center>
 
-<center>
+<center style="margin-top: 2em;">
 <a class="btn btn-catsoop" href="COURSE/docs">Documentation</a>
 <a class="btn btn-catsoop" href="https://codeberg.org/catsoop">Code</a>
 <a class="btn btn-catsoop" href="https://codeberg.org/catsoop/catsoop/issues">Bug Tracker</a>
