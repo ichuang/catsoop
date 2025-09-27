@@ -7,7 +7,7 @@ _(Work toward next release. Currently under development.)_
 * Added a way to change the `NPROC` rlimit in `csq_sandbox_options`
 
 * Information about the current user's dark mode settings are now available
-  via `cs_dark_mode_settings`.
+  via `cs_dark_mode_settings`
 
 **CHANGED**
 
@@ -15,8 +15,8 @@ _(Work toward next release. Currently under development.)_
 
 **DEPRECATED**
 
-* Depreacted `'codemirror'` interface for the `pythoncode` question type (to be
-  removed in version 21).
+* Deprecated `'codemirror'` interface for the `pythoncode` question type (to be
+  removed in version 21)
 
 **REMOVED**
 
@@ -47,7 +47,7 @@ _(Work toward next release. Currently under development.)_
   [oauth2](https://github.com/joestump/python-oauth2) are now included in the
   distribution
 
-* Added [Ace](https://ace.c9.io/) back, version 1.43.3.
+* Added [Ace](https://ace.c9.io/) back to the distribution (version 1.43.3)
 
 # Version 19.0.6
 
