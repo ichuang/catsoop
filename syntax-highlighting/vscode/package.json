@@ -1,0 +1,31 @@
+{
+  "name": "catsoop-syntax",
+  "displayName": "CAT-SOOP",
+  "description": "Syntax highlighting for .catsoop files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "catsoop",
+        "extensions": [
+          ".catsoop"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "catsoop",
+        "scopeName": "text.html.markdown.catsoop",
+        "path": "./syntaxes/catsoop.tmLanguage.json"
+      }
+    ]
+  },
+  "repository": "https://catsoop.org/git/catsoop/catsoop"
+}

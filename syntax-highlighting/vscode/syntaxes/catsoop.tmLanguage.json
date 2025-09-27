@@ -1,0 +1,153 @@
+{
+  "name": "CAT-SOOP",
+  "scopeName": "text.html.markdown.catsoop",
+  "patterns": [
+    {
+      "include": "#catsoop-comments"
+    },
+    {
+      "include": "#python-blocks"
+    },
+    {
+      "include": "#question-blocks"
+    },
+    {
+      "include": "#python-inline"
+    },
+    {
+      "include": "#latex-display-math"
+    },
+    {
+      "include": "text.html.markdown"
+    }
+  ],
+  "repository": {
+    "catsoop-comments": {
+      "name": "comment.block.catsoop",
+      "begin": "<comment>",
+      "end": "</comment>",
+      "beginCaptures": {
+        "0": {
+          "name": "comment.block.catsoop"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "comment.block.catsoop"
+        }
+      }
+    },
+    "python-blocks": {
+      "name": "meta.embedded.block.python.catsoop",
+      "begin": "(<)(python)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "end": "(</)(python)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.python"
+        }
+      ]
+    },
+    "question-blocks": {
+      "name": "meta.embedded.block.python.question.catsoop",
+      "begin": "(<)(question)\\s+([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "string.unquoted.html.attribute.catsoop",
+          "patterns": [
+            {
+              "include": "text.html.basic#attribute"
+            }
+          ]
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "end": "(</)(question)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.python"
+        }
+      ]
+    },
+    "python-inline": {
+      "name": "meta.embedded.inline.python.catsoop",
+      "begin": "@\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.begin.catsoop"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.end.catsoop"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.python"
+        }
+      ]
+    },
+    "latex-display-math": {
+      "name": "meta.embedded.block.latex.math.catsoop",
+      "begin": "\\$\\$",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.math.begin.latex"
+        }
+      },
+      "end": "\\$\\$",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.math.end.latex"
+        }
+      },
+      "patterns": [
+        {
+          "include": "text.tex.latex#math"
+        }
+      ]
+    }
+  }
+}

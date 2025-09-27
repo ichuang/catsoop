@@ -1,0 +1,9 @@
+to build, use:
+    npm install -g @vscode/vsce
+    vsce package
+
+or download from:
+    https://catsoop.org/_static/catsoop-syntax-0.0.1.vsix
+
+to install, run:
+    code --install-extension catsoop-syntax-0.0.1.vsix
