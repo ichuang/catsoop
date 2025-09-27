@@ -6,6 +6,7 @@
 ## Code Contributions:
 
 * Ike Chuang
+* Hope Dargan
 * Halvard Hummel
 * Jeremy Kaplan
 * Katrina LaCurts
