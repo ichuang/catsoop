@@ -1,6 +1,7 @@
 catsoop/thirdparty/** linguist-vendored
 
 catsoop/__STATIC__/js/codemirror/** linguist-vendored
+catsoop/__STATIC__/js/ace/** linguist-vendored
 catsoop/__STATIC__/js/darkreader/** linguist-vendored
 catsoop/__STATIC__/js/highlight/** linguist-vendored
 catsoop/__STATIC__/js/mathjax/** linguist-vendored

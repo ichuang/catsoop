@@ -15,6 +15,9 @@ _(Work toward next release. Currently under development.)_
 
 **DEPRECATED**
 
+* Depreacted `'codemirror'` interface for the `pythoncode` question type (to be
+  removed in version 21).
+
 **REMOVED**
 
 * Stopped officially supporting Python 3.8, 3.9, and 3.10
@@ -43,6 +46,8 @@ _(Work toward next release. Currently under development.)_
 * [PyLTI](https://github.com/mitodl/pylti) and
   [oauth2](https://github.com/joestump/python-oauth2) are now included in the
   distribution
+
+* Added [Ace](https://ace.c9.io/) back, version 1.43.3.
 
 # Version 19.0.6
 
