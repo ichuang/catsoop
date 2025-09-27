@@ -15,23 +15,23 @@ setting up a local testing copy and for contributing changes back to CAT-SOOP.
 
 <catsoop-subsection>Cloning the Repository</catsoop-subsection>
 
-CAT-SOOP's source code is hosted on [Codeberg](https://codeberg.org), a
-software forge powered by Free Software ([why not
-github?](https://sfconservancy.org/GiveUpGitHub/)).  Codeberg uses a similar
+CAT-SOOP's source code is hosted on a local, self-hosted
+[Forgejo](https://forgejo.org/) instance at <https://catsoop.org/git> ([why not
+github?](https://sfconservancy.org/GiveUpGitHub/)).  Forgejo uses a similar
 workflow to other modern source forges.  While we do accept patches via e-mail
 to `catsoop-dev@mit.edu`, the preferred method for contributing to catsoop is
 outlined below.
 
 The first step is to create a 'fork' of the catsoop repository by going to
-<https://codeberg.org/catsoop/catsoop>, logging in (after creating an account),
-creating a 'fork' of the main repository by clicking on the "Fork" button in
-the upper-right corner of the page, [adding an SSH key to your
+<https://catsoop.org/git/catsoop/catsoop>, logging in (after creating an
+account account), creating a 'fork' of the main repository by clicking on the
+"Fork" button in the upper-right corner of the page, [adding an SSH key to your
 account](https://docs.codeberg.org/security/ssh-key/), and then cloning your
 fork of the repository, which will look something like:
 
 
 ```nohighlight
-git clone git@codeberg.org:YOUR_USERNAME/catsoop
+git clone git@catsoop.org:YOUR_USERNAME/catsoop
 ```
 
 <catsoop-subsection>Installing CAT-SOOP for Development</catsoop-subsection>
@@ -84,7 +84,7 @@ clone the sample course if you do not already have another course to work with,
 using the following command:
 
 ```nohighlight
-git clone https://codeberg.org/catsoop/sample_course ~/.local/share/catsoop/courses/sample_course
+git clone https://catsoop.org/catsoop/sample_course ~/.local/share/catsoop/courses/sample_course
 ```
 
 (or you could similarly fork the `sample_course` repository if you want to make
@@ -106,7 +106,7 @@ process and restarting it.
 
 If you don't already have an idea in mind, some issues in the issue tracker are
 marked as potential good opportunities for a first dive into the codebase.  You
-can view these issues [here](https://codeberg.org/catsoop/catsoop/issues?labels=17),
+can view these issues [here](https://catsoop.org/git/catsoop/catsoop/issues?labels=17),
 or by manually searching for them from the catsoop issue tracker.  Feel free
 to reach out if you need help!
 
@@ -179,8 +179,8 @@ Before sending your changes, please:
 <catsoop-subsection>Preparing and Sending Patches</catsoop-subsection>
 
 Roughly speaking, any way you want to get your changes to us is fine!  But our
-preferred method is via a pull request on repository on Codeberg.  Codeberg has
-some instructions for making pull requests at
+preferred method is via a pull request on the Forgejo instance.  Codeberg
+(which also runs on Forgejo) has some instructions for making pull requests at
 <https://docs.codeberg.org/collaborating/pull-requests-and-git-flow/>.
 
 If it's easier for you, though, we also accept patches over e-mail to

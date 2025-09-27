@@ -2,7 +2,7 @@ cs_auth_required = False
 cs_long_name = "CAT-SOOP"
 cs_content_header = ""
 
-source_link = "https://codeberg.org/catsoop/catsoop"
+source_link = "https://catsoop.org/git/catsoop/catsoop"
 
 cs_footer = """The content of this page is Copyright &copy; 2016-2025 by the CAT-SOOP Developers.<br/>
 This content is licensed under the <a href="BASE/_util/license" target="_blank">GNU Affero General Public License, version 3</a>, as is CAT-SOOP itself.<br/>

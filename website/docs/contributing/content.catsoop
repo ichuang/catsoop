@@ -8,7 +8,7 @@ thank you!
 It's also worth mentioning that contributing to CAT-SOOP does not necessarily
 mean writing code; there are lots of other ways to help out, too.  The easiest
 and best way to contribute to CAT-SOOP is to use it, to [report any issues you
-find](https://codeberg.org/catsoop/catsoop/issues), and to tell your
+find](https://catsoop.org/git/catsoop/catsoop/issues), and to tell your
 friends/colleagues about it if you think they'd like it!
 
 But please see below for some guidelines about contributing more directly to
@@ -27,7 +27,7 @@ We're happy to help!  The best way to get help is to send a message to
 
 With the exception of security issues (see below), there are two main ways to
 submit bug reports or feature requests: using the [issue
-tracker](https://codeberg.org/catsoop/catsoop/issues/) directly, or sending
+tracker](https://catsoop.org/git/catsoop/catsoop/issues/) directly, or sending
 a message to `catsoop-dev@mit.edu`.  When reporting a bug, please be as
 descriptive as you can, and please try to include an example that demonstrates
 the issue if possible.  Among other things, it is helpful to know what version
