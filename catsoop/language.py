@@ -46,6 +46,9 @@ from .errors import clear_info, html_format
 
 _nodoc = {
     "BeautifulSoup",
+    "Comment",
+    "DocType",
+    "DIAGRAM_START",
     "StringIO",
     "clear_info",
     "html_format",
