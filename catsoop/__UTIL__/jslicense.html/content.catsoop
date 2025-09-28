@@ -5,11 +5,11 @@ that are loaded by CAT-SOOP, including licensing information.
 
 <center>
     <table id="jslicense-labels1" border=1>
-        <thead>
-            <tr><th>Script</th><th>License</th><th>Source</th></tr>
-        </thead>
         <tbody>
             <tr>
+                <td colspan="3" align="center"><b>CAT-SOOP Files</b></td>
+            <tr>
+            <tr><th>Script</th><th>License</th><th>Source</th></tr>
                 <td><a href="_handler/default/cs_ajax.js">cs_ajax.js</a></td>
                 <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
                 <td><a href="_handler/default/cs_ajax.js">cs_ajax.js</a></td>
@@ -34,6 +34,10 @@ that are loaded by CAT-SOOP, including licensing information.
                 <td><a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></td>
                 <td><a href="_handler/default/cs_timer.js">cs_timer.js</a></td>
             </tr>
+            <tr>
+                <td colspan="3" align="center"><b>Vendored Single-file Libraries</b></td>
+            <tr>
+            <tr><th>Script</th><th>License</th><th>Source</th></tr>
             <tr>
                 <td><a href="BASE/js/codemirror/codemirror.bundle.min.js">codemirror.bundle.min.js</a></td>
                 <td><a href="http://www.jclark.com/xml/copying.txt">Expat</a></td>
@@ -55,6 +59,11 @@ that are loaded by CAT-SOOP, including licensing information.
                 <td><a href="BASE/js/highlightjs-line-numbers.js">highlightjs-line-numbers.js</a></td>
             </tr>
 <python>
+print("""\
+              <tr>
+                  <td colspan="3" align="center"><b>MathJax</b></td>
+              </tr>
+              <tr><th>Script</th><th>License</th><th>Source</th></tr>""")
 mathjax_root = os.path.join(cs_fs_root, '__STATIC__', 'js', 'mathjax')
 for root, dirs, files in os.walk(mathjax_root):
     dirs.sort()
@@ -67,6 +76,27 @@ for root, dirs, files in os.walk(mathjax_root):
               <tr>
                   <td><a href="BASE/js/%s">%s</a></td>
                   <td><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache-2.0</a></td>
+                  <td><a href="BASE/js/%s">%s</a></td>
+              </tr>""" % (link, f, link, f))
+</python>
+<python>
+print("""\
+              <tr>
+                  <td colspan="3" align="center"><b>Ace Code Editor</b></td>
+              </tr>
+              <tr><th>Script</th><th>License</th><th>Source</th></tr>""")
+ace_root = os.path.join(cs_fs_root, '__STATIC__', 'js', 'ace')
+for root, dirs, files in os.walk(ace_root):
+    dirs.sort()
+    files.sort()
+    for f in files:
+        if not f.endswith('.js'):
+            continue
+        link = os.path.join(root, f).replace(ace_root, 'ace')
+        print("""\
+              <tr>
+                  <td><a href="BASE/js/%s">%s</a></td>
+                  <td><a href="http://opensource.org/licenses/BSD-3-Clause">BSD-3-Clause</a></td>
                   <td><a href="BASE/js/%s">%s</a></td>
               </tr>""" % (link, f, link, f))
 </python>
