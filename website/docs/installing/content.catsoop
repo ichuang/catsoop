@@ -103,7 +103,7 @@ Syntax highlighting is available for a few common editors.  Instructions
 are available from the main catsoop Git repository for
 [Vim](https://catsoop.org/git/catsoop/catsoop/src/branch/main/syntax-highlighting/vim),
 [Emacs](https://catsoop.org/git/catsoop/catsoop/src/branch/main/syntax-highlighting/emacs),
-and [VSCodium](https://catsoop.org/git/catsoop/catsoop/src/branch/main/syntax-highlighting/vscode)/VSCode.
+and [VSCodium/VSCode](https://catsoop.org/git/catsoop/catsoop/src/branch/main/syntax-highlighting/vscode).
 
 <catsoop-section>Start CAT-SOOP</catsoop-section>
 
