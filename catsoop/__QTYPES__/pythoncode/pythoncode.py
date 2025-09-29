@@ -642,7 +642,7 @@ def render_html_ace(last_log, **info):
     params = {
         "name": name,
         "init": init,
-        "safeinit": init.replace("<", "&lt;"),
+        "safeinit": html.escape(init),
         "height": info["csq_rows"] * (fontsize + 4),
         "fontsize": fontsize,
     }
