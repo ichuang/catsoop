@@ -15,12 +15,12 @@ _(Work toward next release. Currently under development.)_
 
 **DEPRECATED**
 
-* Deprecated `'codemirror'` interface for the `pythoncode` question type (to be
-  removed in version 21)
-
 **REMOVED**
 
 * Stopped officially supporting Python 3.8, 3.9, and 3.10
+
+* Removed `'codemirror'` interface from the `pythoncode` question type (use
+  `'ace'` instead).
 
 **FIXED**
 

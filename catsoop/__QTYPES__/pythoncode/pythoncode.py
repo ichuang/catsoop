@@ -42,10 +42,6 @@ def get_sandbox(context):
     _execfile(base, context)
 
 
-CODEMIRROR_SCRIPTS = """
-<script type="text/javascript" src="BASE/js/codemirror/codemirror.bundle.min.js"></script>
-"""
-
 ACE_SCRIPTS = """
 <script type="text/javascript" src="BASE/js/ace/ace.js"></script>
 """
@@ -54,8 +50,6 @@ ACE_SCRIPTS = """
 def extra_headers(info):
     if info["csq_interface"] == "ace":
         return ACE_SCRIPTS
-    elif info["csq_interface"] == "codemirror":
-        return CODEMIRROR_SCRIPTS
     else:
         return None
 
@@ -616,21 +610,6 @@ def render_html_upload(last_log, **info):
     return out
 
 
-def render_html_codemirror(last_log, **info):
-    name = info["csq_name"]
-    init = last_log.get(name, None)
-    if init is None:
-        init = make_initial_display(info)
-    else:
-        init = html.escape(get_code(init, info))
-    return (
-        f'\n<textarea name="{name}" id="{name}">{init}</textarea>'
-        '\n<script type="text/javascript">'
-        f"\nvar cs_codemirror_{name} = catsoop.codemirror.editorFromTextArea(document.getElementById('{name}'), 'python');"
-        "\n</script>"
-    )
-
-
 def render_html_ace(last_log, **info):
     name = info["csq_name"]
     init = last_log.get(name, None)
@@ -685,7 +664,6 @@ def render_html_ace(last_log, **info):
 RENDERERS = {
     "ace": render_html_ace,
     "textarea": render_html_textarea,
-    "codemirror": render_html_codemirror,
     "upload": render_html_upload,
 }
 
