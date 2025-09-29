@@ -101,12 +101,12 @@ $ git clone  https://catsoop.org/git/catsoop/sample_course ~/.local/share/catsoo
 
 Syntax highlighting is available for a few common editors:
 
-* For [Vim](https://www.vim.org/), copy the contents of the [`syntax-highlighting/vim`](https://catsoop.org/git/catsoop/catsoop/src/branch/main/syntax-highlighting/vim) directory in the catsoop repository to your `~/.vim` directory.
+* For [Vim](https://www.vim.org/), copy the `plugin` and `syntax` folders from the [`syntax-highlighting/vim`](https://catsoop.org/git/catsoop/catsoop/src/branch/main/syntax-highlighting/vim) directory in the catsoop repository into `~/.vim`.
 * For [Emacs](https://www.gnu.org/software/emacs/), follow the instructions in [`syntax-highlighting/emacs/README.md`](https://catsoop.org/git/catsoop/catsoop/src/branch/main/syntax-highlighting/emacs).
 * For [VSCodium](https://vscodium.com/)/VSCode, you can either [download the catsoop plugin](COURSE/catsoop-syntax-0.0.1.vsix) or build it yourself using [these instructions](https://catsoop.org/git/catsoop/catsoop/src/branch/main/syntax-highlighting/vscode), and then either:
-  * click-and-drag that file into the "extensions" panel of your editor window,
+  * run `code --install-extension catsoop-syntax-0.0.1.vsix` from a terminal window, or
   * under the extensions panel, choose "Install from VSIX" and navigate to the `catsoop-syntax-0.0.1.vsix` file, or
-  * run `code --install-extension catsoop-syntax-0.0.1.vsix` from a terminal window.
+  * click-and-drag that file into the "extensions" panel of your editor window.
 
 <catsoop-section>Start CAT-SOOP</catsoop-section>
 
