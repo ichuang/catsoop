@@ -1,0 +1,30 @@
+{
+  "fileTypes": [],
+  "scopeName": "catsoop.inline",
+  "injectionSelector": "L:(meta.paragraph.markdown | text.html) - (comment, string, meta.embedded.inline.python.catsoop, markup.fenced_code.block.markdown)",
+  "patterns": [
+    { "include": "#python-inline" },
+    { "include": "#comment-inline" }
+  ],
+  "repository": {
+    "python-inline": {
+      "name": "meta.embedded.inline.python.catsoop",
+      "match": "(?<!\\\\)(@)((?:%[\\\\#0\\- +]*\\d*(?:\\.\\d+)?[hlL]?[diouxXeEfFgGcrs]|[\\\\#0\\- +]*\\d*(?:\\.\\d+)?[hlL]?[diouxXeEfFgGcrs])?)(\\{)(.+?)(\\})",
+      "captures": {
+        "1": { "name": "variable.other.source.begin.python" },
+        "2": { "name": "variable.other.format.printf" },
+        "3": { "name": "punctuation.section.braces.begin" },
+        "4": {
+          "name": "meta.embedded.inline.python.catsoop.body",
+          "patterns": [{ "include": "source.python" }]
+        },
+        "5": { "name": "punctuation.section.braces.end" }
+      }
+    },
+    "comment-inline": {
+      "name": "comment.inline.catsoop",
+      "match": "(<comment>.*</comment>)",
+      "captures": { "1": { "name": "comment.inline.catsoop" } }
+    }
+  }
+}

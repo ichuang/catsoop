@@ -12,12 +12,6 @@
       "include": "#question-blocks"
     },
     {
-      "include": "#python-inline"
-    },
-    {
-      "include": "#latex-display-math"
-    },
-    {
       "include": "text.html.markdown"
     }
   ],
@@ -70,7 +64,7 @@
       ]
     },
     "question-blocks": {
-      "name": "meta.embedded.block.python.question.catsoop",
+      "name": "meta.embedded.block.python.catsoop.question",
       "begin": "(<)(question)\\s+([^>]*)(>)",
       "beginCaptures": {
         "1": {
@@ -106,46 +100,6 @@
       "patterns": [
         {
           "include": "source.python"
-        }
-      ]
-    },
-    "python-inline": {
-      "name": "meta.embedded.inline.python.catsoop",
-      "begin": "@\\{",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.section.embedded.begin.catsoop"
-        }
-      },
-      "end": "\\}",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.section.embedded.end.catsoop"
-        }
-      },
-      "patterns": [
-        {
-          "include": "source.python"
-        }
-      ]
-    },
-    "latex-display-math": {
-      "name": "meta.embedded.block.latex.math.catsoop",
-      "begin": "\\$\\$",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.definition.math.begin.latex"
-        }
-      },
-      "end": "\\$\\$",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.definition.math.end.latex"
-        }
-      },
-      "patterns": [
-        {
-          "include": "text.tex.latex#math"
         }
       ]
     }

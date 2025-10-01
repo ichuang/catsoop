@@ -2,7 +2,7 @@
   "name": "catsoop-syntax",
   "displayName": "CAT-SOOP",
   "description": "Syntax highlighting for .catsoop files",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.0.0"
   },
@@ -23,7 +23,22 @@
       {
         "language": "catsoop",
         "scopeName": "text.html.markdown.catsoop",
-        "path": "./syntaxes/catsoop.tmLanguage.json"
+        "path": "./syntaxes/catsoop.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.python.catsoop": "python",
+          "meta.embedded.block.python.catsoop.question": "python"
+        }
+      },
+      {
+        "scopeName": "catsoop.inline",
+        "path": "./syntaxes/catsoop-injections.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown",
+          "text.html.markdown.catsoop"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.inline.pytohn.catsoop": "python"
+        }
       }
     ]
   },
