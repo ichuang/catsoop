@@ -19,7 +19,8 @@ syntax region pythonShort start="@{" end="}" containedin=@Markdown contains=@Pyt
 let b:current_syntax=''
 unlet b:current_syntax
 syntax include @TeX syntax/tex.vim
-syntax region latexDisplayMath start="\$\$" end="\$\$" keepend containedin=@Markdown contains=@TeX
+syntax region latexInlineMath start="\\\@<!\$" end="\$" keepend oneline containedin=@Markdown contains=@TeX
+syntax region latexDisplayMath start="\\\@<!\$\$" end="\$\$" keepend containedin=@Markdown contains=@TeX
 
 syntax region catsoopComment start="<comment>" end="</comment>"
 
