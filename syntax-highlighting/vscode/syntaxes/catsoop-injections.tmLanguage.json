@@ -11,7 +11,7 @@
       "name": "meta.embedded.inline.python.catsoop",
       "match": "(?<!\\\\)(@)((?:%[\\\\#0\\- +]*\\d*(?:\\.\\d+)?[hlL]?[diouxXeEfFgGcrs]|[\\\\#0\\- +]*\\d*(?:\\.\\d+)?[hlL]?[diouxXeEfFgGcrs])?)(\\{)(.+?)(\\})",
       "captures": {
-        "1": { "name": "variable.other.source.begin.python" },
+        "1": { "name": "keyword.catsoop.inline.python.begin" },
         "2": { "name": "variable.other.format.printf" },
         "3": { "name": "punctuation.section.braces.begin" },
         "4": {
