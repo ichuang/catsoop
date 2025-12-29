@@ -30,6 +30,8 @@ _(Work toward next release. Currently under development.)_
 * Fixed visual jitter from varying character widths in the countdown timer when
   `cs_auto_lock = True` is set
 
+* Fixed `fileupload` question type so that it respects `cs_upload_management`
+
 **SECURITY**
 
 * Fixed issue that allowed access to `list_users` API endpoint in some cases

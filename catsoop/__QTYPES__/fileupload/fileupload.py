@@ -38,11 +38,13 @@ defaults.update(
 def handle_submission(submissions, **info):
     o = {"score": 0.0, "msg": "", "rerender": True}
     name = info["csq_name"]
-    ll = submissions.get(name, None)
+    ll = submissions.get(name, {"type": "raw", "data": ""})
     if ll is not None:
         if "data" not in ll:
+            submissions = submissions.copy()
+            submissions[name] = ll = ll.copy()
             ll["data"] = info["csm_cslog"].retrieve_upload(ll["id"])[1]
-        o.update(base["handle_submission"](submissions, **info))
+    o.update(base["handle_submission"](submissions, **info))
     return o
 
 
