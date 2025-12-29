@@ -158,6 +158,7 @@ def main(options=[]):
                     "wsgi.py",
                     "--plugins-list",
                 ]
+                + getattr(base_context, 'cs_extra_uwsgi_options', [])
                 + (
                     []
                     if _max_requests is None

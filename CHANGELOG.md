@@ -9,6 +9,9 @@ _(Work toward next release. Currently under development.)_
 * Information about the current user's dark mode settings are now available
   via `cs_dark_mode_settings`
 
+* Added the ability to specify additional arguments to pass to uWSGI via
+  `cs_extra_uwsgi_options`
+
 **CHANGED**
 
 * Improved error messages in the `list_users` API endpoint
