@@ -17,12 +17,11 @@
 Authenticate using CAS (https://en.wikipedia.org/wiki/Central_Authentication_Service)
 """
 
+import logging
 import urllib.parse
 import urllib.request
 
-from catsoop import debug_log
-
-LOGGER = debug_log.LOGGER
+LOGGER = logging.getLogger("cs")
 
 # -----------------------------------------------------------------------------
 

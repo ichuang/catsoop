@@ -18,14 +18,14 @@ Store ticket, validate ticket, and then return user info if all ok
 """
 
 import time
+import logging
 import requests
 import urllib.parse
 import urllib.request
 
 from lxml import etree
-from catsoop import debug_log
 
-LOGGER = debug_log.LOGGER
+LOGGER = logging.getLogger("cs")
 errors = []
 
 

@@ -20,6 +20,8 @@ import logging
 import traceback
 import collections.abc
 
+LOGGER = logging.getLogger("cs")
+
 tutor.qtype_inherit("smallbox")
 bigbox, _ = tutor.question("bigbox")
 smallbox, _ = tutor.question("smallbox")
