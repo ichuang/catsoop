@@ -94,7 +94,7 @@ def handle_submission(submissions, **info):
         sub = {'0': sub}
         sub = json.dumps(sub)
     elif not 'csq_prompts' in info:		# no prompts specified: use single input submission
-        sub = submissions[info["csq_name"]].strip()
+        sub = submissions[info["csq_name"]]["data"].strip()
     else:
         sub = {}				# multiple submission boxes: gather in dict and jsonify for python checker
         LOGGER.error("[qtypes.pythonic] info['csq_name']: %r" % info['csq_name'])
