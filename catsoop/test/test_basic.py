@@ -19,6 +19,7 @@ Unit tests for CAT-SOOP
 Requires config to be setup, including cs_unit_test_course
 """
 
+import os
 import unittest
 
 from .. import loader
@@ -53,6 +54,11 @@ class Test_Basic(CATSOOPTest):
         context = dispatch.main(env, return_context=True)
         cui = context["cs_user_info"]
         assert cui["role"] == "Unauthenticated"
+
+    def test_generated_context_has_request_values(self):
+        context = loader.generate_context([])
+        assert context["cs_env"] is os.environ
+        assert "cs_now" in context
 
 
 if __name__ == "__main__":

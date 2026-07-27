@@ -243,6 +243,8 @@ def generate_context(path):
     defined in the `preload.py` files along the specified path
     """
     ctx = {}
+    ctx["cs_env"] = os.environ
+    ctx["cs_now"] = time.now()
     load_global_data(ctx)
     ctx["cs_path_info"] = path
     if path:
