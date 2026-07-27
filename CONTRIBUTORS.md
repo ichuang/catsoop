@@ -24,5 +24,6 @@
 ## Security Reports:
 
 * Max Justicz
+* Matt Lui
 * Aleksejs Popovs
 * Assel Ismoldayeva, Shika Verma, Alexandra Dima, and Shane Lyons
