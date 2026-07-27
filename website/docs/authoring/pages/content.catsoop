@@ -1,0 +1,174 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+CAT-SOOP courses are directory trees: the course directory is the home page,
+and subdirectories become child pages.  Configuration in `preload.py` follows
+the same tree and is inherited by the pages below it.
+
+<tableofcontents/>
+
+<catsoop-section>Course and Page Directories</catsoop-section>
+
+CAT-SOOP finds courses under the `courses` subdirectory of its configured data
+directory (`cs_data_root`).  A course can be stored there directly:
+
+```text
+/path/to/catsoop-data/
+└── courses/
+    └── numerical_methods/
+        ├── preload.py
+        ├── content.catsoop
+        ├── __STATIC__/
+        ├── __USERS__/
+        ├── lectures/
+        │   ├── content.catsoop
+        │   └── lecture01/
+        │       ├── preload.py
+        │       └── content.catsoop
+        └── homework/
+            └── hw01/
+                ├── preload.py
+                └── content.catsoop
+```
+
+It can also be kept in a separate repository and linked into that directory:
+
+```sh
+ln -s /path/to/numerical-methods-course \
+    /path/to/catsoop-data/courses/numerical_methods
+```
+
+The directory name, `numerical_methods` above, is the course's short name and
+the first component of its URL.  For example, the `hw01` page would be
+available at:
+
+```text
+https://catsoop.example/numerical_methods/homework/hw01
+```
+
+Each page directory normally contains `content.catsoop`.  That file holds the
+page's prose, Python blocks, and questions.  Subdirectories create child pages.
+Files that should be served without being interpreted as page source, such as
+images or downloads, belong in an appropriate `__STATIC__` directory.
+Course-specific user records can be placed in `__USERS__`; custom qtypes and
+plugins use other specially named directories such as `__QTYPES__` and
+`__PLUGINS__`.
+
+<catsoop-section>What preload.py Does</catsoop-section>
+
+`preload.py` contains ordinary Python that configures a course or page.
+CAT-SOOP runs the course's top-level `preload.py` first, followed by each
+`preload.py` on the path to the requested page.  Values therefore inherit down
+the directory tree, and a more specific page can override a parent setting.
+
+The root file is a good place for course-wide settings:
+
+```python
+cs_long_name = "Numerical Methods"
+cs_title = "Numerical Methods"
+cs_header = "Numerical Methods"
+cs_default_role = "Student"
+cs_show_section_permalinks = True
+```
+
+A page-level file should contain only settings local to that page:
+
+```python
+# homework/hw01/preload.py
+cs_long_name = "Homework 1: Simulation"
+cs_release_date = "2026-07-14:09:00"
+cs_due_date = "2026-07-20:23:00"
+```
+
+Preloads can also define shared helper functions, checker functions, navigation,
+sandbox settings, and other course configuration.  They run before the page's
+`content.catsoop` is evaluated.  Because preload processing happens before
+course-specific user information is loaded, avoid making preload behavior
+depend directly on the current user's `cs_user_info`.
+
+<catsoop-section>Roles and Permissions</catsoop-section>
+
+Role names are course configuration, not a fixed hierarchy built into
+CAT-SOOP.  A course maps each role to a list of permissions with
+`cs_permissions`.  Common conventions are:
+
+* **Admin** and **Instructor**: broad course administration and grading;
+* **TA**, **UTA**, or **LA**: staff roles with the permissions appropriate to
+  their responsibilities;
+* **Student**: view released pages and submit work;
+* **Guest**: view released pages without submitting;
+* **Unauthenticated**: assigned automatically when nobody is logged in.
+
+A small course might start with:
+
+```python
+cs_default_role = "Guest"
+
+cs_permissions = {
+    "Admin": [
+        "view_all", "submit_all", "impersonate", "admin", "grade"
+    ],
+    "Instructor": [
+        "view_all", "submit_all", "impersonate", "admin", "grade"
+    ],
+    "TA": ["view_all", "submit_all", "impersonate", "grade"],
+    "Student": ["view", "submit"],
+    "Guest": ["view"],
+    "Unauthenticated": [],
+}
+```
+
+The most common permissions are:
+
+* `view` and `submit`, which respect release and due-date rules;
+* `view_all` and `submit_all`, which let staff bypass those timing rules;
+* `grade`, which allows grading;
+* `impersonate`, which allows viewing the course as another user;
+* `admin`, which enables administrative operations.
+
+Give each role only the permissions it needs.  Authentication may supply a
+role, or a course can assign one in `__USERS__/USERNAME.py`.  See
+[Defining Course Users](COURSE/docs/authoring/users) for user-file details.
+
+If an authenticated user has no explicit role, CAT-SOOP uses
+`cs_default_role`.
+
+<catsoop-section>Course Start, Release, and Due Dates</catsoop-section>
+
+Absolute dates use the form `YYYY-MM-DD:HH:MM`, in the CAT-SOOP server's local
+time:
+
+```python
+cs_release_date = "2026-07-16:09:00"
+cs_due_date = "2026-07-20:23:00"
+```
+
+`cs_release_date` controls when users with ordinary `view` permission can see a
+page.  Its default is `"ALWAYS"`.  Staff with `view_all` can see an unreleased
+page.
+
+`cs_due_date` controls when work is considered due.  Its default is `"NEVER"`.
+CAT-SOOP normally continues to accept late submissions; set
+`cs_auto_lock = True` when submission should stop at the due date.  Staff with
+`submit_all` are not bound by the ordinary student limit.
+
+CAT-SOOP does not have a separate general-purpose `cs_start_date`.  For courses
+that use week-relative schedules, `cs_first_monday` serves as the course-start
+anchor:
+
+```python
+# Course preload.py
+cs_first_monday = "2026-07-13:00:00"
+
+# A page preload.py
+cs_week_number = 1
+cs_release_date = "R:09:00"   # Thursday of week 1
+cs_due_date = "M+:23:00"      # Monday immediately after week 1
+```
+
+The weekday letters are `M`, `T`, `W`, `R`, `F`, `S`, and `U`; trailing `+`
+and `-` characters move forward or backward by weeks.  Many courses use
+absolute dates for individual pages because they are easiest to audit.
+Whichever style is used, keep dates in the page's `preload.py` so timing
+metadata stays next to the page it controls.
