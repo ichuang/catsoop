@@ -15,14 +15,16 @@ source files.
 
 Question types are embedded in a page with a
 <code>&lt;question TYPE&gt;</code> block.
-The following authoring references describe CAT-SOOP's general-purpose Python
-question types:
+The following authoring references describe several commonly used question
+types:
 
 * [The `pythonic` question type](CURRENT/pythonic), for grading Python
   expressions, including multi-line expressions and several related input
   fields.
 * [The `pythoncode` question type](CURRENT/pythoncode), for grading functions
   and programs with one or more sandboxed test cases.
+* [The `checkoff` question type](CURRENT/checkoff), for staff-approved
+  conversations, demonstrations, and lab milestones.
 
 <catsoop-section>Extracting Information From CAT-SOOP's Logs</catsoop-section>
 

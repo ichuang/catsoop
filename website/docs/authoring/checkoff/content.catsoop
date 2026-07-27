@@ -1,0 +1,156 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+The `checkoff` question type records credit for an in-person conversation,
+demonstration, or other activity that a member of the course staff must
+approve.  It is useful at milestones in a lab where students should explain
+their reasoning, show working code, or discuss results before continuing.
+
+<div class="bs-callout bs-callout-warning">
+<b>A configured queue is required.</b>  A <code>checkoff</code> question is
+not a self-graded question and students cannot submit it themselves.  The
+course's queue integration must already be set up, and
+<code>queue_enable = True</code> must be in effect in
+<code>preload.py</code>, for students to request and receive a checkoff.
+</div>
+
+For information about installing and operating the queue, see
+[ichuang/catsoop-pyqueue](https://github.com/ichuang/catsoop-pyqueue).
+This page focuses on authoring the CAT-SOOP question.
+
+<tableofcontents/>
+
+<catsoop-section>A Minimal Checkoff</catsoop-section>
+
+A typical checkoff appears after the work that the student will discuss:
+
+<pre><code class="language-nohighlight">
+&lt;question checkoff&gt;
+csq_name = "diffusion_checkoff"
+csq_display_name = "Checkoff 1"
+csq_npoints = 10
+csq_description = """
+Discuss your diffusion model with a staff member.  Be prepared to explain the
+update rule, the boundary conditions, and one test that supports your result.
+"""
+&lt;/question&gt;
+</code></pre>
+
+The principal settings are:
+
+* `csq_name`: a stable name, unique among the questions on the page;
+* `csq_display_name`: the label shown on the page and in the queue;
+* `csq_description`: what the student should demonstrate or discuss;
+* `csq_npoints`: the number of points awarded, defaulting to `1`.
+
+`csq_description` is processed as CAT-SOOP content, so it can contain Markdown,
+links, mathematics, and other supported markup.  Make the description specific
+enough that students and staff share the same expectations.
+
+<catsoop-section>What Happens During a Checkoff</catsoop-section>
+
+With the queue configured and enabled, the normal workflow is:
+
+1. The student clicks **Ask for Checkoff** beside the question.  The queue may
+   ask for a table number or other location.
+2. A staff member claims the request and meets with the student.
+3. After the student completes the conversation or demonstration, the staff
+   member marks the checkoff complete in the queue.
+4. The queue sends an authenticated submission to CAT-SOOP.  CAT-SOOP awards
+   the question's points, records who gave the checkoff and when, and locks the
+   completed question.
+
+The `checkoff` qtype intentionally provides no ordinary student Submit, Save,
+or View Answer operation.  Students cannot award themselves credit by posting
+a form value directly: CAT-SOOP validates both the queue's API token and the
+staff member named by the queue submission.
+
+<catsoop-section>Queue and Permission Prerequisites</catsoop-section>
+
+Installing `catsoop-pyqueue` and its CAT-SOOP course integration is a deployment
+step.  Once that setup is complete, enable the integration in the course's
+`preload.py`, or in the `preload.py` for only those pages that use it:
+
+```python
+# preload.py
+queue_enable = True
+queue_room = "lab"
+```
+
+`queue_room` identifies the queue used for the page; choose a value that
+matches the queue server's configuration.  Setting `queue_enable = False`, or
+omitting the installed queue integration, means the **Ask for Checkoff**
+control will not be available and the checkoff cannot be completed by a
+student.
+
+The relevant course roles must also have appropriate permissions.  In
+particular:
+
+* staff members who may approve a checkoff need the `checkoff` permission;
+* the account associated with the queue's CAT-SOOP API token needs the
+  `impersonate` permission;
+* staff who use the staff-facing queue normally also need `staff_queue`.
+
+For example, these permissions might be part of a larger course permission
+map:
+
+```python
+cs_permissions = {
+    "Instructor": [
+        "view_all", "submit_all", "impersonate", "checkoff", "staff_queue"
+    ],
+    "TA": [
+        "view_all", "submit_all", "impersonate", "checkoff", "staff_queue"
+    ],
+    "Student": ["view", "submit"],
+}
+```
+
+The queue documentation describes its service account, API token, server
+configuration, and deployment in more detail.  See
+[ichuang/catsoop-pyqueue](https://github.com/ichuang/catsoop-pyqueue).
+
+<catsoop-section>More Than One Checkoff</catsoop-section>
+
+A page can contain several independent checkpoints.  Give each one a unique
+`csq_name` and a clear display name:
+
+<pre><code class="language-nohighlight">
+&lt;question checkoff&gt;
+csq_name = "model_checkoff"
+csq_display_name = "Checkoff 1: Model"
+csq_npoints = 5
+csq_description = """
+Explain the state representation and update rule.  Show one hand-computed
+step alongside the result from your program.
+"""
+&lt;/question&gt;
+
+...
+
+&lt;question checkoff&gt;
+csq_name = "results_checkoff"
+csq_display_name = "Checkoff 2: Results"
+csq_npoints = 5
+csq_description = """
+Show your final results and explain one limitation of the model or experiment.
+"""
+&lt;/question&gt;
+</code></pre>
+
+Place each checkoff after the material it covers.  This lets students request
+staff attention at meaningful milestones and makes the queue label useful to
+staff handling several kinds of requests.
+
+<catsoop-section>Authoring Checklist</catsoop-section>
+
+Before releasing a page with a checkoff:
+
+* confirm that the queue service and course integration are configured;
+* confirm that `queue_enable = True` is in effect for the page;
+* confirm that `queue_room` matches an available queue;
+* verify the queue service account and staff-role permissions;
+* use a unique `csq_name`;
+* state exactly what the student should show or explain;
+* test the request as a student and the completion action as a staff member.
