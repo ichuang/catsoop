@@ -7,6 +7,9 @@ _(Work toward next release. Currently under development.)_
 * Added explicit `'ace'` and `'textarea'` renderers and formatted solution
   display to the `pythonic` question type
 
+* Added validated multi-prompt rendering and grading to the `pythonic`
+  question type
+
 * Added support for authentication with a Central Authentication Service (CAS)
   server
 

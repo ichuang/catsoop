@@ -98,6 +98,14 @@ does not select a renderer by itself.
 By default, a raw-mode solution is displayed with `repr`. Set
 `csq_output_mode = 'formatted'` to display it with `str` instead.
 
+To collect several prompted values, set `csq_prompts` to a non-empty list of
+prompt strings. CAT-SOOP serializes the field text as a Python dictionary
+expression whose keys are the strings `'0'`, `'1'`, and so on.
+`csq_input_check` receives that expression, while `csq_check_function`
+receives the evaluated dictionary. Each field is required. `csq_soln` remains
+the grading solution; an optional `csq_solns` list of the same length as
+`csq_prompts` controls the per-field solution display.
+
 <question pythonic>
 csq_prompt = 'Enter a list of at least 5 Python numbers, all distinct and all in the range $(0, 0.5]$:<br/>'
 csq_soln = [0.01, 0.1, 0.2, 0.3, 0.5]

@@ -1,3 +1,4 @@
+import ast
 from unittest import mock
 
 from .. import loader
@@ -105,6 +106,22 @@ class Test_Pythonic_Rendering(CATSOOPTest):
         info = dict(self.info)
         info.update(updates)
         return self.question["render_html"](last_log, **info)
+
+    def literal_sandbox(self, calls):
+        def sandbox_run_code(info, code, options, result_as_string=False):
+            expression = code.rsplit("_catsoop_answer =", 1)[1].strip()
+            value = ast.literal_eval(expression)
+            calls.append(
+                {
+                    "expression": expression,
+                    "result_as_string": result_as_string,
+                    "value": value,
+                }
+            )
+            result = repr(value) if result_as_string else value
+            return {"err": "", "info": {"result": result}}
+
+        return sandbox_run_code
 
     def test_rows_do_not_implicitly_select_multiline_renderer(self):
         rendered = self.render(csq_rows=6)
@@ -233,3 +250,198 @@ class Test_Pythonic_Rendering(CATSOOPTest):
         assert "RuntimeError" in logged
         assert private_submission not in logged
         assert "PRIVATE EXCEPTION DETAILS" not in logged
+
+    def test_multi_prompt_renderer_labels_and_restores_each_field(self):
+        rendered = self.render(
+            {
+                "__test_question_0000": {
+                    "data": '  Alice "A" & <admin>  ',
+                    "type": "text",
+                },
+            },
+            csq_prompts=["First value:", "Second value:"],
+        )
+
+        assert "<fieldset>" in rendered
+        assert 'for="__test_question_0000"' in rendered
+        assert 'for="__test_question_0001"' in rendered
+        assert "First value:" in rendered
+        assert "Second value:" in rendered
+        assert 'value="  Alice &quot;A&quot; &amp; &lt;admin&gt;  "' in rendered
+        assert 'value="" name="__test_question_0001"' in rendered
+        assert (
+            'aria-labelledby="catsoop_prompt_test_question '
+            '__test_question_0000_prompt"' in rendered
+        )
+        with mock.patch.object(self.question["LOGGER"], "error") as logger:
+            self.render(
+                {"__test_question_0000": {"data": "private response"}},
+                csq_prompts=["First value:"],
+            )
+        logger.assert_not_called()
+
+    def test_multi_prompt_raw_grading_receives_only_field_data(self):
+        sandbox_calls = []
+        input_checks = []
+        checker_calls = []
+        expected = {"0": "alpha", "1": "beta"}
+        info = dict(self.info)
+        info.update(
+            {
+                "csq_prompts": ["First:", "Second:"],
+                "csq_soln": expected,
+                "csq_input_check": lambda submission: input_checks.append(
+                    ast.literal_eval(submission)
+                ),
+                "csq_check_function": lambda submission, solution: checker_calls.append(
+                    (submission, solution)
+                )
+                or submission == solution,
+                "sandbox_run_code": self.literal_sandbox(sandbox_calls),
+            }
+        )
+
+        result = self.question["handle_submission"](
+            {
+                "__test_question_0000": {"data": " alpha ", "type": "text"},
+                "__test_question_0001": {"data": " beta ", "type": "text"},
+            },
+            **info,
+        )
+
+        assert result["score"] == 1.0
+        assert input_checks == [expected]
+        assert checker_calls == [(expected, expected)]
+        assert sandbox_calls == [
+            {
+                "expression": repr(expected),
+                "result_as_string": False,
+                "value": expected,
+            }
+        ]
+
+    def test_multi_prompt_non_raw_grading_uses_literal_result_contract(self):
+        sandbox_calls = []
+        checker_calls = []
+        expected = {"0": "red", "1": "blue"}
+        info = dict(self.info)
+        info.update(
+            {
+                "csq_prompts": ["First:", "Second:"],
+                "csq_mode": "string",
+                "csq_soln": repr(expected),
+                "csq_check_function": lambda submission, solution: checker_calls.append(
+                    (submission, solution)
+                )
+                or submission == solution,
+                "sandbox_run_code": self.literal_sandbox(sandbox_calls),
+            }
+        )
+
+        result = self.question["handle_submission"](
+            {
+                "__test_question_0000": {"data": "red"},
+                "__test_question_0001": {"data": "blue"},
+            },
+            **info,
+        )
+
+        assert result["score"] == 1.0
+        assert checker_calls == [(expected, expected)]
+        assert [call["result_as_string"] for call in sandbox_calls] == [True, True]
+
+    def test_multi_prompt_uses_existing_format_check(self):
+        sandbox = mock.Mock(return_value={"err": ""})
+        info = dict(self.info)
+        info.update(
+            {
+                "csq_prompts": ["First:", "Second:"],
+                "sandbox_run_code": sandbox,
+            }
+        )
+
+        result = self.question["handle_check"](
+            {
+                "__test_question_0000": {"data": "alpha"},
+                "__test_question_0001": {"data": "beta"},
+            },
+            **info,
+        )
+
+        assert result == "Your submission is properly formatted."
+        submitted_code = sandbox.call_args.args[1]
+        assert repr({"0": "alpha", "1": "beta"}) in submitted_code
+
+    def test_multi_prompt_blank_or_missing_field_is_invalid(self):
+        sandbox = mock.Mock()
+        info = dict(self.info)
+        info.update(
+            {
+                "csq_prompts": ["First:", "Second:"],
+                "csq_soln": {"0": "alpha", "1": "beta"},
+                "sandbox_run_code": sandbox,
+            }
+        )
+
+        result = self.question["handle_submission"](
+            {"__test_question_0000": {"data": "alpha"}},
+            **info,
+        )
+
+        assert result["score"] == 0.0
+        assert "valid Python expression" in result["msg"]
+        sandbox.assert_not_called()
+
+    def test_multi_prompt_configuration_is_validated_up_front(self):
+        invalid_prompts = [
+            "not a list",
+            [],
+            ["valid", 123],
+        ]
+        for prompts in invalid_prompts:
+            with self.subTest(prompts=prompts):
+                with self.assertRaisesRegex(ValueError, "csq_prompts"):
+                    self.render(csq_prompts=prompts)
+
+        with self.assertRaisesRegex(ValueError, "requires csq_prompts"):
+            self.question["answer_display"](
+                **self.info,
+                csq_solns=["orphan"],
+            )
+        with self.assertRaisesRegex(ValueError, "csq_solns must be a list"):
+            self.question["answer_display"](
+                **self.info,
+                csq_prompts=["First:"],
+                csq_solns="not a list",
+            )
+        with self.assertRaisesRegex(ValueError, "same length"):
+            self.question["answer_display"](
+                **self.info,
+                csq_prompts=["First:", "Second:"],
+                csq_solns=["only one"],
+            )
+
+    def test_multi_prompt_solution_display_is_formatted_and_styled(self):
+        rendered = self.question["answer_display"](
+            **self.info,
+            csq_mode="raw",
+            csq_prompts=["First:", "Second:"],
+            csq_solns=["alpha", 2],
+        )
+
+        assert "<p><b>Solution:</b></p>" in rendered
+        assert '<th scope="row">First:</th>' in rendered
+        assert "First:" in rendered
+        assert "Second:" in rendered
+        assert "<tt>'alpha'</tt>" in rendered
+        assert "<tt>2</tt>" in rendered
+
+        formatted = self.question["answer_display"](
+            **self.info,
+            csq_mode="raw",
+            csq_output_mode="formatted",
+            csq_prompts=["First:"],
+            csq_solns=["alpha"],
+        )
+        assert "<tt>alpha</tt>" in formatted
+        assert "<tt>'alpha'</tt>" not in formatted

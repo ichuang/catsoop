@@ -65,21 +65,72 @@ INVALID_SUBMISSION_MSG = (
 checktext = "Check Formatting"
 
 
+def _multi_prompt_config(info):
+    prompts = info.get("csq_prompts")
+    solutions = info.get("csq_solns")
+    if prompts is None:
+        if solutions is not None:
+            raise ValueError("csq_solns requires csq_prompts")
+        return None, None
+    if not isinstance(prompts, list) or not prompts:
+        raise ValueError("csq_prompts must be a non-empty list of strings")
+    if not all(isinstance(prompt, str) for prompt in prompts):
+        raise ValueError("csq_prompts must be a non-empty list of strings")
+    if solutions is not None:
+        if not isinstance(solutions, list):
+            raise ValueError("csq_solns must be a list")
+        if len(solutions) != len(prompts):
+            raise ValueError("csq_solns must have the same length as csq_prompts")
+    return prompts, solutions
+
+
+def _multi_prompt_field_name(info, index):
+    return "__%s_%04d" % (info["csq_name"], index)
+
+
+def _submission_data(submissions, name, strip=True):
+    entry = submissions.get(name, {"data": ""})
+    if isinstance(entry, collections.abc.Mapping):
+        value = entry.get("data", "")
+    else:
+        value = entry
+    value = "" if value is None else str(value)
+    return value.strip() if strip else value
+
+
+def _submission_expression(submissions, info):
+    prompts, _ = _multi_prompt_config(info)
+    if prompts is None:
+        return _submission_data(submissions, info["csq_name"])
+    values = {
+        str(index): _submission_data(
+            submissions,
+            _multi_prompt_field_name(info, index),
+        )
+        for index in range(len(prompts))
+    }
+    if any(value == "" for value in values.values()):
+        return ""
+    return repr(values)
+
+
 def handle_check(submissions, **info):
+    subbed = _submission_expression(submissions, info)
+    if subbed == "":
+        return '<font color="red">Your submission is not properly formatted.</font>'
     pythoncode["get_sandbox"](info)
     code = info["csq_code_pre"]
-    subbed = submissions[info["csq_name"]]["data"].strip()
     code += "\n%s" % subbed
     error = None
     try:
-        assert isinstance(ast.parse(subbed).body[0], ast.Expr)
-    except:
+        ast.parse(subbed, mode="eval")
+    except Exception:
         error = '<font color="red">Your submission is not properly formatted.</font>'
     if error is None:
         sub = info["sandbox_run_code"](
             info, code, info.get("csq_options", {}), result_as_string=True
         )
-        if sub["err"].strip():
+        if sub.get("err", "").strip():
             error = (
                 '<font color="red">Your submission is not properly formatted.</font>'
             )
@@ -88,7 +139,7 @@ def handle_check(submissions, **info):
 
 
 def handle_submission(submissions, **info):
-    sub = submissions[info["csq_name"]]["data"].strip()
+    sub = _submission_expression(submissions, info)
     inp = info["csq_input_check"](sub)
     if inp is not None:
         return {"score": 0.0, "msg": '<font color="red">%s</font>' % inp}
@@ -193,6 +244,57 @@ def handle_submission(submissions, **info):
 
 
 def render_html(last_log, **info):
+    prompts, _ = _multi_prompt_config(info)
+    if prompts is not None:
+        last_log = last_log or {}
+        out = ["<fieldset>"]
+        overall_label = info.get(
+            "csq_aria_label",
+            "catsoop_prompt_%s" % info["csq_name"],
+        )
+        for index, prompt in enumerate(prompts):
+            field_name = _multi_prompt_field_name(info, index)
+            prompt_id = "%s_prompt" % field_name
+            escaped_field_name = html.escape(field_name, quote=True)
+            escaped_prompt_id = html.escape(prompt_id, quote=True)
+            aria_labelledby = html.escape(
+                "%s %s" % (overall_label, prompt_id),
+                quote=True,
+            )
+            value = html.escape(
+                _submission_data(last_log, field_name, strip=False),
+                quote=True,
+            )
+            out.append('<div class="pythonic_prompt">')
+            out.append(
+                '<label id="%s" for="%s">%s</label>&nbsp;&nbsp;'
+                % (
+                    escaped_prompt_id,
+                    escaped_field_name,
+                    csm_language.source_transform_string(info, prompt),
+                )
+            )
+            size = info.get("csq_size")
+            size_attribute = (
+                ""
+                if size is None
+                else ' size="%s"' % html.escape(str(size), quote=True)
+            )
+            out.append(
+                '<input type="text"%s aria-labelledby="%s" '
+                'value="%s" name="%s" id="%s" />'
+                % (
+                    size_attribute,
+                    aria_labelledby,
+                    value,
+                    escaped_field_name,
+                    escaped_field_name,
+                )
+            )
+            out.append("</div>")
+        out.append("</fieldset>")
+        return "\n".join(out)
+
     renderer = info["csq_renderer"]
     if renderer == "smallbox":
         return smallbox["render_html"](last_log, **info)
@@ -208,10 +310,28 @@ def render_html(last_log, **info):
     )
 
 
-def answer_display(**info):
+def _format_solution(solution, info):
     output_mode = info["csq_output_mode"]
     if output_mode not in {"default", "formatted"}:
         raise ValueError("Invalid csq_output_mode: %r" % output_mode)
     use_repr = info["csq_mode"] == "raw" and output_mode == "default"
-    solution = repr(info["csq_soln"]) if use_repr else str(info["csq_soln"])
-    return "<p><b>Solution:</b> <tt>%s</tt><p>" % solution
+    return repr(solution) if use_repr else str(solution)
+
+
+def answer_display(**info):
+    prompts, solutions = _multi_prompt_config(info)
+    if solutions is None:
+        solution = _format_solution(info["csq_soln"], info)
+        return "<p><b>Solution:</b> <tt>%s</tt><p>" % solution
+
+    out = ["<p><b>Solution:</b></p>", '<table class="pythonic_solutions">']
+    for prompt, solution in zip(prompts, solutions):
+        out.append(
+            '<tr><th scope="row">%s</th><td><tt>%s</tt></td></tr>'
+            % (
+                csm_language.source_transform_string(info, prompt),
+                _format_solution(solution, info),
+            )
+        )
+    out.append("</table>")
+    return "\n".join(out)
