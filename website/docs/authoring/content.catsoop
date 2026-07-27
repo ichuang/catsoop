@@ -2,9 +2,26 @@
 cs_content_header = cs_long_name
 </python>
 
-@{todo}
+This section describes the course-authoring features used in CAT-SOOP page
+source files.
+
+<tableofcontents/>
 
 <catsoop-section>Creating New Pages</catsoop-section>
 
+@{todo}
 
-<catsoop-section>Extracting Information From catsoop's Logs</catsoop-section>
+<catsoop-section>Question Types</catsoop-section>
+
+Question types are embedded in a page with a
+<code>&lt;question TYPE&gt;</code> block.
+The following authoring reference describes one of CAT-SOOP's general-purpose
+question types:
+
+* [The `pythonic` question type](CURRENT/pythonic), for grading Python
+  expressions, including multi-line expressions and several related input
+  fields.
+
+<catsoop-section>Extracting Information From CAT-SOOP's Logs</catsoop-section>
+
+@{todo}

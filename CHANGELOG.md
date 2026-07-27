@@ -58,6 +58,9 @@ _(Work toward next release. Currently under development.)_
 
 **DOCUMENTATION**
 
+* Added an authoring guide for the `pythonic` question type, including its
+  multi-line and multi-prompt interfaces
+
 **VENDORED SOFTWARE**
 
 * [PyLTI](https://github.com/mitodl/pylti) and

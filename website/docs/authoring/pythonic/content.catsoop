@@ -1,0 +1,277 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+The `pythonic` question type asks a student for a Python **expression**,
+evaluates that expression in CAT-SOOP's configured Python sandbox, and gives
+the resulting value to a checker.  It works well for numbers, strings,
+collections, and other short expressions whose values can be checked
+directly.
+
+Use `pythonliteral` when only literal syntax should be accepted, or
+`pythoncode` when students need to write assignments, functions, classes, or
+other statements.
+
+<tableofcontents/>
+
+<catsoop-section>A Minimal Question</catsoop-section>
+
+A `pythonic` question is written inside a
+<code>&lt;question pythonic&gt;</code> block:
+
+<pre><code class="language-nohighlight">
+&lt;question pythonic&gt;
+csq_prompt = "Enter the first three prime numbers as a Python list:"
+csq_soln = [2, 3, 5]
+&lt;/question&gt;
+</code></pre>
+
+The default checker requires the submitted value and `csq_soln` to have the
+same type and compare equal.  For example, the response `[2, 3, 5]` receives
+full credit above, but `(2, 3, 5)` does not.
+
+The student must enter one expression.  Parenthesized expressions can span
+several lines, but assignments and other Python statements are not accepted:
+
+```python
+# An expression: suitable for pythonic
+[x**2 for x in range(5)]
+
+# An assignment statement: use pythoncode instead
+answer = [x**2 for x in range(5)]
+```
+
+<catsoop-section>Evaluation and Grading</catsoop-section>
+
+The normal evaluation sequence is:
+
+1. CAT-SOOP strips leading and trailing whitespace from the response.
+2. `csq_input_check` may reject the response before Python evaluates it.
+3. The expression is parsed and evaluated in the configured sandbox, after
+   any `csq_code_pre`.
+4. `csq_check_function(submission, solution)` compares the resulting Python
+   value with `csq_soln`.
+
+The default, recommended mode is `csq_mode = "raw"`.  In raw mode,
+`csq_soln` is an ordinary Python object in the question source, and the
+checker receives the object produced by the student's expression:
+
+<pre><code class="language-nohighlight">
+&lt;question pythonic&gt;
+csq_prompt = "Enter a list containing at least five distinct numbers in (0, 1]:"
+csq_soln = [0.1, 0.25, 0.5, 0.75, 1.0]
+
+def csq_check_function(submission, solution):
+    if not isinstance(submission, list):
+        return 0, "Please enter a Python list."
+    if len(submission) < 5:
+        return 0, "The list must contain at least five numbers."
+    if len(set(submission)) != len(submission):
+        return 0, "The numbers must be distinct."
+    if not all(isinstance(x, (int, float)) and 0 &lt; x &lt;= 1
+               for x in submission):
+        return 0, "Every item must be a number in (0, 1]."
+    return 1
+&lt;/question&gt;
+</code></pre>
+
+A check function may return:
+
+* a number between `0` and `1`;
+* a `(score, message)` pair; or
+* `{"score": score, "msg": message}`.
+
+The score is multiplied by `csq_npoints`, which defaults to `1`.
+
+`csq_input_check` receives the unevaluated, stripped response.  It should
+return `None` to accept it, or a message to reject it:
+
+```python
+def csq_input_check(response):
+    if len(response) > 500:
+        return "Please use an expression shorter than 500 characters."
+    return None
+```
+
+If a scalar check result needs a message, `csq_msg_function` may accept
+`(submission, solution)` and return a string.  Returning the message directly
+from `csq_check_function` is usually clearer.
+
+<catsoop-section>Multi-Line Expression Input</catsoop-section>
+
+Set `csq_renderer` explicitly to choose the input control.  Four renderers are
+supported:
+
+* `"smallbox"` (the default) is a single-line text input.  `csq_size` controls
+  its displayed width.
+* `"bigbox"` is a plain HTML text area.
+* `"ace"` is a multi-line editor with Python syntax highlighting.
+* `"textarea"` is a plain multi-line editor using the same submission
+  interface as the code editor.
+
+For the multi-line renderers, `csq_rows` controls the editor height.  Setting
+`csq_rows` alone does **not** switch away from the default single-line
+renderer.
+
+Here is a multi-line question using the ACE editor:
+
+<pre><code class="language-nohighlight">
+&lt;question pythonic&gt;
+csq_prompt = "Enter a dictionary mapping each name to its score:"
+csq_renderer = "ace"
+csq_rows = 8
+csq_soln = {"Ada": 10, "Grace": 9}
+&lt;/question&gt;
+</code></pre>
+
+A student can submit:
+
+```python
+{
+    "Ada": 10,
+    "Grace": 9,
+}
+```
+
+This is still one expression; the multi-line editor changes only how it is
+entered and displayed.  Parsing, sandboxing, formatting checks, and grading
+are the same as for a single-line question.  A previously submitted response
+is restored when the page is revisited.
+
+Use `"textarea"` when a plain text area is preferable to ACE:
+
+```python
+csq_renderer = "textarea"
+csq_rows = 6
+```
+
+The older `"bigbox"` renderer remains available for compatibility.
+
+<catsoop-section>Several Prompted Fields</catsoop-section>
+
+Set `csq_prompts` to a non-empty list of strings to show several labeled,
+single-line inputs as one question:
+
+<pre><code class="language-nohighlight">
+&lt;question pythonic&gt;
+csq_prompt = "Name the first two planets from the Sun:"
+csq_prompts = ["First planet:", "Second planet:"]
+csq_soln = {"0": "Mercury", "1": "Venus"}
+csq_solns = ["Mercury", "Venus"]
+
+def csq_check_function(submission, solution):
+    normalized = {
+        key: value.casefold()
+        for key, value in submission.items()
+    }
+    expected = {
+        key: value.casefold()
+        for key, value in solution.items()
+    }
+    return normalized == expected
+&lt;/question&gt;
+</code></pre>
+
+The field labels in `csq_prompts` are processed as normal CAT-SOOP content, so
+they may include Markdown or math.  Every field is required.  Leading and
+trailing whitespace is removed for grading, while the exact response is
+preserved when it is displayed again.
+
+CAT-SOOP combines the fields into a dictionary with string keys `"0"`, `"1"`,
+and so on.  The values are the students' field text; individual fields are
+not evaluated as Python expressions.  In the example above,
+`csq_check_function` receives:
+
+```python
+{"0": "Mercury", "1": "Venus"}
+```
+
+For consistency with ordinary `pythonic` questions, `csq_input_check`
+receives the unevaluated Python dictionary expression, such as
+`"{'0': 'Mercury', '1': 'Venus'}"`, rather than the evaluated dictionary.
+
+`csq_soln` is always the value used for grading.  The optional `csq_solns`
+list controls the per-field solution display; it must have the same length as
+`csq_prompts`.  Without `csq_solns`, CAT-SOOP displays `csq_soln` as a single
+solution.  When `csq_prompts` is present it selects the multi-field interface,
+so `csq_renderer` is not used.
+
+<catsoop-section>String Mode and Setup Code</catsoop-section>
+
+The legacy `csq_mode = "string"` mode lets an author supply the solution as
+Python source text.  Both that source and the student's expression are
+evaluated with `csq_code_pre` available:
+
+<pre><code class="language-nohighlight">
+&lt;question pythonic&gt;
+csq_prompt = "Enter the even integers below limit:"
+csq_mode = "string"
+csq_code_pre = "limit = 10"
+csq_soln = "list(range(0, limit, 2))"
+&lt;/question&gt;
+</code></pre>
+
+In string mode, sandbox results are converted back with
+`ast.literal_eval` before grading.  The result therefore needs a literal
+representation, such as `None`, a Boolean, a number, a string or bytes value,
+or a list, tuple, dictionary, or set made from such values.  Use raw mode for
+new questions unless string mode's source-based solution is specifically
+needed.
+
+In raw mode, `csq_code_pre` is still prepended when the student's expression
+is evaluated, but `csq_soln` is already an object and is not evaluated in the
+sandbox.
+
+<catsoop-section>Solution Display</catsoop-section>
+
+In raw mode, CAT-SOOP displays the solution with `repr` by default, so strings
+retain their quotes and collections look like Python values.  To display the
+solution with `str` instead, set:
+
+```python
+csq_output_mode = "formatted"
+```
+
+This affects only solution display, not evaluation or grading.  The allowed
+values are `"default"` and `"formatted"`.  For multi-prompt questions, the
+same formatting choice applies to every item in `csq_solns`.
+
+<catsoop-section>Formatting Checks and Evaluation Errors</catsoop-section>
+
+The question's **Check Formatting** action uses the same combined response and
+sandbox configuration as grading.  For a multi-line question it checks the
+complete expression.  For a multi-prompt question it checks the combined
+dictionary and also requires every field to be nonempty.
+
+If a response cannot be parsed or evaluated, the student receives a generic
+invalid-expression message unless `csq_msg_function` supplies a more specific
+one.  CAT-SOOP's server log records the question name and exception type, but
+does not include the raw student response or exception text.
+
+<catsoop-section>Option Reference</catsoop-section>
+
+The main `pythonic` options are:
+
+* `csq_prompt`: the question text.
+* `csq_soln`: the solution used for grading.
+* `csq_check_function`: compares the evaluated submission and solution.
+* `csq_input_check`: validates the unevaluated response before sandboxing.
+* `csq_msg_function`: supplies feedback when a checker returns only a score.
+* `csq_npoints`: the question's point value; defaults to `1`.
+* `csq_show_check`: shows the correct/incorrect icon when true.
+* `csq_code_pre`: code prepended to sandbox evaluation.
+* `csq_mode`: `"raw"` (the default) or the legacy `"string"` mode.
+* `csq_renderer`: `"smallbox"`, `"bigbox"`, `"ace"`, or `"textarea"`.
+* `csq_rows`: the height of a text-area or editor input.
+* `csq_size`: the width of a single-line input.
+* `csq_output_mode`: `"default"` or `"formatted"` solution display.
+* `csq_prompts`: labels for a validated multi-field question.
+* `csq_solns`: optional per-field values used only for solution display.
+
+<catsoop-section>Related Question Types</catsoop-section>
+
+* `pythonliteral` inherits most `pythonic` behavior but rejects expressions
+  that are not Python literals.  For example, it accepts `3.14` but rejects
+  `22 / 7`.
+* `pythoncode` accepts Python statements and is intended for functions,
+  programs, and test-case-based coding questions.
