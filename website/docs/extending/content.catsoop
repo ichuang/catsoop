@@ -2,8 +2,6 @@
 cs_content_header = cs_long_name
 </python>
 
-@{todo}
-
 Through writing Python code in preload/content files, it is theoretically
 possible to make CAT-SOOP pages do anything.  Beyond this, CAT-SOOP provides
 methods to easily customize particular aspects of CAT-SOOP through implementing
@@ -13,6 +11,15 @@ brief overview of each of these means of customization.
 <tableofcontents/>
 
 <catsoop-section>Custom Question Types</catsoop-section>
+
+Course-local question types can add a new kind of interaction without changing
+CAT-SOOP itself.
+
+* [Designing Custom Question Types](CURRENT/qtypes) explains where question
+  types live, how CAT-SOOP loads them, and the rendering and grading hooks a
+  question type may implement.
+* [Case Study: `self_partner`](CURRENT/self_partner) follows a stateful custom
+  question type that lets students create and join their own groups.
 
 <catsoop-section>Custom Page Handlers</catsoop-section>
 

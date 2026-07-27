@@ -1,0 +1,259 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+A CAT-SOOP question type (often shortened to **qtype**) is a Python module that
+defines how one kind of question is displayed and graded.  A qtype normally
+does not need to implement page forms, attempt counting, or problem logs.
+CAT-SOOP's default page handler takes care of that shared machinery and calls
+the qtype at the appropriate points.
+
+This makes a custom qtype a good choice when several pages need the same
+interaction, grading rule, or user interface.
+
+<tableofcontents/>
+
+<catsoop-section>Where Question Types Live</catsoop-section>
+
+A course-local question type named `shorttext` has this basic layout:
+
+```
+my_course/
+└── __QTYPES__/
+    └── shorttext/
+        ├── shorttext.py
+        └── __STATIC__/
+            └── shorttext.js       # optional
+```
+
+When a page contains a question whose type is `shorttext`, CAT-SOOP first
+looks for:
+
+```
+CS_DATA_ROOT/courses/my_course/__QTYPES__/shorttext/shorttext.py
+```
+
+If that file does not exist, CAT-SOOP looks in its installation-wide
+`__QTYPES__/shorttext/shorttext.py`.  A course-local qtype can therefore add a
+new type or override a built-in type for that course without modifying the
+CAT-SOOP source tree.
+
+The qtype file is executed with a copy of the page context.  It can use
+context values such as `cs_username` and `cs_path_info`, as well as loaded
+modules such as `csm_cslog`.  Treat all browser-supplied data as untrusted,
+however, and use server-side authorization for privileged operations.
+
+<catsoop-section>The Question Life Cycle</catsoop-section>
+
+The default handler and the qtype divide the work as follows:
+
+1. The page parser executes the Python inside the question block and gives the
+   resulting settings to the qtype.
+2. CAT-SOOP calls `render_html` to obtain the qtype's form controls.
+3. A **Check** action calls `handle_check`, when that optional function exists.
+4. A **Submit** action calls `handle_submission`.
+5. The default handler validates the result, updates attempts and scores, and
+   writes the ordinary `problemactions` and `problemstate` logs.
+6. When an answer may be shown, CAT-SOOP calls `answer_display`.
+
+For the core grading and rendering functions, CAT-SOOP merges settings in this
+order:
+
+1. the qtype's `defaults` dictionary;
+2. course or site settings in `cs_question_type_defaults[qtype_name]`;
+3. values in the individual question block.
+
+Later values win.  This lets a qtype provide sensible defaults, a course adopt
+a common policy, and an individual question override that policy.  Optional
+hooks such as `init` and `extra_headers` are called separately by the default
+handler; they receive the qtype defaults combined with the individual question
+settings.
+
+<catsoop-section>The Core Interface</catsoop-section>
+
+A qtype may define the following names:
+
+* `defaults` is a dictionary of default question settings, conventionally
+  named `csq_something`.
+* `total_points(**info)` returns the number of points the question is worth.
+* `render_html(last_log, **info)` returns the HTML used to display the
+  question.  `last_log` contains the most recently processed values, if any.
+* `handle_submission(submissions, **info)` grades a submission and returns at
+  least `{"score": number, "msg": html}`.  The score is normally between 0 and
+  1; CAT-SOOP applies the point value.
+* `handle_check(submissions, **info)` is optional and returns feedback without
+  consuming a graded submission.
+* `answer_display(**info)` returns the HTML used to display the solution.
+* `extra_headers(info)` may return a script, stylesheet, or other header
+  fragment.  The default handler adds each distinct fragment to `cs_scripts`.
+* `init(info)` is an optional setup hook run before the page is handled.
+
+The `info` mapping contains the merged settings.  In particular,
+`info["csq_name"]` is the question's stable identifier.  The main form control
+should usually use this value for both its `name` and `id`.
+
+Raw submitted fields are represented by dictionaries such as:
+
+```
+{"type": "raw", "data": "the browser-supplied value"}
+```
+
+Thus a qtype generally reads a value with:
+
+```python
+name = info["csq_name"]
+submitted = submissions[name]["data"]
+```
+
+Use `.get(...)` and validate the resulting type when a missing or malformed
+field is possible.  Escape stored or submitted strings before putting them
+back into HTML.
+
+<catsoop-subsection>A minimal example</catsoop-subsection>
+
+Here is a small, complete `shorttext.py`:
+
+```python
+import html
+
+
+defaults = {
+    "csq_soln": "",
+    "csq_npoints": 1,
+}
+
+# Saving an ungraded draft is not useful for this small input.
+allow_save = False
+
+
+def total_points(**info):
+    return info["csq_npoints"]
+
+
+def render_html(last_log, **info):
+    name = info["csq_name"]
+    previous = (last_log or {}).get(name, {"data": ""}).get("data", "")
+    return (
+        '<input type="text" name="{0}" id="{0}" value="{1}">'
+        .format(
+            html.escape(name, quote=True),
+            html.escape(str(previous), quote=True),
+        )
+    )
+
+
+def handle_submission(submissions, **info):
+    name = info["csq_name"]
+    submitted = submissions.get(name, {"data": ""}).get("data", "")
+    correct = (
+        str(submitted).strip().casefold()
+        == str(info["csq_soln"]).strip().casefold()
+    )
+    return {
+        "score": float(correct),
+        "msg": "Correct." if correct else "Please try again.",
+    }
+
+
+def answer_display(**info):
+    return "<b>Solution:</b> " + html.escape(str(info["csq_soln"]))
+```
+
+A course page uses it like this:
+
+<pre><code class="language-python">&lt;question shorttext&gt;
+csq_name = "capital"
+csq_soln = "Paris"
+csq_npoints = 2
+&lt;/question&gt;</code></pre>
+
+Always give important questions an explicit, unique `csq_name`.  CAT-SOOP can
+generate a name, but an explicit name stays stable as surrounding page content
+is edited and is easier to recognize in logs.
+
+<catsoop-section>Optional Behavior and Assets</catsoop-section>
+
+Several module-level settings adjust the default handler.  Common examples
+include:
+
+* `allow_save = False` to omit draft-saving for a qtype;
+* `allow_viewanswer = False` when no answer should be revealed;
+* `allow_self_submit = False` when the current user should not submit it
+  directly;
+* `always_rerender = True` when every action must regenerate the qtype's HTML;
+* `checktext = "Preview"` to change the Check button label; and
+* `question_info_fields = [...]` to add qtype-specific values to cached
+  question metadata.
+
+Only set policies that the qtype truly requires.  Course and page policy may
+otherwise be easier for instructors to understand and change.
+
+Static assets placed below the qtype's `__STATIC__` directory are served at a
+course-relative qtype URL.  For example:
+
+<pre><code class="language-python">def extra_headers(info):
+    return (
+        '&lt;script src="COURSE/__QTYPES__/shorttext/shorttext.js"&gt;'
+        '&lt;/script&gt;'
+    )</code></pre>
+
+`COURSE` is rewritten by CAT-SOOP to the current course's URL.  Namespace
+JavaScript globals and include `csq_name` in element IDs.  That prevents two
+instances of the qtype on one page from interfering with one another.
+
+<catsoop-section>Building on Another Question Type</catsoop-section>
+
+A custom qtype can inherit an existing implementation and replace only what it
+needs:
+
+```python
+tutor.qtype_inherit("smallbox")
+
+defaults = dict(defaults)
+defaults.update({
+    "csq_npoints": 2,
+})
+```
+
+`qtype_inherit` copies the base qtype's namespace into the current qtype.  Make
+a new copy of mutable objects such as `defaults` before changing them.
+
+For more explicit composition, load another qtype and keep its functions in a
+separate mapping:
+
+```python
+base, _ = csm_tutor.question("smallbox")
+
+defaults = dict(base["defaults"])
+defaults["csq_npoints"] = 2
+handle_submission = base["handle_submission"]
+answer_display = base["answer_display"]
+```
+
+Inheritance is useful for a small display or policy change.  A separate
+implementation is usually clearer when the submitted data shape or grading
+model is fundamentally different.
+
+<catsoop-section>Design and Testing Checklist</catsoop-section>
+
+Before using a new qtype in a live course:
+
+* decide which behavior belongs in generic page handling and which belongs in
+  the qtype;
+* validate and authorize every submitted action on the server;
+* HTML-escape values rendered from users, logs, or course data;
+* make form names and DOM IDs unique per `csq_name`;
+* avoid trusting JavaScript for grading or access control;
+* use CAT-SOOP's lock-aware logging or group APIs for shared mutable state;
+* test first render, redisplay of old input, correct and incorrect submissions,
+  malformed or missing fields, and two qtype instances on one page; and
+* verify the qtype under the course's real attempt, due-date, and
+  answer-visibility policies.
+
+Unit tests can load a temporary course-local qtype through
+`csm_tutor.question`, call its hooks with representative `info` and submission
+mappings, and assert both the returned result and escaped HTML.  A small manual
+page is still valuable for checking the complete form and JavaScript behavior.
+
+The [`self_partner` case study](CURRENT/../self_partner) shows how these hooks
+can support a stateful interaction rather than a conventional graded answer.

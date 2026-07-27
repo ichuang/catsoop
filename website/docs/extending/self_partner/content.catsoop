@@ -1,0 +1,240 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+`self_partner` is a course-local question type developed for MIT 6.390,
+Introduction to Machine Learning.  It lets students form their own groups:
+one student creates a named group, and the other students join it.
+
+This is a useful case study because it looks like a question and uses
+CAT-SOOP's submission controls, but its real result is a change to shared group
+state rather than a graded answer.
+
+<tableofcontents/>
+
+<catsoop-section>Source Layout and Responsibilities</catsoop-section>
+
+The qtype is installed in the course as:
+
+```
+__QTYPES__/
+└── self_partner/
+    ├── self_partner.py
+    └── __STATIC__/
+        └── self_partner.js
+```
+
+The Python file:
+
+* reads the groups for the current page;
+* validates create, join, and leave requests;
+* uses a local lock around the final group-log overwrite;
+* renders the current group and the available actions; and
+* reports a message after each action.
+
+The JavaScript file improves that server-rendered interface.  It exposes
+Create, Join, and Leave controls, then turns those actions into clicks on
+CAT-SOOP's normal Submit button.  The browser code does not decide whether a
+group change is allowed; the Python code validates the operation again.
+
+The asset is requested through `extra_headers`:
+
+<pre><code class="language-python">def extra_headers(info):
+    return (
+        '&lt;script type="text/javascript" '
+        'src="COURSE/__QTYPES__/self_partner/self_partner.js"&gt;'
+        '&lt;/script&gt;'
+    )</code></pre>
+
+CAT-SOOP rewrites `COURSE` to the URL of the current course.
+
+<catsoop-section>How the Question Is Used</catsoop-section>
+
+The first lab places the qtype after instructions asking students to form
+groups of two or three:
+
+<pre><code class="language-python">&lt;question self_partner&gt;
+csq_display_name = "Select your partner"
+csq_npoints = 0
+csq_description = "Select your partner"
+csq_name = "Lab_self_partner"
+&lt;/question&gt;</code></pre>
+
+Each setting has a specific role:
+
+* `self_partner` selects
+  `__QTYPES__/self_partner/self_partner.py`.
+* `csq_name` supplies the stable question, form, and log identifier.  This
+  qtype's generated control names are derived from `Lab_self_partner`.
+* `csq_display_name` labels the interaction in CAT-SOOP's surrounding question
+  interface.
+* `csq_npoints = 0` makes clear to course authors that choosing partners is not
+  graded.  The qtype's own `total_points` function also returns zero.
+* `csq_description` records a useful description, although this particular
+  renderer does not put it directly into its custom HTML.
+
+The page tells one member to create the group and send its full generated name
+to the other members.  The server appends four random digits to the requested
+base name.  The remaining members join by entering that exact full name.  The
+qtype limits a group to three members.
+
+Because the qtype passes `cs_path_info` to the group API, these groups belong
+to the page on which the question appears.  Downstream course code retrieves a
+student's group using the same path and the `"default"` section:
+
+```python
+context = csm_loader.generate_context(lab_path)
+section, group, members = csm_groups.get_group(
+    context,
+    lab_path,
+    username,
+    secnum="default",
+)
+```
+
+Using a different page path would address a different collection of groups.
+
+<catsoop-section>The Submitted Actions</catsoop-section>
+
+The qtype renders three raw form fields derived from `csq_name`:
+
+```
+__Lab_self_partner_0000    requested base name for a new group
+__Lab_self_partner_0001    full name of a group to join
+__Lab_self_partner_0002    the leave-group command
+```
+
+CAT-SOOP associates these prefixed fields with the parent question.  The
+submission handler checks which field contains an action:
+
+```python
+name = info["csq_name"]
+create = submissions.get("__%s_0000" % name, {}).get("data", "")
+join = submissions.get("__%s_0001" % name, {}).get("data", "")
+leave = submissions.get("__%s_0002" % name, {}).get("data", "")
+
+if join:
+    # Validate the group, its size, and current membership; then join it.
+    ...
+elif leave == "remove":
+    # Remove cs_username from the current group.
+    ...
+else:
+    # Validate create, generate a unique suffix, and create the group.
+    ...
+```
+
+For creation, the implementation requires a base name of at least four
+characters containing only letters, numbers, and underscores.  It truncates
+the base to 40 characters and adds an underscore plus four random digits.  For
+joining, it checks that the named group exists and has fewer than three
+members.  Joining another group first removes the student from any previous
+group.
+
+An action response has the normal qtype shape:
+
+```python
+return {
+    "score": 1,
+    "msg": "You have joined the group.",
+}
+```
+
+The success score lets the submission complete normally, but it contributes no
+points because `total_points` returns zero.
+
+<catsoop-section>Group Storage and Concurrency</catsoop-section>
+
+The implementation reads group data with:
+
+```python
+groups = csm_groups.list_groups(globals(), cs_path_info)
+```
+
+The resulting mapping is organized by section, group name, and members:
+
+```python
+{
+    "default": {
+        "linear_models_4821": ["alice", "bob"],
+    },
+}
+```
+
+Logically, the data live in CAT-SOOP's `_groups` log database at the current
+page path, in a log named `groups`.  With filesystem logging, that corresponds
+to a location of this form:
+
+```
+_logs/_courses/COURSE/_groups/PAGE/PATH/groups.log
+```
+
+Group creation and joining are read-modify-write operations, and two students
+can submit at nearly the same time.  The original course code contains a local
+`my_overwrite_groups` workaround around an older logging issue.  It constructs
+a replacement section, locks a file in `/tmp`, re-reads the top-level group
+mapping, and writes that replacement section.
+
+That lock protects the final overwrite, but the replacement section was
+computed before the lock was acquired.  It therefore does not make the whole
+membership check and update atomic.  New qtypes should prefer the current
+lock-aware `csm_groups` or `csm_cslog` operations rather than copying the
+workaround.  A hard-coded lock in `/tmp` also coordinates only processes that
+share the same filesystem, can couple otherwise unrelated courses, and does
+not cover a multi-server deployment.  Shared deployments need locking supplied
+by the shared log backend.
+
+For more about the general log layout, see
+[Reading CAT-SOOP Logs](CURRENT/../../authoring/logs) and
+[Problem Logs and Question Metadata](CURRENT/../../authoring/problem_logs).
+
+<catsoop-section>Rendering and Browser Behavior</catsoop-section>
+
+On each full page render, the qtype reads the current group state.  A student
+who is not in a group sees controls to create a group or join an existing one.
+A student who is already in a group sees the group name, its members, and a
+Leave button.  The submission response contains a freshly constructed status
+message; a later page reload reconstructs the full interface from the group
+log.
+
+The JavaScript:
+
+* hides generic question UI that is irrelevant to an ungraded group chooser,
+  including the score, solution, attempts display, and standard button row;
+* shows qtype-specific buttons;
+* submits the real CAT-SOOP form when a student presses Enter or activates one
+  of those buttons; and
+* writes `"remove"` into the hidden leave field before submitting a leave
+  request.
+
+This is progressive enhancement of CAT-SOOP's submission mechanism, not an
+authorization boundary.  Membership checks and limits remain in Python.
+
+<catsoop-section>Lessons for New Stateful Question Types</catsoop-section>
+
+`self_partner` demonstrates several useful techniques:
+
+* a qtype can represent an action or workflow even when it is worth no points;
+* secondary controls can use names derived from one stable `csq_name`;
+* `extra_headers` can load course-local JavaScript;
+* course modules such as `csm_groups` and `csm_cslog` are available to the
+  qtype.
+
+It also highlights improvements to make when generalizing a one-course qtype:
+
+* escape every group name and username before inserting it into HTML;
+* use a cryptographically suitable or collision-resistant identifier if a
+  group name is security-sensitive;
+* scope locks correctly and use a backend that works across all application
+  servers;
+* remove empty groups consistently;
+* include `csq_name` in every DOM ID and namespace the JavaScript instead of
+  assuming only one instance appears on a page; and
+* make the section name and maximum group size settings such as
+  `csq_section` and `csq_max_group_size`, rather than hard-coded constants.
+
+Those changes preserve the original interaction while making it safer to
+reuse on several pages, in several courses, or more than once on one page.
+
+For the basic qtype interface behind this example, see
+[Designing Custom Question Types](CURRENT/../qtypes).
