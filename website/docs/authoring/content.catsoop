@@ -7,9 +7,12 @@ source files.
 
 <tableofcontents/>
 
-<catsoop-section>Creating New Pages</catsoop-section>
+<catsoop-section>Course Structure</catsoop-section>
 
-@{todo}
+* [Creating New Pages](CURRENT/pages) explains the course directory tree,
+  `content.catsoop`, inherited `preload.py` settings, roles, and page dates.
+* [Defining Course Users](CURRENT/users) explains `__USERS__`, per-user Python
+  files, roles, sections, identity fields, and other user metadata.
 
 <catsoop-section>Question Types</catsoop-section>
 

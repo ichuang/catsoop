@@ -1,0 +1,157 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+A course can attach roles and other metadata to individual users through its
+`__USERS__` directory.  Each file is trusted Python named after the user's
+authenticated username:
+
+```text
+numerical_methods/
+├── preload.py
+├── content.catsoop
+└── __USERS__/
+    ├── ada.py
+    ├── grace.py
+    └── course_queue.py
+```
+
+When `ada` visits the course, CAT-SOOP executes `__USERS__/ada.py` and merges
+the variables it defines into `cs_user_info`.  The filename supplies the
+username, so the file should not set `username` itself.
+
+<tableofcontents/>
+
+<catsoop-section>A Typical User File</catsoop-section>
+
+A student file can be as small as:
+
+```python
+# __USERS__/ada.py
+role = "Student"
+full_name = "Ada Lovelace"
+email = "ada@example.edu"
+section = "L01"
+```
+
+A staff file often needs only a different role:
+
+```python
+# __USERS__/grace.py
+role = "TA"
+full_name = "Grace Hopper"
+email = "grace@example.edu"
+```
+
+The `role` values must match keys in the course's `cs_permissions` mapping.
+See [Creating New Pages](COURSE/docs/authoring/pages) for a role and permission
+example.
+
+<catsoop-section>Standard and Common Fields</catsoop-section>
+
+Because a user file is Python, it does not have a rigid schema.  CAT-SOOP
+directly interprets a small set of fields, while courses and plugins may define
+additional ones.
+
+* **`role`** selects an entry from `cs_permissions`.  If the user has neither
+  an explicitly assigned role nor one supplied by authentication, CAT-SOOP
+  uses `cs_default_role`.
+* **`permissions`** directly supplies this user's permissions instead of
+  deriving them from `role`.  This is useful for an exceptional account, but a
+  role is usually easier to audit and maintain.
+* **`name`** is the user's display name used by CAT-SOOP authentication and
+  account interfaces.  An authentication provider may already supply it.
+* **`email`** is the user's email address.  CAT-SOOP's mail tools use this
+  field when available.  An authentication provider may already supply it.
+* **`section`** identifies the user's class section.  CAT-SOOP's group helpers
+  use `section` by default, and courses can also use it for section-specific
+  schedules or content.  The field name can be changed with
+  `cs_user_config["section_variable"]`.
+* **`nsubmits_extra`** grants extra submissions to selected questions.  Its
+  value is a list of `(regular_expression, additional_submissions)` pairs.
+  The expression is matched against the dot-separated page path and question
+  name:
+
+  ```python
+  nsubmits_extra = [
+      (r"homework\.hw01\..*", 2),
+      (r"labs\.lab02\.simulation", 1),
+  ]
+  ```
+
+* **`full_name`** is a widely used course convention for a roster name.  It is
+  available through `cs_user_info`, but CAT-SOOP core normally uses `name`;
+  course-specific reports and tools must explicitly choose to read
+  `full_name`.
+
+Authentication and saved account information may supplement or override
+identity fields such as `name` and `email`.  Use `role`, `section`, and other
+course-specific fields in `__USERS__` when they belong to this course rather
+than to the user's global account.
+
+<catsoop-section>Course-Specific Fields</catsoop-section>
+
+Any other variables defined by the file are also made available in
+`cs_user_info`.  For example:
+
+```python
+role = "Student"
+full_name = "Ada Lovelace"
+section = "L01"
+registration_status = "registered"
+project_team = "analytical-engine"
+```
+
+Page or plugin code can read them normally:
+
+```python
+team = cs_user_info.get("project_team")
+```
+
+Fields such as `registration_status`, imported roster metadata, or an
+`extensions` list have no universal meaning in CAT-SOOP core.  They take
+effect only when course code or a plugin reads them.  Document such fields
+alongside the custom code that implements their behavior.
+
+<catsoop-section>How User Information Is Loaded</catsoop-section>
+
+The normal sequence is:
+
+1. The configured authentication method identifies the username and may
+   provide `name` and `email`.
+2. CAT-SOOP executes the matching course file
+   `__USERS__/USERNAME.py`, if it exists.
+3. If `permissions` is still absent, CAT-SOOP derives it from `role` and
+   `cs_permissions`.
+4. Saved login and extra-account information is merged into the result.
+5. The completed dictionary is exposed to page code as `cs_user_info`.
+
+If no user file exists, the authenticated user can still enter the course.
+Their authentication-provided role is used when present; otherwise
+`cs_default_role` applies.
+
+User files are executable server-side Python, not data submitted by students.
+Keep them under the same source control and review practices as `preload.py`.
+Do not put passwords or other reusable credentials in them.
+
+<catsoop-section>Reading Users From Course Code</catsoop-section>
+
+For the current visitor, use `cs_user_info`:
+
+```python
+username = cs_user_info["username"]
+role = cs_user_info.get("role")
+section = cs_user_info.get("section", "default")
+```
+
+Code that needs another course user's file can use the user helper:
+
+```python
+uinfo = csm_user.read_user_file(
+    globals(), cs_course, "ada", default={}
+)
+```
+
+`read_user_file` returns the variables from the file and adds `username`.
+Treat all metadata as possibly absent unless the course enforces it when
+creating roster files.
