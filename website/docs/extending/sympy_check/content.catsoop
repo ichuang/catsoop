@@ -1,0 +1,277 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+`sympy_check` is a course-local question type for answers that are symbolic
+mathematical expressions.  Instead of comparing the student's text directly
+with an answer string, it uses [SymPy](https://www.sympy.org/) to recognize
+mathematically equivalent expressions.
+
+For example, if the author supplies `2*x` as the solution, the qtype can
+recognize `x+x` and `x*2` as equivalent answers.  It also supports structured
+answers such as lists and matrices, indexed variables, and quantum-state ket
+notation.
+
+This case study stays at the architectural level.  It shows how a substantial
+qtype can keep its CAT-SOOP integration small while placing its domain logic in
+an independently testable library.
+
+<tableofcontents/>
+
+<catsoop-section>Source Layout</catsoop-section>
+
+The qtype consists of three source files:
+
+```
+__QTYPES__/
+└── sympy_check/
+    ├── sympy_check.py
+    ├── checker.py
+    └── test_sympy_check.py
+```
+
+Their responsibilities are deliberately separate:
+
+* `sympy_check.py` implements the CAT-SOOP qtype hooks, translates `csq_*`
+  settings into checker arguments, and renders feedback.
+* `checker.py` parses and compares mathematical expressions without depending
+  on a CAT-SOOP page context.
+* `test_sympy_check.py` tests the checker library directly and tests the
+  adapter with a small fake implementation of the tutor API.
+
+This division is the most important design idea in the example.  CAT-SOOP
+integration and symbolic mathematics can evolve and be tested independently.
+
+<catsoop-section>Using the Question Type</catsoop-section>
+
+A basic question needs an answer string and should have a stable name:
+
+<pre><code class="language-python">&lt;question sympy_check&gt;
+csq_name = "window_count"
+csq_prompt = "A string of length L has how many length-k windows? "
+csq_soln = "L - k + 1"
+&lt;/question&gt;</code></pre>
+
+This pattern is used in course content to ask students for the number of
+length-\(k\) windows in a string of length \(L\).  Answers such as
+`1 + L - k` are accepted because they are symbolically equivalent to the
+configured solution.
+
+Student input is mathematical source text.  Multiplication should be explicit,
+as in `2*x`, and either `^` or `**` may be used for powers.  Common functions
+and constants such as `sin`, `cos`, `sqrt`, `exp`, `pi`, `e`, and `i` are
+available.
+
+The qtype inherits CAT-SOOP's `smallbox` qtype, so authors get its familiar
+single-line input control.  The button normally called **Check** is relabeled
+**Check Syntax**.  It parses the current entry and displays the corresponding
+typeset expression without grading it.
+
+<catsoop-section>Three Checker Modes</catsoop-section>
+
+The adapter exposes three related comparison modes.
+
+<catsoop-subsection>Formula mode</catsoop-subsection>
+
+The default `sympy_formula_check` mode handles scalar expressions, ordered
+lists, and matrices:
+
+<pre><code class="language-python">&lt;question sympy_check&gt;
+csq_name = "identity"
+csq_soln = "sin(x)^2 + cos(x)^2"
+&lt;/question&gt;</code></pre>
+
+Nested Python-style lists are treated as matrices, so a solution such as
+`[[1,0],[0,1]]` can be compared with an equivalent matrix expression.
+Shapes and list order matter.
+
+<catsoop-subsection>Indexed-variable mode</catsoop-subsection>
+
+The array mode treats an indexed expression such as `A[i,j]` as one symbolic
+variable rather than as a Python or SymPy indexing operation:
+
+<pre><code class="language-python">&lt;question sympy_check&gt;
+csq_name = "indexed_value"
+csq_checker = "array"
+csq_soln = "A[i,j]"
+&lt;/question&gt;</code></pre>
+
+Internally, bracket contents are encoded into legal SymPy symbol names.
+`A[i,j]` and `A[j,i]` consequently remain distinct variables.
+
+<catsoop-subsection>Quantum mode</catsoop-subsection>
+
+The quantum checker recognizes binary ket notation and converts states to
+vectors for comparison:
+
+<pre><code class="language-python">&lt;question sympy_check&gt;
+csq_name = "qubit_state"
+csq_checker = "quantum"
+csq_soln = "a*|0&gt; + b*|1&gt;"
+csq_phase_ambiguity = True
+&lt;/question&gt;</code></pre>
+
+With `csq_phase_ambiguity = True`, two states may differ by a single global
+phase and still compare as equivalent.  Authors should enable this only when
+global phase is irrelevant to the exercise.
+
+<catsoop-section>The Checker Pipeline</catsoop-section>
+
+The reusable `SympyFormulaChecker` follows a staged pipeline:
+
+1. Normalize notation.  This includes HTML entities, `^` powers, matrix
+   literals, and any array or ket syntax selected by the checker mode.
+2. Parse the submitted and expected strings into SymPy objects.
+3. Compare compatible lists and matrices element by element and verify their
+   shape.
+4. Try direct equality and symbolic simplification.
+5. If symbolic comparison is inconclusive, substitute sampled values for free
+   symbols and compare numerically within a configured tolerance.
+
+The default sampling range for each free variable is 0.001 to 0.999.  Course
+authors can specify a more appropriate domain:
+
+```python
+csq_samples = "x,y@-2,-3:2,3#30"
+```
+
+The portion before `@` names the variables, the values around `:` give their
+lower and upper bounds, and the final number is the trial count.  Explicit
+ranges are important when expressions have singularities or variables have a
+restricted physical domain.
+
+Numerical comparison can use an absolute tolerance such as `0.002` or a
+relative tolerance such as `"3%"`.  Random sampling is a fallback, not a
+proof: tests should cover representative domains, and high-consequence
+grading rules should use sufficiently strong symbolic conditions and sampling
+policies.
+
+<catsoop-section>The CAT-SOOP Adapter</catsoop-section>
+
+The qtype begins by inheriting `smallbox` and loading its sibling checker
+module:
+
+```python
+_sympy_check_local_import = cs_local_python_import
+tutor.qtype_inherit("smallbox")
+smallbox, _ = tutor.question("smallbox")
+
+_checker_module = _sympy_check_local_import(
+    "checker.py",
+    "_catsoop_sympy_check",
+)
+```
+
+The adapter then extends the inherited defaults with settings including
+`csq_checker`, `csq_alt_answers`, `csq_tolerance`, `csq_samples`, and
+`csq_phase_ambiguity`.
+
+Its principal qtype hooks are:
+
+* `render_html` delegates to `smallbox["render_html"]`.
+* `handle_check` parses the current text and returns a typeset preview.
+* `handle_submission` selects a checker, passes it the relevant settings,
+  normalizes its return value, and returns CAT-SOOP's `score`/`msg` mapping.
+* `answer_display` shows both the source form and a typeset solution.
+
+The public checker functions use CAT-SOOP's conventional interface:
+
+```python
+score, message = checker(student_submission, instructor_solution)
+```
+
+They return a fractional score and feedback message.  This means the functions
+can also be assigned directly to another qtype's `csq_check_function`; they do
+not require a course-specific wrapper.
+
+The adapter also preserves CAT-SOOP features around the checker.  It calls an
+optional `csq_input_check` before grading, honors an optional
+`csq_msg_function`, escapes validation messages before placing them in HTML,
+and uses CAT-SOOP's formatted error reporting when a checker raises an
+exception.
+
+<catsoop-section>Declarative Settings</catsoop-section>
+
+Content authors normally configure behavior rather than supply new functions:
+
+| Setting | Role |
+| --- | --- |
+| `csq_checker` | Select formula, array, or quantum mode |
+| `csq_alt_answers` | Add other full-credit answer strings |
+| `csq_tolerance` | Set absolute or relative numerical tolerance |
+| `csq_samples` | Set variables, ranges, and numerical trial count |
+| `csq_num_trials` | Change the automatic sampling trial count |
+| `csq_only_symbolic` | Require the same parsed SymPy structure |
+| `csq_check_none` | Accept `none` or `empty` |
+| `csq_phase_ambiguity` | Ignore global phase in quantum mode |
+| `csq_extra_symbols` | Add names to the parser's local symbol table |
+| `csq_random_seed` | Make numerical sampling reproducible |
+
+For compatibility with older course content, `csq_options` also accepts a
+bang-separated string such as:
+
+```python
+csq_options = "altanswer='x-1'!tolerance='2%'"
+```
+
+The checker parses these course-authored values with `ast.literal_eval`, not
+`eval`.  Explicit `csq_*` settings take precedence and are clearer for new
+content.
+
+`ast.literal_eval` applies only to the legacy options string.  Mathematical
+answers are parsed by SymPy itself.  Because expression parsers process
+student-controlled text, deployment owners should keep SymPy current, review
+its parsing security model, and use the isolation appropriate for their
+checker environment.
+
+<catsoop-section>Testing Strategy</catsoop-section>
+
+Most tests import `checker.py` directly.  They cover:
+
+* equivalent and inequivalent formulas;
+* parse errors;
+* ordered lists and matrix shapes;
+* alternate answers;
+* absolute and relative tolerances;
+* explicit sampling ranges;
+* indexed variables;
+* quantum states and global phase; and
+* the standard `(score, message)` return convention.
+
+Tests pass a fixed random seed when numerical sampling is involved.  This
+makes failures reproducible without changing the behavior used by live
+questions.
+
+A smaller group of adapter tests executes `sympy_check.py` with a `FakeTutor`.
+The fake supplies only qtype inheritance and the `smallbox` renderer.  These
+tests verify that the default checker works without an author-defined
+function, declarative mode selection reaches the correct checker, and
+rendering is still delegated to `smallbox`.
+
+This is a useful testing pattern for custom qtypes: give domain code ordinary
+unit tests, then test the thin CAT-SOOP boundary with a minimal fake context.
+Full page tests can be reserved for behavior that genuinely depends on the
+loader or default handler.
+
+<catsoop-section>Design Lessons</catsoop-section>
+
+`sympy_check` illustrates several broadly useful practices:
+
+* inherit a built-in qtype when the existing input UI is already suitable;
+* put specialized computation in a normal Python module rather than tying it
+  to CAT-SOOP globals;
+* expose common choices as declarative `csq_*` settings;
+* keep legacy configuration at the boundary and normalize it immediately;
+* return ordinary CAT-SOOP checker results from reusable checker functions;
+* distinguish a non-grading syntax preview from a graded submission; and
+* test randomized behavior with an explicit seed.
+
+It also shows why a custom qtype should define a clear policy.  Symbolic
+equality, structural equality, approximate numerical equality, indexed
+variables, and equivalence up to global phase are different notions of
+“correct.”  The qtype makes those choices explicit instead of hiding them in
+individual problem code.
+
+For the general interface used by this adapter, see
+[Designing Custom Question Types](CURRENT/../qtypes).  For a contrasting
+stateful qtype, see the [`self_partner` case study](CURRENT/../self_partner).

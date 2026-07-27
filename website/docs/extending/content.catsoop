@@ -20,6 +20,9 @@ CAT-SOOP itself.
   question type may implement.
 * [Case Study: `self_partner`](CURRENT/self_partner) follows a stateful custom
   question type that lets students create and join their own groups.
+* [Case Study: `sympy_check`](CURRENT/sympy_check) examines a symbolic-answer
+  qtype whose CAT-SOOP adapter is separated from a reusable, independently
+  tested checker library.
 
 <catsoop-section>Custom Page Handlers</catsoop-section>
 
