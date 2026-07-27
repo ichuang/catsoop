@@ -60,6 +60,8 @@ _(Work toward next release. Currently under development.)_
 
 * Added an authoring guide for the `pythonic` question type, including its
   multi-line and multi-prompt interfaces
+* Added an authoring guide for the `pythoncode` question type, with progressive
+  examples and targeted-feedback patterns
 
 **VENDORED SOFTWARE**
 

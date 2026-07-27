@@ -1,0 +1,579 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+The `pythoncode` question type asks a student to write Python statements,
+functions, or a complete small program.  CAT-SOOP runs the submission and an
+instructor solution independently in its configured sandbox, runs the same
+tests against both, and grades the resulting values.
+
+This guide progresses from a minimal function to a multi-test simulation and
+targeted hints.  Its examples are adapted from the array, numerical-method,
+and algorithm questions in MIT's *Algorithms in Action, Summer 2026* course.
+They have been shortened and made self-contained for reuse by other course
+authors.
+
+Use [`pythonic`](CURRENT/../pythonic) instead when the student only needs to
+enter one expression.
+
+<tableofcontents/>
+
+<catsoop-section>The Execution Model</catsoop-section>
+
+A `pythoncode` question normally supplies:
+
+* `csq_initial`: the scaffold initially shown to the student;
+* `csq_soln`: an instructor implementation;
+* `csq_tests`: one or more test dictionaries.
+
+For each test, CAT-SOOP starts a separate sandbox and runs, in order:
+
+1. `csq_code_pre`;
+2. the test's optional `code_pre`;
+3. the student submission, or independently `csq_soln`;
+4. `csq_code_post`;
+5. the test's `code`;
+6. the test's result variable, named `ans` by default.
+
+The student and instructor programs do not run together or share state.  Each
+test also gets a fresh execution, so a test should create all of the inputs it
+needs.  Standard output, errors, timing information, and the value of `ans`
+are captured for grading and feedback.
+
+<catsoop-section>A Minimal Function</catsoop-section>
+
+This transpose exercise is adapted from the Summer 2026 NumPy introduction:
+
+<pre><code class="language-nohighlight">
+&lt;question pythoncode&gt;
+csq_prompt = """
+Define `transpose(A)`, which returns the transpose of a two-dimensional NumPy
+array.  Do not call the function yourself; the tests will call it.
+"""
+
+csq_code_pre = "import numpy as np"
+
+csq_initial = """def transpose(A):
+    pass
+"""
+
+csq_soln = """def transpose(A):
+    return A.T
+"""
+
+csq_tests = [
+    {"code": """A = np.array([[1, 2, 3], [4, 5, 6]])
+ans = transpose(A).tolist()"""},
+    {"code": """A = np.array([[1, 2], [3, 4], [5, 6]])
+ans = transpose(A).tolist()"""},
+]
+&lt;/question&gt;
+</code></pre>
+
+The test code calls the student's function and assigns the value to `ans`.
+CAT-SOOP runs the same test after the instructor's `csq_soln` and, by default,
+compares the two `ans` values with `==`.
+
+The calls to `.tolist()` are intentional.  Reducing a NumPy array to ordinary
+Python lists makes its result easy to transport out of the sandbox and gives
+the default checker predictable equality semantics.  Tests can similarly
+convert NumPy scalar values with `float(...)` or `int(...)`.
+
+`csq_code_pre` is not shown in the editor.  It is useful for imports, data, and
+trusted helper functions that both implementations need.  The student can use
+`np` above because the import runs before the submitted code.
+
+<catsoop-section>Scaffolds, Interfaces, and Setup Code</catsoop-section>
+
+The default interface is the ACE editor.  The main interface options are:
+
+* `csq_interface = "ace"`: the default editor with syntax highlighting;
+* `csq_interface = "textarea"`: a plain text area;
+* `csq_interface = "upload"`: a file upload and downloadable skeleton.
+
+`csq_rows` controls editor height and `csq_font_size` controls ACE's font
+size.  A focused scaffold usually teaches more effectively than an empty
+editor:
+
+<pre><code class="language-nohighlight">
+&lt;question pythoncode&gt;
+csq_prompt = "Define `row_vector(values)`, returning a NumPy array of shape `(1, d)`."
+csq_rows = 8
+csq_code_pre = "import numpy as np"
+
+csq_initial = """def row_vector(values):
+    # Preserve all values, but add a row dimension.
+    pass
+"""
+
+csq_soln = """def row_vector(values):
+    return np.array([values])
+"""
+
+csq_tests = [
+    {"code": "ans = row_vector([1, 2]).tolist()"},
+    {"code": "ans = row_vector([1, 5, 3]).tolist()"},
+]
+&lt;/question&gt;
+</code></pre>
+
+Keep imports needed by the student's own code in `csq_code_pre`, or put them
+in both `csq_initial` and `csq_soln` when seeing and editing the import is part
+of the exercise.  Do not put secret test data in `csq_initial`.
+
+`csq_code_post` is less commonly needed.  It runs after the submitted or
+instructor code but before every test's `code`; it can install a shared wrapper
+or normalize an interface without exposing that machinery in the editor.
+
+<catsoop-section>Tests, Points, and Display</catsoop-section>
+
+Each item in `csq_tests` is a dictionary.  Its most useful keys are:
+
+* `code`: test code, normally ending with an assignment to `ans`;
+* `variable`: the result variable, defaulting to `"ans"`;
+* `description`: a student-facing explanation of what the test covers;
+* `npoints`: the test's relative weight, defaulting to `1`;
+* `check_function`: a checker for this test;
+* `code_pre`: setup that runs before the submitted code for this test;
+* `show_code`, `show_description`, and `show_stderr`: control detailed output;
+* `include`: append a runnable copy of the test to the initial editor;
+* `include_soln`: include the expected result with an included test;
+* `grade`: when false, exclude the test from grading;
+* `transform_output`: convert a captured result to student-facing HTML;
+* `sandbox_options`: override sandbox limits for this test.
+
+Tests are weighted by their `npoints`.  If `csq_npoints` is set, the weighted
+test fraction is scaled to that total question value.  Otherwise, the
+question's point value is the sum of the tests' `npoints`.
+
+Here is a numerical example with descriptions, different weights, and a
+tolerance checker:
+
+<pre><code class="language-nohighlight">
+&lt;question pythoncode&gt;
+csq_prompt = "Define `length(v)`, returning the Euclidean length of `v`."
+csq_npoints = 3
+csq_code_pre = "import numpy as np"
+
+csq_initial = """def length(v):
+    pass
+"""
+
+csq_soln = """def length(v):
+    return float(np.sqrt(np.sum(v*v)))
+"""
+
+close_result = csm_check.check_result(
+    csm_check.number_close(absolute_threshold=1e-6)
+)
+
+csq_tests = [
+    {
+        "description": "A two-dimensional vector",
+        "code": "v = np.array([3.0, 4.0])\nans = length(v)",
+        "npoints": 1,
+        "check_function": close_result,
+    },
+    {
+        "description": "A less familiar vector",
+        "code": "v = np.array([1.0, 3.0, 5.0])\nans = length(v)",
+        "npoints": 2,
+        "check_function": close_result,
+    },
+]
+&lt;/question&gt;
+</code></pre>
+
+`csm_check.check_result(inner)` adapts an ordinary two-value checker to
+`pythoncode`'s richer result dictionaries.  The example wraps
+`csm_check.number_close`, so `inner` receives just the student and instructor
+values.
+
+Use `csq_test_defaults` to avoid repeating settings:
+
+```python
+csq_test_defaults = {
+    "show_code": False,
+    "show_stderr": True,
+    "check_function": close_result,
+}
+```
+
+`csq_always_show_tests = True` opens detailed results by default.  Keep
+`show_code = False` for hidden tests whose inputs would reveal too much, but
+remember that obscurity is not a security boundary: question authors should
+not put credentials or other secrets in test definitions.
+
+<catsoop-section>A More Complex Multi-Test Problem</catsoop-section>
+
+This example is adapted from the Summer 2026 diffusion lab.  It tests one
+ordinary step, a nonsymmetric state, and a useful invariant after repeated
+steps:
+
+<pre><code class="language-nohighlight">
+&lt;question pythoncode&gt;
+csq_prompt = """
+Define `step_diffusion(C, alpha)`.  Return a new list containing one diffusion
+step.  Keep the endpoints fixed, and do not modify `C`.
+"""
+csq_rows = 18
+csq_npoints = 4
+
+csq_initial = """def step_diffusion(C, alpha):
+    C_next = C[:]
+    # Update only indices 1 through len(C)-2.
+    return C_next
+"""
+
+csq_soln = """def step_diffusion(C, alpha):
+    C_next = C[:]
+    for i in range(1, len(C) - 1):
+        laplacian = C[i - 1] - 2*C[i] + C[i + 1]
+        C_next[i] = C[i] + alpha*laplacian
+    return C_next
+"""
+
+csq_tests = [
+    {
+        "description": "One step from a centered impulse",
+        "code": """C = [0.0, 0.0, 1.0, 0.0, 0.0]
+ans = [round(x, 6) for x in step_diffusion(C, 0.25)]""",
+        "npoints": 1,
+    },
+    {
+        "description": "A nonsymmetric state catches directional errors",
+        "code": """C = [0.0, 0.2, 0.8, 0.4, 0.0]
+ans = [round(x, 6) for x in step_diffusion(C, 0.1)]""",
+        "npoints": 1,
+    },
+    {
+        "description": "Repeated steps preserve fixed endpoints and total mass here",
+        "code": """C = [0.0]*10 + [1.0] + [0.0]*10
+for _ in range(12):
+    C = step_diffusion(C, 0.2)
+ans = [C[0], C[-1], round(max(C), 6), round(sum(C), 6)]""",
+        "npoints": 2,
+    },
+]
+&lt;/question&gt;
+</code></pre>
+
+This style checks examples and properties.  The nonsymmetric case distinguishes
+left/right indexing mistakes that a symmetric impulse can hide, while the
+repeated test detects incorrect state updates that happen to survive one step.
+Good test suites vary shapes, boundary cases, and invariants rather than merely
+changing one number.
+
+<catsoop-section>Writing Check Functions</catsoop-section>
+
+Unless `csq_use_simple_checker` is enabled, a `pythoncode` checker receives two
+dictionaries: the student's result and the instructor's result.  Each can
+contain:
+
+* `result`: the captured test variable, if one was produced;
+* `out`: captured standard output;
+* `err`: an error or traceback;
+* `details`: sandbox metadata.
+
+The default checker compares the two `result` values.  A checker can return a
+number, a `(score, message)` pair, or
+`{"score": score, "msg": message}`.  Put a checker in one test's
+`check_function`, or set `csq_check_function` to make it the default for all
+tests.
+
+For simple value comparisons, compose CAT-SOOP's standard checkers:
+
+```python
+csq_check_function = csm_check.check_result(
+    csm_check.number_close(absolute_threshold=1e-6)
+)
+```
+
+For new questions, prefer this wrapper over
+`csq_use_simple_checker = True`.  The legacy simple-checker mode passes only
+the two result values, so it cannot inspect errors or output.
+
+<catsoop-section>Advanced: Hints for Common Wrong Answers</catsoop-section>
+
+Targeted feedback is most useful when it names a recognizable mistake and
+suggests the next debugging step without giving away the implementation.
+There are two complementary places to generate it:
+
+1. A test's `check_function` already sees that test's returned value and
+   traceback.  Use it for a wrong result, shape, type, or runtime error that
+   identifies a specific misconception.
+2. `csq_hint(scores, code, info)` runs once after all graded tests.  Use it for
+   patterns in the submitted source or conclusions that depend on several
+   test outcomes.
+
+<catsoop-subsection>Hints From a Check Function</catsoop-subsection>
+
+The Summer 2026 labs precomputed the output of common buggy algorithms and
+recognized those outputs in per-test checkers.  Here is a compact version for
+the first diffusion test:
+
+<pre><code class="language-nohighlight">
+def diffusion_check(submission, solution):
+    error = submission.get("err", "")
+    got = submission.get("result")
+    expected = solution.get("result")
+
+    if got == expected and not error:
+        return 1
+
+    if "TypeError" in error and "NoneType" in error:
+        return 0, (
+            "&lt;b&gt;Hint:&lt;/b&gt; Your function returned `None`. "
+            "Check that every path reaches `return C_next`."
+        )
+
+    # This is the fingerprint produced by reading newly updated entries
+    # while sweeping from left to right.
+    updated_in_place = [0.0, 0.25, 0.5625, 0.140625, 0.0]
+    if got == updated_in_place:
+        return 0, (
+            "&lt;b&gt;Hint:&lt;/b&gt; Each new entry must be computed from the old "
+            "list `C`. Write into `C_next`, but read neighbors only from `C`."
+        )
+
+    if isinstance(got, list) and len(got) != 5:
+        return 0, (
+            "&lt;b&gt;Hint:&lt;/b&gt; Return one value per input cell, including "
+            "the two unchanged endpoints."
+        )
+
+    return 0
+
+csq_tests = [
+    {
+        "code": """C = [0.0, 0.0, 1.0, 0.0, 0.0]
+ans = [round(x, 6) for x in step_diffusion(C, 0.25)]""",
+        "check_function": diffusion_check,
+    },
+]
+</code></pre>
+
+This hint appears with the failing test, and the checker can also award partial
+credit.  Order checks from most diagnostic to most general.  Do not depend
+only on a wrong numeric fingerprint when different mistakes could produce the
+same value; confirm structure, type, or multiple test results where practical.
+
+The checker runs in CAT-SOOP's server process after sandbox execution.  Treat
+`submission["result"]`, `out`, and `err` as untrusted data.  Compare them, but
+do not evaluate them as code.  Escape any untrusted text before inserting it
+into an HTML message.
+
+<catsoop-subsection>Source-Level Hints With csq_hint</catsoop-subsection>
+
+`csq_hint` has the signature:
+
+```python
+def csq_hint(scores, code, info):
+    ...
+```
+
+Its arguments are:
+
+* `scores`: per-test score fractions, in graded-test order;
+* `code`: the submitted source string;
+* `info`: the question context, including the normalized `csq_tests` and
+  sandbox helpers.
+
+It returns an HTML string appended once after the detailed test results, or an
+empty string for no hint.  This source-aware example is adapted from the
+static scanners used throughout the Summer 2026 labs:
+
+<pre><code class="language-nohighlight">
+import re
+
+def diffusion_source_hint(scores, code, info):
+    if scores and all(float(score) &gt;= 1.0 for score in scores):
+        return ""
+
+    # Remove comments before simple pattern checks.
+    source = "\n".join(line.split("#", 1)[0] for line in (code or "").splitlines())
+    hints = []
+
+    if re.search(r"^\s*pass\s*$", source, re.MULTILINE):
+        hints.append(
+            "The scaffold still contains `pass`, which does no work."
+        )
+
+    if re.search(r"\bC_next\s*=\s*C\s*$", source, re.MULTILINE):
+        hints.append(
+            "`C_next = C` aliases the same list. Make a copy with `C[:]`."
+        )
+
+    if re.search(
+        r"range\s*\(\s*1\s*,\s*len\s*\(\s*C\s*\)\s*-\s*2\s*\)",
+        source,
+    ):
+        hints.append(
+            "That range stops one cell early; its upper bound should be `len(C)-1`."
+        )
+
+    if not hints:
+        return ""
+
+    items = "".join("&lt;li&gt;%s&lt;/li&gt;" % hint for hint in hints[:2])
+    return (
+        "&lt;div class='bs-callout bs-callout-warning'&gt;"
+        "&lt;b&gt;Looking at your code:&lt;/b&gt;&lt;ul&gt;"
+        + items
+        + "&lt;/ul&gt;&lt;/div&gt;"
+    )
+
+csq_hint = diffusion_source_hint
+</code></pre>
+
+The all-correct guard matters: a correct solution may contain a pattern that
+looks suspicious but is harmless in context.  Keep source scans conservative,
+limit the number of simultaneous hints, and phrase them as debugging
+directions rather than claims about intent.
+
+`csq_hint` itself is server-side code.  Never call `eval`, `exec`, or
+`compile` on the submitted `code`.  Parsing with `ast.parse` and examining the
+tree is appropriate; executing a submission must remain the sandbox's job.
+Likewise, do not interpolate raw submitted source into returned HTML unless it
+has first been escaped.
+
+<catsoop-subsection>Comparing Against a Known Bug in the Sandbox</catsoop-subsection>
+
+Occasionally a wrong answer is easiest to identify by running a known buggy
+implementation against one test.  `csq_hint` can use the existing sandbox
+helper.  For example, suppose `classify(x)` should compare against `5`, a
+common wrong answer compares against `3`, and the first test distinguishes
+those thresholds:
+
+<pre><code class="language-nohighlight">
+def threshold_hint(scores, code, info):
+    if scores and all(float(score) &gt;= 1.0 for score in scores):
+        return ""
+
+    test = info["csq_tests"][0]
+    _, student_error, student_log = info["sandbox_run_test"](info, code, test)
+
+    low_threshold = """def classify(x):
+    return x &gt; 3
+"""
+    _, known_error, known_log = info["sandbox_run_test"](
+        info, low_threshold, test
+    )
+
+    same_result = csm_check.check_result()(
+        student_log,
+        known_log,
+    )
+    if not student_error and not known_error and same_result:
+        return (
+            "&lt;p class='text-warning'&gt;&lt;b&gt;Hint:&lt;/b&gt; "
+            "Your comparison threshold appears to be too low.&lt;/p&gt;"
+        )
+    return ""
+
+csq_hint = threshold_hint
+</code></pre>
+
+This technique is more expensive because it reruns sandboxed code after the
+ordinary test pass.  Prefer a test checker when its existing `result` or `err`
+already contains enough evidence, and reserve reruns for high-value
+misconceptions that cannot be identified reliably another way.
+
+Exceptions raised by `csq_hint` are suppressed so that hint generation cannot
+break grading.  Write the function defensively and test its failing and
+all-correct paths.
+
+<catsoop-subsection>Choosing the Hint Mechanism</catsoop-subsection>
+
+Use a `check_function` when:
+
+* one test result or traceback identifies the mistake;
+* the feedback belongs next to that test;
+* the diagnosis should affect partial credit.
+
+Use `csq_hint` when:
+
+* the source contains a suspicious construct with no unique output;
+* several failed tests together identify the issue;
+* one concise message should appear after all test details.
+
+They can be used together.  A productive pattern is precise dynamic feedback
+from each checker plus at most one or two conservative source-level hints
+below the suite.
+
+<catsoop-section>Validating Source Before Tests</catsoop-section>
+
+`csq_input_check(code)` runs before the test suite and returns `None` to
+accept a submission or a message to reject it.  It is useful for pedagogical
+constraints such as "do not use loops":
+
+<pre><code class="language-nohighlight">
+import ast
+
+def no_explicit_loops(code):
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return None  # Let the normal runner show the syntax error.
+
+    forbidden = (ast.For, ast.While, ast.ListComp, ast.SetComp,
+                 ast.DictComp, ast.GeneratorExp)
+    if any(isinstance(node, forbidden) for node in ast.walk(tree)):
+        return "Use NumPy operations for this problem instead of an explicit loop."
+    return None
+
+csq_input_check = no_explicit_loops
+</code></pre>
+
+An input check is a teaching constraint, not a security mechanism.  Sandbox
+configuration remains responsible for limiting imports, variables, time,
+memory, files, processes, and other resources.  Avoid brittle substring tests
+when an AST check expresses the actual rule.
+
+<catsoop-section>Additional Test Patterns</catsoop-section>
+
+Some useful patterns from real courses are:
+
+* **Shape and type checks:** convert an array with `.tolist()`, or use a custom
+  checker to verify shape separately from values.
+* **Randomized tests:** call `csm_tutor.init_random()`, then create values with
+  `cs_random` while building `csq_tests`; the per-user generator keeps a
+  student's page stable across visits.
+* **Invariant tests:** after many iterations, check conservation, ordering,
+  bounds, or idempotence in addition to exact examples.
+* **Structural tests:** test compiled functions for prohibited loops or
+  required behavior when the learning goal is an algorithmic technique.
+* **Cached instructor results:** set `cached_result` on expensive deterministic
+  tests so CAT-SOOP need not rerun `csq_soln` for every submission.
+* **Visible practice tests:** set `include = True`; optionally set
+  `include_soln = True` and `grade = False` for a runnable example that does
+  not affect the score.
+
+If a custom `transform_output(result)` returns HTML, escape student-controlled
+values before including them.  The default transformer already formats and
+escapes ordinary results.
+
+<catsoop-section>Option Reference</catsoop-section>
+
+The principal question options are:
+
+* `csq_prompt`: student-facing instructions.
+* `csq_initial`: initial scaffold.
+* `csq_soln`: instructor implementation.
+* `csq_tests`: test dictionaries.
+* `csq_code_pre`, `csq_code_post`: shared code around each implementation.
+* `csq_input_check`: source validation before sandbox execution.
+* `csq_check_function`: default checker for tests without one.
+* `csq_hint`: post-test hint generator.
+* `csq_npoints`: overall point value.
+* `csq_interface`: `"ace"`, `"textarea"`, or `"upload"`.
+* `csq_rows`, `csq_font_size`: editor appearance.
+* `csq_always_show_tests`: initially expand detailed results.
+* `csq_test_defaults`: defaults merged into every test.
+* `csq_show_check`: show the overall correct/incorrect icon.
+* `csq_sandbox_options`: question-wide sandbox limits.
+* `csq_result_as_string`: request string-form sandbox results.
+* `csq_use_simple_checker`: legacy raw-value checker mode; avoid for new work.
+
+For uploads, `csq_skeleton_name` controls the downloaded skeleton filename and
+`csq_show_skeleton` controls whether the skeleton link is displayed.

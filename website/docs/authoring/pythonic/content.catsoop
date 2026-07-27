@@ -273,5 +273,5 @@ The main `pythonic` options are:
 * `pythonliteral` inherits most `pythonic` behavior but rejects expressions
   that are not Python literals.  For example, it accepts `3.14` but rejects
   `22 / 7`.
-* `pythoncode` accepts Python statements and is intended for functions,
-  programs, and test-case-based coding questions.
+* [`pythoncode`](CURRENT/../pythoncode) accepts Python statements and is
+  intended for functions, programs, and test-case-based coding questions.
