@@ -90,6 +90,14 @@ csq_soln = [True, True, False, True, False, False]
 `pythonic` questions expect a single Python expression as input, and a single
 Python expression as output.
 
+The input control is selected explicitly with `csq_renderer`. Its supported
+values are `'smallbox'` (the default), `'bigbox'`, `'ace'`, and `'textarea'`.
+The latter two provide multi-line input; `csq_rows` controls their height but
+does not select a renderer by itself.
+
+By default, a raw-mode solution is displayed with `repr`. Set
+`csq_output_mode = 'formatted'` to display it with `str` instead.
+
 <question pythonic>
 csq_prompt = 'Enter a list of at least 5 Python numbers, all distinct and all in the range $(0, 0.5]$:<br/>'
 csq_soln = [0.01, 0.1, 0.2, 0.3, 0.5]

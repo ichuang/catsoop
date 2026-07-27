@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import ast
-import json
+import html
 import logging
 import traceback
 import collections.abc
@@ -40,6 +40,9 @@ defaults.update(
         "csq_code_pre": "",
         "csq_mode": "raw",
         "csq_size": 50,
+        "csq_renderer": "smallbox",
+        "csq_output_mode": "default",
+        "csq_initial": "",
     }
 )
 
@@ -85,26 +88,7 @@ def handle_check(submissions, **info):
 
 
 def handle_submission(submissions, **info):
-    '''
-    Parse input and grade.
-    Properly handle csq_rows (multi-row input) and csq_prompts (multiple input boxes)
-    '''
-    if 'csq_rows' in info:			# multi-row input via textarea
-        sub = submissions[info["csq_name"]].strip()
-        sub = {'0': sub}
-        sub = json.dumps(sub)
-    elif not 'csq_prompts' in info:		# no prompts specified: use single input submission
-        sub = submissions[info["csq_name"]]["data"].strip()
-    else:
-        sub = {}				# multiple submission boxes: gather in dict and jsonify for python checker
-        LOGGER.error("[qtypes.pythonic] info['csq_name']: %r" % info['csq_name'])
-        for ix in range(len(info['csq_prompts'])):
-            qbox_name = "__%s_%04d" % (info["csq_name"], ix)
-            # sub[ix] = submissions[qbox_name].strip()
-            sub[ix] = submissions[qbox_name] 
-        sub = json.dumps(sub)
-    LOGGER.debug("[qtypes.pythonic] submission: %r" % sub)
-
+    sub = submissions[info["csq_name"]]["data"].strip()
     inp = info["csq_input_check"](sub)
     if inp is not None:
         return {"score": 0.0, "msg": '<font color="red">%s</font>' % inp}
@@ -147,9 +131,11 @@ def handle_submission(submissions, **info):
         if info["csq_mode"] != "raw":
             sub = ast.literal_eval(sub)
     except Exception as err:
-        LOGGER.error("[qtypes.pythonic] traceback: %s" % traceback.format_exc())
-        LOGGER.error("[qtypes.pythonic] invalid submission: %r" % sub)
-        LOGGER.error("[qtypes.pythonic] invalid submission exception=%s" % str(err))
+        LOGGER.info(
+            "[qtypes.pythonic] could not evaluate submission for question %r (%s)",
+            info.get("csq_name"),
+            type(err).__name__,
+        )
         msg = ""
         mfunc = info["csq_msg_function"]
         try:
@@ -207,71 +193,25 @@ def handle_submission(submissions, **info):
 
 
 def render_html(last_log, **info):
-    '''
-    Generate HTML for the pythonic problem.
-    If csq_rows is defined, then produce a multi-row code box using a routine in pythoncode.
-    if csq_prompts is defined, then produce a table of one or more rows of input fields.
-    '''
-    last_log = last_log or {}
-    if 'csq_rows' in info:			# if csq_nrows is present then display a textarea instead of a one line box
-        info['csq_interface'] = 'ace'
-        return tutor.question("pythoncode")[0]["render_html"](last_log, **info)
-
-    if not 'csq_prompts' in info:		# no prompts specified: use default single-input-box aka smallbox
-        if info.get("csq_renderer", "smallbox") == "bigbox":
-            return bigbox["render_html"](last_log, **info)
-        else:
-            return smallbox["render_html"](last_log, **info)
-
-    # allow for multiple input boxes, each with its own prompt, as specified by csq_prompts
-    prompts = info["csq_prompts"]
-    if not isinstance(prompts, list):
-        msg = "[qtypes.pythonic] csq_prompts expected to be a list, but got instead: %r" % prompts
-        LOGGER.error(msg)
-        raise Exception(msg)
-        
-    out = '<table border="0">'
-    for (ix, prompt) in enumerate(prompts):
-        qbox_name = "__%s_%04d" % (info["csq_name"], ix)
-        out += '<tr><td align="right">'
-        out += csm_language.source_transform_string(info, prompt)
-        out += "</td><td>"
-        out += '<input type="text"'
-        if info.get("csq_size", None) is not None:
-            out += ' size="%s"' % info["csq_size"]
-
-        last_response_dict = last_log.get(qbox_name, {})
-        LOGGER.error("[qtypes.pythonic.render_heml] last_response for %s = %s" % (qbox_name, last_response_dict))
-        out += ' value="%s"' % escape(last_response_dict.get("data", ""))
-        out += ' name="%s"' % qbox_name
-        out += ' id="%s"' % qbox_name
-        out += " /></td></tr>"
-    return out + "</table>"
+    renderer = info["csq_renderer"]
+    if renderer == "smallbox":
+        return smallbox["render_html"](last_log, **info)
+    if renderer == "bigbox":
+        return bigbox["render_html"](last_log, **info)
+    if renderer in {"ace", "textarea"}:
+        multiline_info = dict(info)
+        multiline_info["csq_interface"] = renderer
+        return pythoncode["render_html"](last_log, **multiline_info)
+    return (
+        "<font color='red'>Invalid <tt>pythonic</tt> renderer: %s</font>"
+        % html.escape(str(renderer))
+    )
 
 
 def answer_display(**info):
-    '''
-    Display answer.  Properly handle csq_prompts (multi-row inputs)
-    '''
-    fmt = "%s"
-    if info["csq_mode"] == "raw" and not info.get("csq_output_mode") == "formatted":
-        fmt = "%r"
-
-    if not 'csq_solns' in info:	# default single answer display
-        out = ("<p>Solution: <tt>{}</tt><p>".format(fmt)) % (info["csq_soln"],)
-    else:		# use table with multiple respones if csq_solns specified and is list
-        solns = info["csq_solns"]
-        prompts = info['csq_prompts']
-        if not isinstance(solns, list) and  isinstance(prompts, list) and len(solns)==len(prompts):
-            msg = "[qtypes.pythonic] csq_solns expected to be a list, but got instead: %r" % solns
-            LOGGER.error(msg)
-            raise Exception(msg)
-        out = '<table border="0">'
-        for (ix, (prompt, soln)) in enumerate(zip(prompts, solns)):
-            out += '<tr><td align="right">'
-            out += csm_language.source_transform_string(info, prompt)
-            out += "</td><td>"
-            out += ("<tt>{}</tt>".format(fmt)) % soln
-            out += "</td></tr>"
-        out += "</table>"
-    return out
+    output_mode = info["csq_output_mode"]
+    if output_mode not in {"default", "formatted"}:
+        raise ValueError("Invalid csq_output_mode: %r" % output_mode)
+    use_repr = info["csq_mode"] == "raw" and output_mode == "default"
+    solution = repr(info["csq_soln"]) if use_repr else str(info["csq_soln"])
+    return "<p><b>Solution:</b> <tt>%s</tt><p>" % solution

@@ -4,6 +4,9 @@ _(Work toward next release. Currently under development.)_
 
 **ADDED**
 
+* Added explicit `'ace'` and `'textarea'` renderers and formatted solution
+  display to the `pythonic` question type
+
 * Added support for authentication with a Central Authentication Service (CAS)
   server
 
@@ -16,6 +19,9 @@ _(Work toward next release. Currently under development.)_
   `cs_extra_uwsgi_options`
 
 **CHANGED**
+
+* Invalid `pythonic` submissions are now logged without including raw student
+  responses
 
 * Improved error messages in the `list_users` API endpoint
 
