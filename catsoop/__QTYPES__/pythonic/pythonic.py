@@ -145,7 +145,7 @@ def handle_submission(submissions, **info):
             }
         sub = test_result_sub["info"]["result"]
         if info["csq_mode"] != "raw":
-            sub = eval(sub, info)
+            sub = ast.literal_eval(sub)
     except Exception as err:
         LOGGER.error("[qtypes.pythonic] traceback: %s" % traceback.format_exc())
         LOGGER.error("[qtypes.pythonic] invalid submission: %r" % sub)
