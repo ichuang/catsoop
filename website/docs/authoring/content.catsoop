@@ -21,6 +21,9 @@ source files.
 * [Dynamic Python-Generated Pages](CURRENT/dynamic_pages) explains
   `content.py`, request-driven output, `cs_handler`, raw responses, redirects,
   JSON and CSV endpoints, and staff-only page controls.
+* [Adding JavaScript to Course Pages](CURRENT/javascript) describes inline and
+  external scripts, `cs_scripts`, inherited script setup in `preload.py`, and
+  avoiding conflicts with CAT-SOOP's JavaScript libraries.
 * [Defining Course Users](CURRENT/users) explains `__USERS__`, per-user Python
   files, roles, sections, identity fields, and other user metadata.
 

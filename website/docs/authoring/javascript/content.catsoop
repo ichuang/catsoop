@@ -1,0 +1,296 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+JavaScript can add small interactions, visualizations, or course-specific
+controls to a CAT-SOOP page.  A page can contain a `script` element directly,
+load a file from `__STATIC__`, or append script markup to `cs_scripts`.
+
+Use JavaScript to enhance a page, not to enforce permissions or perform
+trusted grading.  Everything sent to the browser can be viewed and modified by
+the user; authorization and protected state changes must remain on the server.
+
+<tableofcontents/>
+
+<catsoop-section>An Inline Script in Page Content</catsoop-section>
+
+For a short interaction used by one page, place the markup and script directly
+in `content.catsoop` or `content.md`:
+
+<pre><code class="language-html">
+&lt;button type="button" id="nm-reveal"&gt;Show explanation&lt;/button&gt;
+&lt;div id="nm-explanation" hidden&gt;
+  The method converges because each iteration reduces the residual.
+&lt;/div&gt;
+
+&lt;script&gt;
+(() =&gt; {
+  const button = document.getElementById("nm-reveal");
+  const explanation = document.getElementById("nm-explanation");
+
+  button.addEventListener("click", () =&gt; {
+    explanation.hidden = !explanation.hidden;
+    button.textContent = explanation.hidden
+      ? "Show explanation"
+      : "Hide explanation";
+  });
+})();
+&lt;/script&gt;
+</code></pre>
+
+The script appears after the elements it uses, so those elements already exist
+when the browser runs it.  Keep the opening and closing tags together and
+always use a full closing `</script>` tag.  In HTML, `script` is not a
+self-closing element.
+
+Direct scripts remain at their position in the page body.  This makes them
+convenient for a small, page-local enhancement.  Move longer code to a
+separate file so it can be syntax-checked, cached by the browser, and reused.
+
+<catsoop-section>Loading a JavaScript File</catsoop-section>
+
+Put the file below the page's `__STATIC__` directory:
+
+```text
+homework/
+└── hw01/
+    ├── content.catsoop
+    └── __STATIC__/
+        └── js/
+            └── convergence-controls.js
+```
+
+Then load it from the page:
+
+<pre><code class="language-html">
+&lt;script src="CURRENT/js/convergence-controls.js" defer&gt;&lt;/script&gt;
+</code></pre>
+
+`CURRENT` is rewritten relative to the current page.  A shared file in the
+course root can instead be stored at
+`COURSE_ROOT/__STATIC__/js/course-tools.js` and loaded with:
+
+<pre><code class="language-html">
+&lt;script src="COURSE/js/course-tools.js" defer&gt;&lt;/script&gt;
+</code></pre>
+
+See [Images and Other Static Content](COURSE/docs/authoring/static_content) for
+the complete `__STATIC__`, `CURRENT`, and `COURSE` rules.
+
+The `defer` attribute downloads an ordinary external script without blocking
+HTML parsing and runs it after the document has been parsed.  It is a good
+default for code that needs elements from the page body.
+
+A corresponding file might contain:
+
+```javascript
+document.addEventListener("DOMContentLoaded", () => {
+  const plot = document.getElementById("nm-convergence-plot");
+  if (!plot) return;
+
+  plot.addEventListener("click", () => {
+    plot.classList.toggle("nm-expanded");
+  });
+});
+```
+
+Checking for the element makes the file safe to include on a group of pages
+where only some pages contain that interaction.
+
+<catsoop-section>Adding Scripts With `cs_scripts`</catsoop-section>
+
+`cs_scripts` is a string of raw HTML that CAT-SOOP inserts into the document's
+`head` element.  Append to it in `preload.py` when every page below that
+preload should receive the same script:
+
+<pre><code class="language-python">
+cs_scripts += """
+&lt;script src="COURSE/js/course-tools.js" defer&gt;&lt;/script&gt;
+"""
+</code></pre>
+
+Use `+=`, not `=`, so that scripts inherited from parent `preload.py` files are
+preserved.  A course-root preload affects the whole course; a preload in
+`homework/hw01` affects that page and its descendants.
+
+In a page-specific preload, a `CURRENT` URL is also possible:
+
+<pre><code class="language-python">
+cs_scripts += """
+&lt;script src="CURRENT/js/convergence-controls.js" defer&gt;&lt;/script&gt;
+"""
+</code></pre>
+
+Remember that `CURRENT` is resolved against the page being rendered, not
+against the filesystem location of the `preload.py` file.  In an inherited
+preload, prefer a stable `COURSE/...` URL unless every descendant has the same
+relative static-file layout.
+
+Small inline setup can also be added to the head:
+
+<pre><code class="language-python">
+cs_scripts += """
+&lt;script&gt;
+document.addEventListener("DOMContentLoaded", () =&gt; {
+  document.querySelectorAll("[data-nm-confirm]").forEach((button) =&gt; {
+    button.addEventListener("click", (event) =&gt; {
+      if (!window.confirm(button.dataset.nmConfirm)) {
+        event.preventDefault();
+      }
+    });
+  });
+});
+&lt;/script&gt;
+"""
+</code></pre>
+
+Because `cs_scripts` is placed in the head, inline code that reads page-body
+elements should wait for `DOMContentLoaded`.  Do not assign
+`window.onload = ...`; use `addEventListener` so that CAT-SOOP and other course
+scripts can keep their own load listeners.
+
+The same `cs_scripts += ...` operation can be performed in a page Python block
+or a Python-generated page.  `preload.py` is preferable when the behavior is
+configuration shared by a page subtree.
+
+<catsoop-section>ES Modules</catsoop-section>
+
+Modern, self-contained code can use a module script:
+
+<pre><code class="language-html">
+&lt;script type="module" src="CURRENT/js/simulation.js"&gt;&lt;/script&gt;
+</code></pre>
+
+Module variables do not automatically become properties on `window`, which
+reduces accidental global-name conflicts.  Modules are deferred automatically
+and can import other modules:
+
+```javascript
+// __STATIC__/js/simulation.js
+import {stepModel} from "./model.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const output = document.getElementById("nm-output");
+  if (output) output.textContent = stepModel();
+});
+```
+
+Use relative module paths for files stored together.  If modules come from an
+external CDN, consider availability, version pinning, privacy, integrity, and
+the site's Content Security Policy before making the course depend on them.
+
+<catsoop-section>Libraries CAT-SOOP May Already Load</catsoop-section>
+
+The standard CAT-SOOP template establishes the global `catsoop` object and
+loads several built-in packages, including MathJax, syntax-highlighting code,
+diagram support, and dark-mode support.  The default question handler also
+loads its AJAX code.
+
+Question types can request additional scripts only when they are used.  In
+particular, a `pythoncode` question using its ACE interface adds CAT-SOOP's
+bundled `BASE/js/ace/ace.js` to the page head.
+
+RequireJS is not necessarily present on every CAT-SOOP page, but a custom
+question type, plugin, or course preload may add it.  Within `cs_scripts`,
+markup inherited from course preloads normally precedes headers later added by
+question types.  A RequireJS tag added in `preload.py` can therefore run before
+the ACE tag requested by a `pythoncode` question.
+
+Before adding a library:
+
+1. inspect the rendered page head or browser Network panel;
+2. search CAT-SOOP and the active course question types for the library;
+3. avoid loading a second copy or a different version;
+4. check which globals the library defines; and
+5. test a page containing all question types and plugins that will coexist
+   with the new script.
+
+Loading a second ACE build, for example, can replace the global `ace` object or
+change its module paths after `pythoncode` has configured it.  Editors may
+then fail only on pages that contain both the custom code and a `pythoncode`
+question.
+
+<catsoop-subsection>ACE and RequireJS</catsoop-subsection>
+
+ACE and RequireJS need particular care because both have historically used
+AMD-style global names such as `define` and `require`.  CAT-SOOP's bundled ACE
+contains its own packaged module loader and detects a global `requirejs`.
+Consequently:
+
+* loading RequireJS before ACE can change or prevent ACE's normal
+  initialization;
+* loading RequireJS after ACE can replace globals that ACE installed; and
+* adding another ACE distribution to compensate can leave two incompatible
+  copies on the same page.
+
+A page with both an AMD-based custom question type and a `pythoncode` editor
+therefore cannot assume that either load order is harmless.
+
+<div class="bs-callout bs-callout-warning">
+Do not add RequireJS or another ACE build globally in the course-root
+<code>preload.py</code> without testing every affected question type.  A
+conflict may appear only on pages that combine the two libraries, making it
+easy to miss during development.
+</div>
+
+If both are genuinely required:
+
+* limit the setup to the narrowest page-specific `preload.py`;
+* use versions and a no-conflict or namespaced build known to work together;
+* write the intended load order explicitly rather than relying on qtype order;
+* avoid changing `window.define`, `window.require`, `window.requirejs`, or
+  `window.ace` after initialization; and
+* test editor creation, submission, rerendering, and the other widget after
+  every CAT-SOOP or library upgrade.
+
+There is no universal preload snippet that makes arbitrary ACE and RequireJS
+versions compatible.  Prefer an ES module or a dependency with no AMD globals
+for new page-level code when that is an option.
+
+<catsoop-section>Avoiding Conflicts in Course Code</catsoop-section>
+
+Place course globals under a unique namespace rather than defining generic
+names such as `setup`, `state`, or `data`:
+
+```javascript
+window.numericalMethods = window.numericalMethods || {};
+
+window.numericalMethods.setupConvergence = function () {
+  // Course-specific setup.
+};
+```
+
+Do not add properties to CAT-SOOP's `catsoop` object unless an extension API
+explicitly calls for it.  Prefix DOM IDs and CSS classes as well—for example,
+`nm-convergence-plot` and `nm-expanded`—to avoid collisions with CAT-SOOP or a
+question type.
+
+Initialization should also be idempotent when possible:
+
+```javascript
+document.querySelectorAll("[data-nm-toggle]").forEach((element) => {
+  if (element.dataset.nmInitialized === "yes") return;
+  element.dataset.nmInitialized = "yes";
+  element.addEventListener("click", () => {
+    element.classList.toggle("nm-active");
+  });
+});
+```
+
+This matters on interactive question pages, where parts of a question can be
+rerendered after checking or submitting.
+
+<catsoop-section>Debugging</catsoop-section>
+
+When a script does not work:
+
+1. open the browser console and fix the first JavaScript error;
+2. check the Network panel for a 404 or blocked script;
+3. inspect the rendered `src` URL to confirm `CURRENT` or `COURSE` resolution;
+4. verify that the target element exists when initialization runs;
+5. look for duplicate script tags and global `define`, `require`, or `ace`
+   changes; and
+6. reproduce the issue on a minimal page with the same qtypes.
+
+Keep browser code free of secrets.  JavaScript source, embedded data, and
+values placed in the DOM are visible to every user who can load the page.
