@@ -1,0 +1,142 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+Most course pages combine explanatory text with a few CAT-SOOP tags for
+structure, reuse, computation, and questions.  The following example shows the
+main pieces:
+
+<pre><code class="language-nohighlight">
+&lt;python&gt;
+cs_content_header = "Homework 1"
+topic = "diffusion"
+&lt;/python&gt;
+
+This page introduces **\@{topic}** and then asks you to apply it.
+
+&lt;tableofcontents/&gt;
+
+&lt;catsoop-section&gt;Modeling the System&lt;/catsoop-section&gt;
+
+Ordinary prose can use Markdown, including lists, links, mathematics, and
+fenced code.
+
+&lt;include&gt;shared/modeling_note.md&lt;/include&gt;
+
+&lt;catsoop-subsection&gt;One Update Step&lt;/catsoop-subsection&gt;
+
+&lt;question pythonic&gt;
+csq_name = "one_step"
+csq_prompt = "Compute the value after one update."
+csq_soln = 0.25
+&lt;/question&gt;
+</code></pre>
+
+<tableofcontents/>
+
+<catsoop-section>Sections and Subsections</catsoop-section>
+
+Use:
+
+```html
+<catsoop-section>A Major Topic</catsoop-section>
+<catsoop-subsection>A Topic Within It</catsoop-subsection>
+```
+
+CAT-SOOP turns these tags into numbered headings, adds link targets, and
+includes them in `<tableofcontents/>`.  There is also
+`<catsoop-subsubsection>` for a third level.  Prefer these tags to handwritten
+`<h2>` and `<h3>` elements when the heading is part of the page's logical
+outline.
+
+`<tableofcontents/>` is optional.  Put it near the start of a longer page to
+insert links to the CAT-SOOP section headings found later in the page.
+
+<catsoop-section>Including Shared Source</catsoop-section>
+
+`<include>` replaces the tag with one or more files before the rest of the page
+is processed:
+
+<pre><code class="language-html">
+&lt;include&gt;shared/introduction.md&lt;/include&gt;
+</code></pre>
+
+Paths are relative to the directory containing the current page source.  An
+include can name a Markdown, HTML, or CAT-SOOP fragment; the included text is
+processed as part of the surrounding page.  The file must remain inside the
+course directory.
+
+Several files can be included in order, one per line:
+
+<pre><code class="language-html">
+&lt;include&gt;
+shared/setup.md
+shared/example.html
+&lt;/include&gt;
+</code></pre>
+
+Includes are useful for instructions, feedback questions, figures, or policy
+text reused across several pages.  Keep a complete page in `content.*`; use
+included files as fragments rather than pages with their own `preload.py`.
+
+<catsoop-section>Running Page Python</catsoop-section>
+
+A `<python>` block executes trusted server-side Python while CAT-SOOP builds
+the page:
+
+<pre><code class="language-nohighlight">
+&lt;python&gt;
+import math
+
+radius = 3
+area = math.pi * radius**2
+print("&lt;p&gt;The area is %.2f.&lt;/p&gt;" % area)
+&lt;/python&gt;
+</code></pre>
+
+Printed text is inserted at the location of the tag.  Variables assigned in
+one Python block remain in the page context and can be used by later Python or
+question blocks.  The short form `\@{expression}` prints one expression inside
+the surrounding text.
+
+Page Python runs in the CAT-SOOP server process, not in a student sandbox.  It
+is appropriate for selecting or generating content, but it must never execute
+student-submitted code or interpolate unescaped request data into HTML.
+
+<catsoop-section>Adding Questions</catsoop-section>
+
+A question block names a qtype and contains Python settings for one question:
+
+<pre><code class="language-nohighlight">
+&lt;question multiplechoice&gt;
+csq_name = "storage_choice"
+csq_prompt = "Which structure supports fast lookup?"
+csq_options = ["List", "Dictionary", "Tuple"]
+csq_soln = "Dictionary"
+&lt;/question&gt;
+</code></pre>
+
+The qtype after `<question` determines which settings are available and how the
+answer is rendered and graded.  Give every important question a stable,
+page-unique `csq_name`; CAT-SOOP uses it when storing submissions and scores.
+
+Question settings are Python, so they can use values and helper functions
+defined by `preload.py` or an earlier `<python>` block.  The question block
+itself does not display ordinary prose outside its `csq_prompt` and other
+qtype-specific fields.
+
+<catsoop-section>Processing Order</catsoop-section>
+
+For a `.catsoop` or `.md` page, the practical order is:
+
+1. parent and page `preload.py` files establish the context;
+2. the authenticated user's course information is loaded;
+3. `<include>` files are inserted;
+4. `<python>` blocks and `\@{...}` expressions run in source order;
+5. Markdown and HTML are converted into page markup;
+6. `<question>` blocks become interactive CAT-SOOP questions;
+7. the page handler records or displays the resulting content.
+
+The separate [Page Rendering and Request Data](COURSE/docs/authoring/rendering)
+guide explains this model, mixed Markdown/HTML behavior, and `cs_form` in more
+detail.

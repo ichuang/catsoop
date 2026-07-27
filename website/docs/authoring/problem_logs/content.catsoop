@@ -1,0 +1,221 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+For a normal question page, CAT-SOOP stores student activity in logs associated
+with the student's username and the page path.  It also maintains a separate,
+course-wide cache describing the questions on each page.  Progress reports and
+grading tools commonly combine both kinds of data.
+
+<tableofcontents/>
+
+<catsoop-section>Where Problem Logs Are Stored</catsoop-section>
+
+For user `ada` and page
+`["numerical_methods", "homework", "hw01"]`, the principal files are:
+
+```text
+CS_DATA_ROOT/_logs/_courses/numerical_methods/ada/homework/hw01/
+├── problemactions.log
+├── problemstate.log
+└── problemgrades.log       # present when manual grades have been recorded
+```
+
+The same logical records can be read without relying on their physical
+filenames:
+
+```python
+user = "ada"
+path = ["numerical_methods", "homework", "hw01"]
+
+actions = csm_cslog.read_log(user, path, "problemactions")
+state = csm_cslog.most_recent(user, path, "problemstate", {})
+manual_grades = csm_cslog.read_log(user, path, "problemgrades")
+```
+
+Encrypted installations use opaque physical names, but these logical calls are
+unchanged.
+
+<catsoop-section>`problemactions`: The Activity History</catsoop-section>
+
+`problemactions` is an append-only history.  CAT-SOOP adds an entry when a
+student checks, saves, submits, reverts, views an answer, locks a question, or
+performs another recorded problem action.  A typical entry includes an action
+name, CAT-SOOP timestamp, user information, affected question names, and
+action-specific fields such as submitted values, responses, scores, due date,
+or asynchronous checker IDs.
+
+```python
+actions = csm_cslog.read_log(
+    "ada",
+    ["numerical_methods", "homework", "hw01"],
+    "problemactions",
+)
+
+for entry in actions:
+    print(entry["timestamp"], entry["action"], entry.get("names", []))
+```
+
+The exact keys vary by action, question type, and CAT-SOOP version.  Analysis
+code should use `.get(...)` for optional fields rather than assuming that
+every action looks like a submission.
+
+Because `problemactions` retains the sequence of events, use it for audits,
+attempt histories, and analyses that ask *what happened over time*.  It is
+usually not the simplest source for the page's current score.
+
+<catsoop-section>`problemstate`: The Current Snapshot</catsoop-section>
+
+`problemstate` is the latest state needed to render and grade the page.  In
+normal operation CAT-SOOP overwrites it with a single updated snapshot rather
+than appending an audit entry for every action.  Depending on the questions and
+actions involved, the state may contain:
+
+* the most recent saved, checked, or submitted inputs;
+* per-question scores and score displays;
+* cached grader responses and extra grading data;
+* last-action and timestamp information;
+* submission counts;
+* questions whose answers or explanations were viewed;
+* locked questions; and
+* IDs and cached results associated with asynchronous checking.
+
+Read it with `most_recent`:
+
+```python
+state = csm_cslog.most_recent(
+    "ada",
+    ["numerical_methods", "homework", "hw01"],
+    "problemstate",
+    {},
+)
+scores = state.get("scores", {})
+```
+
+Use `problemstate` when a report asks *what is true now*.  Deleting it resets
+CAT-SOOP's remembered state for that user on that page; it is not a harmless
+cache-clearing operation.
+
+`problemgrades` is a separate append-only log of manual grading entries.
+Course code generally should not infer manual grades from `problemactions`
+when the dedicated log is available.
+
+<catsoop-section>The `_question_info` Cache</catsoop-section>
+
+Student state does not by itself say which questions currently exist on a
+page, how many points they are worth, or how they should be displayed.
+CAT-SOOP therefore caches page-level question metadata in the special
+`_question_info` database:
+
+```text
+CS_DATA_ROOT/_logs/_courses/numerical_methods/_question_info/homework/hw01/question_info.log
+```
+
+The logical lookup is:
+
+```python
+path = ["numerical_methods", "homework", "hw01"]
+info = csm_cslog.most_recent(
+    "_question_info", path, "question_info", None
+)
+```
+
+Its newest entry contains a timestamp and a `questions` mapping.  For each
+question, that mapping records information such as the stable question name,
+display name, point value, question type, grading mode, prompt, and any extra
+metadata fields requested by the question type.
+
+This is course-page metadata shared across users, not the state of a user named
+`_question_info`.  `catsoop.tutor.compute_page_stats(...)` uses it as a fast
+path when only question information and logs are requested.  Progress pages
+can therefore compute totals without fully rendering every problem page for
+every student.
+
+<catsoop-subsection>When the Cache Becomes Stale</catsoop-subsection>
+
+CAT-SOOP rebuilds this cache when it loads a question page and determines that
+the page source is newer than the cached timestamp.  A cache can remain stale
+when question names, point values, grading modes, or other metadata change
+indirectly—for example in an inherited `preload.py`, an included file, a custom
+question type, or after copying/restoring course files without useful
+modification times.
+
+Symptoms often appear first on a class progress page: a question can be
+missing, retain an old point value or name, or fail to match the student's
+grading state.  If the live problem page is correct but progress or grading
+reports are not, inspect `_question_info` before changing student logs.
+
+<catsoop-subsection>Rebuilding `_question_info` Safely</catsoop-subsection>
+
+Delete only the affected page's `question_info` log:
+
+```python
+path = ["numerical_methods", "homework", "hw01"]
+csm_cslog.delete_log("_question_info", path, "question_info")
+```
+
+For a standalone administrative script, import `catsoop.cslog` with the
+production configuration environment loaded, as described in
+[Reading CAT-SOOP Logs](CURRENT/../logs):
+
+```python
+from catsoop import cslog
+
+path = ["numerical_methods", "homework", "hw01"]
+cslog.delete_log("_question_info", path, "question_info")
+```
+
+Then load the affected question page once.  CAT-SOOP will recreate the cache
+from the current page definition; reload the progress page afterward.
+
+<div class="bs-callout bs-callout-warning">
+Back up the file before manual filesystem work, and verify the course and page
+path carefully.  Delete the page's <code>_question_info/.../question_info.log</code>,
+not a student's <code>problemstate.log</code> or
+<code>problemactions.log</code>.  The latter contain student work and are not
+rebuildable metadata caches.
+</div>
+
+Using `csm_cslog.delete_log(...)` is preferable to constructing the physical
+path because it respects the installation's filename transformation when log
+encryption is enabled.
+
+<catsoop-section>`_checker` and Other Related Data</catsoop-section>
+
+When a question uses asynchronous grading, CAT-SOOP places serialized jobs and
+results below:
+
+```text
+CS_DATA_ROOT/_logs/_checker/
+├── staging/
+├── queued/
+├── running/
+└── results/
+```
+
+The checker moves a job through those directories, writes the result under a
+generated ID, and updates `problemstate` with the score, response, and related
+data.  These files are operational queue data rather than ordinary framed
+per-user `.log` files.  Do not edit or move them while checker processes are
+running.  A checker ID in `problemactions` or `problemstate` can help correlate
+a student action with a result.
+
+Uploaded responses may refer to content stored below `_logs/_uploads` instead
+of embedding all bytes in `problemstate`.  Sessions, login records, API tokens,
+random seeds, group data, and course-specific extensions may also use the log
+API.  Their schemas and retention rules differ, so inspect the producing code
+before building reports or cleanup jobs around them.
+
+For the standard problem data together, use:
+
+```python
+stats = csm_tutor.compute_page_stats(
+    context,
+    "ada",
+    ["numerical_methods", "homework", "hw01"],
+    keys=["question_info", "state", "actions", "manual_grades"],
+)
+```
+
+This returns cached question metadata, the latest `problemstate`, all
+`problemactions`, and manual grade entries in one structure.

@@ -55,6 +55,74 @@ Course-specific user records can be placed in `__USERS__`; custom qtypes and
 plugins use other specially named directories such as `__QTYPES__` and
 `__PLUGINS__`.
 
+<catsoop-section>Choosing a Page Source File</catsoop-section>
+
+CAT-SOOP recognizes four page-source extensions:
+
+* **`.catsoop`** is Markdown plus CAT-SOOP tags such as `<question>` and
+  `<python>`.  `content.catsoop` is the clearest default for an ordinary course
+  page because its name tells editors and readers that the file contains more
+  than plain Markdown.
+* **`.md`** is processed in the same way as `.catsoop`.  Use `content.md` when
+  Markdown-oriented editing, preview, or repository tooling is more useful
+  than the CAT-SOOP-specific extension.
+* **`.xml`** skips Markdown conversion and treats the source as HTML/XML-like
+  CAT-SOOP markup.  Use `content.xml` for a page intentionally written as raw
+  HTML with CAT-SOOP tags.
+* **`.py`** is executed as a Python page program.  It builds the page by
+  printing HTML or by setting CAT-SOOP context variables.  Use it for a highly
+  dynamic page or a small request-driven endpoint, not for prose that would be
+  clearer as Markdown.
+
+A directory page uses one of these conventional filenames:
+
+```text
+topic/
+├── preload.py
+└── content.catsoop
+```
+
+`content.md`, `content.xml`, or `content.py` can replace `content.catsoop`.
+Keep only one `content.*` source in a directory so it is unambiguous which
+format defines the page.
+
+CAT-SOOP also recognizes a source file itself as a page.  For example:
+
+```text
+numerical_methods/
+├── preload.py
+├── content.catsoop
+├── page.md
+└── program.py
+```
+
+This creates `/numerical_methods/page` from `page.md` and
+`/numerical_methods/program` from `program.py`; the extension is omitted from
+the URL.  A single-file page can likewise use `.catsoop` or `.xml`.
+
+Use a single file such as `page.md` for a small leaf page that needs no
+local configuration or assets.  Use a directory with `content.*` when the page
+needs its own `preload.py`, `__STATIC__` files, or child pages.  A single-file
+page inherits the `preload.py` files from its containing directory, but it
+cannot have a preload belonging only to that file.
+
+A Python page is ordinary server-side Python.  CAT-SOOP captures `print`
+output as page content:
+
+```python
+# program.py
+print("<h2>Course status</h2>")
+
+if cs_form.get("detail") == "full":
+    print("<p>Displaying the full status report.</p>")
+else:
+    print("<p>Displaying the summary.</p>")
+```
+
+Python-page output is HTML, not Markdown.  Since the whole file is executable,
+reserve `.py` pages for cases where request handling or programmatic generation
+is the main purpose of the page.
+
 <catsoop-section>What preload.py Does</catsoop-section>
 
 `preload.py` contains ordinary Python that configures a course or page.

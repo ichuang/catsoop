@@ -1,0 +1,175 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+CAT-SOOP stores most persistent activity as **logs** under the configured data
+directory.  At the Python level, a log is a sequence of Python objects.  Each
+log is identified by three values:
+
+* a database name, usually a username;
+* a page path, represented as a list beginning with the course name; and
+* a log name, such as `problemstate` or `problemactions`.
+
+Use CAT-SOOP's log tools to read these files.  They are not JSON or text files,
+even when a text editor happens to show fragments of readable strings.
+
+<tableofcontents/>
+
+<catsoop-section>Filesystem Layout</catsoop-section>
+
+Suppose:
+
+```python
+db_name = "ada"
+path = ["numerical_methods", "homework", "hw01"]
+logname = "problemactions"
+```
+
+With filesystem-backed logging, the corresponding file is:
+
+```text
+CS_DATA_ROOT/
+└── _logs/
+    └── _courses/
+        └── numerical_methods/
+            └── ada/
+                └── homework/
+                    └── hw01/
+                        └── problemactions.log
+```
+
+In general, a course-page log is stored at:
+
+```text
+CS_DATA_ROOT/_logs/_courses/COURSE/DB_NAME/PAGE/PATH/LOGNAME.log
+```
+
+The first path component becomes the course directory.  The remaining page
+components follow the database name.  Logs whose logical path is empty are
+instead stored at:
+
+```text
+CS_DATA_ROOT/_logs/DB_NAME/LOGNAME.log
+```
+
+Several special areas also live below `_logs`.  `_sessions` contains session
+records, `_uploads` contains content-addressed uploaded-file data and metadata,
+and `_checker` contains work and results for asynchronous grading.  These
+special areas do not all use the framed `.log` format described below.
+
+If log encryption is enabled, CAT-SOOP also transforms logical database names,
+path components, and log names into opaque names.  In that case, do not try to
+construct a physical pathname yourself.  Use `csm_cslog.get_log_filename(...)`
+or another `csm_cslog` operation with the logical names.
+
+<catsoop-section>The Binary Log Format</catsoop-section>
+
+Each `.log` file contains one or more framed entries.  An entry consists of:
+
+1. an eight-byte little-endian length;
+2. a binary Python pickle, optionally compressed and/or encrypted; and
+3. the same eight-byte length again.
+
+CAT-SOOP currently serializes objects with pickle protocol 5.  If
+`cs_log_compression` is enabled, it applies LZMA compression.  If the
+installation uses `CATSOOP_PASSPHRASE`, it also encrypts the serialized data.
+The correct configuration, compression setting, passphrase, and encryption
+salt are therefore needed to decode a production log.
+
+<div class="bs-callout bs-callout-warning">
+<b>Do not use <code>pickle.load()</code> directly.</b>  It does not understand
+CAT-SOOP's framing, compression, or encryption.  Python pickle data can also
+execute code while being decoded, so only inspect logs from a CAT-SOOP
+installation you trust.
+</div>
+
+<catsoop-section>Reading a Log From the Command Line</catsoop-section>
+
+`catsoop logread` decodes every entry and prints a human-readable Python
+representation.  A log can be named logically:
+
+```sh
+CATSOOP_CONFIG=/etc/catsoop/config.py \
+    catsoop logread ada numerical_methods/homework/hw01 problemactions
+```
+
+or by its physical filename:
+
+```sh
+CATSOOP_CONFIG=/etc/catsoop/config.py \
+    catsoop logread \
+    /srv/catsoop-data/_logs/_courses/numerical_methods/ada/homework/hw01/problemactions.log
+```
+
+Set `CATSOOP_CONFIG` before starting the command so that CAT-SOOP loads the
+configuration for the installation containing the log.  If that installation
+encrypts logs, also set `CATSOOP_PASSPHRASE` in the command's environment.
+Avoid putting a production passphrase directly into shell history; use the
+same protected environment mechanism used by the server.
+
+The output is plain, pretty-printed Python data and can be redirected to a text
+file for analysis:
+
+```sh
+CATSOOP_CONFIG=/etc/catsoop/config.py \
+    catsoop logread ada numerical_methods/homework/hw01 problemactions \
+    > ada-hw01-actions.txt
+```
+
+`catsoop logedit` and `catsoop logwrite` also exist, but both write back to the
+live log.  Use them only with a backup and a clear recovery plan.
+
+<catsoop-section>Reading Logs With `csm_cslog`</catsoop-section>
+
+On a course page or in `preload.py`, CAT-SOOP exposes its loaded logging module
+as `csm_cslog`.  The main read operations are:
+
+```python
+path = ["numerical_methods", "homework", "hw01"]
+
+# All entries, in chronological order.
+actions = csm_cslog.read_log("ada", path, "problemactions")
+
+# Only the newest entry, or {} when the log does not exist.
+state = csm_cslog.most_recent("ada", path, "problemstate", {})
+
+# The physical file used by the filesystem backend.
+filename = csm_cslog.get_log_filename("ada", path, "problemstate")
+```
+
+Useful write operations include:
+
+```python
+csm_cslog.update_log(db_name, path, logname, new_entry)
+csm_cslog.overwrite_log(db_name, path, logname, replacement)
+csm_cslog.delete_log(db_name, path, logname)
+```
+
+`update_log` appends an object.  `overwrite_log` replaces the entire sequence
+with one object.  `delete_log` removes the log.  These operations use CAT-SOOP
+file locks, but they are still persistent changes; course reporting code
+should normally be read-only.
+
+Outside a CAT-SOOP request, import the module after arranging for the same
+configuration environment as the server:
+
+```python
+# Run this program with CATSOOP_CONFIG set before Python starts.
+from pprint import pprint
+from catsoop import cslog
+
+path = ["numerical_methods", "homework", "hw01"]
+entries = cslog.read_log("ada", path, "problemactions")
+pprint(entries)
+```
+
+For encrypted installations, `CATSOOP_PASSPHRASE` must likewise be present
+before `catsoop.cslog` is imported.
+
+<catsoop-section>Choosing an Access Method</catsoop-section>
+
+Use `catsoop logread` for one-off inspection or conversion to plain text.  Use
+`csm_cslog` in course reports and administrative pages that need structured
+Python values.  Use `catsoop.tutor.compute_page_stats(...)` when a report needs
+the standard combination of question metadata, current state, action history,
+and manual grades; the next page explains those problem-specific records.

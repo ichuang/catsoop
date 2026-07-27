@@ -1,0 +1,154 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+CAT-SOOP pages are rendered on the server for each request.  The page source is
+not sent directly to the browser: CAT-SOOP combines configuration, user
+information, request values, source markup, and questions to produce the final
+HTML response.
+
+<tableofcontents/>
+
+<catsoop-section>The Rendering Pipeline</catsoop-section>
+
+For a normal course page, CAT-SOOP:
+
+1. resolves the URL to a directory `content.*` file or a single-file page;
+2. gathers URL query arguments and POST fields into `cs_form`;
+3. runs inherited `preload.py` files from the course root down to the page;
+4. authenticates the visitor and loads their course user information;
+5. loads the page source and expands `<include>` tags;
+6. runs `<python>` blocks and `\@{...}` expressions;
+7. converts Markdown when the source is `.catsoop` or `.md`;
+8. creates the questions described by `<question>` blocks;
+9. runs the selected page handler and wraps the result in the site template.
+
+This means page Python can use values from `preload.py`, `cs_user_info`, and
+`cs_form`.  It also means changing request-dependent Python can change the
+questions or prose produced for that request, so question names and grading
+behavior should remain stable.
+
+<catsoop-section>Mixing Markdown and HTML</catsoop-section>
+
+`.catsoop` and `.md` pages accept ordinary Markdown and raw HTML in the same
+file:
+
+```html
+## A Markdown heading
+
+This is a Markdown paragraph with **emphasis**.
+
+<div class="bs-callout bs-callout-info">
+<b>This portion is HTML.</b><br>
+It can use CSS classes and elements that Markdown does not express directly.
+</div>
+```
+
+Use Markdown for ordinary prose, lists, links, and code blocks.  Use HTML for
+layout or components that genuinely need elements, attributes, or course CSS.
+Keeping most prose in Markdown generally makes the source easier to read and
+maintain.
+
+<catsoop-subsection>The Blank-Line Gotcha</catsoop-subsection>
+
+Markdown treats a run of raw HTML as an HTML block.  A blank line inside that
+block can end the raw-HTML portion and cause the following lines to be parsed
+as Markdown.  The result may contain unexpected `<p>` elements or a layout
+different from what the source indentation suggests.
+
+For predictable raw HTML, do not put empty lines inside one HTML block:
+
+```html
+<div class="notice">
+<p>First paragraph.</p>
+<p>Second paragraph.</p>
+</div>
+```
+
+This is less predictable because of the empty line:
+
+```html
+<div class="notice">
+First paragraph.
+
+Second paragraph.
+</div>
+```
+
+If the contents should be Markdown, put a blank line immediately after an
+opening `<div>`:
+
+```html
+<div class="notice">
+
+**Important:** this content is intentionally parsed as Markdown.
+
+</div>
+```
+
+CAT-SOOP recognizes that form and enables Markdown processing inside the
+`<div>`.  Whichever mode you intend, be deliberate: compact raw HTML contains
+no empty lines, while a Markdown-containing `<div>` starts with one.
+
+<catsoop-section>Request Values in cs_form</catsoop-section>
+
+`cs_form` is a dictionary available to page and handler Python.  It combines:
+
+* arguments from the URL query string, such as `?view=summary`;
+* fields from a POST request, such as an HTML form submission or an AJAX call.
+
+For a request such as:
+
+```text
+/numerical_methods/status?view=summary
+```
+
+page code can read:
+
+```python
+view = cs_form.get("view", "summary")
+```
+
+If a POST request also sends `student=ada`, the same request context exposes:
+
+```python
+cs_form["view"]       # "summary", from the URL
+cs_form["student"]    # "ada", from the POST body
+```
+
+Values are normally strings.  Uploaded files may be represented as bytes, and
+when the same field is repeated CAT-SOOP keeps one value, so do not use repeated
+keys as a list protocol.  Avoid using the same key in both the query string and
+POST body; the collision is ambiguous to course code.
+
+`cs_qstring` is also available when code specifically needs the parsed query
+string rather than the combined form.  Its values are lists, following
+`urllib.parse.parse_qs`.
+
+<catsoop-subsection>Using Request Data Safely</catsoop-subsection>
+
+Everything in `cs_form` is supplied by a browser or API client and is
+untrusted.  Validate types and allowed values before using it:
+
+```python
+allowed_views = {"summary", "full"}
+view = cs_form.get("view", "summary")
+if view not in allowed_views:
+    view = "summary"
+```
+
+Escape a request value before inserting it into HTML:
+
+<pre><code class="language-nohighlight">
+&lt;python&gt;
+import html
+
+label = html.escape(cs_form.get("label", "Untitled"))
+print("&lt;p&gt;%s&lt;/p&gt;" % label)
+&lt;/python&gt;
+</code></pre>
+
+Do not pass `cs_form` values to `eval`, `exec`, a shell command, or a file path
+without strict validation.  Question-answer POSTs are handled by the qtype and
+page handler; ordinary page code should not attempt to reproduce CAT-SOOP's
+grading protocol.

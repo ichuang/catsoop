@@ -11,6 +11,10 @@ source files.
 
 * [Creating New Pages](CURRENT/pages) explains the course directory tree,
   `content.catsoop`, inherited `preload.py` settings, roles, and page dates.
+* [Structure of a Course Page](CURRENT/page_structure) describes sections,
+  subsections, includes, page Python, and questions.
+* [Page Rendering and Request Data](CURRENT/rendering) explains mixed Markdown
+  and HTML, the rendering pipeline, and request values in `cs_form`.
 * [Defining Course Users](CURRENT/users) explains `__USERS__`, per-user Python
   files, roles, sections, identity fields, and other user metadata.
 
@@ -31,4 +35,8 @@ types:
 
 <catsoop-section>Extracting Information From CAT-SOOP's Logs</catsoop-section>
 
-@{todo}
+* [Reading CAT-SOOP Logs](CURRENT/logs) describes the on-disk layout, binary
+  representation, command-line tools, and the `csm_cslog` Python API.
+* [Problem Logs and Question Metadata](CURRENT/problem_logs) explains
+  `problemactions`, `problemstate`, `_question_info`, asynchronous checker
+  data, and how these records are used by course progress pages.
