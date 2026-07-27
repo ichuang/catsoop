@@ -1,0 +1,268 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+Images, PDF handouts, data files, stylesheets, scripts, and other files that
+CAT-SOOP should deliver without processing belong in a directory named
+`__STATIC__`.  Page source refers to them with logical URLs such as
+`CURRENT/plot.png` or `COURSE/images/logo.svg`; CAT-SOOP rewrites those URLs to
+the appropriate page or static-file address.
+
+<tableofcontents/>
+
+<catsoop-section>Organizing Static Files</catsoop-section>
+
+A course can have static files at its root and alongside individual page
+directories:
+
+```text
+numerical_methods/
+├── preload.py
+├── content.catsoop
+├── __STATIC__/
+│   ├── images/
+│   │   └── course-logo.svg
+│   └── handouts/
+│       └── syllabus.pdf
+└── homework/
+    └── hw01/
+        ├── content.catsoop
+        └── __STATIC__/
+            ├── convergence.png
+            ├── starter.py
+            └── data/
+                └── measurements.csv
+```
+
+The root `__STATIC__` directory is useful for course-wide assets.  A page's
+own `__STATIC__` directory keeps figures, downloads, and supporting files next
+to the source that uses them.  Static subdirectories such as `images` and
+`data` can be nested as deeply as needed.
+
+Do not place an image directly beside `content.catsoop`:
+
+```text
+hw01/
+├── content.catsoop
+└── convergence.png        # wrong location
+```
+
+Move it into `hw01/__STATIC__/convergence.png`.  CAT-SOOP treats files outside
+`__STATIC__` as course source or support files, not as public static content.
+
+When resolving a course static URL, CAT-SOOP looks for the closest applicable
+`__STATIC__` directory along that URL's page path.  This lets pages use nearby
+assets while a course-level `__STATIC__` holds shared assets.  Be aware that a
+nearer `__STATIC__` directory takes precedence; creating one can shadow the
+ancestor location for that path.
+
+<div class="bs-callout bs-callout-warning">
+<b>Static files are public resources.</b>  CAT-SOOP handles requests under
+<code>/_static/</code> before loading the course page or authenticating the
+visitor.  Do not put solutions, private student data, credentials, or anything
+else access-controlled in <code>__STATIC__</code>.
+</div>
+
+<catsoop-section>Images in Markdown</catsoop-section>
+
+On the `homework/hw01` page in the tree above, Markdown can display the
+page-local image with `CURRENT`:
+
+```markdown
+![Convergence of the iterative method](CURRENT/convergence.png)
+```
+
+The text in square brackets becomes the image's alternative text.  Write a
+short description that conveys the figure's purpose rather than repeating a
+caption word for word.
+
+The same page can use a course-wide image with `COURSE`:
+
+```markdown
+![Numerical Methods course logo](COURSE/images/course-logo.svg)
+```
+
+Images can also be links.  This example displays a thumbnail and links it to
+the full-size image:
+
+```markdown
+[![Convergence plot](CURRENT/convergence-small.png)](CURRENT/convergence.png)
+```
+
+Standard external URLs continue to work and are not changed:
+
+```markdown
+![Organization logo](https://example.edu/assets/logo.svg)
+```
+
+<catsoop-section>Images With HTML</catsoop-section>
+
+Use an HTML `<img>` element when you need attributes that Markdown does not
+conveniently express, such as a width, CSS class, or lazy loading:
+
+```html
+<img src="CURRENT/convergence.png"
+     alt="Error falls rapidly for ten iterations and then levels off"
+     width="720"
+     loading="lazy">
+```
+
+A responsive image can be written as:
+
+```html
+<figure>
+  <img src="COURSE/images/course-logo.svg"
+       alt="Numerical Methods"
+       style="max-width: 100%; height: auto;">
+  <figcaption>The logo shared by every page in the course.</figcaption>
+</figure>
+```
+
+CAT-SOOP rewrites the `src` attribute after it has converted Markdown and
+processed the page's custom tags.  This is why the same special prefixes work
+in both Markdown-generated images and literal HTML.
+
+As described in [Page Rendering and Request Data](COURSE/docs/authoring/rendering),
+avoid blank lines inside a raw HTML block.  A blank line can make the Markdown
+parser end the HTML block earlier than intended.
+
+<catsoop-section>Downloads and Other Assets</catsoop-section>
+
+Use an ordinary Markdown link for a downloadable file:
+
+```markdown
+Download the [starter program](CURRENT/starter.py) and the
+[measurement data](CURRENT/data/measurements.csv).
+
+Read the [course syllabus](COURSE/handouts/syllabus.pdf).
+```
+
+The equivalent raw HTML is:
+
+```html
+<a href="CURRENT/data/measurements.csv" download>
+  Download the measurements as CSV
+</a>
+```
+
+The `download` attribute asks the browser to save the resource rather than
+navigate to it.  Browser behavior can still depend on the file type and
+browser settings.
+
+Linked CSS files use the same rewriting mechanism:
+
+```html
+<link rel="stylesheet" href="COURSE/css/course-figures.css">
+```
+
+CAT-SOOP rewrites URLs in `href` attributes on links and stylesheets, and in
+`src` attributes on images and scripts.  It does not rewrite arbitrary text
+or a URL inside a CSS `style` attribute.  For example,
+`style="background-image: url(CURRENT/background.png)"` does not receive this
+special handling; prefer an `<img>` element, a linked stylesheet, or a URL
+generated explicitly in page Python.
+
+<catsoop-section>Special URL Prefixes</catsoop-section>
+
+The principal prefixes available to course authors are:
+
+<table class="table table-striped">
+<thead><tr><th>Prefix</th><th>Starting point</th><th>Typical use</th></tr></thead>
+<tbody>
+<tr><td><code>CURRENT</code></td><td>The directory containing the current page</td><td>Page-local images, downloads, child pages, and nearby resources</td></tr>
+<tr><td><code>COURSE</code></td><td>The current course's root directory</td><td>Shared course assets and links that should work from every page</td></tr>
+<tr><td><code>BASE</code></td><td>The CAT-SOOP installation</td><td>Built-in CAT-SOOP assets and utility pages</td></tr>
+</tbody>
+</table>
+
+For a directory page, `CURRENT` starts at the directory holding
+`content.catsoop`.  For a single-file page such as `homework/overview.md`, it
+starts at the containing `homework` directory.
+
+For example, on `/numerical_methods/homework/hw01`:
+
+```markdown
+[A child page](CURRENT/extensions)
+[Homework 2](CURRENT/../hw02)
+[Course calendar](COURSE/calendar)
+[CAT-SOOP license](BASE/_util/license)
+```
+
+CAT-SOOP first checks whether a `CURRENT` or `COURSE` target is a dynamic page.
+If it is, the rewritten URL points to that page.  Otherwise the rewritten URL
+points below `/_static/`, where CAT-SOOP looks in the relevant `__STATIC__`
+directory.  Thus the author uses the same logical form for page links and
+static resources:
+
+```markdown
+[Homework 2 page](COURSE/homework/hw02)
+![Homework 2 diagram](COURSE/homework/hw02/diagram.png)
+```
+
+Query strings and fragments are retained during rewriting:
+
+```markdown
+[Filtered results](CURRENT/report?section=lab#results)
+[Week 2 on the calendar](COURSE/calendar?week=2#monday)
+```
+
+Use `CURRENT` when the relationship should move with the page directory.  Use
+`COURSE` when the target has a stable course-root location.  Use `BASE`
+sparingly in course content because it couples the course to resources
+provided by a particular CAT-SOOP installation.
+
+<catsoop-subsection>Extension Prefixes</catsoop-subsection>
+
+CAT-SOOP also recognizes `_qtype`, `_handler`, `_auth`, and `_plugin` as
+static-resource prefixes.  They address files in an installed question type,
+page handler, authentication module, or plugin.  For example, a question type
+implementation might load:
+
+```html
+<img src="_qtype/custom_graph/icon.svg"
+     alt="Custom graph question">
+```
+
+These prefixes are mainly for extension developers.  Ordinary course content
+should normally use `CURRENT` or `COURSE`; a course should not depend on an
+extension's private assets unless that extension documents them as a supported
+interface.
+
+<catsoop-section>What the Browser Receives</catsoop-section>
+
+Assume `cs_url_root` is `https://catsoop.example` and the current page is
+`/numerical_methods/homework/hw01`.  Conceptually, CAT-SOOP rewrites:
+
+```text
+CURRENT/convergence.png
+    → https://catsoop.example/_static/numerical_methods/homework/hw01/convergence.png
+
+COURSE/images/course-logo.svg
+    → https://catsoop.example/_static/numerical_methods/images/course-logo.svg
+
+COURSE/homework/hw02
+    → https://catsoop.example/numerical_methods/homework/hw02
+
+BASE/js/ace/ace.js
+    → https://catsoop.example/_static/_base/js/ace/ace.js
+```
+
+The exact leading URL can differ when CAT-SOOP is mounted below another path
+or configured as a single-course site.  That is the reason to keep
+`CURRENT`, `COURSE`, and `BASE` in source instead of hard-coding deployment
+URLs.
+
+<catsoop-section>Troubleshooting</catsoop-section>
+
+If an image or download returns 404:
+
+1. confirm that the file is inside the intended `__STATIC__` directory;
+2. check capitalization—production servers commonly use case-sensitive
+   filenames;
+3. interpret `CURRENT` from the page's directory, not from the course root;
+4. try `COURSE/path/from/course/root` for a shared file;
+5. inspect the rendered element in the browser to see the rewritten URL; and
+6. check whether a nearer `__STATIC__` directory is shadowing an ancestor.
+
+Keep filenames URL-friendly.  Lowercase names with hyphens or underscores
+avoid quoting and case problems across browsers and operating systems.

@@ -1,0 +1,405 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+Most CAT-SOOP course pages should use `content.catsoop` or `content.md`.
+Sometimes, however, the response itself is primarily programmatic: a report
+depends on request arguments, a URL should redirect elsewhere, or the page
+needs to return JSON, CSV, or another non-page format.  A `content.py` page is
+useful for these cases.
+
+`content.py` is trusted server-side Python.  It runs with the CAT-SOOP page
+context as its global namespace and can print HTML, inspect request and user
+data, call CAT-SOOP modules, or select a different response handler.
+
+<tableofcontents/>
+
+<catsoop-section>Creating a Python Page</catsoop-section>
+
+A directory page can use `content.py` in place of `content.catsoop`:
+
+```text
+numerical_methods/
+└── reports/
+    ├── preload.py
+    └── content.py
+```
+
+Alternatively, a single file such as `status.py` creates a page named
+`status` in its containing directory.
+
+A minimal Python page prints HTML:
+
+```python
+import html
+
+name = cs_form.get("name", "visitor")
+
+print("<h2>Current status</h2>")
+print("<p>Hello, %s.</p>" % html.escape(name))
+```
+
+`print()` output becomes `cs_content`.  Unlike a `.catsoop` or `.md` source
+file, output from `content.py` is treated as HTML rather than being converted
+from Markdown.
+
+The usual page context is available, including:
+
+* `cs_form`, containing URL query arguments and POST fields;
+* `cs_user_info` and `cs_username`, describing the current user;
+* `cs_path_info`, the current path as a list beginning with the course name;
+* `cs_url_root` and `cs_course`, for constructing URLs; and
+* modules such as `csm_cslog`, `csm_dispatch`, and `csm_tutor`.
+
+See [Page Rendering and Request Data](COURSE/docs/authoring/rendering) for more
+about `cs_form` and the request lifecycle.
+
+<div class="bs-callout bs-callout-warning">
+Page Python runs inside the CAT-SOOP server process, not in a student-code
+sandbox.  Treat request values as untrusted, escape values inserted into HTML,
+check authorization on the server before reading or changing protected data,
+and do not execute text supplied by a user.
+</div>
+
+<catsoop-section>How `cs_handler` Selects the Response</catsoop-section>
+
+After loading the page, CAT-SOOP reads `cs_handler`.  If the page did not set
+it, CAT-SOOP uses the `default` handler, which renders questions and normal
+course-page behavior.
+
+The selected handler's `handle(context)` function determines what happens
+next.  If it returns ordinary content, CAT-SOOP places that content in the
+normal site template.  If it returns an HTTP response tuple, CAT-SOOP sends
+that response directly without applying the page template.
+
+Common built-in choices are:
+
+<table class="table table-striped">
+<thead><tr><th><code>cs_handler</code></th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>"default"</code></td><td>Normal course pages and question handling</td></tr>
+<tr><td><code>"raw_response"</code></td><td>Return exact text or bytes with a chosen media type</td></tr>
+<tr><td><code>"redirect"</code></td><td>Return an HTTP 302 redirect to <code>redirect_location</code></td></tr>
+<tr><td><code>"passthrough"</code></td><td>Pass through already-produced content without normal question handling</td></tr>
+</tbody>
+</table>
+
+Advanced courses can define a handler at
+`__HANDLERS__/NAME/NAME.py`.  CAT-SOOP looks for a course handler first and
+then for a built-in handler.  Most course endpoints need only
+`raw_response` or `redirect`.
+
+<catsoop-section>Raw Responses and `content_type`</catsoop-section>
+
+The `raw_response` handler reads three principal variables:
+
+```python
+cs_handler = "raw_response"
+content_type = "text/plain; charset=utf-8"
+response = "Generated directly by CAT-SOOP.\n"
+```
+
+It returns `response` without the CAT-SOOP header, breadcrumbs, footer, or page
+template.  A string response is encoded as UTF-8; a bytes response is sent
+unchanged.  If `content_type` is omitted, it defaults to `text/plain`.
+
+The handler supplies HTTP 200, `Content-type`, and `Content-length` headers.
+It can also make the response a browser download:
+
+```python
+cs_handler = "raw_response"
+content_type = "text/csv; charset=utf-8"
+response = "name,score\nAda,1.0\n"
+download = True
+filename = "scores.csv"
+```
+
+`download=True` adds a `Content-Disposition: attachment` header.  `filename`
+controls the suggested filename.
+
+Use a bytes response for binary formats:
+
+```python
+cs_handler = "raw_response"
+content_type = "application/octet-stream"
+response = generated_bytes
+download = True
+filename = "results.bin"
+```
+
+`content_type` is an HTTP media type, not a CAT-SOOP source format.  Typical
+values include `text/html`, `application/json`, `text/csv`, `application/pdf`,
+and `application/zip`.
+
+<catsoop-section>Redirecting a Directory Page</catsoop-section>
+
+A useful course structure is to make a section URL redirect to its calendar
+entry or first child.  For example, a `homework/content.py` page can redirect
+`/COURSE/homework` to the course calendar.  The following pattern generates a
+small raw HTML document containing an immediate browser redirect and a
+fallback link:
+
+```python
+cs_handler = "raw_response"
+content_type = "text/html"
+
+target = "/".join(
+    [cs_url_root] + cs_path_info[:-1] + ["calendar"]
+)
+
+response = f"""<!doctype html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="0; url={target}">
+  <title>Redirecting...</title>
+</head>
+<body>
+  <p>If you are not redirected, <a href="{target}">continue to the calendar</a>.</p>
+</body>
+</html>"""
+```
+
+For `cs_path_info == ["numerical_methods", "homework"]`,
+`cs_path_info[:-1]` is `["numerical_methods"]`, so `target` becomes the
+course's `/numerical_methods/calendar` URL.
+
+This is an HTML-level redirect: the initial response has status 200, and the
+browser acts on the `meta` element.  When a fallback document is unnecessary,
+the built-in redirect handler gives a true HTTP redirect:
+
+```python
+cs_handler = "redirect"
+redirect_location = "/".join(
+    [cs_url_root] + cs_path_info[:-1] + ["calendar"]
+)
+```
+
+That version returns HTTP 302 with a `Location` header.
+
+<catsoop-section>Short Request-Driven Endpoint Patterns</catsoop-section>
+
+A Python page can serve normal HTML for one request and structured data for
+another.  Test the request fields first, set the raw handler for endpoint
+requests, and otherwise print the page.
+
+<catsoop-subsection>Returning JSON</catsoop-subsection>
+
+```python
+import json
+
+is_staff = cs_user_info.get("role") in {"Admin", "Instructor", "TA"}
+
+if "status" in cs_form:
+    cs_handler = "raw_response"
+    content_type = "application/json"
+    response = json.dumps({
+        "ok": is_staff,
+        "message": "ready" if is_staff else "permission denied",
+    })
+else:
+    print("<h2>Report console</h2>")
+    print('<a href="?status=1">Request JSON status</a>')
+```
+
+This dispatch pattern is also useful for an AJAX endpoint.  Always repeat the
+permission check on the server; hiding a browser button does not protect the
+endpoint.
+
+<catsoop-subsection>Returning a CSV Download</catsoop-subsection>
+
+```python
+import csv
+import io
+
+is_staff = cs_user_info.get("role") in {"Admin", "Instructor", "TA"}
+
+if "export" in cs_form and is_staff:
+    output = io.StringIO(newline="")
+    writer = csv.DictWriter(output, fieldnames=["name", "score"])
+    writer.writeheader()
+    writer.writerows([
+        {"name": "Ada", "score": 1.0},
+        {"name": "Grace", "score": 0.9},
+    ])
+
+    cs_handler = "raw_response"
+    content_type = "text/csv; charset=utf-8"
+    response = output.getvalue()
+    download = True
+    filename = "score-report.csv"
+else:
+    print("<h2>Score report</h2>")
+```
+
+For sensitive exports, return no data unless the role or permissions authorize
+the request.  A larger application can keep endpoint logic in helper modules,
+but the helper must update the page context's `cs_handler`, `content_type`, and
+`response` values before page handling begins.
+
+<catsoop-section>Staff-Only Instructor Notes</catsoop-section>
+
+A `.catsoop` page can use a Python block to show instructor material only to
+selected roles.  The same block can add a query-driven button that temporarily
+hides the notes for projecting the page in class.
+
+Put the following near the beginning of the page, inside a page Python block:
+
+```python
+staff_roles = {"Admin", "Instructor", "TA"}
+is_staff = cs_user_info.get("role") in staff_roles
+hide_instructor_notes = "hide_notes" in cs_form
+
+
+def staff_note(note_html):
+    """Print trusted instructor HTML only for staff."""
+    if is_staff and not hide_instructor_notes:
+        print(
+            '<div class="instructor-note" '
+            'style="border-left:4px solid #b00; padding:.5em 1em; '
+            'margin:1em 0; color:#b00;">'
+            '<b>Instructor note.</b> %s</div>' % note_html
+        )
+```
+
+Then print the staff controls and notes:
+
+```python
+if is_staff:
+    if hide_instructor_notes:
+        print(
+            '<form method="get">'
+            '<button type="submit">Show instructor notes</button>'
+            '</form>'
+        )
+    else:
+        print(
+            '<form method="get" style="display:inline">'
+            '<input type="hidden" name="hide_notes" value="1">'
+            '<button type="submit">Hide instructor notes</button>'
+            '</form>'
+        )
+
+staff_note(
+    "<b>Pacing:</b> spend ten minutes on the first example, "
+    "then compare the two solution methods."
+)
+```
+
+Clicking **Hide instructor notes** reloads the same path with
+`?hide_notes=1`.  Because `cs_form` contains query arguments,
+`hide_instructor_notes` becomes true and the helper prints no notes.  This
+setting is not persistent: loading the page without `hide_notes` shows the
+notes again.  The server-side `is_staff` check is what prevents students from
+receiving the note HTML.
+
+If many notes are scattered through a page, call `staff_note(...)` each time
+rather than repeating the role check.  The function accepts trusted
+course-authored HTML; do not pass it unescaped request data.
+
+<catsoop-section>Letting Staff Clear Their Page Submissions</catsoop-section>
+
+During a live demonstration, an instructor may want to reset their own answers
+and run the page again from a clean state.  The default question handler stores
+the current per-question state for a page in the user's `problemstate` log.
+Deleting that one log resets saved answers, scores, attempt counts, locks, and
+other current state for that user and page.
+
+Add the server-side action to the same initial Python block:
+
+```python
+staff_roles = {"Admin", "Instructor", "TA"}
+is_staff = cs_user_info.get("role") in staff_roles
+submissions_cleared = False
+
+if is_staff and "clear_submissions" in cs_form:
+    csm_cslog.delete_log(
+        cs_user_info["username"],
+        cs_path_info,
+        "problemstate",
+    )
+    submissions_cleared = True
+```
+
+Then give staff a POST button:
+
+```python
+if is_staff:
+    print(
+        '<form method="post" style="display:inline" '
+        'onsubmit="return confirm('
+        "'Clear all of your submissions on this page?');"
+        '">'
+        '<input type="hidden" name="clear_submissions" value="1">'
+        '<button type="submit">Clear submissions</button>'
+        '</form>'
+    )
+
+if submissions_cleared:
+    print(
+        '<strong style="color:#b00">Your submissions were cleared.</strong>'
+    )
+```
+
+The complete flow is:
+
+1. the button submits `clear_submissions=1` to the current page with POST;
+2. CAT-SOOP merges that field into `cs_form`;
+3. the server verifies the user's staff role;
+4. `delete_log` removes only that username's `problemstate` for
+   `cs_path_info`; and
+5. the page reloads and the default handler sees an empty current state.
+
+The original activity history in `problemactions` is not deleted, and manual
+grading records in `problemgrades` are separate.  This makes the button useful
+for resetting the visible working state without erasing the audit trail.
+
+<div class="bs-callout bs-callout-warning">
+Deleting <code>problemstate</code> is still a destructive action: the current
+saved responses, scores, and attempt counts cannot be reconstructed from that
+snapshot automatically.  Keep the confirmation prompt, use POST for the
+mutation, check authorization on the server, and make the button's scope
+explicit.  The example resets only the currently authenticated staff member,
+not all instructors and not the class.
+</div>
+
+To place both controls in one staff panel, combine the two forms:
+
+```python
+if is_staff and not hide_instructor_notes:
+    print(
+        '<div class="instructor-controls" '
+        'style="border:2px solid #b00; padding:.6em 1em;">'
+        '<form method="get" style="display:inline">'
+        '<input type="hidden" name="hide_notes" value="1">'
+        '<button type="submit">Hide instructor notes</button>'
+        '</form> '
+        '<form method="post" style="display:inline" '
+        'onsubmit="return confirm('
+        "'Clear all of your submissions on this page?');"
+        '">'
+        '<input type="hidden" name="clear_submissions" value="1">'
+        '<button type="submit">Clear submissions</button>'
+        '</form>'
+        '</div>'
+    )
+```
+
+This version uses ordinary forms rather than requiring a separate JavaScript
+file.  An asynchronous `fetch()` call can provide an in-place status message,
+but the server-side role check and `csm_cslog.delete_log(...)` call remain the
+same.
+
+<catsoop-section>Choosing Between Page Styles</catsoop-section>
+
+Use:
+
+* `content.catsoop` for prose, questions, and occasional page Python;
+* `content.py` when most of the page is generated from Python or the URL acts
+  as an endpoint;
+* the default handler for normal question behavior;
+* `raw_response` for an exact body and media type; and
+* `redirect` for an HTTP 302.
+
+Keep dynamic endpoints small.  Move reusable business logic into a helper
+module, keep request dispatch and response selection visible near the top of
+the page, and test the HTML and non-HTML response paths independently.

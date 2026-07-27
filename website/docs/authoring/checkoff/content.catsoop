@@ -15,7 +15,7 @@ course's queue integration must already be set up, and
 <code>preload.py</code>, for students to request and receive a checkoff.
 </div>
 
-For information about installing and operating the queue, see
+For information about installing and operating the queue, see [catsoop/queue](https://catsoop.org/git/catsoop/queue) or
 [ichuang/catsoop-pyqueue](https://github.com/ichuang/catsoop-pyqueue).
 This page focuses on authoring the CAT-SOOP question.
 

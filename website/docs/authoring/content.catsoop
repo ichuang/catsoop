@@ -15,6 +15,12 @@ source files.
   subsections, includes, page Python, and questions.
 * [Page Rendering and Request Data](CURRENT/rendering) explains mixed Markdown
   and HTML, the rendering pipeline, and request values in `cs_form`.
+* [Images and Other Static Content](CURRENT/static_content) explains
+  `__STATIC__`, images and downloads, and the `CURRENT`, `COURSE`, and `BASE`
+  URL prefixes.
+* [Dynamic Python-Generated Pages](CURRENT/dynamic_pages) explains
+  `content.py`, request-driven output, `cs_handler`, raw responses, redirects,
+  JSON and CSV endpoints, and staff-only page controls.
 * [Defining Course Users](CURRENT/users) explains `__USERS__`, per-user Python
   files, roles, sections, identity fields, and other user metadata.
 
