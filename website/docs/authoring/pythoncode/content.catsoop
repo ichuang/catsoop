@@ -40,6 +40,69 @@ test also gets a fresh execution, so a test should create all of the inputs it
 needs.  Standard output, errors, timing information, and the value of `ans`
 are captured for grading and feedback.
 
+<catsoop-section>What Students See</catsoop-section>
+
+The default `pythoncode` interface presents an ACE code editor followed by its
+available actions:
+
+<figure>
+<img src="CURRENT/pythoncode_example_inputbox.png"
+     alt="A CAT-SOOP pythoncode editor showing Run Code, Save, Submit, and View Answer"
+     style="max-width: 100%; height: auto;">
+<figcaption><em>A <code>pythoncode</code> question as displayed in CAT-SOOP.  This
+screenshot was taken with a staff account, so it includes the staff-only
+explanation above the submission count.  A student sees the same editor and
+allowed buttons, followed by the number of submissions that remain.</em>
+</figcaption>
+</figure>
+
+The buttons have deliberately different effects:
+
+* **Run Code** runs `csq_code_pre` followed by the code currently in the
+  editor, once, in the configured sandbox.  It reports whether the code
+  completed and shows captured standard output or errors.  It does not run
+  `csq_tests`, compare the code with `csq_soln`, assign a score, or consume a
+  submission.
+* **Save** stores the current editor contents as work in progress.  It does not
+  run or grade the code and does not consume a submission.
+* **Submit** performs the graded operation described in The Execution Model
+  above: for each test, CAT-SOOP independently runs the student's code and
+  `csq_soln`, then passes their captured results to the checker.  An accepted
+  Submit action consumes one submission, even when some or all tests fail.
+* **View Answer** displays `csq_soln`.  By default, a student cannot submit
+  again after viewing it.  Set `csq_allow_viewanswer = False` to hide this
+  action, or set `csq_allow_submit_after_answer_viewed = True` when viewing the
+  answer should not lock further submissions.
+
+Buttons can be absent when the student's permissions, the page state, or the
+question's options disallow the corresponding action.  For example,
+`csq_allow_save = False` hides Save.
+
+<catsoop-subsection>Limiting Attempts</catsoop-subsection>
+
+Set `csq_nsubmits` inside a question to give each student a fixed number of
+graded attempts:
+
+```python
+csq_nsubmits = 4
+```
+
+Only successful **Submit** actions count against this limit; Run Code and Save
+do not.  CAT-SOOP updates the message below the buttons after each submission.
+If `csq_nsubmits` is omitted, the question uses `cs_nsubmits_default`, which a
+course author can set in a page or in the course's `preload.py`:
+
+```python
+# Default for questions that do not set csq_nsubmits themselves.
+cs_nsubmits_default = 4
+```
+
+If neither setting is present, the default is infinitely many submissions, as
+shown in the screenshot.  Staff with `submit_all` permission can always submit;
+the staff-only message reports what a student would see.  A course can
+customize the wording by defining
+`csq_nsubmits_message(nsubmits, nused, nleft)`.
+
 <catsoop-section>A Minimal Function</catsoop-section>
 
 This transpose exercise is adapted from the Summer 2026 NumPy introduction:
@@ -566,8 +629,14 @@ The principal question options are:
 * `csq_check_function`: default checker for tests without one.
 * `csq_hint`: post-test hint generator.
 * `csq_npoints`: overall point value.
+* `csq_nsubmits`: maximum number of graded submissions for this question.
+* `csq_nsubmits_message`: optional function for customizing the attempts
+  message.
 * `csq_interface`: `"ace"`, `"textarea"`, or `"upload"`.
 * `csq_rows`, `csq_font_size`: editor appearance.
+* `csq_allow_save`, `csq_allow_viewanswer`: show or hide those actions.
+* `csq_allow_submit_after_answer_viewed`: allow further submissions after a
+  student views `csq_soln`.
 * `csq_always_show_tests`: initially expand detailed results.
 * `csq_test_defaults`: defaults merged into every test.
 * `csq_show_check`: show the overall correct/incorrect icon.
