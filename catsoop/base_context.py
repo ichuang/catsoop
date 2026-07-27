@@ -74,9 +74,27 @@ to CAT-SOOP's information page.
 
 cs_auth_type = "login"
 """
-Special: Which authentication type to use (`'login'` to use a form, `'cert'` to
-read client certificates, `'openid_connect'` to use OpenID Connect, or some
-other value for a course-specific or other custom authentication type).
+Special: Which authentication type to use (`'login'` to use a form, `'cas'` to
+use Central Authentication Service, `'cert'` to read client certificates,
+`'openid_connect'` to use OpenID Connect, or some other value for a
+course-specific or other custom authentication type).
+"""
+
+cs_cas_server = None
+"""
+The public root URL of the CAS server when `cs_auth_type` is `'cas'`, without a
+trailing slash (for example, `'https://login.example.edu/cas'`).
+"""
+
+cs_cas_timeout = 10
+"""
+Maximum number of seconds to wait while validating a CAS service ticket.
+"""
+
+cs_cas_logout_redirect = None
+"""
+URL to which the CAS server should return after logout. If this is `None`,
+CAT-SOOP uses `cs_url_root`.
 """
 
 # Default Page Content

@@ -4,6 +4,9 @@ _(Work toward next release. Currently under development.)_
 
 **ADDED**
 
+* Added support for authentication with a Central Authentication Service (CAS)
+  server
+
 * Added a way to change the `NPROC` rlimit in `csq_sandbox_options`
 
 * Information about the current user's dark mode settings are now available
@@ -2780,4 +2783,3 @@ with any similarity to the current code.
 The original version, used in 6.003 fall 2011, and described in
 <http://dspace.mit.edu/handle/1721.1/77086>.  This version has _very little_ in
 common with later versions.
-

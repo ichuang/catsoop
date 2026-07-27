@@ -1,5 +1,5 @@
 # This file is part of CAT-SOOP
-# Copyright (c) 2011-2019 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
+# Copyright (c) 2011-2026 by The CAT-SOOP Developers <catsoop-dev@mit.edu>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -13,126 +13,72 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-Store ticket, validate ticket, and then return user info if all ok
-"""
+"""Validate a CAS callback and finish the CAT-SOOP login."""
 
-import time
+import html
 import logging
-import requests
-import urllib.parse
-import urllib.request
 
-from lxml import etree
 
 LOGGER = logging.getLogger("cs")
-errors = []
 
 
-def validate_ticket(ticket):
-    redir_url = "%s/_auth/cas/callback" % cs_url_root
-    val_url = (
-        cs_cas_server
-        + "/serviceValidate"
-        + "?service="
-        + urllib.parse.quote(redir_url)
-        + "&ticket="
-        + urllib.parse.quote(ticket)
+# Reload the course context saved before redirecting to CAS. Authentication
+# settings may be defined by the course rather than in global config.py.
+ctx = {}
+load_error = csm_loader.load_global_data(ctx)
+saved_path = list(cs_session_data.get("_cas_path", []))
+saved_course = cs_session_data.get("_cas_course")
+if load_error is None and saved_course is not None:
+    if not saved_path or saved_path[0] != saved_course:
+        saved_path.insert(0, saved_course)
+    ctx["cs_course"] = saved_course
+    ctx["cs_path_info"] = saved_path
+    content_file = csm_dispatch.content_file_location(ctx, saved_path)
+    csm_loader.do_preload(
+        ctx,
+        saved_course,
+        saved_path[1:],
+        ctx,
+        content_file,
     )
-    nretries = 10
-    ret = None
-    LOGGER.error("[auth.cas.validate] using val_url=%s" % val_url)
-    for k in range(nretries):
-        try:
-            # ret = urllib.request.urlopen(val_url).read()
-            ret = requests.get(val_url)
-            if k > 0:
-                LOGGER.error("[auth.cas.validate] Succeeded on try number k=%s" % k)
-            break
-        except Exception as err:
-            errors.append("CAS server rejected token request on try number %s" % k)
-            errors.append(str(err))
-            LOGGER.error(
-                "[auth.cas.validate] failed to sent validation request to cas server val_url=%s"
-                % val_url
-            )
-            LOGGER.error("[auth.cas.validate] FAILED ON TRY %s: err=%s" % (k, str(err)))
-        time.sleep(0.1 * (k+1))
 
-    if ret is None:
-        LOGGER.error("[auth.cas.validate] GIVING UP after %s retries" % k)
-        return None
+try:
+    if load_error is not None:
+        raise RuntimeError(load_error)
+    cas_auth = csm_auth.get_auth_type_by_name(ctx, "cas")
+    result = cas_auth["complete_login"](ctx, cs_session_data, cs_form)
+except Exception:
+    LOGGER.exception("Unexpected error while completing a CAS login")
+    for key in ("_cas_state", "_cas_course", "_cas_path", "cs_query_string"):
+        cs_session_data.pop(key, None)
+    result = {
+        "error": "An unexpected error occurred while completing the CAS login.",
+        "redirect": csm_base_context.cs_url_root,
+        "user": None,
+    }
 
-    # ret = ret.decode("utf8")
-    ret = ret.content.decode("utf8")
-    LOGGER.debug("[auth.cas.validate] cas server returned %s" % ret)
-    if "cas:serviceResponse" not in ret:
-        return None
-    try:
-        xml = etree.fromstring(ret)
-    except Exception as err:
-        LOGGER.error(
-            "[auth.cas.validate] Failed to parse XML response from CAS server, err=%s"
-            % str(err)
-        )
-        xml = None
-    if not xml:
-        return None
-    LOGGER.debug("CAS xml=%s" % xml)
-    cas_info = {}
+csm_session.set_session_data(globals(), cs_sid, cs_session_data)
 
-    def fillin(xpath, field):
-        elem = xml.find(xpath)
-        if elem is not None:
-            cas_info[field] = elem.text
-
-    fillin(".//{http://www.yale.edu/tp/cas}user", "username")
-    fillin(".//{http://www.yale.edu/tp/cas}email", "email")
-    fillin(".//{http://www.yale.edu/tp/cas}mail", "email")
-    fillin(".//{http://www.yale.edu/tp/cas}givenName", "firstname")
-    fillin(".//{http://www.yale.edu/tp/cas}sn", "lastname")
-    if not ('username' in cas_info):
-        if 'email' in cas_info:
-            cas_info['username'] = cas_info['email'].split("@")[0]
-            LOGGER.debug("[auth.cas] missing user in XML, using %s from email %s" % (cas_info['username'],
-                                                                                     cas_info['email']))
-        else:
-            LOGGER.error("[auth_cas] missing user in XML!  cas_info=%s" % str(cas_info))
-
-    LOGGER.debug("CAS cas_info=%s" % str(cas_info))
-    cas_info["cas_ticket"] = ticket
-    if cas_info.get("firstname"):
-        cas_info["name"] = " ".join([cas_info[x] for x in ["firstname", "lastname"]])
-
-    return cas_info
-
-
-ticket = cs_form.get("ticket", None)
-cas_info = validate_ticket(ticket)
-if cas_info:
-    LOGGER.info("[auth.cas.validate] cas server validated cas_info=%s" % cas_info)
-    cs_session_data.update(cas_info)
+if result["error"] is None:
+    user = result["user"]
+    csm_cslog.overwrite_log("_extra_info", [], user["username"], user)
+    redirect_location = result["redirect"]
+    cs_handler = "redirect"
 else:
-    LOGGER.info("[auth.cas.validate] cas server did not validate ticket")
-
-path = [csm_base_context.cs_url_root] + cs_session_data.get("_cas_path", ["/"])
-redirect_location = "/".join(path)
-
-if cs_session_data.get("cs_query_string", ""):
-    redirect_location += "?" + cs_session_data["cs_query_string"]
-
-if not cas_info:
+    retry_separator = "&" if "?" in result["redirect"] else "?"
+    retry_url = "%s%sloginaction=login" % (
+        result["redirect"],
+        retry_separator,
+    )
     cs_handler = "passthrough"
     cs_content_header = "Could Not Log You In"
     cs_content = (
-        'You could not be logged in to the system because of the following error:<br/><font color="red">%s</font><p>Click <a href="%s?loginaction=login">here</a> to try again.'
-        % ("\n".join(errors), redirect_location)
+        "<p>CAT-SOOP could not complete the CAS login:</p>"
+        '<p><font color="red">%s</font></p>'
+        '<p><a href="%s">Try logging in again</a>.</p>'
+        % (
+            html.escape(result["error"]),
+            html.escape(retry_url, quote=True),
+        )
     )
     cs_footer = cs_footer.replace(cs_base_logo_text, csm_errors.error_500_logo)
-
-# we made it! set session data and redirect to original page
-
-csm_session.set_session_data(globals(), cs_sid, cs_session_data)
-csm_cslog.overwrite_log("_extra_info", [], cs_session_data["username"], cas_info)
-LOGGER.info("[auth.cas.validate] redirecting to %s" % redirect_location)
-cs_handler = "redirect"

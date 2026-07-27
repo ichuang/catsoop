@@ -15,7 +15,7 @@ a string indicating which authentication type should be used. The following
 list of authentication types are implemented in CAT-SOOP:
 
 * `cert` -
-* `cas` -
+* `cas` - Login using the Central Authentication Service protocol.
 * `dummy` - All users are automatically logged in with the username specified
             in the variable `cs_dummy_username`.
 * `ldap3` - Supports login using LDAP version 3.
@@ -27,6 +27,68 @@ list of authentication types are implemented in CAT-SOOP:
 **Note:** Login sessions are shared across courses, so a user logged into a
 specific course will also be logged into all other courses in the CAT-SOOP
 instance.
+
+<catsoop-section>Central Authentication Service (CAS)</catsoop-section>
+
+CAT-SOOP can authenticate users through a CAS 2.0 or compatible server. During
+login, CAT-SOOP sends the browser to the server's `/login` endpoint. The server
+returns a one-use service ticket to CAT-SOOP, which validates it through
+`/serviceValidate`.
+
+At minimum, set `cs_auth_type` and `cs_cas_server`. `cs_cas_server` is the
+public root of the CAS application, without a trailing slash:
+
+```python
+cs_auth_type = "cas"
+cs_cas_server = "https://login.example.edu/cas"
+```
+
+These values may be set globally in "config.py" or in a course's "preload.py".
+The callback reloads the saved course path before validating the ticket, so
+course-specific CAS configuration is supported.
+
+CAT-SOOP uses the following callback URL:
+
+```text
+<cs_url_root>/_auth/cas/callback
+```
+
+Each login adds a random `state` query parameter to that URL. The CAS service
+registry must therefore allow the callback URL with a query string. CAT-SOOP
+passes the exact state-bearing service URL to both `/login` and
+`/serviceValidate`.
+
+The following settings are optional:
+
+* `cs_cas_timeout` - Maximum time in seconds to wait while validating a service
+  ticket. The default is 10 seconds and the value must be greater than zero.
+* `cs_cas_logout_redirect` - URL supplied to the CAS `/logout` endpoint as its
+  `service` parameter. The default is `cs_url_root`.
+
+For example:
+
+```python
+cs_auth_type = "cas"
+cs_cas_server = "https://login.example.edu/cas"
+cs_cas_timeout = 5
+cs_cas_logout_redirect = "https://catsoop.example.edu"
+```
+
+The CAS authentication-success response must contain a `user` element. The
+following common optional attributes are recognized:
+
+* E-mail: `email` or `mail`
+* Full name: `displayName`, `cn`, or `name`
+* Separate name components: `givenName` or `firstname`, together with `sn`,
+  `surname`, or `lastname`
+
+If no e-mail address or display name is supplied, CAT-SOOP uses the username
+when other parts of the system request those values.
+
+Production installations should use HTTPS for both `cs_url_root` and
+`cs_cas_server`. Service tickets and returned user attributes are deliberately
+not written to the normal CAT-SOOP log. CAS certificate validation uses
+Python's default trusted certificate authorities.
 
 <catsoop-section>LDAP 3</catsoop-section>
 
@@ -116,4 +178,3 @@ cs_ldap3 = {
 
 cs_ldap3_login_message = "<i>Use the university supplied username/password</i>"
 ```
-
