@@ -1,0 +1,320 @@
+<python>
+cs_content_header = cs_long_name
+</python>
+
+A `pythonic` check function decides how much credit a submitted Python value
+should receive.  It can also return feedback explaining the result.  This is
+useful when equality alone is not the right policy: an answer might need a
+particular type, satisfy several constraints, be numerically close, or earn
+partial credit.
+
+Check functions run after CAT-SOOP has parsed and evaluated the student's
+expression in the configured sandbox.  They receive Python values, not the
+student's original source text.
+
+<tableofcontents/>
+
+<catsoop-section>The Check Function Interface</catsoop-section>
+
+Set `csq_check_function` to a function with two arguments:
+
+```python
+def csq_check_function(submission, solution):
+    ...
+```
+
+`submission` is the value produced by the student's expression, and
+`solution` is `csq_soln`.  For example:
+
+<pre><code class="language-python">&lt;question pythonic&gt;
+csq_name = "positive_even_integer"
+csq_prompt = "Enter a positive, even integer:"
+csq_soln = 2
+
+def csq_check_function(submission, solution):
+    return (
+        isinstance(submission, int)
+        and not isinstance(submission, bool)
+        and submission &gt; 0
+        and submission % 2 == 0
+    )
+&lt;/question&gt;</code></pre>
+
+The checker does not have to use `solution`.  The two-argument signature is
+still required because CAT-SOOP always calls the function as:
+
+```python
+csq_check_function(submission, csq_soln)
+```
+
+The default `pythonic` checker requires the values to have the same type and
+compare equal:
+
+```python
+type(submission) == type(solution) and submission == solution
+```
+
+This type check matters in Python because some differently typed values
+compare equal; for example, `True == 1`.
+
+<catsoop-section>Scores and Messages</catsoop-section>
+
+A custom checker may return any of these forms:
+
+```python
+True                         # full credit
+False                        # no credit
+0.6                          # 60 percent credit
+(0.6, "Nearly there.")       # score and message
+{"score": 0.6, "msg": "..."} # the same result as a mapping
+```
+
+The score is converted to a floating-point number and is normally between
+`0` and `1`.  CAT-SOOP multiplies it by `csq_npoints`.  Thus a score of `0.6`
+on a five-point question contributes three points.
+
+A message supplied in the pair or mapping is displayed below the question
+after the submission is processed.  If the checker returns only a scalar
+score, `csq_msg_function(submission, solution)` can provide the message, but
+returning the score and message together is usually easier to follow.
+
+<catsoop-subsection>Targeted plain-text feedback</catsoop-subsection>
+
+Checking one condition at a time lets the message tell the student what to
+fix:
+
+<pre><code class="language-python">&lt;question pythonic&gt;
+csq_name = "five_probabilities"
+csq_prompt = "Enter five distinct probabilities as a list:"
+csq_soln = [0.1, 0.25, 0.5, 0.75, 1.0]
+csq_npoints = 4
+
+def csq_check_function(submission, solution):
+    if not isinstance(submission, list):
+        return 0, "Enter a Python list."
+    if len(submission) != 5:
+        return 0.25, "The list must contain exactly five values."
+    if not all(isinstance(x, (int, float)) for x in submission):
+        return 0.25, "Every item must be a number."
+    if not all(0 &lt;= x &lt;= 1 for x in submission):
+        return 0.5, "Every number must be between 0 and 1."
+    if len(set(submission)) != len(submission):
+        return 0.75, "The five probabilities must be distinct."
+    return 1, "All constraints are satisfied."
+&lt;/question&gt;</code></pre>
+
+Here the messages describe the first failed condition, and the scores
+implement an explicit partial-credit policy.
+
+<catsoop-subsection>HTML feedback</catsoop-subsection>
+
+The message is processed as HTML, not restricted to plain text.  It can
+contain headings, lists, tables, links, code, math tags, and styled callouts:
+
+<pre><code class="language-python">&lt;question pythonic&gt;
+csq_name = "coordinate"
+csq_prompt = "Enter the point (3, 4) as a tuple:"
+csq_soln = (3, 4)
+
+def csq_check_function(submission, solution):
+    if not isinstance(submission, tuple):
+        return {
+            "score": 0,
+            "msg": (
+                '&lt;div class="bs-callout bs-callout-warning"&gt;'
+                "&lt;b&gt;Use a tuple.&lt;/b&gt; "
+                "Write the point as &lt;code&gt;(x, y)&lt;/code&gt;."
+                "&lt;/div&gt;"
+            ),
+        }
+    if submission != solution:
+        return 0, (
+            "&lt;p&gt;The required point has:&lt;/p&gt;"
+            "&lt;ul&gt;&lt;li&gt;x-coordinate 3&lt;/li&gt;"
+            "&lt;li&gt;y-coordinate 4&lt;/li&gt;&lt;/ul&gt;"
+        )
+    return 1, "&lt;p&gt;&lt;b&gt;Correct.&lt;/b&gt; You entered the expected point.&lt;/p&gt;"
+&lt;/question&gt;</code></pre>
+
+CAT-SOOP processes its supported custom HTML tags in the message as well.  For
+example, a checker can use `<math>` or `<displaymath>` when feedback needs
+typeset mathematics.
+
+Messages are trusted course-author HTML.  Do not interpolate a student value
+directly into them.  Escape it first:
+
+```python
+import html
+
+safe_submission = html.escape(repr(submission))
+message = "<p>Your value was <code>%s</code>.</p>" % safe_submission
+```
+
+Without escaping, text in the submitted value could become active markup in
+the student's browser.
+
+<catsoop-subsection>Images in feedback</catsoop-subsection>
+
+An HTML message can include an image:
+
+<pre><code class="language-python">&lt;question pythonic&gt;
+csq_name = "matrix_shape"
+csq_prompt = "Enter a 2-by-3 nested list:"
+csq_soln = [[0, 0, 0], [0, 0, 0]]
+
+def csq_check_function(submission, solution):
+    correct_shape = (
+        isinstance(submission, list)
+        and len(submission) == 2
+        and all(isinstance(row, list) and len(row) == 3
+                for row in submission)
+    )
+    if not correct_shape:
+        return 0, """
+        &lt;figure&gt;
+          &lt;img src="CURRENT/feedback/two-by-three.png"
+               alt="A rectangle with two rows and three columns"
+               style="max-width: 24rem; width: 100%;"&gt;
+          &lt;figcaption&gt;
+            The outer list needs two rows, each containing three values.
+          &lt;/figcaption&gt;
+        &lt;/figure&gt;
+        """
+    return 1, "Your nested list has the required shape."
+&lt;/question&gt;</code></pre>
+
+For this example, place the image beside the page source at:
+
+```text
+__STATIC__/feedback/two-by-three.png
+```
+
+`CURRENT` is rewritten for feedback just as it is in ordinary page HTML.
+Course-wide images can use a `COURSE/...` URL, and an ordinary `https://...`
+image URL also works.  Always provide meaningful `alt` text, and remember that
+files in `__STATIC__` are publicly accessible.
+
+<catsoop-section>CAT-SOOP's Native Checker Library</catsoop-section>
+
+CAT-SOOP makes its common checker library available in page and preload code
+as `csm_check`.  Each function below is a **factory**: call it to obtain the
+two-argument function assigned to `csq_check_function`.
+
+| Factory | Behavior |
+| --- | --- |
+| `csm_check.equal()` | Uses ordinary Python `submission == solution`. |
+| `csm_check.number_close(absolute_threshold=None, ratio_threshold=None)` | Accepts numbers whose difference is within an absolute threshold, a solution-scaled ratio threshold, or the applicable threshold when both are supplied. With neither threshold, it uses equality. |
+| `csm_check.list_all(f=None)` | Requires equal-length sequences whose corresponding items pass `f`. The default item checker is `equal()`. |
+| `csm_check.list_all_unordered(f=None)` | Compares two collections as unordered lists while preserving duplicate counts. |
+| `csm_check.dict_all(f=None)` | Requires identical keys and compares each pair of values with `f`. |
+| `csm_check.evaled(f=None)` | Applies `ast.literal_eval` to two text values, then compares the resulting objects with `f`. |
+| `csm_check.check_result(f=None)` | Compares the `"result"` fields of two `pythoncode` result records with `f`. It is intended for `pythoncode`, not an ordinary `pythonic` value. |
+
+`equal()` differs slightly from the `pythonic` default: it uses Python
+equality without requiring identical types.  Use a custom wrapper when the
+distinction between values such as `True` and `1` matters.
+
+`evaled()` is primarily useful when another question type supplies strings
+containing Python literals.  A normal raw-mode `pythonic` checker already
+receives evaluated Python objects and usually does not need it.
+
+<catsoop-section>Using and Composing Native Checkers</catsoop-section>
+
+Assign a generated checker directly:
+
+<pre><code class="language-python">&lt;question pythonic&gt;
+csq_name = "measurement"
+csq_prompt = "Enter an estimate of pi:"
+csq_soln = 3.141592653589793
+csq_check_function = csm_check.number_close(
+    absolute_threshold=1e-4
+)
+&lt;/question&gt;</code></pre>
+
+Factories can be nested.  This accepts an ordered list of numbers, comparing
+each item to within \(10^{-6}\):
+
+<pre><code class="language-python">&lt;question pythonic&gt;
+csq_name = "approximate_vector"
+csq_prompt = "Enter the three computed values:"
+csq_soln = [0.25, 0.5, 0.75]
+csq_check_function = csm_check.list_all(
+    csm_check.number_close(absolute_threshold=1e-6)
+)
+&lt;/question&gt;</code></pre>
+
+The same technique works for nested structures:
+
+```python
+close = csm_check.number_close(absolute_threshold=1e-6)
+check_matrix = csm_check.list_all(csm_check.list_all(close))
+check_dictionary = csm_check.dict_all(close)
+```
+
+Native checkers return Boolean results, so they do not supply their own
+messages.  Wrap one when targeted feedback is useful:
+
+<pre><code class="language-python">&lt;question pythonic&gt;
+csq_name = "unordered_observations"
+csq_prompt = "Enter the observations in any order:"
+csq_soln = [1.0, 1.5, 1.5, 2.0]
+
+unordered_close = csm_check.list_all_unordered(
+    csm_check.number_close(absolute_threshold=1e-6)
+)
+
+def csq_check_function(submission, solution):
+    if not isinstance(submission, (list, tuple)):
+        return 0, "Enter a list or tuple."
+    if len(submission) != len(solution):
+        return 0, "Your collection has the wrong number of observations."
+    if unordered_close(submission, solution):
+        return 1, "All observations are present."
+    return 0, (
+        "The order may differ, but every value and duplicate "
+        "must still be present."
+    )
+&lt;/question&gt;</code></pre>
+
+<catsoop-section>Where to Define Reusable Checkers</catsoop-section>
+
+A checker used once can live inside its question block.  A checker shared by
+several questions on one page can be defined in a page-level
+<code>&lt;python&gt;</code> block before those questions.
+
+For a checker used throughout a course, define it in the course's
+`preload.py`:
+
+```python
+check_close = csm_check.number_close(absolute_threshold=1e-6)
+check_close_list = csm_check.list_all(check_close)
+```
+
+Descendant pages can then assign `check_close` or `check_close_list` directly.
+Use a descriptive name that communicates both the accepted data structure and
+the comparison policy.
+
+If a checker grows into a substantial library, move it to a separate Python
+file and load it from `preload.py`.  If it also needs a new input interface or
+special rendering behavior, it may be time to implement a
+[custom question type](COURSE/docs/extending/qtypes) rather than continuing to
+expand one check function.
+
+<catsoop-section>Checklist</catsoop-section>
+
+When writing a checker:
+
+* accept `(submission, solution)` even if the solution is not used;
+* validate types before applying operations such as `len`, subtraction, or
+  iteration;
+* return a score from `0` to `1`, with an optional message;
+* state partial-credit rules explicitly;
+* return focused feedback without revealing the full solution prematurely;
+* escape student-controlled values before placing them in HTML;
+* add `alt` text to feedback images;
+* test correct answers, common mistakes, boundary values, and malformed
+  values; and
+* keep expensive or reusable domain logic outside the question block.
+
+For the surrounding evaluation and rendering behavior, return to
+[The `pythonic` Question Type](CURRENT/..).

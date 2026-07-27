@@ -82,6 +82,8 @@ A check function may return:
 * `{"score": score, "msg": message}`.
 
 The score is multiplied by `csq_npoints`, which defaults to `1`.
+See [Custom Check Functions](CURRENT/check_functions) for detailed examples,
+CAT-SOOP's native checker library, and rich HTML feedback.
 
 `csq_input_check` receives the unevaluated, stripped response.  It should
 return `None` to accept it, or a message to reject it:
